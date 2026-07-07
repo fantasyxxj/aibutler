@@ -201,7 +201,7 @@ aibutler/
 
 | Tool | What it does |
 |---|---|
-| `open_persona` | User says "open the data analyst" → load persona in a new tab |
+| `open_persona` | User says "open Xiaohua" → load persona in a new tab |
 | `create_persona` | User says "make me a translator" → create dir + register + scaffold memory |
 | `ask_persona` | Ask another persona a question directly, visible in both UIs |
 
