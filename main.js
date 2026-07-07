@@ -232,6 +232,13 @@ function createWindow() {
     width: 980, height: 780, title: '全能管家', backgroundColor: '#1e1e28',
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false },
   });
+  // http/https 链接左键点击 → 交给系统浏览器打开 (不在 butler 内开新窗口)
+  mainWin.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:\/\//i.test(url)) {
+      shell.openExternal(url);
+    }
+    return { action: 'deny' };
+  });
   // 关闭主窗口前确认 (防手滑; 会话已落盘重启可续, 但确认防意外)
   let _confirmedQuit = false;
   mainWin.on('close', (e) => {
@@ -249,7 +256,55 @@ function createWindow() {
   mainWin.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 }
 
+// 检查 Claude Code 是否已登录 (走 keychain), 未登录弹引导对话框
+function ensureClaudeAuth() {
+  const { spawnSync } = require('child_process');
+  try {
+    const r = spawnSync('claude', ['auth', 'status'], { encoding: 'utf-8', timeout: 5000 });
+    const out = (r.stdout || '') + (r.stderr || '');
+    // status 输出含 "Logged in" 或类似即视为已登录; 未登录时通常提示 "Not logged in" 或非零 exit
+    if (r.status === 0 && /logged in|authenticated|已登录/i.test(out)) return true;
+  } catch (_) {}
+  // 未登录 — 弹对话框引导用户手动登录
+  const choice = dialog.showMessageBoxSync({
+    type: 'info',
+    title: '需要登录 Claude Code',
+    message: '首次使用 butler 需要先登录 Claude Code',
+    detail: '打开系统终端 (Terminal.app), 运行:\n\n    claude auth login\n\n浏览器会跳转到 claude.ai 授权页面, 完成授权后回到终端, 然后重启 butler。\n\n点击"打开终端"会自动帮你启动 Terminal 并把命令拷到剪贴板。',
+    buttons: ['打开终端', '我已登录, 继续启动', '退出'],
+    defaultId: 0, cancelId: 2,
+  });
+  if (choice === 2) { app.quit(); return false; }
+  if (choice === 0) {
+    // 拷命令到剪贴板 + 打开 Terminal
+    const { clipboard } = require('electron');
+    clipboard.writeText('claude auth login');
+    spawnSync('open', ['-a', 'Terminal']);
+    dialog.showMessageBoxSync({
+      type: 'info',
+      title: '登录中',
+      message: '命令已复制到剪贴板 · Terminal 已打开',
+      detail: '在 Terminal 里粘贴 (Cmd+V) 运行 claude auth login, 授权完成后点击"确定"继续。',
+      buttons: ['确定'],
+    });
+  }
+  // 再检一次 (choice=1 或 choice=0 用户点了确定): 若还是未登录就再问一次
+  const r2 = spawnSync('claude', ['auth', 'status'], { encoding: 'utf-8', timeout: 5000 });
+  const out2 = (r2.stdout || '') + (r2.stderr || '');
+  if (r2.status === 0 && /logged in|authenticated|已登录/i.test(out2)) return true;
+  dialog.showMessageBoxSync({
+    type: 'warning',
+    title: '未检测到登录',
+    message: '仍未登录 Claude Code',
+    detail: '继续启动 butler, 但会话可能无法正常工作。可稍后在 Terminal 里跑 claude auth login 再重启 butler。',
+    buttons: ['继续启动'],
+  });
+  return false;
+}
+
 app.whenReady().then(() => {
+  // 未登录 Claude Code → 引导登录 (返回 false 时用户可能已选退出, 但为兼容仍继续)
+  ensureClaudeAuth();
   // 恢复上次打开的标签(至少有默认人格)
   const dirs = loadOpenTabs().filter((d) => { try { return fs.existsSync(d); } catch (_) { return false; } });
   const toOpen = dirs.length ? dirs : [DEFAULT_HOME];
@@ -342,6 +397,19 @@ ipcMain.handle('open-path', async (_e, { path: p, reveal } = {}) => {
     if (reveal) { shell.showItemInFolder(abs); return { ok: true }; }
     const err = await shell.openPath(abs);   // 返回空串=成功, 非空=错误信息
     return err ? { ok: false, error: err } : { ok: true };
+  } catch (e) { return { ok: false, error: String(e && e.message || e) }; }
+});
+
+// 用指定 app 打开文件 (spawn `open -a "<app>" <path>` · macOS 专用)。
+// 用途: 右键菜单让用户选 "用 VSCode 打开" / "用 Chrome 打开" 等, 绕开系统关联乱套。
+ipcMain.handle('open-with-app', async (_e, { path: p, app } = {}) => {
+  try {
+    if (!p || !app) return { ok: false, error: '缺路径或 app' };
+    const abs = path.resolve(p.startsWith('~/') ? path.join(require('os').homedir(), p.slice(2)) : p);
+    if (!fs.existsSync(abs)) return { ok: false, error: '路径不存在' };
+    const { spawn } = require('child_process');
+    spawn('open', ['-a', app, abs], { detached: true, stdio: 'ignore' }).unref();
+    return { ok: true };
   } catch (e) { return { ok: false, error: String(e && e.message || e) }; }
 });
 

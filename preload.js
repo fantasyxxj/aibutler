@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('butler', {
   openPersona: () => ipcRenderer.invoke('open-persona'),             // 选目录 → { ok, meta:{sid,persona,usage} }
   closeSession: (sid) => ipcRenderer.invoke('close-session', { sid }),
   openPath: (p, reveal) => ipcRenderer.invoke('open-path', { path: p, reveal: !!reveal }),  // 点文件路径→默认程序打开/Finder定位
+  openWithApp: (p, app) => ipcRenderer.invoke('open-with-app', { path: p, app }),           // 用指定 app 打开(如 "Visual Studio Code" / "Google Chrome")
   listPersonas: () => ipcRenderer.invoke('list-personas'),                    // { personas:[{id,name,homeDir,isButler,open}] }
   openPersonaRef: (ref) => ipcRenderer.invoke('open-persona-ref', { ref }),   // 按名字/id/目录打开已登记人格
   createPersonaUI: (spec) => ipcRenderer.invoke('create-persona-ui', spec),   // 管理 UI 建人格 { name, homeDir?, wakePhrase?, isButler? }

@@ -445,7 +445,7 @@ window.butler.onRegistryChanged && window.butler.onRegistryChanged(async () => {
   }
 });
 
-// 点击消息里的文件路径链接 → 默认程序打开; Cmd/Ctrl+点 或 右键 → Finder 里定位
+// 点击消息里的文件路径链接 → 默认程序打开; Cmd/Ctrl+点 → Finder 里定位
 function openFilepath(e, reveal) {
   const a = e.target.closest && e.target.closest('a.filepath');
   if (!a) return;
@@ -454,7 +454,99 @@ function openFilepath(e, reveal) {
   if (p && window.butler.openPath) window.butler.openPath(p, reveal);
 }
 stage.addEventListener('click', (e) => openFilepath(e, e.metaKey || e.ctrlKey));
-stage.addEventListener('contextmenu', (e) => openFilepath(e, true));
+
+// 右键 → 弹自定义菜单让用户选打开方式(绕开系统关联乱套 / CC 拦截)
+function showPathContextMenu(e, p) {
+  document.querySelectorAll('.filepath-menu').forEach((el) => el.remove());   // 清老菜单
+  const ext = (p.split('.').pop() || '').toLowerCase();
+  // 按后缀智能排序 · html 优先 Chrome, 代码/md 优先 VSCode
+  const isHtml = ext === 'html' || ext === 'htm';
+  const items = isHtml ? [
+    { label: '🌐 用 Chrome 打开',       act: () => window.butler.openWithApp(p, 'Google Chrome') },
+    { label: '📝 用 VSCode 打开',       act: () => window.butler.openWithApp(p, 'Visual Studio Code') },
+    { label: '📂 在 Finder 中显示',     act: () => window.butler.openPath(p, true) },
+    { label: '📎 复制路径',             act: () => navigator.clipboard.writeText(p) },
+    { label: '⚙️ 用系统默认程序打开',   act: () => window.butler.openPath(p, false) },
+  ] : [
+    { label: '📝 用 VSCode 打开',       act: () => window.butler.openWithApp(p, 'Visual Studio Code') },
+    { label: '🌐 用 Chrome 打开',       act: () => window.butler.openWithApp(p, 'Google Chrome') },
+    { label: '📂 在 Finder 中显示',     act: () => window.butler.openPath(p, true) },
+    { label: '📎 复制路径',             act: () => navigator.clipboard.writeText(p) },
+    { label: '⚙️ 用系统默认程序打开',   act: () => window.butler.openPath(p, false) },
+  ];
+  const menu = document.createElement('div');
+  menu.className = 'filepath-menu';
+  Object.assign(menu.style, {
+    position: 'fixed', left: e.clientX + 'px', top: e.clientY + 'px',
+    background: '#2b2b36', border: '1px solid #444', borderRadius: '6px',
+    padding: '4px 0', minWidth: '200px', zIndex: 99999,
+    boxShadow: '0 4px 16px rgba(0,0,0,0.4)', fontSize: '13px', color: '#e0e0e0',
+    userSelect: 'none',
+  });
+  items.forEach((it) => {
+    const row = document.createElement('div');
+    row.textContent = it.label;
+    Object.assign(row.style, { padding: '6px 14px', cursor: 'pointer' });
+    row.addEventListener('mouseenter', () => row.style.background = '#3a3a48');
+    row.addEventListener('mouseleave', () => row.style.background = 'transparent');
+    row.addEventListener('click', () => { it.act(); menu.remove(); });
+    menu.appendChild(row);
+  });
+  // 分隔线 + 路径提示
+  const sep = document.createElement('div');
+  Object.assign(sep.style, { borderTop: '1px solid #444', margin: '4px 0' });
+  menu.appendChild(sep);
+  const info = document.createElement('div');
+  info.textContent = p;
+  Object.assign(info.style, {
+    padding: '4px 14px 6px', fontSize: '11px', color: '#888',
+    wordBreak: 'break-all', maxWidth: '400px',
+  });
+  menu.appendChild(info);
+  document.body.appendChild(menu);
+  // 点别处关掉菜单
+  const close = (ev) => {
+    if (!menu.contains(ev.target)) { menu.remove(); document.removeEventListener('mousedown', close); }
+  };
+  setTimeout(() => document.addEventListener('mousedown', close), 0);
+}
+// 全局 contextmenu (capture) — md.js 里 href=#, 真路径在 title 或 dataset 里
+document.body.addEventListener('contextmenu', (e) => {
+  const a = e.target.closest && e.target.closest('a');
+  if (a) {
+    // http/https URL 让 Electron 默认右键菜单接管 (复制链接/新标签打开)
+    const href = a.getAttribute('href') || '';
+    if (/^https?:\/\//i.test(href)) return;
+    // 打印所有 dataset + 关键属性 dbg
+    console.log('[ctxmenu] a.dataset=', Object.assign({}, a.dataset), 'title=', a.title, 'text=', a.textContent);
+  }
+  let p = null;
+  if (a) {
+    // 尝试多种源提取路径
+    p = a.dataset && (a.dataset.path || a.dataset.href || a.dataset.url);
+    if (!p) p = a.title;   // md.js 常把真链接放 title
+    if (!p) {
+      let href = a.getAttribute('href') || '';
+      if (href.startsWith('file://')) p = decodeURIComponent(href.replace(/^file:\/\//, ''));
+      else if (href.startsWith('/')) p = href;
+    }
+    // 兜底: text 本身像绝对路径 (含 / 且大概率是路径)
+    if (!p) {
+      const txt = (a.textContent || '').trim();
+      if (txt.startsWith('/')) p = txt;
+    }
+  }
+  // 用户选中的文本本身就是路径
+  if (!p) {
+    const sel = String(window.getSelection() || '').trim();
+    if (sel.startsWith('/') && sel.length < 500) p = sel;
+  }
+  console.log('[ctxmenu] extracted path=', p);
+  if (!p) return;
+  e.preventDefault();
+  e.stopPropagation();
+  showPathContextMenu(e, p);
+}, true);
 
 // 顶栏显示活动标签的人格 + 目录
 function showPersona(p) {
