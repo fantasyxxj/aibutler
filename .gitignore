@@ -1,0 +1,38 @@
+# deps / build
+node_modules/
+dist/
+out/
+
+# os / editor
+.DS_Store
+*.swp
+*.log
+
+# 内部设计稿 / 索引 (不开源)
+CODE_INDEX.md
+spec_*.md
+
+# 实验脚本 / wakeloop 尝试 (不开源)
+test-*.js
+wakeloop.js
+
+# 本地运行时状态 / 会话 (含对话内容, 绝不提交)
+.session.json
+.session.*
+*.migrated
+.opentabs.json
+
+# 人格实例 & 记忆 (含个人对话历史, 完全私有; 首启会自动生成骨架)
+memory/
+personas/
+personas.json
+personas.json.bak
+
+# 人格私有配置 (含 bot_token / chat_ids / 唤醒指令)
+tg.json
+mcp.json
+wake.txt
+.env
+.env.*
+**/tg_inbox.jsonl
+**/.bothub_offset.json

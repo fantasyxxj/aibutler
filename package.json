@@ -1,0 +1,16 @@
+{
+  "name": "butler",
+  "version": "0.0.1",
+  "description": "全能管家 — 独立聊天窗口 (Electron + Claude Agent SDK), 复用订阅认证, 真 usage 上下文条 + 自主压缩",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.201",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0"
+  }
+}

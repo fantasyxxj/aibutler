@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>全能管家</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header id="topbar">
+    <div class="brand">🤵 <span id="personaName">全能管家</span>
+      <span class="sub" id="personaDir" title="当前人格的目录(记忆体所在)">—</span>
+    </div>
+    <div class="ctxwrap" title="上下文占用(真 usage)">
+      <div class="ctxbar"><div id="ctxfill"></div></div>
+      <div id="ctxlabel">— %</div>
+    </div>
+    <button id="compactBtn" title="压缩上下文: 浓缩成交接摘要并重启会话">压缩</button>
+  </header>
+
+  <!-- 标签栏: 每个标签=一个人格文档, ＋=新建/打开人格 -->
+  <nav id="tabbar">
+    <div id="tabs"></div>
+    <button id="newTabBtn" title="新建/打开人格标签(选目录: 空=新建, 已有=续上)">＋</button>
+  </nav>
+
+  <!-- 舞台: 每个标签一个面板, 仅活动标签可见 -->
+  <main id="stage"></main>
+
+  <div id="attachstrip"></div>
+
+  <footer id="inputbar">
+    <button id="attachBtn" title="加图片(也可直接粘贴截图/拖拽)">📎</button>
+    <textarea id="input" rows="1" placeholder="跟管家说点什么…  (Enter 发送 / Shift+Enter 换行 / 可粘贴截图)"></textarea>
+    <button id="sendBtn">发送</button>
+    <input id="fileInput" type="file" accept="image/*" multiple hidden />
+  </footer>
+
+  <script src="md.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

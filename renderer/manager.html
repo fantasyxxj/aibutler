@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <title>人格管理</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="manager-body">
+  <h1>🧑‍🤝‍🧑 人格管理</h1>
+  <div id="list"></div>
+
+  <div class="m-form">
+    <label>新建人格</label><div></div>
+    <label>名字</label><input id="f-name" placeholder="如: 小画" />
+    <label>目录</label>
+    <div style="display:flex;gap:6px;">
+      <input id="f-dir" placeholder="留空 = butler/personas/&lt;名字&gt;" style="flex:1"/>
+      <button id="f-choose" class="m-btn">选…</button>
+    </div>
+    <label>唤醒语</label><textarea id="f-wake" placeholder="留空 = 起床啦{名字}, 载入记忆续线程"></textarea>
+    <div></div><div class="m-checkline"><input type="checkbox" id="f-butler"/><label for="f-butler">设为管家(星型中心, 有开/建人格能力; 全局唯一, 会顶替当前管家)</label></div>
+    <div></div><div class="m-actions"><button id="f-create" class="m-btn primary">创建并打开</button></div>
+  </div>
+
+  <div id="toast" class="m-toast"></div>
+
+  <script src="manager.js"></script>
+</body>
+</html>
