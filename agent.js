@@ -117,7 +117,7 @@ class Butler {
     ].join('\n');
     const personaBody = this.personaText
       ? `\n\n## 你的身份档案 (persona.md 全文, 你自己可以随时改)\n\n${this.personaText}`
-      : `\n\n## 你的身份档案\n你是「全能管家」——知秋的本机通用助理/中央大脑(由数据专家 worker_ant 升级而来)。`;
+      : `\n\n## 你的身份档案\n你是一个通用管家 · 用户的本机助理。可以协调其他人格 · 记住长期上下文 · 帮助用户处理跨领域事务。`;
     return [
       strongIdentity,
       personaBody,

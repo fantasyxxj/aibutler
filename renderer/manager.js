@@ -41,9 +41,9 @@ function makeEditPanel(p) {
           <option value="native" ${(tg.mode||'')==='native'?'selected':''}>native — butler JS 直抓 (推荐)</option>
         </select>
       </div>
-      <div class="e-line"><label>bot_token</label><input type="password" class="pt-token" placeholder="从 @BotFather /token 或 dc-parent tg_bot.config 复制" value="${esc(tg.bot_token)}"/></div>
+      <div class="e-line"><label>bot_token</label><input type="password" class="pt-token" placeholder="从 @BotFather /token 获取" value="${esc(tg.bot_token)}"/></div>
       <div class="e-line"><label>in_file</label><input class="pt-in" placeholder="留空 = 默认 memoryDir/tg_inbox.jsonl (v2 兜底副本, 收发已全走 butler JS)" value="${esc(tg.in_file)}"/></div>
-      <div class="e-line"><label>chat_ids</label><input class="pt-chats" placeholder="8184109272,-5376962870 (逗号分隔, 空=全)" value="${(tg.chat_ids||[]).join(',')}"/></div>
+      <div class="e-line"><label>chat_ids</label><input class="pt-chats" placeholder="TG user_id 或群 id, 逗号分隔, 空=全接受" value="${(tg.chat_ids||[]).join(',')}"/></div>
 
       <div class="e-plugin-head" style="margin-top:8px">🔌 bothub / agent-bus (butler 直连, 可多 endpoint) ${st.bothub && st.bothub.running ? '<span class="pi-live">● 运行中</span>' : (st.bothub && st.bothub.mode==='native' ? '<span class="pi-dead">○ 已启用未运行</span>' : '<span class="pi-off">— 未启用</span>')}</div>
       <div class="e-line"><label>模式</label>
@@ -63,9 +63,9 @@ function makeEditPanel(p) {
   function renderEndpoint(ep, idx) {
     const el = document.createElement('div'); el.className = 'pb-ep'; el.dataset.idx = idx;
     el.innerHTML = `
-      <div class="e-line"><label>#${idx} url</label><input class="pbe-url" placeholder="http://54.255.236.159:8012/api/v1/agent-bus" value="${esc(ep.url)}"/></div>
-      <div class="e-line"><label>agent</label><input class="pbe-agent" placeholder="worker_ant" value="${esc(ep.agent)}"/></div>
-      <div class="e-line"><label>token</label><input type="password" class="pbe-token" placeholder="Bearer token (从 agent_bus_send.py 的 get_token 源)" value="${esc(ep.token)}"/></div>
+      <div class="e-line"><label>#${idx} url</label><input class="pbe-url" placeholder="https://your-agent-bus.example.com/api/v1/agent-bus" value="${esc(ep.url)}"/></div>
+      <div class="e-line"><label>agent</label><input class="pbe-agent" placeholder="my_agent" value="${esc(ep.agent)}"/></div>
+      <div class="e-line"><label>token</label><input type="password" class="pbe-token" placeholder="Bearer token" value="${esc(ep.token)}"/></div>
       <div class="e-line"><label></label><button class="m-btn danger pbe-del" type="button">删</button></div>`;
     el.querySelector('.pbe-del').addEventListener('click', () => { el.remove(); });
     return el;
