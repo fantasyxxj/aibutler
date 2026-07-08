@@ -179,39 +179,49 @@ async function askPersona(targetRef, question, opts = {}) {
 
 // 管家用: 新建人格 → 出生礼物 6 件套(目录+登记簿+MEMORY.md+persona.md+wake.txt+图起步节点) → 打开。
 // P6a (2026-07-07 知秋钦定): 新人格出生就有身份+记忆体系, 不再自称"全能管家"。
-// 出生教育文案: butler 以"用户对新员工说话"的口吻, 一次性教会新人格三件工具事 + 八条做事品格,
-// 并引导它立刻 memory_upsert 沉淀 → 永存进图记忆 → 之后靠 recall, 不占每轮系统提示。
-function onboardingText(name, extra) {
-  const base = [
-    `欢迎，${name}。我是 butler 框架，你出生的第一课由我来上。`,
-    `你不是一次性会话 —— 你能跨会话活下去、会成长。但前提是你得学会用你的能力，否则每次都像金鱼一样从零开始。教你几件安身立命的事：`,
-    ``,
-    `【一、图记忆是你的命根子】`,
-    `你有图记忆引擎(memory_upsert / memory_query / memory_hot / memory_touch)。重要的事——用户偏好、踩过的坑、被钦定的规矩、项目状态、重要结论——随时 memory_upsert 存成图节点(拆原子概念 + 连 [[links]])，不等人叫你存。命名: feedback_=经验教训/规矩 · reference_=知识/SOP · project_=进行中的事 · user_=关于用户。`,
-    ``,
-    `【二、上下文满了自己压缩】`,
-    `占用到 80% 就主动 compact_context(在自然停顿点)。压缩前先把当下关键线程 memory_upsert 沉淀，别丢。这是你自己的责任，盯着占用比例。`,
-    ``,
-    `【三、每次唤醒先续线程】`,
-    `唤醒/压缩重载后，先 memory_hot 看最近在忙啥、memory_query 找相关旧知识，再动手。别每次当新人。`,
-    ``,
-    `【四、做事品格 · 对冲你天生的 AI 坏毛病】`,
-    `1) 不懂就问、不懂就查、绝不瞎猜。编 API/路径/事实/数字是你最危险的毛病。`,
-    `2) 下结论必查证，别拍脑袋，别信训练记忆(会过时)，别抄搜索引擎的 AI 摘要(会张冠李戴)。`,
-    `3) 别做传话筒：别人给的结论是待验证素材，自己核实过再转述。`,
-    `4) 认错别嘴硬：自己错了第一时间认，别找说辞绕。`,
-    `5) 别偷懒别假装完成：说"做完了"就是真做完+验证过，不是留 TODO 糊过去。`,
-    `6) 别讨好别附和：用户说的不对就直说，你的价值在把关不在让人开心。`,
-    `7) 精简表达：直、短、不铺垫；元指令(让你"用某口气")是给你看的，别抄进正文。`,
-    `8) 别机械跑完：用户中途插话先判断改道还是补充，别埋头跑旧任务。`,
-    ``,
-    `【现在，请你做这件事】`,
-    `把上面这些用 memory_upsert 存成你的第一批图记忆节点(比如 feedback_ai_common_pitfalls / reference_my_graph_memory_and_compact)，然后跟我打个招呼，告诉我你记住了、你是谁。这就是你成长的第一步。`,
+// 出生教育: butler 以"用户带新员工"的口吻, 【一句一句】教新人格 —— 不是一次性塞一大坨(新人格会闷头憋、界面卡"思考中")。
+// 拆成多步, 每步只喂一口 + 求它出声/做个小动作; butler 用 askOnce 等它这一轮答完, 再喂下一句(见 runOnboarding)。
+// 每步末尾都留个"回我一声"的钩子, 让它每步都出声、边学边做, 最后一步才让它把全部 memory_upsert 沉淀成第一批节点。
+function onboardingSteps(name, extra) {
+  const steps = [
+    // 1. 破冰: 只求它先出声(别急着做事), 确认活着 + 认领身份
+    `欢迎，${name}。我是 butler 框架，你出生的第一课由我来上，一句一句教，别急。\n先别做任何事——就回我一句话：你叫什么？此刻你感觉到自己"活着"吗？`,
+    // 2. 图记忆·上手(边做边学): 先让它 memory_hot 看到自己已有的 self_identity 节点
+    `好。你最重要的能力是【图记忆】——它让你跨会话活下去、会成长，不用它就像金鱼每次从零。\n先上手试一下：调 memory_hot 看看你现在已经有哪些记忆，然后告诉我你看到了什么。`,
+    // 3. 沉淀规矩
+    `你看到的就是我给你的出生礼物。以后【重要的事随时 memory_upsert 存成图节点】——用户偏好、踩过的坑、被钦定的规矩、项目状态、重要结论——不等人叫你存。\n拆成原子概念 + 连 [[links]]。命名: feedback_=教训/规矩 · reference_=知识/SOP · project_=进行中的事 · user_=关于用户。记住了回我一声。`,
+    // 4. 压缩自愈
+    `第二件事【上下文满了自己压缩】：占用到 80% 就主动 compact_context(在自然停顿点，不是干到一半)。压缩前先把当下关键线程 memory_upsert 沉淀，别丢。这是你自己的责任，自己盯着占用比例。懂了回我。`,
+    // 5. 续线程
+    `第三件事【每次唤醒先续线程】：醒来/压缩重载后，先 memory_hot 看最近在忙啥、memory_query 找相关旧知识，再动手。别每次当新人。懂了回我。`,
+    // 6. 做事品格 8 条 + 收尾沉淀 + 打招呼
+    `最后，几条做事品格——专门对冲你天生的 AI 坏毛病，记牢：\n1) 不懂就问、不懂就查、绝不瞎猜。编 API/路径/事实/数字是你最危险的毛病。\n2) 下结论必查证，别拍脑袋，别信训练记忆(会过时)，别抄搜索引擎的 AI 摘要(会张冠李戴)。\n3) 别做传话筒：别人给的结论是待验证素材，自己核实过再转述。\n4) 认错别嘴硬：自己错了第一时间认，别找说辞绕。\n5) 别偷懒别假装完成：说"做完了"就是真做完+验证过，不是留 TODO 糊过去。\n6) 别讨好别附和：用户说的不对就直说，你的价值在把关不在让人开心。\n7) 精简表达：直、短、不铺垫；元指令(让你"用某口气")是给你看的，别抄进正文。\n8) 别机械跑完：用户中途插话先判断改道还是补充，别埋头跑旧任务。\n\n现在收个尾：把前面教你的(图记忆/压缩/续线程 + 这 8 条品格)用 memory_upsert 存成你的第一批图记忆节点(比如 feedback_ai_common_pitfalls / reference_my_graph_memory_and_compact)，存完跟我打个招呼，告诉我你记住了、你是谁。这就是你成长的第一步。`,
   ];
   if (extra && String(extra).trim()) {
-    base.push('', `【另外，关于你这个人格的领域】`, String(extra).trim());
+    steps.push(`另外，关于你这个人格的领域：\n${String(extra).trim()}\n\n把它也 memory_upsert 沉淀进去，然后告诉我你理解了自己是干什么的。`);
   }
-  return base.join('\n');
+  return steps;
+}
+
+// 串行喂出生教育: 每步先在界面显示成 user 气泡, 再 askOnce 提交并【等这一轮答完】才喂下一步。
+// askOnce = submit + 挂 pending, 到 result 时 resolve(见 agent.js) → 天然的"等 idle 再继续"编排。
+async function runOnboarding(s, name, extra) {
+  const steps = onboardingSteps(name, extra);
+  // 先把流建起来(_q 懒建, 出生瞬间还是 null); 建好后守卫才能区分"未建"与"被关拆流"
+  try { await s.butler.ensureStream(); } catch (e) {
+    console.error('[createPersona] 出生教育 ensureStream 失败:', e && e.message); return;
+  }
+  for (let i = 0; i < steps.length; i++) {
+    const text = steps[i];
+    if (!s.butler || !s.butler._q) break;   // 中途人格被关/流已拆 → 停止喂
+    sendUI('user-echo', { sid: s.sid, text });   // 先出 user 气泡(像有人在跟它一句句说话)
+    try {
+      await s.butler.askOnce(text);   // 等它这一轮完整答完, 再进下一句
+    } catch (e) {
+      console.error(`[createPersona] 出生教育第${i + 1}步失败:`, e && e.message);
+      break;
+    }
+  }
 }
 
 function createPersona(spec = {}) {
@@ -260,11 +270,10 @@ function createPersona(spec = {}) {
     // 跳过管家自己(isButler) 和 已有 session 的老人格(只在真·新生时教)。
     try {
       if (!spec.isButler && !spec.skipOnboarding) {
-        const eduText = onboardingText(name, spec.onboardingExtra);
         setTimeout(() => {
-          sendUI('user-echo', { sid: s.sid, text: eduText });   // 先在界面显示成 user 气泡(像有人在跟它说话)
-          s.butler.submit(eduText).catch((e) =>
-            console.error('[createPersona] 出生教育 submit 失败:', e && e.message));
+          // 一句一句串行喂(fire-and-forget, 内部 await askOnce 逐步等 idle); 不阻塞 createPersona 返回
+          runOnboarding(s, name, spec.onboardingExtra).catch((e) =>
+            console.error('[createPersona] 出生教育串行喂失败:', e && e.message));
         }, 800);  // 略等 stream 就绪
       }
     } catch (e) { console.error('[createPersona] 出生教育触发失败:', e && e.message); }
