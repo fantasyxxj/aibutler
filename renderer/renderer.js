@@ -316,6 +316,13 @@ async function doCompact() {
 function markUnread(tab) {
   if (tab.sid !== activeSid) { tab.unread = true; tab.tabEl.classList.add('unread'); }
 }
+window.butler.onUserEcho((sid, text) => {   // 程序注入的消息(如 butler 出生教育)显示成 user 气泡
+  const tab = tabs.get(sid);
+  if (!tab) return;
+  addMsgTo(tab, 'user', text);
+  maybeScroll(tab);
+  markUnread(tab);
+});
 window.butler.onChunk((sid, t) => {
   const tab = tabs.get(sid);
   if (!tab) return;

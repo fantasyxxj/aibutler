@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld('butler', {
   onPersonaOpened: (cb) => ipcRenderer.on('persona-opened', (_e, d) => cb(d.meta)),  // 管家开/建人格 → 主动加标签
   onRegistryChanged: (cb) => ipcRenderer.on('registry-changed', () => cb()),  // 登记簿变了 → 列表刷新
 
+  onUserEcho: (cb) => ipcRenderer.on('user-echo', (_e, d) => cb(d.sid, d.text)),  // 程序注入的消息(如出生教育)也显示成 user 气泡
   onChunk: (cb) => ipcRenderer.on('assistant-chunk', (_e, d) => cb(d.sid, d.text)),
   onActivity: (cb) => ipcRenderer.on('activity', (_e, d) => cb(d.sid, d.text)),
   onTool: (cb) => ipcRenderer.on('tool-call', (_e, d) => cb(d.sid, d.tool)),   // { desc, name }

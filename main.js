@@ -260,8 +260,10 @@ function createPersona(spec = {}) {
     // 跳过管家自己(isButler) 和 已有 session 的老人格(只在真·新生时教)。
     try {
       if (!spec.isButler && !spec.skipOnboarding) {
+        const eduText = onboardingText(name, spec.onboardingExtra);
         setTimeout(() => {
-          s.butler.submit(onboardingText(name, spec.onboardingExtra)).catch((e) =>
+          sendUI('user-echo', { sid: s.sid, text: eduText });   // 先在界面显示成 user 气泡(像有人在跟它说话)
+          s.butler.submit(eduText).catch((e) =>
             console.error('[createPersona] 出生教育 submit 失败:', e && e.message));
         }, 800);  // 略等 stream 就绪
       }
