@@ -257,14 +257,25 @@ function createWindow() {
 }
 
 // 检查 Claude Code 是否已登录 (走 keychain), 未登录弹引导对话框
-function ensureClaudeAuth() {
+// 新版 CLI 输出 JSON: {"loggedIn": true, ...}; 老版可能是 "Logged in as ..." 文本
+function isClaudeLoggedIn() {
   const { spawnSync } = require('child_process');
   try {
     const r = spawnSync('claude', ['auth', 'status'], { encoding: 'utf-8', timeout: 5000 });
-    const out = (r.stdout || '') + (r.stderr || '');
-    // status 输出含 "Logged in" 或类似即视为已登录; 未登录时通常提示 "Not logged in" 或非零 exit
-    if (r.status === 0 && /logged in|authenticated|已登录/i.test(out)) return true;
+    if (r.status !== 0) return false;
+    const stdout = r.stdout || '';
+    try {
+      const j = JSON.parse(stdout);
+      if (j && j.loggedIn === true) return true;
+    } catch (_) {}
+    const out = stdout + (r.stderr || '');
+    if (/logged\s*in|authenticated|已登录/i.test(out)) return true;
   } catch (_) {}
+  return false;
+}
+
+function ensureClaudeAuth() {
+  if (isClaudeLoggedIn()) return true;
   // 未登录 — 弹对话框引导用户手动登录
   const choice = dialog.showMessageBoxSync({
     type: 'info',
@@ -276,10 +287,9 @@ function ensureClaudeAuth() {
   });
   if (choice === 2) { app.quit(); return false; }
   if (choice === 0) {
-    // 拷命令到剪贴板 + 打开 Terminal
     const { clipboard } = require('electron');
     clipboard.writeText('claude auth login');
-    spawnSync('open', ['-a', 'Terminal']);
+    require('child_process').spawnSync('open', ['-a', 'Terminal']);
     dialog.showMessageBoxSync({
       type: 'info',
       title: '登录中',
@@ -288,10 +298,7 @@ function ensureClaudeAuth() {
       buttons: ['确定'],
     });
   }
-  // 再检一次 (choice=1 或 choice=0 用户点了确定): 若还是未登录就再问一次
-  const r2 = spawnSync('claude', ['auth', 'status'], { encoding: 'utf-8', timeout: 5000 });
-  const out2 = (r2.stdout || '') + (r2.stderr || '');
-  if (r2.status === 0 && /logged in|authenticated|已登录/i.test(out2)) return true;
+  if (isClaudeLoggedIn()) return true;
   dialog.showMessageBoxSync({
     type: 'warning',
     title: '未检测到登录',
