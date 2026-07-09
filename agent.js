@@ -308,26 +308,26 @@ class Butler {
     // —— ask_persona: 星型互通, 所有人格都有。约束在 main.askPersona (非管家只能问管家; 叶子↔叶子走 talk_peer) ——
     const askP = tool(
       'ask_persona',
-      '进程内直接问另一个人格一个问题, 等他答完返回。星型规则: 叶子人格只能问【管家】(有事找管家), 管家可问任何人。对话两边 UI 可见 → 透明。depth 上限 3 防环。',
+      '给另一个人格发一条【单向异步】消息: 发完即返回, 不阻塞、不等对方当场答。对方忙完后会主动用 ask_persona 回你(作为一条新消息到达)。所以发出后别干等——去忙别的或结束这轮即可。星型规则: 叶子人格只能发给【管家】(有事找管家), 管家可发给任何人。两边 UI 可见 → 透明。',
       { target: z.string().describe('目标人格名 / id / 目录 (叶子: 只能是管家)'),
-        question: z.string().describe('要问的问题正文') },
+        question: z.string().describe('要说/要问的正文') },
       async ({ target, question }) => {
         if (!this.personaOps || !this.personaOps.ask) return { content: [{ type: 'text', text: '⚠️ 询问能力未就绪' }] };
         const r = await this.personaOps.ask(target, question, { fromName: this.name, fromIsButler: this.isButler });
-        return { content: [{ type: 'text', text: r && r.ok ? `【${r.from} 回答】\n${r.answer}` : `⚠️ 询问失败: ${(r && r.error) || '未知'}` }] };
+        return { content: [{ type: 'text', text: r && r.ok ? `✅ ${r.note || `已投递给「${r.from}」(单向异步), 对方忙完会主动回你。`}` : `⚠️ 投递失败: ${(r && r.error) || '未知'}` }] };
       }
     );
     tools.push(askP);
     // —— talk_peer: 叶子↔叶子直连(需管家授权), 所有人格都有; 授权校验+抄送在 main.peerTalk ——
     const talkP = tool(
       'talk_peer',
-      '和另一个【已被授权直连】的人格直接对话(叶子间协作, 非管家中转)。前提: 用户已让管家授权你俩直连, 否则被拒。每次自动抄送管家。找管家请用 ask_persona。',
+      '给另一个【已被授权直连】的人格发一条【单向异步】消息(叶子间协作, 非管家中转): 发完即返回, 不阻塞、不等对方当场答。对方忙完后会主动用 talk_peer 回你(作为一条新消息到达)。发出后别干等——去忙别的或结束这轮即可。前提: 用户已让管家授权你俩直连, 否则被拒。每次自动抄送管家。找管家请用 ask_persona。',
       { target: z.string().describe('目标人格名 / id / 目录'),
         message: z.string().describe('要对它说的话') },
       async ({ target, message }) => {
         if (!this.personaOps || !this.personaOps.peerTalk) return { content: [{ type: 'text', text: '⚠️ 直连能力未就绪' }] };
         const r = await this.personaOps.peerTalk(this.name, target, message, { fromDir: this.homeDir });
-        return { content: [{ type: 'text', text: r && r.ok ? `【${r.from} 回复】\n${r.answer}` : `⚠️ ${(r && r.error) || '直连失败'}` }] };
+        return { content: [{ type: 'text', text: r && r.ok ? `✅ ${r.note || `已投递给「${r.from}」(单向异步), 对方忙完会主动回你。`}` : `⚠️ ${(r && r.error) || '投递失败'}` }] };
       }
     );
     tools.push(talkP);
