@@ -3,6 +3,7 @@ const listEl = document.getElementById('list');
 const toastEl = document.getElementById('toast');
 const F = { name: document.getElementById('f-name'), dir: document.getElementById('f-dir'),
             wake: document.getElementById('f-wake'), butler: document.getElementById('f-butler'),
+            avatar: document.getElementById('f-avatar'),
             choose: document.getElementById('f-choose'), create: document.getElementById('f-create') };
 
 function toast(text) {
@@ -24,6 +25,7 @@ function makeEditPanel(p) {
   const box = document.createElement('div'); box.className = 'edit-box';
   box.innerHTML = `
     <div class="e-line"><label>名字</label><input class="e-name" value="${esc(p.name)}"/></div>
+    <div class="e-line"><label>头像</label><input class="e-avatar" placeholder="留空=字母头像; 或一个 emoji" maxlength="4" value="${esc(p.avatar)}"/></div>
     <div class="e-line"><label>唤醒语</label><textarea class="e-wake" placeholder="留空 = 起床啦${esc(p.name)}, 载入记忆续线程">${esc(p.wakePhrase)}</textarea></div>
     <div class="e-line"><label>目录</label><div class="e-dir" title="切换目录暂不支持(需迁移记忆图/会话, 未来 P6 一起做)">${esc(p.homeDir)} <span class="e-dir-note">🔒 暂不可改</span></div></div>
 
@@ -161,9 +163,11 @@ async function refresh() {
     panel.querySelector('.e-save').addEventListener('click', async () => {
       const newName = panel.querySelector('.e-name').value.trim();
       const newWake = panel.querySelector('.e-wake').value;   // 允许留空 = 用默认
+      const newAvatar = panel.querySelector('.e-avatar').value.trim();
       if (!newName) { toast('名字不能空'); return; }
       const patch = {};
       if (newName !== p.name) patch.name = newName;
+      if (newAvatar !== (p.avatar || '')) patch.avatar = newAvatar;
       if (newWake !== (p.wakePhrase || '')) patch.wakePhrase = newWake;
       // 插件配置合并进 patch(不管有没有改, 一起提交; 后端 upsert 合并到位)
       const newPlugins = readPluginsFromPanel(panel);
@@ -200,11 +204,12 @@ F.create.addEventListener('click', async () => {
   const r = await window.butler.createPersonaUI({
     name, homeDir: F.dir.value.trim() || undefined,
     wakePhrase: F.wake.value.trim() || undefined, isButler: F.butler.checked,
+    avatar: F.avatar.value.trim() || undefined,
   });
   F.create.disabled = false;
   if (r.ok) {
     toast(`已创建并打开: ${r.name}`);
-    F.name.value = ''; F.dir.value = ''; F.wake.value = ''; F.butler.checked = false;
+    F.name.value = ''; F.dir.value = ''; F.wake.value = ''; F.butler.checked = false; F.avatar.value = '';
   } else { toast('创建失败: ' + r.error); }
 });
 

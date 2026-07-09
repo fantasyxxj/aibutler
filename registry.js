@@ -93,6 +93,37 @@ function setButler(id) {
   return found;
 }
 
+// —— 叶子↔叶子直连授权白名单(星型例外, 需用户授权; 持续到撤销) ——
+// 存 registry 顶层 peerLinks: [[idA,idB], ...](id 升序存, 无向对)。
+function _pairKey(a, b) { return [a, b].sort(); }
+function grantPeer(refA, refB) {
+  const A = resolveRef(refA), B = resolveRef(refB);
+  if (!A || !B) return { ok: false, error: '人格未找到: ' + (!A ? refA : refB) };
+  if (A.id === B.id) return { ok: false, error: '不能给同一个人格授权直连' };
+  const reg = loadRegistry();
+  if (!Array.isArray(reg.peerLinks)) reg.peerLinks = [];
+  const [x, y] = _pairKey(A.id, B.id);
+  if (!reg.peerLinks.some((p) => p[0] === x && p[1] === y)) reg.peerLinks.push([x, y]);
+  saveRegistry(reg);
+  return { ok: true, a: A.name, b: B.name };
+}
+function revokePeer(refA, refB) {
+  const A = resolveRef(refA), B = resolveRef(refB);
+  if (!A || !B) return { ok: false, error: '人格未找到: ' + (!A ? refA : refB) };
+  const reg = loadRegistry();
+  if (!Array.isArray(reg.peerLinks)) reg.peerLinks = [];
+  const [x, y] = _pairKey(A.id, B.id);
+  reg.peerLinks = reg.peerLinks.filter((p) => !(p[0] === x && p[1] === y));
+  saveRegistry(reg);
+  return { ok: true, a: A.name, b: B.name };
+}
+function arePeersLinked(idA, idB) {
+  const reg = loadRegistry();
+  if (!Array.isArray(reg.peerLinks)) return false;
+  const [x, y] = _pairKey(idA, idB);
+  return reg.peerLinks.some((p) => p[0] === x && p[1] === y);
+}
+
 // 确保某目录在登记簿里(不在则从现有约定文件迁移建条)。返回条目。
 function ensureEntry(homeDir, opts = {}) {
   const exist = getByDir(homeDir);
@@ -148,4 +179,5 @@ function resolveRef(ref) {
 module.exports = {
   REG_FILE, loadRegistry, saveRegistry, list, get, getByDir,
   upsert, remove, setButler, ensureEntry, ensureButler, resolveRef, slug,
+  grantPeer, revokePeer, arePeersLinked,
 };

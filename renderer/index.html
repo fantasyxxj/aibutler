@@ -7,8 +7,14 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <!-- 人格切换栏(最上): 一排头像图标=开启的人格(点击切换), ＋=新建/管理 -->
+  <nav id="tabbar" title="点头像切换人格 · ＋新建/管理">
+    <div id="tabs"></div>
+    <button id="newTabBtn" title="新建/打开人格(空目录=新建, 已有=续上)">＋</button>
+  </nav>
+
   <header id="topbar">
-    <div class="brand">🤵 <span id="personaName">全能管家</span>
+    <div class="brand"><span id="personaAvatar" class="cur-avatar"></span><span id="personaName">全能管家</span>
       <span class="sub" id="personaDir" title="当前人格的目录(记忆体所在)">—</span>
     </div>
     <div class="ctxwrap" title="上下文占用(真 usage)">
@@ -16,16 +22,19 @@
       <div id="ctxlabel">— %</div>
     </div>
     <button id="compactBtn" title="压缩上下文: 浓缩成交接摘要并重启会话">压缩</button>
+    <button id="closeCurrentBtn" title="关闭当前人格(会话记忆已落盘, 可重开续上)">×</button>
   </header>
 
-  <!-- 标签栏: 每个标签=一个人格文档, ＋=新建/打开人格 -->
-  <nav id="tabbar">
-    <div id="tabs"></div>
-    <button id="newTabBtn" title="新建/打开人格标签(选目录: 空=新建, 已有=续上)">＋</button>
-  </nav>
-
   <!-- 舞台: 每个标签一个面板, 仅活动标签可见 -->
-  <main id="stage"></main>
+  <main id="stage">
+    <div id="searchbar" class="hidden">
+      <input id="searchInput" placeholder="搜索当前对话…" />
+      <span id="searchCount">0/0</span>
+      <button id="searchPrev" title="上一个 (Shift+Enter)">↑</button>
+      <button id="searchNext" title="下一个 (Enter)">↓</button>
+      <button id="searchClose" title="关闭 (Esc)">×</button>
+    </div>
+  </main>
 
   <div id="attachstrip"></div>
 

@@ -14,12 +14,14 @@ const ctxfill = document.getElementById('ctxfill');
 const ctxlabel = document.getElementById('ctxlabel');
 const personaName = document.getElementById('personaName');
 const personaDir = document.getElementById('personaDir');
+const personaAvatar = document.getElementById('personaAvatar');
+const closeCurrentBtn = document.getElementById('closeCurrentBtn');
 
 const tabs = new Map();     // sid -> Tab
 let activeSid = null;
 
 // ---- Tab 数据结构 ----
-// { sid, persona, usage, panel, chat, tabEl, nameEl, dotEl, activeBubble, attachments[], draft, loaded, unread }
+// { sid, persona, usage, panel, chat, tabEl, avatarEl, dotEl, activeBubble, attachments[], draft, loaded, unread }
 const activeTab = () => tabs.get(activeSid);
 
 // 粘底滚动: 只有用户本来就停在底部才跟随新内容自动滚; 往上翻看时不打扰(别硬拽回底部)。
@@ -139,6 +141,23 @@ function renderUsage(u) {
 // 压缩键: 活动标签有活动回复时禁用(压缩需干净停顿点)
 function refreshBusy() { const t = activeTab(); compactBtn.disabled = !t || t.busy; }
 
+// ---- 头像: emoji 或 字母(名字首字 + 按名字 hash 的稳定背景色) ----
+const AVATAR_COLORS = ['#e0567a', '#e08a56', '#c9a227', '#5cae5c', '#4aa3c7', '#6b7ae0', '#a15ce0', '#c74a9e'];
+function avatarOf(persona) {
+  const name = (persona && persona.name) || '?';
+  const emoji = persona && persona.avatar;   // avatar 字段(emoji); 空 → 字母头像
+  if (emoji) return { emoji };
+  let h = 0; for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return { letter: [...name][0] || '?', bg: AVATAR_COLORS[h % AVATAR_COLORS.length] };
+}
+function paintAvatar(el, persona) {
+  if (!el) return;
+  const a = avatarOf(persona);
+  el.classList.toggle('is-emoji', !!a.emoji);
+  el.textContent = a.emoji || a.letter;
+  el.style.background = a.emoji ? 'transparent' : a.bg;
+}
+
 // ---- 建标签 ----
 function makeTab(meta, { activate = false } = {}) {
   if (tabs.has(meta.sid)) { if (activate) switchTab(meta.sid); return tabs.get(meta.sid); }
@@ -152,29 +171,25 @@ function makeTab(meta, { activate = false } = {}) {
 
   const tabEl = document.createElement('div');
   tabEl.className = 'tab';
-  const nameEl = document.createElement('span');
-  nameEl.className = 'tname';
-  nameEl.textContent = meta.persona ? meta.persona.name : '人格';
+  tabEl.title = meta.persona ? meta.persona.name : '人格';
+  const avatarEl = document.createElement('span');
+  avatarEl.className = 'avatar';
+  paintAvatar(avatarEl, meta.persona);
   const dotEl = document.createElement('span');
   dotEl.className = 'dot';
-  const closeEl = document.createElement('span');
-  closeEl.className = 'tclose';
-  closeEl.textContent = '×';
-  closeEl.title = '关闭标签';
-  tabEl.append(dotEl, nameEl, closeEl);
+  tabEl.append(avatarEl, dotEl);
   tabsEl.appendChild(tabEl);
 
   const tab = {
     sid: meta.sid, persona: meta.persona, usage: meta.usage,
-    panel, chat, tabEl, nameEl, dotEl,
+    panel, chat, tabEl, avatarEl, dotEl,
     activeBubble: null, busy: false, stick: true, attachments: [], draft: '', loaded: false, unread: false,
   };
   tabs.set(meta.sid, tab);
   // 用户滚动 → 记录是否贴底; 贴底才让新内容自动跟随(见 maybeScroll)
   chat.addEventListener('scroll', () => { tab.stick = nearBottom(chat); });
 
-  tabEl.addEventListener('click', (e) => { if (e.target !== closeEl) switchTab(meta.sid); });
-  closeEl.addEventListener('click', (e) => { e.stopPropagation(); closeTab(meta.sid); });
+  tabEl.addEventListener('click', () => switchTab(meta.sid));
 
   if (activate) switchTab(meta.sid);
   return tab;
@@ -438,15 +453,90 @@ async function showPicker() {
   document.body.appendChild(mask);
 }
 newTabBtn.addEventListener('click', showPicker);
+closeCurrentBtn.addEventListener('click', () => { if (activeSid) closeTab(activeSid); });
+
+// ---- 聊天检索 (Cmd/Ctrl+F): 当前对话内文本高亮 + 上/下跳转 ----
+const searchbar = document.getElementById('searchbar');
+const searchInput = document.getElementById('searchInput');
+const searchCount = document.getElementById('searchCount');
+let searchHits = [], searchIdx = -1;
+function clearSearchHl(root) {
+  if (!root) return;
+  root.querySelectorAll('mark.search-hit').forEach((m) => {
+    const t = document.createTextNode(m.textContent); m.parentNode.replaceChild(t, m);
+  });
+  root.normalize();
+}
+function runSearch(q) {
+  const tab = activeTab(); if (!tab) return;
+  clearSearchHl(tab.chat);
+  searchHits = []; searchIdx = -1;
+  if (q) {
+    const ql = q.toLowerCase();
+    const nodes = [];
+    const w = document.createTreeWalker(tab.chat, NodeFilter.SHOW_TEXT);
+    while (w.nextNode()) { const n = w.currentNode; if (n.nodeValue && n.parentNode && n.parentNode.nodeName !== 'MARK') nodes.push(n); }
+    for (const node of nodes) {
+      const text = node.nodeValue, lower = text.toLowerCase();
+      let idx = lower.indexOf(ql); if (idx < 0) continue;
+      const frag = document.createDocumentFragment(); let last = 0;
+      while (idx >= 0) {
+        if (idx > last) frag.appendChild(document.createTextNode(text.slice(last, idx)));
+        const mk = document.createElement('mark'); mk.className = 'search-hit'; mk.textContent = text.slice(idx, idx + q.length);
+        frag.appendChild(mk); searchHits.push(mk);
+        last = idx + q.length; idx = lower.indexOf(ql, last);
+      }
+      if (last < text.length) frag.appendChild(document.createTextNode(text.slice(last)));
+      node.parentNode.replaceChild(frag, node);
+    }
+  }
+  if (searchHits.length) gotoHit(0);
+  updateSearchCount();
+}
+function gotoHit(i) {
+  if (!searchHits.length) { updateSearchCount(); return; }
+  if (searchIdx >= 0 && searchHits[searchIdx]) searchHits[searchIdx].classList.remove('current');
+  searchIdx = (i + searchHits.length) % searchHits.length;
+  const m = searchHits[searchIdx];
+  m.classList.add('current');
+  m.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  updateSearchCount();
+}
+function updateSearchCount() {
+  searchCount.textContent = searchHits.length ? `${searchIdx + 1}/${searchHits.length}` : '0/0';
+}
+function openSearch() {
+  searchbar.classList.remove('hidden');
+  searchInput.focus(); searchInput.select();
+  if (searchInput.value) runSearch(searchInput.value);
+}
+function closeSearch() {
+  const tab = activeTab(); if (tab) clearSearchHl(tab.chat);
+  searchHits = []; searchIdx = -1;
+  searchbar.classList.add('hidden');
+  input.focus();
+}
+searchInput.addEventListener('input', () => runSearch(searchInput.value));
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); gotoHit(searchIdx + (e.shiftKey ? -1 : 1)); }
+  else if (e.key === 'Escape') { e.preventDefault(); closeSearch(); }
+});
+document.getElementById('searchNext').addEventListener('click', () => gotoHit(searchIdx + 1));
+document.getElementById('searchPrev').addEventListener('click', () => gotoHit(searchIdx - 1));
+document.getElementById('searchClose').addEventListener('click', closeSearch);
+window.addEventListener('keydown', (e) => {
+  if ((e.metaKey || e.ctrlKey) && (e.key === 'f' || e.key === 'F')) { e.preventDefault(); openSearch(); }
+});
 // 登记簿变了(改名/删) → 已开标签的名字下次 list 时新, 顶栏也刷
 window.butler.onRegistryChanged && window.butler.onRegistryChanged(async () => {
   const r = await window.butler.listPersonas();
   const map = new Map(((r && r.personas) || []).map((p) => [p.homeDir, p]));
   for (const [sid, tab] of tabs) {
     const p = map.get(sid);
-    if (p && tab.nameEl && p.name !== tab.nameEl.textContent) {
-      tab.nameEl.textContent = p.name;
-      if (tab.persona) tab.persona.name = p.name;
+    if (p && tab.persona && (p.name !== tab.persona.name || p.avatar !== tab.persona.avatar)) {
+      tab.persona.name = p.name; tab.persona.avatar = p.avatar;
+      tab.tabEl.title = p.name;
+      paintAvatar(tab.avatarEl, tab.persona);
       if (sid === activeSid) showPersona(tab.persona);
     }
   }
@@ -558,6 +648,7 @@ document.body.addEventListener('contextmenu', (e) => {
 // 顶栏显示活动标签的人格 + 目录
 function showPersona(p) {
   if (!p) return;
+  paintAvatar(personaAvatar, p);
   personaName.textContent = p.name || '人格';
   personaDir.textContent = p.homeDir || '';
   personaDir.title = `目录: ${p.homeDir}\n记忆: ${p.memoryDir}`;

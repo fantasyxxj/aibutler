@@ -57,6 +57,7 @@ class Butler {
     this.extMcpNames = persona.loadMcpServers(this.homeDir, this.memoryDir); // 该人格要放行的外部 MCP(如 dc-platform)
     this.wakePhrase = opts.wakePhrase || persona.loadWakePhrase(this.homeDir, this.memoryDir, this.name); // 压缩自愈唤醒语; 注册表优先
     this.isButler = !!opts.isButler;      // 是否星型中心管家(有 open/create_persona 工具)
+    this.avatar = opts.avatar || null;    // 头像(emoji), 空 = 渲染层用字母头像兜底
     this.personaOps = null;               // main 注入: { open(ref), create(spec) } — 管家开/建人格回调
     this.memory = new MemoryGraph(this.memoryDir);   // 人格原生图记忆(遗忘曲线+图扩散), 每人格一张图
     this.sessionPath = path.join(this.memoryDir, '.session.json');         // 会话状态旁置记忆目录
@@ -304,7 +305,33 @@ class Butler {
       }
     );
     const tools = [compact, ctxUsage, memQuery, memUpsert, memTouch, memHot, memTimeline, memNeighbors, memDoctor, sendTg];
-    // —— 管家专属(星型中心): 在窗口里说一句就开/建别的人格(中央大脑 delegate 雏形) ——
+    // —— ask_persona: 星型互通, 所有人格都有。约束在 main.askPersona (非管家只能问管家; 叶子↔叶子走 talk_peer) ——
+    const askP = tool(
+      'ask_persona',
+      '进程内直接问另一个人格一个问题, 等他答完返回。星型规则: 叶子人格只能问【管家】(有事找管家), 管家可问任何人。对话两边 UI 可见 → 透明。depth 上限 3 防环。',
+      { target: z.string().describe('目标人格名 / id / 目录 (叶子: 只能是管家)'),
+        question: z.string().describe('要问的问题正文') },
+      async ({ target, question }) => {
+        if (!this.personaOps || !this.personaOps.ask) return { content: [{ type: 'text', text: '⚠️ 询问能力未就绪' }] };
+        const r = await this.personaOps.ask(target, question, { fromName: this.name, fromIsButler: this.isButler });
+        return { content: [{ type: 'text', text: r && r.ok ? `【${r.from} 回答】\n${r.answer}` : `⚠️ 询问失败: ${(r && r.error) || '未知'}` }] };
+      }
+    );
+    tools.push(askP);
+    // —— talk_peer: 叶子↔叶子直连(需管家授权), 所有人格都有; 授权校验+抄送在 main.peerTalk ——
+    const talkP = tool(
+      'talk_peer',
+      '和另一个【已被授权直连】的人格直接对话(叶子间协作, 非管家中转)。前提: 用户已让管家授权你俩直连, 否则被拒。每次自动抄送管家。找管家请用 ask_persona。',
+      { target: z.string().describe('目标人格名 / id / 目录'),
+        message: z.string().describe('要对它说的话') },
+      async ({ target, message }) => {
+        if (!this.personaOps || !this.personaOps.peerTalk) return { content: [{ type: 'text', text: '⚠️ 直连能力未就绪' }] };
+        const r = await this.personaOps.peerTalk(this.name, target, message, { fromDir: this.homeDir });
+        return { content: [{ type: 'text', text: r && r.ok ? `【${r.from} 回复】\n${r.answer}` : `⚠️ ${(r && r.error) || '直连失败'}` }] };
+      }
+    );
+    tools.push(talkP);
+    // —— 管家专属(星型中心): 开/建别的人格(中央大脑 delegate 雏形) ——
     if (this.isButler) {
       const openP = tool(
         'open_persona',
@@ -329,18 +356,27 @@ class Butler {
           return { content: [{ type: 'text', text: r && r.ok ? `✅ 已创建并打开人格「${r.name}」\n目录: ${r.homeDir}\nid: ${r.id}` : `⚠️ 创建失败: ${(r && r.error) || '未知'}` }] };
         }
       );
-      const askP = tool(
-        'ask_persona',
-        '进程内直接问另一个人格一个问题, 等他答完返回。适合中央派活/协作 (比"新开会话手动切"快, 且对话在两边 UI 都可见 → 透明)。depth 上限 3 防环。',
-        { target: z.string().describe('目标人格名 / id / 目录'),
-          question: z.string().describe('要问的问题正文') },
-        async ({ target, question }) => {
-          if (!this.personaOps || !this.personaOps.ask) return { content: [{ type: 'text', text: '⚠️ 询问能力未就绪' }] };
-          const r = await this.personaOps.ask(target, question, { fromName: this.name });
-          return { content: [{ type: 'text', text: r && r.ok ? `【${r.from} 回答】\n${r.answer}` : `⚠️ 询问失败: ${(r && r.error) || '未知'}` }] };
+      const grantP = tool(
+        'grant_peer',
+        '(管家专属)授权两个叶子人格直连对话(talk_peer)。用户说"让A和B直接聊 / 授权A和B直连"时调用。授权持续到用户撤销。',
+        { personaA: z.string().describe('人格A 名/id/目录'), personaB: z.string().describe('人格B 名/id/目录') },
+        async ({ personaA, personaB }) => {
+          if (!this.personaOps || !this.personaOps.grantPeer) return { content: [{ type: 'text', text: '⚠️ 授权能力未就绪' }] };
+          const r = await this.personaOps.grantPeer(personaA, personaB);
+          return { content: [{ type: 'text', text: r && r.ok ? `✅ 已授权「${r.a}」↔「${r.b}」直连(talk_peer 可用, 会抄送管家)` : `⚠️ ${(r && r.error) || '授权失败'}` }] };
         }
       );
-      tools.push(openP, createP, askP);
+      const revokeP = tool(
+        'revoke_peer',
+        '(管家专属)撤销两个人格的直连授权。用户说"取消A和B的直连"时调用。',
+        { personaA: z.string().describe('人格A 名/id/目录'), personaB: z.string().describe('人格B 名/id/目录') },
+        async ({ personaA, personaB }) => {
+          if (!this.personaOps || !this.personaOps.revokePeer) return { content: [{ type: 'text', text: '⚠️ 撤销能力未就绪' }] };
+          const r = await this.personaOps.revokePeer(personaA, personaB);
+          return { content: [{ type: 'text', text: r && r.ok ? `✅ 已撤销「${r.a}」↔「${r.b}」的直连授权` : `⚠️ ${(r && r.error) || '撤销失败'}` }] };
+        }
+      );
+      tools.push(openP, createP, grantP, revokeP);
     }
     return createSdkMcpServer({ name: 'butler', version: '0.0.1', tools });
   }
@@ -392,6 +428,7 @@ class Butler {
 
   // 启动持久流式 query(幂等)
   async ensureStream() {
+    console.error(`[dbg ensureStream] ${this.name} enter (has_q=${!!this._q})`);
     if (this._q) return;
     const { query } = await loadSdk();
     const butlerMcp = await this.buildMcp();
@@ -418,17 +455,20 @@ class Butler {
         'mcp__butler__memory_hot', 'mcp__butler__memory_timeline', 'mcp__butler__memory_neighbors',
         'mcp__butler__memory_doctor',
         'Read', 'Write', 'Edit', 'Grep', 'Glob', 'Bash'];
-      if (this.isButler) options.allowedTools.push('mcp__butler__open_persona', 'mcp__butler__create_persona', 'mcp__butler__ask_persona');
+      options.allowedTools.push('mcp__butler__ask_persona', 'mcp__butler__talk_peer');   // 星型互通 + 授权直连: 所有人格(约束在 main)
+      if (this.isButler) options.allowedTools.push('mcp__butler__open_persona', 'mcp__butler__create_persona', 'mcp__butler__grant_peer', 'mcp__butler__revoke_peer');
     }
     const q = query({ prompt: this._queue, options });
     this._q = q;
     this._consumerDone = this._consume(q);
+    console.error(`[dbg ensureStream] ${this.name} query created + consume started`);
   }
 
   // 消费循环: 路由消息到全局回调。一个 result = 一段回复 settle(软插话下, 一段可吸收多条用户消息)。
   async _consume(q) {
     try {
       for await (const msg of q) {
+        if (msg.type !== 'stream_event') console.error(`[dbg consume] ${this.name} <- ${msg.type}${msg.subtype ? '/' + msg.subtype : ''}`);
         if (msg.type === 'system' && msg.subtype === 'init') {
           this.sessionId = msg.session_id || this.sessionId;
           if (msg.model) { this.model = msg.model; this.window = Math.max(this.window, windowFor(msg.model)); }
@@ -484,6 +524,7 @@ class Butler {
   async submit(text, attachments) {
     if (this._compacting) { try { await this._compacting; } catch (_) {} }
     await this.ensureStream();
+    console.error(`[dbg submit] ${this.name} ensureStream done, pushing msg`);
     let body = text;
     if (this.pendingHandoff) {
       body = `[上下文交接摘要 — 上一段对话压缩后的续接记忆]\n${this.pendingHandoff}\n\n[用户]\n${text}`;
@@ -495,13 +536,29 @@ class Butler {
 
   // 多人格互通: 别的人格问一个问题, 走标准 submit + UI 照常显示 + 挂一个 pending 收 finalText。
   // 一举两得: 对话透明可见(UI 出气泡), 同时 caller 拿到答案。
-  async askOnce(text) {
+  async askOnce(text, timeoutMs = 90000) {
     return new Promise((resolve, reject) => {
-      this._askPending.push(resolve);
+      let settled = false;
+      let timer = null;
+      const cleanup = () => { if (timer) { clearTimeout(timer); timer = null; } };
+      const drop = () => { const i = this._askPending.indexOf(resolver); if (i >= 0) this._askPending.splice(i, 1); };
+      // _consume 出 result 时 shift 出本 resolver 调它 → settle。
+      const resolver = (v) => { if (settled) return; settled = true; cleanup(); console.error(`[dbg askOnce] ${this.name} RESOLVED len=${(v || '').length}`); resolve(v); };
+      this._askPending.push(resolver);
+      console.error(`[dbg askOnce] ${this.name} pending++ (=${this._askPending.length}) timeout=${timeoutMs}ms`);
+      // 止血: 超时解开调用方, 避免 target 永不 result 时把发起方卡死。
+      if (timeoutMs) {
+        timer = setTimeout(() => {
+          if (settled) return;
+          settled = true; drop();
+          console.error(`[dbg askOnce] ${this.name} TIMEOUT after ${timeoutMs}ms`);
+          reject(new Error(`对方(${this.name})${Math.round(timeoutMs / 1000)}s 内未响应 — askOnce 超时(已解开调用方, 防卡死)`));
+        }, timeoutMs);
+      }
       this.submit(text).catch((e) => {
-        // submit 失败 → 弹掉刚推的 resolver 并 reject
-        const idx = this._askPending.indexOf(resolve);
-        if (idx >= 0) this._askPending.splice(idx, 1);
+        if (settled) return;
+        settled = true; cleanup(); drop();
+        console.error(`[dbg askOnce] ${this.name} submit FAILED: ${e && e.message}`);
         reject(e);
       });
     });
