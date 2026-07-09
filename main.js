@@ -121,17 +121,22 @@ async function installPlugins(s) {
       return;
     }
     const preview = (record.text || '').slice(0, 200);
-    s.convo.push({ role: 'system', text: `🔔 TG 消息 from @${record.from_name || record.from_id} (chat ${record.chat_id}): ${preview.slice(0, 40)}`, ts: Date.now() });
+    const hasImg = Array.isArray(record.attachments) && record.attachments.length;
+    const fileNote = record.file_path
+      ? `\n📎 附件已存: ${record.file_path}${hasImg ? '（图片已随本消息附上, 可直接查看）' : '（可用 Read 工具打开）'}`
+      : '';
+    s.convo.push({ role: 'system', text: `🔔 TG 消息 from @${record.from_name || record.from_id} (chat ${record.chat_id}): ${(preview || (record.file_path ? '[附件]' : '')).slice(0, 40)}`, ts: Date.now() });
     s.persist();
     s.butler.submit(
       [
         `（系统自动·TG 消息）from @${record.from_name || 'anon'}(${record.from_id}) 在 chat ${record.chat_id} · update_id=${record.update_id}`,
         '',
-        preview,
+        preview + fileNote,
         '',
         `回复请调 send_tg 工具: chat_id=${record.chat_id}${record.reply_to ? ` (可 reply_to=${record.reply_to} 引用原消息)` : ''}。`,
         '按正常判断处理, 回不回、回什么由你决定。'
-      ].join('\n')
+      ].join('\n'),
+      record.attachments || []
     ).catch((e) => console.error('[tg-onmessage]', e && e.message));
   };
   s.tgPlugin = new TgPlugin(plugins.tg, s.butler.name, pluginLog, s.butler.memoryDir, tgOnMessage);

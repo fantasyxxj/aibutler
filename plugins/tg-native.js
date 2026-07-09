@@ -64,7 +64,7 @@ class TgNativeChannel {
         if (!j.ok) throw new Error(j.description || 'TG API error');
         for (const u of (j.result || [])) {
           if (u.update_id > this.offset) this.offset = u.update_id;
-          this._appendMessage(u);
+          await this._appendMessage(u);
         }
         this.lastError = null;
         backoff = 1000;
@@ -79,7 +79,39 @@ class TgNativeChannel {
   }
 
   // 把 TG update 写成 messages.jsonl 里的一行 (格式跟 tg_listener.py 一致 → tg_pending.py 直接能读)
-  _appendMessage(u) {
+  // 从 TG 消息挑附件(图片优先取最大尺寸; 其次文档) → {file_id, mediaType, fileName} | null
+  _pickMedia(m) {
+    if (Array.isArray(m.photo) && m.photo.length) {
+      const p = m.photo[m.photo.length - 1];   // 最后一张 = 最大尺寸
+      return { file_id: p.file_id, mediaType: 'image/jpeg', fileName: `photo_${p.file_unique_id || p.file_id}.jpg` };
+    }
+    if (m.document) {
+      return { file_id: m.document.file_id, mediaType: m.document.mime_type || 'application/octet-stream', fileName: m.document.file_name || `doc_${m.document.file_unique_id || 'file'}` };
+    }
+    return null;
+  }
+
+  // getFile → 下载字节 → 存到本人格 tg_media/ → 返回 {localPath, mediaType, base64, fileName, size}
+  async _downloadFile(media, updateId) {
+    const MAX = 15 * 1024 * 1024;   // 15MB 上限, 防大文件塞爆上下文
+    const token = this.cfg.bot_token;
+    const gf = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${encodeURIComponent(media.file_id)}`, { signal: AbortSignal.timeout(20000) });
+    const gj = await gf.json();
+    if (!gj.ok || !gj.result || !gj.result.file_path) throw new Error('getFile 失败: ' + (gj.description || '无 file_path'));
+    if (gj.result.file_size && gj.result.file_size > MAX) { this.onLog(`[tg-native:${this.personaName}] 附件 > 15MB, 跳过下载`); return null; }
+    const dl = await fetch(`https://api.telegram.org/file/bot${token}/${gj.result.file_path}`, { signal: AbortSignal.timeout(60000) });
+    if (!dl.ok) throw new Error('下载 HTTP ' + dl.status);
+    const buf = Buffer.from(await dl.arrayBuffer());
+    if (buf.length > MAX) return null;
+    const mediaDir = path.join(path.dirname(this.cfg.in_file), 'tg_media');   // 每人格自己的目录
+    fs.mkdirSync(mediaDir, { recursive: true });
+    const safeName = `${updateId}_${String(media.fileName || 'file').replace(/[^\w.\-]/g, '_')}`;
+    const localPath = path.join(mediaDir, safeName);
+    fs.writeFileSync(localPath, buf);
+    return { localPath, mediaType: media.mediaType, base64: buf.toString('base64'), fileName: media.fileName, size: buf.length };
+  }
+
+  async _appendMessage(u) {
     const m = u.message || u.channel_post || u.edited_message;
     if (!m || !m.chat) return;
     // chat_id 白名单过滤 (缺省=全放行)
@@ -94,18 +126,33 @@ class TgNativeChannel {
       chat_id: m.chat.id,
       text: m.text || m.caption || '',
       reply_to: (m.reply_to_message && m.reply_to_message.message_id) || null,
-      file_path: null,   // TODO: 图片附件 file_id → 下载。暂略, 保持 v1 简单。
+      file_path: null,   // 有附件时 = 下载到本地的路径(见下)
     };
+    // 附件: 下载到本人格 tg_media/。图片额外 base64 供直接喂模型; 文档只留 file_path(模型可 Read 打开)。
+    let attachments = [];
+    try {
+      const media = this._pickMedia(m);
+      if (media) {
+        const dl = await this._downloadFile(media, u.update_id);
+        if (dl) {
+          record.file_path = dl.localPath;
+          record.media = { mediaType: dl.mediaType, file_name: dl.fileName, size: dl.size };
+          if (dl.mediaType && dl.mediaType.startsWith('image/')) attachments.push({ mediaType: dl.mediaType, base64: dl.base64 });
+        }
+      }
+    } catch (e) {
+      this.onLog(`[tg-native:${this.personaName}]⚠ 附件下载失败: ${e && e.message}`);
+    }
     try {
       fs.mkdirSync(path.dirname(this.cfg.in_file), { recursive: true });
-      fs.appendFileSync(this.cfg.in_file, JSON.stringify(record) + '\n', 'utf8');
+      fs.appendFileSync(this.cfg.in_file, JSON.stringify(record) + '\n', 'utf8');   // record 只含 file_path, 不写 base64
       this.msgCount += 1;
-      const preview = record.text.slice(0, 40).replace(/\n/g, ' ');
+      const preview = (record.text || (record.file_path ? `[附件] ${path.basename(record.file_path)}` : '')).slice(0, 40).replace(/\n/g, ' ');
       this.onLog(`[tg-native:${this.personaName}] in <- ${record.from_name}(${record.from_id}) "${preview}"`);
-      // v2: 落盘成功后直接触发上层 (让 main.js callback submit 到 butler)
+      // v2: 落盘成功后直接触发上层 (让 main.js callback submit 到 butler); attachments 只随回调传, 不进 jsonl
       // fire-and-forget: 一批 update 里的多条并发 submit, butler.submit 是 queue-based 自己排队
       if (this.onMessage) {
-        try { this.onMessage(record); } catch (e) {
+        try { this.onMessage({ ...record, attachments }); } catch (e) {
           this.onLog(`[tg-native:${this.personaName}]⚠ onMessage 回调抛异常: ${e.message}`);
         }
       }
