@@ -36,3 +36,7 @@ wake.txt
 .env.*
 **/tg_inbox.jsonl
 **/.bothub_offset.json
+
+# 本地工作区 / 环境 (owner 私有, 不提交)
+workspace/
+.zshrc
