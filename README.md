@@ -236,7 +236,7 @@ aibutler/
 
 ## 截图
 
-![主窗口 · 多人格标签共存](docs/screenshots/main-window.png)
+![主窗口 · 多人格标签共存](docs/aa.png)
 
 ---
 

@@ -214,7 +214,7 @@ aibutler/
 
 ## Screenshots
 
-![Main window · multiple personas as tabs](docs/screenshots/main-window.png)
+![Main window · multiple personas as tabs](docs/aa.png)
 
 ---
 
