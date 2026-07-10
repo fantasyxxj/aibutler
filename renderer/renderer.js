@@ -183,6 +183,22 @@ function avatarOf(persona) {
   let h = 0; for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   return { letter: [...name][0] || '?', bg: AVATAR_COLORS[h % AVATAR_COLORS.length] };
 }
+// 标签栏管家帽子: 在标签上叠一个 👑, 一眼看出谁是管家。跟"打开时的管家身份"(openedAsButler)走。
+function paintCrown(tabEl, persona) {
+  if (!tabEl) return;
+  let crown = tabEl.querySelector('.crown');
+  const isB = !!(persona && persona.isButler);
+  if (isB && !crown) {
+    crown = document.createElement('span');
+    crown.className = 'crown';
+    crown.textContent = '👑';
+    crown.title = '管家';
+    tabEl.appendChild(crown);
+  } else if (!isB && crown) {
+    crown.remove();
+  }
+}
+
 function paintAvatar(el, persona) {
   if (!el) return;
   const a = avatarOf(persona);
@@ -221,6 +237,7 @@ function makeTab(meta, { activate = false } = {}) {
   const dotEl = document.createElement('span');
   dotEl.className = 'dot';
   tabEl.append(avatarEl, dotEl);
+  paintCrown(tabEl, meta.persona);
   tabsEl.appendChild(tabEl);
 
   const tab = {
@@ -462,6 +479,7 @@ window.butler.onPersonaOpened((meta) => {
     existing.persona = meta.persona;
     existing.tabEl.title = meta.persona.name || '人格';
     paintAvatar(existing.avatarEl, meta.persona);
+    paintCrown(existing.tabEl, meta.persona);
     if (meta.sid === activeSid) showPersona(meta.persona);
     switchTab(meta.sid);
     return;

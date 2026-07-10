@@ -88,6 +88,12 @@ body {
   display: none;
 }
 .tab.unread .dot { display: block; }
+/* 管家帽子: 叠在头像正上方, 像戴了顶皇冠 → 一排人物里一眼认出管家 */
+.tab .crown {
+  position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+  font-size: 13px; line-height: 1; pointer-events: none; z-index: 2;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.45));
+}
 /* ＋ 圆形, 与头像同大小 */
 #newTabBtn {
   flex: none; width: 36px; height: 36px; border-radius: 50%;

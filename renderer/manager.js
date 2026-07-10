@@ -212,9 +212,19 @@ async function refresh() {
 
     const editB = document.createElement('button'); editB.className = 'm-btn'; editB.textContent = '编辑';
     const setB = document.createElement('button'); setB.className = 'm-btn'; setB.textContent = '设为管家'; setB.disabled = !!p.isButler;
+    setB.title = '把管家角色转给它(全局唯一, 旧管家自动卸任)';
     setB.addEventListener('click', async () => {
+      // 只在该人格"当前正开着"时提示: 管家身份标记会立刻切, 但它正跑的会话工具是启动时定死的,
+      // list/open/create 这些管家专属工具要等会话重建(关标签重开 / 下次压缩 / 重启 app)才长出来。
+      // 没开的人格无需提示——下次打开就是全新会话, 自带管家能力。
+      if (p.open) {
+        const ok = window.confirm(
+          `把「${p.name}」设为管家？\n\n它当前正开着 —— “管家”这个身份标记会立刻切换，但管家专属能力（查看/打开/新建人格等工具）不会马上生效，要等它的会话重启后才有：\n  · 关掉该标签重新打开，或\n  · 下次自动压缩，或\n  · 重启 app`
+        );
+        if (!ok) return;
+      }
       const r2 = await window.butler.updatePersona(p.id, { isButler: true });
-      if (r2.ok) toast(`已设 ${p.name} 为管家`);
+      if (r2.ok) toast(p.open ? `已设 ${p.name} 为管家 · 关标签重开后管家能力生效` : `已设 ${p.name} 为管家`);
     });
 
     const del = document.createElement('button'); del.className = 'm-btn danger'; del.textContent = '删除'; del.disabled = !!p.open;

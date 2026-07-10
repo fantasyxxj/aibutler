@@ -29,7 +29,7 @@ const broadcastRegistry = () => {
   if (mainWin && !mainWin.isDestroyed()) mainWin.webContents.send('registry-changed');
   if (managerWin && !managerWin.isDestroyed()) managerWin.webContents.send('registry-changed');
 };
-const personaOf = (b) => ({ name: b.name, avatar: b.avatar || '', homeDir: b.homeDir, memoryDir: b.memoryDir });
+const personaOf = (b) => ({ name: b.name, avatar: b.avatar || '', homeDir: b.homeDir, memoryDir: b.memoryDir, isButler: !!b.openedAsButler });
 
 // —— 打开标签列表持久化 ——
 function loadOpenTabs() {
@@ -61,6 +61,16 @@ function loadSessionMigrating(butler) {
   return saved;
 }
 
+// 列出总控登记簿里的全部人格(管家用: 知道"有谁存在", 不依赖自己记忆里的花名册)。
+// 数据来自中立总控 registry, 与"谁是管家"无关 → 换谁当管家都能查到同一份名单。
+function listPersonas() {
+  return registry.list().map((p) => ({
+    name: p.name, id: p.id, homeDir: p.homeDir,
+    isButler: !!p.isButler,
+    isOpen: sessions.has(sidOf(p.homeDir)),
+  }));
+}
+
 // 建一个人格会话(不建窗口): 目录化 Butler + 载它自己的会话 + 回调发到主窗(带 sid)。幂等: 已开则复用。
 function openPersona(homeDir) {
   const sid = sidOf(homeDir);
@@ -68,7 +78,7 @@ function openPersona(homeDir) {
 
   const entry = registry.ensureEntry(homeDir);   // 登记簿(不在则迁移建条): 名字/唤醒语/是否管家 以它为准
   const butler = new Butler(homeDir, { name: entry.name, wakePhrase: entry.wakePhrase, isButler: entry.isButler, avatar: entry.avatar });
-  butler.personaOps = { open: openPersonaByRef, create: createPersona, ask: askPersona, peerTalk, grantPeer, revokePeer };   // 开/建/问(管家) + 叶子直连/授权回调
+  butler.personaOps = { open: openPersonaByRef, create: createPersona, ask: askPersona, peerTalk, grantPeer, revokePeer, list: listPersonas };   // 开/建/问/列(管家) + 叶子直连/授权回调
   const saved = loadSessionMigrating(butler);
   const convo = (saved && Array.isArray(saved.messages)) ? saved.messages : [];
   if (saved) butler.restore(saved);
@@ -454,10 +464,27 @@ function firstRunChooseDataDir() {
   paths.setDataDir(chosen);
 }
 
+// —— 总控布局迁移: 早期版本把登记簿/标签放在数据目录根(或跟管家混在一起) → 挪进中立的 app/ 子目录。
+// 幂等: 新位置已有则不动; 旧位置搬走后归档为 .moved(只迁一次)。让"总控数据"与"谁是管家"彻底解耦。
+function migrateControlLayout() {
+  try {
+    const ctl = paths.controlDir();
+    fs.mkdirSync(ctl, { recursive: true });
+    for (const name of ['personas.json', 'personas.json.bak', '.opentabs.json']) {
+      const oldp = path.join(paths.dataDir(), name);
+      const newp = path.join(ctl, name);
+      if (fs.existsSync(oldp) && !fs.existsSync(newp)) {
+        try { fs.copyFileSync(oldp, newp); fs.renameSync(oldp, oldp + '.moved'); } catch (_) {}
+      }
+    }
+  } catch (e) { console.error('[migrate] 总控布局迁移失败:', e && e.message); }
+}
+
 app.whenReady().then(async () => {
   // 首启选数据目录(打包模式; 开发模式 no-op) — 必须在任何登记簿/人格读写之前。
   // 干净启动: 不带任何数据种子; 首个默认人格由下面 ensureEntry 现场脚手架。用户装完自己把旧数据拷进数据目录即可。
   firstRunChooseDataDir();
+  migrateControlLayout();   // 把总控数据挪进 app/(在任何登记簿读写前)
   // 未登录 → app 内浏览器登录(await: 登完再开人格, 否则 SDK query 会因无凭据失败)
   await ensureClaudeAuth();
   // 恢复上次打开的标签(至少有默认人格)

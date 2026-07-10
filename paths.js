@@ -64,13 +64,15 @@ function setDataDir(dir) {
   return abs;
 }
 
-// —— 各类数据文件/目录的落点(全部从 dataDir 派生) ——
-function registryFile() { return path.join(dataDir(), 'personas.json'); }
-function tabsFile() { return path.join(dataDir(), '.opentabs.json'); }
-// 唐伯虎(app 自带管家/默认标签)的家: 开发=仓库根(不动); 打包=数据目录下 butler-self/
-function butlerSelfHome() { return isPackaged() ? path.join(dataDir(), 'butler-self') : REPO_ROOT; }
-// 新建人格(没指定目录时)的默认父目录
-function personasParent() { return isPackaged() ? path.join(dataDir(), 'personas') : path.join(REPO_ROOT, 'personas'); }
+// —— 各类数据文件/目录的落点 ——
+// 总控目录: app 级、persona-neutral(登记簿/标签/全局设置)。跟"谁是管家"无关 → 管家角色可随意转移,
+// 总控数据永远在这, 不跟着管家走。放 dataDir/app 下, 明确不属于任何人格。
+function controlDir() { return path.join(dataDir(), 'app'); }
+function registryFile() { return path.join(controlDir(), 'personas.json'); }   // 登记簿: 创建了几个人格
+function tabsFile() { return path.join(controlDir(), '.opentabs.json'); }        // 运行状态: 开了哪些标签
+// 内置第一个人格(butler-self, 显示名"管家"): 只是普通一员, 放 personas/ 下, 不再"拥有"数据目录。
+function personasParent() { return path.join(dataDir(), 'personas'); }
+function butlerSelfHome() { return path.join(personasParent(), 'butler-self'); }
 
 // —— claude 可执行文件解析 ——
 // 打包版捆绑了一份自包含 claude 原生二进制(Resources/bin/), 首选它:
@@ -99,5 +101,5 @@ function resolveClaudeBin() {
 
 module.exports = {
   isPackaged, bootstrapDir, dataDir, defaultDataDir, needsFirstRunChoice, setDataDir,
-  registryFile, tabsFile, butlerSelfHome, personasParent, resolveClaudeBin, REPO_ROOT,
+  controlDir, registryFile, tabsFile, butlerSelfHome, personasParent, resolveClaudeBin, REPO_ROOT,
 };

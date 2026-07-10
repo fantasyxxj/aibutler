@@ -22,6 +22,7 @@ wakeloop.js
 .session.json
 .session.*
 *.migrated
+*.moved
 .opentabs.json
 
 # 人格实例 & 记忆 (含个人对话历史, 完全私有; 首启会自动生成骨架)

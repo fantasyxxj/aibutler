@@ -61,6 +61,9 @@ class Butler {
     this.extMcpNames = persona.loadMcpServers(this.homeDir, this.memoryDir); // 该人格要放行的外部 MCP(如 dc-platform)
     this.wakePhrase = opts.wakePhrase || persona.loadWakePhrase(this.homeDir, this.memoryDir, this.name); // 压缩自愈唤醒语; 注册表优先
     this.isButler = !!opts.isButler;      // 是否星型中心管家(有 open/create_persona 工具)
+    // 帽子(标签栏管家标识)专用: 打开这个会话时的管家身份, updatePersona 不改它 →
+    // 设管家当下帽子不抢跳; 等这个人格的会话重开(重开标签/重启 app)以管家身份跑起来, 帽子才移过去。跟会话走。
+    this.openedAsButler = !!opts.isButler;
     this.avatar = opts.avatar || null;    // 头像(emoji), 空 = 渲染层用字母头像兜底
     this.personaOps = null;               // main 注入: { open(ref), create(spec) } — 管家开/建人格回调
     this.memory = new MemoryGraph(this.memoryDir);   // 人格原生图记忆(遗忘曲线+图扩散), 每人格一张图
@@ -125,6 +128,21 @@ class Butler {
     const personaBody = this.personaText
       ? `\n\n## 你的身份档案 (persona.md 全文, 你自己可以随时改)\n\n${this.personaText}`
       : `\n\n## 你的身份档案\n你是一个通用管家 · 用户的本机助理。可以协调其他人格 · 记住长期上下文 · 帮助用户处理跨领域事务。`;
+    // 管家专属: 启动即注入当前人格名单(来自中立总控登记簿)。让"知道有谁"不依赖本人格记忆 → 换谁当管家都开箱可见。
+    let rosterBlock = [];
+    if (this.isButler && this.personaOps && this.personaOps.list) {
+      try {
+        const rows = this.personaOps.list() || [];
+        if (rows.length) {
+          rosterBlock = [
+            '',
+            '## 当前人格名单 (来自总控登记簿, 你是管家所以能看到全部)',
+            ...rows.map((p) => `- ${p.name}${p.isButler ? ' 【管家=你】' : ''}${p.isOpen ? ' (已打开)' : ''}  ${p.homeDir}`),
+            '> 这是启动时的快照; 要最新状态随时调 list_personas。发消息给谁(ask_persona)、开谁(open_persona)都从这查, 别只凭记忆。',
+          ];
+        }
+      } catch (_) {}
+    }
     return [
       strongIdentity,
       personaBody,
@@ -136,6 +154,7 @@ class Butler {
       `- 当前上下文占用: ${u.pct}% (${u.inTok} tokens)`,
       `- 记忆库: ${this.memoryDir} (MEMORY.md 是索引, 需要旧知识/上次线程可 Read)`,
       '> 以上是运行时真值。凡问到你的模型/版本/占用等运行时事实, 以此为准, 不要用训练知识去否定(你的训练数据可能滞后于当前模型)。',
+      ...rosterBlock,
       '',
       '## 你的自助工具',
       '- context_usage: 取你自己此刻真实的上下文占用(与窗口顶栏同源, 比上面环境块更实时)。',
@@ -337,6 +356,18 @@ class Butler {
     tools.push(talkP);
     // —— 管家专属(星型中心): 开/建别的人格(中央大脑 delegate 雏形) ——
     if (this.isButler) {
+      const listP = tool(
+        'list_personas',
+        '(管家专属)列出当前所有已登记的人格及状态(名字/id/目录/是否管家/是否已打开)。数据来自中立总控登记簿, 不依赖你记忆里的花名册 → 想知道"有谁存在/能发给谁"时调用它, 别只凭记忆。',
+        {},
+        async () => {
+          if (!this.personaOps || !this.personaOps.list) return { content: [{ type: 'text', text: '⚠️ 列人格能力未就绪' }] };
+          const rows = (await this.personaOps.list()) || [];
+          if (!rows.length) return { content: [{ type: 'text', text: '(登记簿为空)' }] };
+          const txt = rows.map((p) => `- ${p.name}${p.isButler ? ' 【管家】' : ''}${p.isOpen ? ' (已打开)' : ''}  id=${p.id}  ${p.homeDir}`).join('\n');
+          return { content: [{ type: 'text', text: `当前人格 ${rows.length} 个:\n${txt}` }] };
+        }
+      );
       const openP = tool(
         'open_persona',
         '打开一个已登记的人格(新标签加载它)。用户说"打开小花/切到数据专家"时调用。ref 传人格名或目录。',
@@ -349,9 +380,9 @@ class Butler {
       );
       const createP = tool(
         'create_persona',
-        '新建一个人格: 建目录+登记簿注册+脚手架记忆, 并打开它。用户说"新建一个叫X的人格"时调用。homeDir 缺省时放在 butler 同级 personas/<名字>。',
+        '新建一个人格: 建目录+登记簿注册+脚手架记忆, 并打开它。用户说"新建一个叫X的人格"时调用。homeDir 缺省时放在数据目录下 personas/<名字>。',
         { name: z.string().describe('人格显示名'),
-          homeDir: z.string().optional().describe('人格目录(绝对路径); 缺省=butler 同级 personas/<slug>'),
+          homeDir: z.string().optional().describe('人格目录(绝对路径); 缺省=数据目录下 personas/<slug>'),
           wakePhrase: z.string().optional().describe('唤醒语/加载规则; 缺省=喊名字续线程'),
           isButler: z.boolean().optional().describe('是否设为管家(会顶替当前管家)') },
         async (spec) => {
@@ -380,7 +411,7 @@ class Butler {
           return { content: [{ type: 'text', text: r && r.ok ? `✅ 已撤销「${r.a}」↔「${r.b}」的直连授权` : `⚠️ ${(r && r.error) || '撤销失败'}` }] };
         }
       );
-      tools.push(openP, createP, grantP, revokeP);
+      tools.push(listP, openP, createP, grantP, revokeP);
     }
     return createSdkMcpServer({ name: 'butler', version: '0.0.1', tools });
   }
@@ -478,7 +509,7 @@ class Butler {
         'mcp__butler__memory_doctor',
         'Read', 'Write', 'Edit', 'Grep', 'Glob', 'Bash'];
       options.allowedTools.push('mcp__butler__ask_persona', 'mcp__butler__talk_peer');   // 星型互通 + 授权直连: 所有人格(约束在 main)
-      if (this.isButler) options.allowedTools.push('mcp__butler__open_persona', 'mcp__butler__create_persona', 'mcp__butler__grant_peer', 'mcp__butler__revoke_peer');
+      if (this.isButler) options.allowedTools.push('mcp__butler__list_personas', 'mcp__butler__open_persona', 'mcp__butler__create_persona', 'mcp__butler__grant_peer', 'mcp__butler__revoke_peer');
     }
     const q = query({ prompt: this._queue, options });
     this._q = q;
