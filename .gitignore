@@ -2,6 +2,8 @@
 node_modules/
 dist/
 out/
+release/
+build/seed/
 
 # os / editor
 .DS_Store
@@ -40,3 +42,4 @@ wake.txt
 # 本地工作区 / 环境 (owner 私有, 不提交)
 workspace/
 .zshrc
+build/bin/

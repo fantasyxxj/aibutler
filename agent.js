@@ -6,7 +6,11 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 const persona = require('./persona');
+const paths = require('./paths');
 const { MemoryGraph } = require('./memory');
+
+// SDK 默认去 ~/.claude/local 找 claude; 打包版那里没有 → 显式指向捆绑的二进制(或系统安装位)。
+const CLAUDE_BIN = paths.resolveClaudeBin();
 
 let _sdk = null;
 async function loadSdk() {
@@ -456,6 +460,7 @@ class Butler {
     const options = {
       resume: this.sessionId || undefined,   // 续接旧 session(重启后)或全新
       cwd: this.homeDir,
+      pathToClaudeCodeExecutable: CLAUDE_BIN, // 捆绑/解析后的 claude, 免 PATH 依赖
       permissionMode: 'bypassPermissions',
       // 用 systemPrompt: {preset, append} 而非旧 appendSystemPrompt: SDK 语义等价, 但显式声明"我们要追加, 不做替换";
       // 关键是 append 内容里的强身份指令 (appendSystemPrompt()方法生成) 必须让 LLM 明确身份优先于默认 Claude 训练身份。
@@ -607,6 +612,7 @@ class Butler {
         prompt: '把我们目前为止的整段对话浓缩成一份**高保真交接摘要**, 供你压缩后无缝续上: 包含①未完成的活跃线程+各自进度 ②已定的关键决定/口径 ③待办 ④重要事实/数字。只输出摘要正文, 不要寒暄。',
         options: {
           resume: sess, cwd: this.homeDir,
+          pathToClaudeCodeExecutable: CLAUDE_BIN,
           permissionMode: 'bypassPermissions', appendSystemPrompt: this.appendSystemPrompt(),
           strictMcpConfig: true,
         },

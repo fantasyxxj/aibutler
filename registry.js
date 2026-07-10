@@ -5,12 +5,15 @@
 const fs = require('fs');
 const path = require('path');
 const persona = require('./persona');
+const paths = require('./paths');
 
-const REG_FILE = path.join(__dirname, 'personas.json');
+// 登记簿文件位置: 开发=仓库根/personas.json; 打包=用户数据目录/personas.json。
+// 每次解析(不缓存成常量): 首启选目录后 dataDir 会变, 常量会指向旧位置。
+function regFile() { return paths.registryFile(); }
 
 function loadRegistry() {
   try {
-    const j = JSON.parse(fs.readFileSync(REG_FILE, 'utf8'));
+    const j = JSON.parse(fs.readFileSync(regFile(), 'utf8'));
     if (j && Array.isArray(j.personas)) return j;
   } catch (_) {}
   return { personas: [] };
@@ -23,6 +26,9 @@ function saveRegistry(reg) {
   if (!reg || !Array.isArray(reg.personas)) {
     console.error('[registry] saveRegistry 拒绝: 非法 reg 结构'); return false;
   }
+  const REG_FILE = regFile();
+  // 打包首启等场景: 数据目录可能还没建 → 先确保父目录在, 否则写盘必失败
+  try { fs.mkdirSync(path.dirname(REG_FILE), { recursive: true }); } catch (_) {}
   // 防呆: 现在有 N 条, 新的一次性少了 ≥2 条 → 可疑, 拒
   try {
     if (fs.existsSync(REG_FILE)) {
@@ -177,7 +183,7 @@ function resolveRef(ref) {
 }
 
 module.exports = {
-  REG_FILE, loadRegistry, saveRegistry, list, get, getByDir,
+  regFile, loadRegistry, saveRegistry, list, get, getByDir,
   upsert, remove, setButler, ensureEntry, ensureButler, resolveRef, slug,
   grantPeer, revokePeer, arePeersLinked,
 };
