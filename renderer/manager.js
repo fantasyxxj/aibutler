@@ -17,6 +17,71 @@ const expanded = new Set();
 // HTML 转义(防 XSS 注入到编辑面板 innerHTML)
 const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+// ---- 头像选择器 ----
+const isImgAvatar = (v) => typeof v === 'string' && /^(data:|file:|https?:|\/)/.test(v);
+const COMMON_EMOJIS = ['🤖','🧑‍💻','👩‍💻','🧑‍🎨','🐱','🦊','🐼','🦉','🐧','🐷','🦁','🐰','🌸','🚀','💰','📊','📈','🎨','🎯','🧠','📚','☕','🔧','🛡️','⚡','🎭','🍜','🐉','🌟','🦄'];
+// 上传照片 → 居中裁成 128px 小方图 → JPEG data URL(体积小, 存 registry)
+function fileToAvatarDataURL(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const S = 128;
+      const cv = document.createElement('canvas'); cv.width = S; cv.height = S;
+      const ctx = cv.getContext('2d');
+      const scale = Math.max(S / img.width, S / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
+      URL.revokeObjectURL(url);
+      resolve(cv.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+// 给编辑面板里的 .avatar-picker 挂交互; 选中值写进 .e-avatar-val
+function wireAvatarPicker(box) {
+  const wrap = box.querySelector('.avatar-picker');
+  if (!wrap) return;
+  const hidden = wrap.querySelector('.e-avatar-val');
+  const preview = wrap.querySelector('.ap-preview');
+  const emojiInput = wrap.querySelector('.ap-emoji-input');
+  const grid = wrap.querySelector('.ap-grid');
+  const setVal = (v) => {
+    hidden.value = v || '';
+    preview.textContent = ''; preview.style.backgroundImage = '';
+    if (v && isImgAvatar(v)) { preview.style.backgroundImage = `url("${v}")`; preview.classList.add('img'); }
+    else { preview.classList.remove('img'); preview.textContent = v || '?'; }
+  };
+  COMMON_EMOJIS.forEach((e) => {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'ap-emo'; b.textContent = e;
+    b.addEventListener('click', () => { emojiInput.value = e; setVal(e); });
+    grid.appendChild(b);
+  });
+  emojiInput.addEventListener('input', () => setVal(emojiInput.value.trim()));
+  wrap.querySelectorAll('.ap-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      wrap.querySelectorAll('.ap-tab').forEach((t) => t.classList.toggle('active', t === tab));
+      wrap.querySelector('.ap-pane-emoji').hidden = tab.dataset.tab !== 'emoji';
+      wrap.querySelector('.ap-pane-photo').hidden = tab.dataset.tab !== 'photo';
+    });
+  });
+  const fileInput = wrap.querySelector('.ap-photo-file');
+  wrap.querySelector('.ap-photo-btn').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', async () => {
+    const f = fileInput.files && fileInput.files[0];
+    if (!f) return;
+    const dataUrl = await fileToAvatarDataURL(f);
+    if (dataUrl) setVal(dataUrl);
+    fileInput.value = '';
+  });
+  wrap.querySelector('.ap-clear').addEventListener('click', () => { emojiInput.value = ''; setVal(''); });
+  const cur = hidden.value;
+  if (cur && !isImgAvatar(cur)) emojiInput.value = cur;
+  setVal(cur);
+  if (cur && isImgAvatar(cur)) wrap.querySelector('.ap-tab[data-tab="photo"]').click();
+}
+
 function makeEditPanel(p) {
   const tg = (p.plugins && p.plugins.tg) || {};
   const bh = (p.plugins && p.plugins.bothub) || {};
@@ -25,7 +90,28 @@ function makeEditPanel(p) {
   const box = document.createElement('div'); box.className = 'edit-box';
   box.innerHTML = `
     <div class="e-line"><label>名字</label><input class="e-name" value="${esc(p.name)}"/></div>
-    <div class="e-line"><label>头像</label><input class="e-avatar" placeholder="留空=字母头像; 或一个 emoji" maxlength="4" value="${esc(p.avatar)}"/></div>
+    <div class="e-line"><label>头像</label>
+      <div class="avatar-picker">
+        <div class="ap-preview"></div>
+        <div class="ap-body">
+          <div class="ap-tabs">
+            <button type="button" class="ap-tab active" data-tab="emoji">Emoji</button>
+            <button type="button" class="ap-tab" data-tab="photo">照片</button>
+          </div>
+          <div class="ap-pane ap-pane-emoji">
+            <div class="ap-grid"></div>
+            <input class="ap-emoji-input" placeholder="或粘贴一个 emoji" maxlength="4" />
+          </div>
+          <div class="ap-pane ap-pane-photo" hidden>
+            <button type="button" class="m-btn ap-photo-btn">选择照片…</button>
+            <input type="file" accept="image/*" class="ap-photo-file" hidden />
+            <button type="button" class="m-btn ap-clear" title="清除, 回字母头像">清除</button>
+            <div class="ap-photo-hint">自动裁成 128px 小方图</div>
+          </div>
+        </div>
+        <input type="hidden" class="e-avatar-val" value="${esc(p.avatar)}" />
+      </div>
+    </div>
     <div class="e-line"><label>唤醒语</label><textarea class="e-wake" placeholder="留空 = 起床啦${esc(p.name)}, 载入记忆续线程">${esc(p.wakePhrase)}</textarea></div>
     <div class="e-line"><label>目录</label><div class="e-dir" title="切换目录暂不支持(需迁移记忆图/会话, 未来 P6 一起做)">${esc(p.homeDir)} <span class="e-dir-note">🔒 暂不可改</span></div></div>
 
@@ -86,6 +172,7 @@ function makeEditPanel(p) {
   };
   syncBhAddState();
   bhModeSel.addEventListener('change', syncBhAddState);
+  wireAvatarPicker(box);
   return box;
 }
 
@@ -163,7 +250,7 @@ async function refresh() {
     panel.querySelector('.e-save').addEventListener('click', async () => {
       const newName = panel.querySelector('.e-name').value.trim();
       const newWake = panel.querySelector('.e-wake').value;   // 允许留空 = 用默认
-      const newAvatar = panel.querySelector('.e-avatar').value.trim();
+      const newAvatar = panel.querySelector('.e-avatar-val').value;
       if (!newName) { toast('名字不能空'); return; }
       const patch = {};
       if (newName !== p.name) patch.name = newName;

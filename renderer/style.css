@@ -153,8 +153,28 @@ mark.search-hit.current { background: #f59e0b; color: #1a1a1a; }
 .msg-body.md a.filepath { cursor: pointer; text-decoration: underline dotted; text-underline-offset: 2px; }
 .msg-body.md a.filepath:hover { background: #ffffff14; border-radius: 3px; }
 .msg-body.md code { background: #00000040; padding: 1px 5px; border-radius: 4px; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: .9em; }
-.msg-body.md pre { background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; margin: 6px 0; }
+.msg-body.md pre { position: relative; background: var(--field); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; overflow-x: auto; margin: 6px 0; }
 .msg-body.md pre code { background: none; padding: 0; font-size: .88em; line-height: 1.5; display: block; white-space: pre; }
+/* 代码块复制按钮(VSCode 式: 悬浮右上角, 点击复制) */
+.msg-body.md pre .copy-btn { position: absolute; top: 6px; right: 6px; opacity: 0; transition: opacity .12s; background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); border-radius: 5px; min-width: 26px; height: 24px; padding: 0 6px; font-size: 12px; line-height: 22px; cursor: pointer; z-index: 2; }
+.msg-body.md pre:hover .copy-btn { opacity: .9; }
+.msg-body.md pre .copy-btn:hover { opacity: 1; color: #fff; }
+.msg-body.md pre .copy-btn.copied { color: #16a34a; border-color: #16a34a; opacity: 1; }
+
+/* 头像选择器(manager 编辑面板) */
+.avatar-picker { display: flex; gap: 10px; align-items: flex-start; }
+.ap-preview { width: 46px; height: 46px; border-radius: 50%; flex: none; background: var(--panel-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; font-size: 24px; background-size: cover; background-position: center; overflow: hidden; color: #fff; }
+.ap-preview.img { font-size: 0; }
+.ap-body { flex: 1; min-width: 0; }
+.ap-tabs { display: flex; gap: 4px; margin-bottom: 6px; }
+.ap-tab { background: var(--panel-2); border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: 3px 12px; font-size: 12px; cursor: pointer; }
+.ap-tab.active { color: #fff; border-color: var(--accent); }
+.ap-grid { display: flex; flex-wrap: wrap; gap: 3px; margin-bottom: 6px; max-height: 100px; overflow-y: auto; }
+.ap-emo { width: 30px; height: 30px; font-size: 18px; line-height: 1; background: transparent; border: 1px solid transparent; border-radius: 6px; cursor: pointer; padding: 0; }
+.ap-emo:hover { border-color: var(--line); background: var(--panel-2); }
+.ap-emoji-input { width: 100%; }
+.ap-photo-hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
+.ap-pane-photo .m-btn { margin-right: 6px; }
 .msg-body.md blockquote { margin: 6px 0; padding: 2px 10px; border-left: 3px solid var(--brand); color: var(--muted); }
 .msg-body.md hr { border: none; border-top: 1px solid var(--line); margin: 8px 0; }
 .msg-body.md table { border-collapse: collapse; margin: 6px 0; font-size: .92em; display: block; overflow-x: auto; max-width: 100%; }
@@ -207,6 +227,9 @@ mark.search-hit.current { background: #f59e0b; color: #1a1a1a; }
 .thumb { position: relative; width: 48px; height: 48px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
 .thumb .x { position: absolute; top: -2px; right: 1px; color: #fff; background: #000a; border-radius: 50%; width: 16px; height: 16px; line-height: 15px; text-align: center; font-size: 12px; cursor: pointer; }
+.thumb.file { width: auto; max-width: 170px; height: 48px; overflow: visible; display: flex; align-items: center; gap: 6px; padding: 0 22px 0 8px; background: var(--panel); }
+.thumb.file .fico { font-size: 20px; line-height: 1; }
+.thumb.file .fname { font-size: 11px; line-height: 1.25; max-width: 116px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ===== 输入区 ===== */
 #inputbar { display: flex; gap: 10px; padding: 12px 16px; background: var(--panel); border-top: 1px solid var(--line); align-items: flex-end; }

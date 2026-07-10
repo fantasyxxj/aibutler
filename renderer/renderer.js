@@ -65,7 +65,37 @@ const bodyOf = (el) => (el && el._body) || el;
 function renderMd(body) {
   if (!body || typeof window.renderMarkdown !== 'function') return;
   const html = window.renderMarkdown(body.textContent);
-  if (html) { body.innerHTML = html; body.classList.add('md'); }
+  if (html) { body.innerHTML = html; body.classList.add('md'); decorateCode(body); }
+}
+
+// 给渲染后的代码块加"复制"按钮(VSCode 式: 右上角悬浮, 点一下复制代码原文)
+function decorateCode(container) {
+  container.querySelectorAll('pre').forEach((pre) => {
+    if (pre.querySelector('.copy-btn')) return;              // 幂等, 别重复加
+    const code = pre.querySelector('code');
+    if (!code) return;
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.type = 'button';
+    btn.title = '复制代码';
+    btn.textContent = '📋';
+    btn.onclick = async (e) => {
+      e.stopPropagation();
+      const text = code.textContent || '';
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (_) {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (__) {}
+        ta.remove();
+      }
+      btn.textContent = '✓'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = '📋'; btn.classList.remove('copied'); }, 1200);
+    };
+    pre.appendChild(btn);
+  });
 }
 
 function sysMsgTo(tab, text, extra = '') { return addMsgTo(tab, 'system' + (extra ? ' ' + extra : ''), text, null); }
@@ -143,10 +173,13 @@ function refreshBusy() { const t = activeTab(); compactBtn.disabled = !t || t.bu
 
 // ---- 头像: emoji 或 字母(名字首字 + 按名字 hash 的稳定背景色) ----
 const AVATAR_COLORS = ['#e0567a', '#e08a56', '#c9a227', '#5cae5c', '#4aa3c7', '#6b7ae0', '#a15ce0', '#c74a9e'];
+// avatar 字段: 图片(data:/file:/http/绝对路径) → 照片头像; 否则 emoji; 空 → 字母头像
+function isImgAvatar(v) { return typeof v === 'string' && /^(data:|file:|https?:|\/)/.test(v); }
 function avatarOf(persona) {
   const name = (persona && persona.name) || '?';
-  const emoji = persona && persona.avatar;   // avatar 字段(emoji); 空 → 字母头像
-  if (emoji) return { emoji };
+  const av = persona && persona.avatar;
+  if (av && isImgAvatar(av)) return { img: av };
+  if (av) return { emoji: av };
   let h = 0; for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   return { letter: [...name][0] || '?', bg: AVATAR_COLORS[h % AVATAR_COLORS.length] };
 }
@@ -154,8 +187,18 @@ function paintAvatar(el, persona) {
   if (!el) return;
   const a = avatarOf(persona);
   el.classList.toggle('is-emoji', !!a.emoji);
-  el.textContent = a.emoji || a.letter;
-  el.style.background = a.emoji ? 'transparent' : a.bg;
+  el.classList.toggle('is-photo', !!a.img);
+  if (a.img) {
+    el.textContent = '';
+    el.style.backgroundImage = `url("${a.img}")`;
+    el.style.backgroundSize = 'cover';
+    el.style.backgroundPosition = 'center';
+    el.style.backgroundColor = 'transparent';
+  } else {
+    el.style.backgroundImage = '';
+    el.textContent = a.emoji || a.letter;
+    el.style.background = a.emoji ? 'transparent' : a.bg;
+  }
 }
 
 // ---- 建标签 ----
@@ -266,8 +309,17 @@ function renderAttachStrip() {
   list.forEach((a, i) => {
     const chip = document.createElement('div');
     chip.className = 'thumb';
-    chip.innerHTML = `<img src="data:${a.mediaType};base64,${a.base64}"/><span class="x">×</span>`;
-    chip.querySelector('.x').onclick = () => { list.splice(i, 1); renderAttachStrip(); };
+    if ((a.mediaType || '').startsWith('image/')) {
+      chip.innerHTML = `<img src="data:${a.mediaType};base64,${a.base64}"/><span class="x">×</span>`;
+      chip.querySelector('.x').onclick = () => { list.splice(i, 1); renderAttachStrip(); };
+    } else {
+      chip.classList.add('file');
+      const ico = document.createElement('span'); ico.className = 'fico'; ico.textContent = '📄';
+      const nm = document.createElement('span'); nm.className = 'fname'; nm.textContent = a.name || 'file';
+      const x = document.createElement('span'); x.className = 'x'; x.textContent = '×';
+      x.onclick = () => { list.splice(i, 1); renderAttachStrip(); };
+      chip.append(ico, nm, x);
+    }
     attachstrip.appendChild(chip);
   });
 }
@@ -276,7 +328,7 @@ function fileToAttachment(file) {
     const r = new FileReader();
     r.onload = () => {
       const b64 = String(r.result).split(',')[1] || '';
-      resolve({ mediaType: file.type || 'image/png', base64: b64, name: file.name || 'image' });
+      resolve({ mediaType: file.type || 'application/octet-stream', base64: b64, name: file.name || 'file' });
     };
     r.readAsDataURL(file);
   });
@@ -285,7 +337,7 @@ async function addFiles(files) {
   const tab = activeTab();
   if (!tab) return;
   for (const f of files) {
-    if (f && f.type && f.type.startsWith('image/')) tab.attachments.push(await fileToAttachment(f));
+    if (f) tab.attachments.push(await fileToAttachment(f));   // 任意文件, 不再限图片
   }
   renderAttachStrip();
 }
@@ -302,7 +354,7 @@ async function send() {
   // 插话(软插话): 上一轮还在流式 → 先收尾当前 AI 气泡, 使旧轮后续输出排到本条用户消息之下(不再在上方旧气泡里长)
   const interjecting = !!tab.activeBubble;
   if (interjecting) finalizeAssistantBubble(tab);
-  addMsgTo(tab, 'user', text + (toSend.length ? `  🖼×${toSend.length}` : ''));
+  addMsgTo(tab, 'user', text + (toSend.length ? `  📎×${toSend.length}` : ''));
   tab.attachments = []; renderAttachStrip();
   tab.busy = true;
   // 新一轮才起占位思考气泡; 插话时不起(旧轮后续 onChunk 会在用户消息下方自建气泡, 避免 finalText 兜底重复正文)
@@ -404,6 +456,16 @@ window.butler.onUsage((sid, u) => {
 // 管家在窗口里开/建了别的人格 → 主进程推来 → 加标签并激活
 window.butler.onPersonaOpened((meta) => {
   if (!meta || !meta.sid) return;
+  const existing = tabs.get(meta.sid);
+  if (existing && meta.persona) {
+    // 已有标签: 编辑人格(改名/换头像)后会重发 persona-opened → 用新 meta 刷新标签头像/名字, 别早退浪费掉
+    existing.persona = meta.persona;
+    existing.tabEl.title = meta.persona.name || '人格';
+    paintAvatar(existing.avatarEl, meta.persona);
+    if (meta.sid === activeSid) showPersona(meta.persona);
+    switchTab(meta.sid);
+    return;
+  }
   makeTab(meta, { activate: true });
 });
 
@@ -527,8 +589,8 @@ document.getElementById('searchClose').addEventListener('click', closeSearch);
 window.addEventListener('keydown', (e) => {
   if ((e.metaKey || e.ctrlKey) && (e.key === 'f' || e.key === 'F')) { e.preventDefault(); openSearch(); }
 });
-// 登记簿变了(改名/删) → 已开标签的名字下次 list 时新, 顶栏也刷
-window.butler.onRegistryChanged && window.butler.onRegistryChanged(async () => {
+// 登记簿变了(改名/删/头像) → 同步已开标签的名字/头像/顶栏。也在启动时调一次(重启后 meta 可能是旧的, 头像不刷)。
+async function refreshTabsFromRegistry() {
   const r = await window.butler.listPersonas();
   const map = new Map(((r && r.personas) || []).map((p) => [p.homeDir, p]));
   for (const [sid, tab] of tabs) {
@@ -540,7 +602,8 @@ window.butler.onRegistryChanged && window.butler.onRegistryChanged(async () => {
       if (sid === activeSid) showPersona(tab.persona);
     }
   }
-});
+}
+window.butler.onRegistryChanged && window.butler.onRegistryChanged(refreshTabsFromRegistry);
 
 // 点击消息里的文件路径链接 → 默认程序打开; Cmd/Ctrl+点 → Finder 里定位
 function openFilepath(e, reveal) {
@@ -662,5 +725,6 @@ function showPersona(p) {
   const active = (r && r.active) || (list[0] && list[0].sid);
   for (const meta of list) makeTab(meta, { activate: meta.sid === active });
   if (!list.length) return;
+  await refreshTabsFromRegistry();   // 启动时从登记簿再同步一次名字/头像(重启后 meta 可能是旧的)
   input.focus();
 })();

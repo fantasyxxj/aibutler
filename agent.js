@@ -421,7 +421,24 @@ class Butler {
   buildUserMessage(text, attachments) {
     const blocks = [{ type: 'text', text }];
     for (const a of (attachments || [])) {
-      blocks.push({ type: 'image', source: { type: 'base64', media_type: a.mediaType, data: a.base64 } });
+      const mt = a.mediaType || 'application/octet-stream';
+      const name = a.name || 'file';
+      if (mt.startsWith('image/')) {
+        blocks.push({ type: 'image', source: { type: 'base64', media_type: mt, data: a.base64 } });
+      } else if (mt === 'application/pdf') {
+        blocks.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: a.base64 } });
+      } else {
+        // 其余文件: 能当 UTF-8 文本读的(html/txt/md/json/代码…)内联给模型; 纯二进制则提示无法直读
+        let asText = null;
+        try {
+          const s = Buffer.from(a.base64 || '', 'base64').toString('utf8');
+          const bad = (s.match(/�/g) || []).length;
+          if (s && !s.includes('\u0000') && bad < s.length * 0.02) asText = s;
+        } catch (_) {}
+        blocks.push(asText != null
+          ? { type: 'text', text: `【附件文件: ${name}（${mt}）】\n\`\`\`\n${asText}\n\`\`\`` }
+          : { type: 'text', text: `【附件文件: ${name}（${mt}）— 二进制内容，模型无法直接读取；如需处理请存盘后用 Read 等工具打开。】` });
+      }
     }
     return { type: 'user', message: { role: 'user', content: blocks }, parent_tool_use_id: null };
   }
