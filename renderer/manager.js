@@ -3,7 +3,6 @@ const listEl = document.getElementById('list');
 const toastEl = document.getElementById('toast');
 const F = { name: document.getElementById('f-name'), dir: document.getElementById('f-dir'),
             wake: document.getElementById('f-wake'), butler: document.getElementById('f-butler'),
-            avatar: document.getElementById('f-avatar'),
             choose: document.getElementById('f-choose'), create: document.getElementById('f-create') };
 
 function toast(text) {
@@ -80,7 +79,10 @@ function wireAvatarPicker(box) {
   if (cur && !isImgAvatar(cur)) emojiInput.value = cur;
   setVal(cur);
   if (cur && isImgAvatar(cur)) wrap.querySelector('.ap-tab[data-tab="photo"]').click();
+  return setVal;   // 供外部重置(如新建表单提交后清空)
 }
+// 新建表单的头像选择器(2 tab, 与编辑面板同款); 脚本在 body 末尾, DOM 已就绪
+const createSetAvatar = wireAvatarPicker(document.getElementById('f-avatar-wrap'));
 
 function makeEditPanel(p) {
   const tg = (p.plugins && p.plugins.tg) || {};
@@ -291,12 +293,12 @@ F.create.addEventListener('click', async () => {
   const r = await window.butler.createPersonaUI({
     name, homeDir: F.dir.value.trim() || undefined,
     wakePhrase: F.wake.value.trim() || undefined, isButler: F.butler.checked,
-    avatar: F.avatar.value.trim() || undefined,
+    avatar: document.getElementById('f-avatar-val').value || undefined,
   });
   F.create.disabled = false;
   if (r.ok) {
     toast(`已创建并打开: ${r.name}`);
-    F.name.value = ''; F.dir.value = ''; F.wake.value = ''; F.butler.checked = false; F.avatar.value = '';
+    F.name.value = ''; F.dir.value = ''; F.wake.value = ''; F.butler.checked = false; createSetAvatar('');
   } else { toast('创建失败: ' + r.error); }
 });
 

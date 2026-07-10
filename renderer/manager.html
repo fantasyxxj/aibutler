@@ -12,7 +12,29 @@
   <div class="m-form">
     <label>新建人格</label><div></div>
     <label>名字</label><input id="f-name" placeholder="如: 小画" />
-    <label>头像</label><input id="f-avatar" placeholder="留空 = 字母头像; 或填一个 emoji 如 🐷 🤵 🎨" maxlength="4" />
+    <label>头像</label>
+    <div id="f-avatar-wrap">
+      <div class="avatar-picker">
+        <div class="ap-preview"></div>
+        <div class="ap-body">
+          <div class="ap-tabs">
+            <button type="button" class="ap-tab active" data-tab="emoji">Emoji</button>
+            <button type="button" class="ap-tab" data-tab="photo">照片</button>
+          </div>
+          <div class="ap-pane ap-pane-emoji">
+            <div class="ap-grid"></div>
+            <input class="ap-emoji-input" placeholder="或粘贴一个 emoji" maxlength="4" />
+          </div>
+          <div class="ap-pane ap-pane-photo" hidden>
+            <button type="button" class="m-btn ap-photo-btn">选择照片…</button>
+            <input type="file" accept="image/*" class="ap-photo-file" hidden />
+            <button type="button" class="m-btn ap-clear">清除</button>
+            <div class="ap-photo-hint">自动裁成 128px 小方图</div>
+          </div>
+        </div>
+        <input type="hidden" class="e-avatar-val" id="f-avatar-val" value="" />
+      </div>
+    </div>
     <label>目录</label>
     <div style="display:flex;gap:6px;">
       <input id="f-dir" placeholder="留空 = butler/personas/&lt;名字&gt;" style="flex:1"/>
