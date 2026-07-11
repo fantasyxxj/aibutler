@@ -64,6 +64,10 @@ class Butler {
     // 帽子(标签栏管家标识)专用: 打开这个会话时的管家身份, updatePersona 不改它 →
     // 设管家当下帽子不抢跳; 等这个人格的会话重开(重开标签/重启 app)以管家身份跑起来, 帽子才移过去。跟会话走。
     this.openedAsButler = !!opts.isButler;
+    // 模型偏好(用户在编辑面板选的, 持久化到 registry.model)。空=跟随 Claude Code 默认。
+    // 注意区分 this.model(运行时首轮上报值) vs this.preferredModel(用户偏好, 影响下次会话启动)。
+    // 切换后要等会话重开(关标签重开/重启 app/下次压缩)才生效——SDK query 的 model 每次启动定死, 中途不能改。
+    this.preferredModel = opts.model || null;
     this.avatar = opts.avatar || null;    // 头像(emoji), 空 = 渲染层用字母头像兜底
     this.personaOps = null;               // main 注入: { open(ref), create(spec) } — 管家开/建人格回调
     this.memory = new MemoryGraph(this.memoryDir);   // 人格原生图记忆(遗忘曲线+图扩散), 每人格一张图
@@ -149,7 +153,7 @@ class Butler {
       '',
       '## 运行时环境(harness 提供的权威事实, 优先于你的训练记忆)',
       `- 人格/工作目录: ${this.name} (${this.homeDir})`,
-      `- 运行模型: ${this.model || '(首轮待 harness 上报)'}`,
+      `- 运行模型: ${this.model || '(首轮待 harness 上报)'}${this.preferredModel ? ` · 偏好=${this.preferredModel}` : ' · 无偏好(跟随默认)'}`,
       `- 上下文窗口: ${u.window} tokens`,
       `- 当前上下文占用: ${u.pct}% (${u.inTok} tokens)`,
       `- 记忆库: ${this.memoryDir} (MEMORY.md 是索引, 需要旧知识/上次线程可 Read)`,
@@ -492,6 +496,7 @@ class Butler {
       resume: this.sessionId || undefined,   // 续接旧 session(重启后)或全新
       cwd: this.homeDir,
       pathToClaudeCodeExecutable: CLAUDE_BIN, // 捆绑/解析后的 claude, 免 PATH 依赖
+      ...(this.preferredModel ? { model: this.preferredModel } : {}), // 空=跟随 Claude Code 默认
       permissionMode: 'bypassPermissions',
       // 用 systemPrompt: {preset, append} 而非旧 appendSystemPrompt: SDK 语义等价, 但显式声明"我们要追加, 不做替换";
       // 关键是 append 内容里的强身份指令 (appendSystemPrompt()方法生成) 必须让 LLM 明确身份优先于默认 Claude 训练身份。
@@ -644,6 +649,7 @@ class Butler {
         options: {
           resume: sess, cwd: this.homeDir,
           pathToClaudeCodeExecutable: CLAUDE_BIN,
+          ...(this.preferredModel ? { model: this.preferredModel } : {}),
           permissionMode: 'bypassPermissions', appendSystemPrompt: this.appendSystemPrompt(),
           strictMcpConfig: true,
         },

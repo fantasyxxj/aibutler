@@ -115,6 +115,14 @@ function makeEditPanel(p) {
       </div>
     </div>
     <div class="e-line"><label>唤醒语</label><textarea class="e-wake" placeholder="留空 = 起床啦${esc(p.name)}, 载入记忆续线程">${esc(p.wakePhrase)}</textarea></div>
+    <div class="e-line"><label>模型</label>
+      <select class="e-model" title="切换后要等会话重启才生效(关标签重开/重启app/下次压缩); 空=跟随 Claude Code 默认">
+        <option value="" ${!p.model?'selected':''}>跟随默认</option>
+        <option value="sonnet" ${p.model==='sonnet'?'selected':''}>Sonnet(均衡, 日常首选)</option>
+        <option value="opus" ${p.model==='opus'?'selected':''}>Opus(旗舰, 复杂/长文)</option>
+        <option value="haiku" ${p.model==='haiku'?'selected':''}>Haiku(快省, 走量/简单)</option>
+      </select>
+    </div>
     <div class="e-line"><label>目录</label><div class="e-dir" title="切换目录暂不支持(需迁移记忆图/会话, 未来 P6 一起做)">${esc(p.homeDir)} <span class="e-dir-note">🔒 暂不可改</span></div></div>
 
     <div class="e-persona-md">
@@ -264,10 +272,20 @@ async function refresh() {
       const newWake = panel.querySelector('.e-wake').value;   // 允许留空 = 用默认
       const newAvatar = panel.querySelector('.e-avatar-val').value;
       if (!newName) { toast('名字不能空'); return; }
+      const newModel = panel.querySelector('.e-model').value;   // '' = 跟随默认
       const patch = {};
       if (newName !== p.name) patch.name = newName;
       if (newAvatar !== (p.avatar || '')) patch.avatar = newAvatar;
       if (newWake !== (p.wakePhrase || '')) patch.wakePhrase = newWake;
+      if (newModel !== (p.model || '')) {
+        // 模型偏好改了 + 该人格当前开着 → 弹确认: 跟"设为管家"同构, 得等会话重启才生效
+        if (p.open && !window.confirm(
+          `把「${p.name}」的模型偏好切成「${newModel || '跟随默认'}」？\n\n` +
+          `⚠️ 它当前正开着 —— 模型不会立刻切, 要等这个人格的会话重启后才生效:\n` +
+          `  · 关掉该标签重新打开, 或\n  · 下次自动压缩, 或\n  · 重启 app\n\n` +
+          `原因: SDK 会话启动时定死用哪个模型, 中途不能改。`)) return;
+        patch.model = newModel;   // '' = 传空显式取消偏好
+      }
       // 插件配置合并进 patch(不管有没有改, 一起提交; 后端 upsert 合并到位)
       const newPlugins = readPluginsFromPanel(panel);
       const oldPlugins = p.plugins || {};

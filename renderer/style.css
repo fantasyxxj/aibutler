@@ -255,6 +255,14 @@ mark.search-hit.current { background: #f59e0b; color: #1a1a1a; }
 }
 #sendBtn:hover { background: var(--brand-hi); }
 #sendBtn:disabled { opacity: .5; cursor: default; }
+/* 取消当前一轮: 只在 busy 时显示, 视觉走"救援"色(琥珀), 不抢主发送按钮的注意力 */
+#cancelBtn {
+  flex: none; height: 40px; padding: 0 14px;
+  background: transparent; color: #d9a441; border: 1px solid #d9a441; border-radius: var(--radius-sm);
+  cursor: pointer; font-size: 14px; font-weight: 500;
+}
+#cancelBtn:hover { background: #d9a441; color: #fff; }
+#cancelBtn:disabled { opacity: .5; cursor: default; }
 
 /* ＋号 picker 弹层: 点＋弹一列人格, 已开的置灰 */
 .picker-mask { position: fixed; inset: 0; background: #00000060; z-index: 999; display: flex; align-items: flex-start; justify-content: flex-start; }

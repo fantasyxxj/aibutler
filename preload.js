@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('butler', {
   getHistory: (sid) => ipcRenderer.invoke('get-history', { sid }),
   send: (sid, payload) => ipcRenderer.invoke('send-message', { sid, ...payload }),  // payload:{text,attachments}
   compact: (sid) => ipcRenderer.invoke('compact', { sid }),
+  cancelCurrent: (sid) => ipcRenderer.invoke('cancel-current', { sid }),   // 打断当前跑着的一轮(用户救援, 消息文本 renderer 侧回填草稿)
   openPersona: () => ipcRenderer.invoke('open-persona'),             // 选目录 → { ok, meta:{sid,persona,usage} }
   closeSession: (sid) => ipcRenderer.invoke('close-session', { sid }),
   openPath: (p, reveal) => ipcRenderer.invoke('open-path', { path: p, reveal: !!reveal }),  // 点文件路径→默认程序打开/Finder定位

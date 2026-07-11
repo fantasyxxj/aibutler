@@ -16,6 +16,7 @@ const personaName = document.getElementById('personaName');
 const personaDir = document.getElementById('personaDir');
 const personaAvatar = document.getElementById('personaAvatar');
 const closeCurrentBtn = document.getElementById('closeCurrentBtn');
+const cancelBtn = document.getElementById('cancelBtn');
 
 const tabs = new Map();     // sid -> Tab
 let activeSid = null;
@@ -169,7 +170,12 @@ function renderUsage(u) {
 }
 
 // 压缩键: 活动标签有活动回复时禁用(压缩需干净停顿点)
-function refreshBusy() { const t = activeTab(); compactBtn.disabled = !t || t.busy; }
+function refreshBusy() {
+  const t = activeTab();
+  compactBtn.disabled = !t || t.busy;
+  // 取消按钮: 只在当前标签 busy 时显示——用户按了发送、正在跑, 才能救援
+  if (cancelBtn) cancelBtn.style.display = (t && t.busy) ? '' : 'none';
+}
 
 // ---- 头像: emoji 或 字母(名字首字 + 按名字 hash 的稳定背景色) ----
 const AVATAR_COLORS = ['#e0567a', '#e08a56', '#c9a227', '#5cae5c', '#4aa3c7', '#6b7ae0', '#a15ce0', '#c74a9e'];
@@ -367,6 +373,7 @@ async function send() {
   if (!text && !tab.attachments.length) return;
   tab.stick = true;   // 用户主动发言 → 跳回底部跟随
   const toSend = tab.attachments.slice();
+  tab.lastSubmittedText = text;   // 暂存原文, 用于取消后回填草稿(不丢用户已打的字)
   input.value = ''; input.style.height = 'auto'; tab.draft = '';
   // 插话(软插话): 上一轮还在流式 → 先收尾当前 AI 气泡, 使旧轮后续输出排到本条用户消息之下(不再在上方旧气泡里长)
   const interjecting = !!tab.activeBubble;
@@ -503,6 +510,23 @@ document.body.addEventListener('drop', (e) => { e.preventDefault(); if (e.dataTr
 attachBtn.addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', () => { if (fileInput.files.length) addFiles(fileInput.files); fileInput.value = ''; });
 sendBtn.addEventListener('click', send);
+if (cancelBtn) cancelBtn.addEventListener('click', async () => {
+  const tab = activeTab();
+  if (!tab || !tab.busy) return;
+  cancelBtn.disabled = true;
+  try {
+    await window.butler.cancelCurrent(tab.sid);
+    // 草稿回填: 只在 input 空的时候, 把用户上次发的原文放回去 → 方便修改后重发, 别覆盖用户已经在打的新字
+    if (!input.value && tab.lastSubmittedText) {
+      input.value = tab.lastSubmittedText;
+      tab.draft = tab.lastSubmittedText;
+      input.focus();
+      // auto-resize 让文本框展开到能看全
+      input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 300) + 'px';
+    }
+    // busy 由 onResult(interrupted=true) 路径清; 这里只清按钮 disabled
+  } finally { cancelBtn.disabled = false; }
+});
 compactBtn.addEventListener('click', doCompact);
 // ＋号 = 弹已登记人格 picker; 底部两条 "新建人格…"/"管理人格…" 打开管理窗口。已开的置灰。
 async function showPicker() {

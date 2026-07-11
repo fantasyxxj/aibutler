@@ -77,7 +77,7 @@ function openPersona(homeDir) {
   if (sessions.has(sid)) return sessions.get(sid);
 
   const entry = registry.ensureEntry(homeDir);   // 登记簿(不在则迁移建条): 名字/唤醒语/是否管家 以它为准
-  const butler = new Butler(homeDir, { name: entry.name, wakePhrase: entry.wakePhrase, isButler: entry.isButler, avatar: entry.avatar });
+  const butler = new Butler(homeDir, { name: entry.name, wakePhrase: entry.wakePhrase, isButler: entry.isButler, avatar: entry.avatar, model: entry.model });
   butler.personaOps = { open: openPersonaByRef, create: createPersona, ask: askPersona, peerTalk, grantPeer, revokePeer, list: listPersonas };   // 开/建/问/列(管家) + 叶子直连/授权回调
   const saved = loadSessionMigrating(butler);
   const convo = (saved && Array.isArray(saved.messages)) ? saved.messages : [];
@@ -128,11 +128,13 @@ async function installPlugins(s) {
   const entry = registry.getByDir(s.butler.homeDir);
   const plugins = (entry && entry.plugins) || {};
   const tgOnMessage = (record) => {
-    if (s.butler.isRunning()) {
-      // 忙就跳: 消息已落 in_file 兜底, butler 空闲后可自查 tail
-      pluginLog(`[tg:${s.butler.name}] 忙, 收到消息暂不唤醒 (已落 in_file, update_id=${record.update_id})`);
-      return;
-    }
+    // 软插话路径: submit 是 push 到 queue 【不打断】(见 agent.js submit 注释), busy 也是安全的——
+    // SDK streaming input mode 顺序消费队列, 模型把手头这步做完, 到下个间歇读到 TG 消息、自行决定改道。
+    // 【历史坑 · 2026-07-11 排查】曾经这里有 `if (isRunning()) return` 保守 gatekeeping,
+    // 导致人格跑长任务时 TG 消息只落 in_file 不通知 LLM → 从用户视角"丢件"。
+    // askPersona/peerTalk/bothub 全都走 busy-safe submit, TG 也应一样。
+    const busyNote = s.butler.isRunning() ? '(忙, 排队软插话)' : '';
+    if (busyNote) pluginLog(`[tg:${s.butler.name}] ${busyNote} update_id=${record.update_id}`);
     const preview = (record.text || '').slice(0, 200);
     const hasImg = Array.isArray(record.attachments) && record.attachments.length;
     const fileNote = record.file_path
@@ -390,11 +392,12 @@ function isClaudeLoggedIn() {
   const { spawnSync } = require('child_process');
   try {
     const r = spawnSync(CLAUDE_BIN, ['auth', 'status'], { encoding: 'utf-8', timeout: 8000 });
+    console.log(`[auth/status] bin=${CLAUDE_BIN} exit=${r.status} stdout=${(r.stdout||'').slice(0,200).replace(/\n/g,' ')} stderr=${(r.stderr||'').slice(0,200).replace(/\n/g,' ')}`);
     if (r.status !== 0) return false;
     const stdout = r.stdout || '';
     try { const j = JSON.parse(stdout); if (j && j.loggedIn === true) return true; } catch (_) {}
     if (/logged\s*in|authenticated|已登录/i.test(stdout + (r.stderr || ''))) return true;
-  } catch (_) {}
+  } catch (e) { console.log(`[auth/status] exception: ${e && e.message}`); }
   return false;
 }
 
@@ -403,16 +406,18 @@ function isClaudeLoggedIn() {
 function waitForLogin(child, timeoutMs) {
   return new Promise((resolve) => {
     let done = false;
-    const finish = (v) => { if (done) return; done = true; try { clearInterval(iv); } catch (_) {} resolve(v); };
-    const iv = setInterval(() => { if (isClaudeLoggedIn()) { try { child.kill(); } catch (_) {} finish(true); } }, 2500);
-    child.on('exit', () => setTimeout(() => finish(isClaudeLoggedIn()), 600));
-    child.on('error', () => finish(false));
-    setTimeout(() => { try { child.kill(); } catch (_) {} finish(isClaudeLoggedIn()); }, timeoutMs);
+    const finish = (v) => { if (done) return; done = true; console.log(`[auth/login] waitForLogin finish=${v}`); try { clearInterval(iv); } catch (_) {} resolve(v); };
+    const iv = setInterval(() => { if (isClaudeLoggedIn()) { console.log('[auth/login] status 变已登录 → 结束'); try { child.kill(); } catch (_) {} finish(true); } }, 2500);
+    child.on('exit', (code, sig) => { console.log(`[auth/login] CLI exit code=${code} sig=${sig}`); setTimeout(() => finish(isClaudeLoggedIn()), 600); });
+    child.on('error', (e) => { console.log(`[auth/login] CLI error: ${e && e.message}`); finish(false); });
+    setTimeout(() => { console.log(`[auth/login] 超时 ${timeoutMs}ms → kill`); try { child.kill(); } catch (_) {} finish(isClaudeLoggedIn()); }, timeoutMs);
   });
 }
 
 async function ensureClaudeAuth() {
-  if (isClaudeLoggedIn()) return true;
+  console.log('[auth] === ensureClaudeAuth 开始 ===');
+  if (isClaudeLoggedIn()) { console.log('[auth] 已登录, 跳过登录流程'); return true; }
+  console.log('[auth] 未登录, 弹连接对话框');
   const choice = dialog.showMessageBoxSync({
     type: 'info',
     title: '连接 Claude',
@@ -425,13 +430,18 @@ async function ensureClaudeAuth() {
   const { spawn } = require('child_process');
   let child;
   try {
+    console.log(`[auth/login] spawn: ${CLAUDE_BIN} auth login --claudeai`);
     child = spawn(CLAUDE_BIN, ['auth', 'login', '--claudeai'], { stdio: ['ignore', 'pipe', 'pipe'] });
-  } catch (_) { child = null; }
+    console.log(`[auth/login] child pid=${child.pid}`);
+  } catch (e) { console.log(`[auth/login] spawn 失败: ${e && e.message}`); child = null; }
   if (child) {
-    // 有的环境 CLI 只把授权 URL 打到 stdout 而不自动开浏览器 → 抓到就替它开
-    let opened = false;
-    const sniff = (buf) => { const m = String(buf).match(/https?:\/\/\S+/); if (m && !opened) { opened = true; try { shell.openExternal(m[0]); } catch (_) {} } };
-    try { child.stdout.on('data', sniff); child.stderr.on('data', sniff); } catch (_) {}
+    // 把 CLI 原始输出转发到主进程 stdout, npm start | tee 时能抓到 → 用于诊断"两次浏览器/要 paste code"这类问题。
+    // 注: 上一版本还有 sniff URL 再 shell.openExternal 打开一次的逻辑, 是那"浏览器打开两次"的根因, 已删除——
+    // claude CLI 自己会 openExternal, 我们别再重复。
+    try {
+      child.stdout.on('data', (buf) => process.stdout.write(`[claude/auth stdout] ${buf}`));
+      child.stderr.on('data', (buf) => process.stderr.write(`[claude/auth stderr] ${buf}`));
+    } catch (_) {}
     const ok = await waitForLogin(child, 180000);   // 最多等 3 分钟
     if (ok) return true;
   }
@@ -520,7 +530,7 @@ ipcMain.handle('list-sessions', async () => ({
 ipcMain.handle('list-personas', async () => ({
   personas: registry.list().map((p) => ({
     id: p.id, name: p.name, avatar: p.avatar || '', homeDir: p.homeDir, isButler: !!p.isButler,
-    wakePhrase: p.wakePhrase || '', plugins: p.plugins || {}, open: sessions.has(sidOf(p.homeDir)),
+    wakePhrase: p.wakePhrase || '', model: p.model || '', plugins: p.plugins || {}, open: sessions.has(sidOf(p.homeDir)),
     // 状态: 已开人格的托管子进程实况(pid/exit); 未开=null
     pluginStatus: (() => {
       const s = sessions.get(sidOf(p.homeDir));
@@ -545,6 +555,17 @@ ipcMain.handle('send-message', async (_e, payload = {}) => {
   s.convo.push({ role: 'user', text, img: attachments.length, ts: Date.now() });
   try { await s.butler.submit(text, attachments); return { ok: true }; }
   catch (e) { return { ok: false, error: String((e && e.stack) || e) }; }
+});
+
+// 用户救援: 打断当前跑着的一轮。SDK interrupt() 触发 result subtype='interrupt', 走原有 onResult→onFinal 路径清 busy。
+// query stream 不 teardown, 下一轮 submit 复用同一 stream(懒重开——interrupt 后 SDK query 仍能继续接收 new prompt)。
+ipcMain.handle('cancel-current', async (_e, { sid } = {}) => {
+  const s = sessionFor(sid);
+  if (!s || !s.butler) return { ok: false, error: '标签无会话' };
+  try {
+    const ok = await s.butler.interrupt();
+    return { ok };
+  } catch (e) { return { ok: false, error: String((e && e.message) || e) }; }
 });
 
 ipcMain.handle('compact', async (_e, { sid } = {}) => {
@@ -622,6 +643,7 @@ ipcMain.handle('update-persona', async (_e, { id, patch } = {}) => {
     if (cleanPatch.avatar !== undefined) s.butler.avatar = cleanPatch.avatar || null;
     if (cleanPatch.wakePhrase !== undefined) s.butler.wakePhrase = cleanPatch.wakePhrase;
     if (cleanPatch.isButler !== undefined) s.butler.isButler = !!cleanPatch.isButler;
+    if (cleanPatch.model !== undefined) s.butler.preferredModel = cleanPatch.model || null;   // 影响下次会话启动, 当前跑中的会话不受影响(需重开)
     sendUI('persona-opened', { meta: metaOf(s) });   // 让渲染层刷标签名字
     // 热切换 TG/bothub 插件: 保存新配置后立刻 stop 旧的、new 起新的, 不用关标签重开
     if (cleanPatch.plugins) {
