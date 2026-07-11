@@ -422,7 +422,7 @@ async function ensureClaudeAuth() {
     type: 'info',
     title: '连接 Claude',
     message: '首次使用需要连接你的 Claude 账号',
-    detail: '点"连接 Claude"会自动打开浏览器登录 claude.ai(需要 Claude 订阅)。\n登录完成后会自动继续, 无需开终端、无需重启。',
+    detail: '点"连接 Claude"会自动打开浏览器登录 claude.ai(需要 Claude 订阅)。\n登录完成后会自动继续, 无需开终端、无需重启。\n\n💡 浏览器登录后若显示一段 code, 不用粘贴——稍等自动继续即可。',
     buttons: ['连接 Claude', '退出'],
     defaultId: 0, cancelId: 1,
   });
@@ -435,13 +435,10 @@ async function ensureClaudeAuth() {
     console.log(`[auth/login] child pid=${child.pid}`);
   } catch (e) { console.log(`[auth/login] spawn 失败: ${e && e.message}`); child = null; }
   if (child) {
-    // 把 CLI 原始输出转发到主进程 stdout, npm start | tee 时能抓到 → 用于诊断"两次浏览器/要 paste code"这类问题。
     // 注: 上一版本还有 sniff URL 再 shell.openExternal 打开一次的逻辑, 是那"浏览器打开两次"的根因, 已删除——
-    // claude CLI 自己会 openExternal, 我们别再重复。
-    try {
-      child.stdout.on('data', (buf) => process.stdout.write(`[claude/auth stdout] ${buf}`));
-      child.stderr.on('data', (buf) => process.stderr.write(`[claude/auth stderr] ${buf}`));
-    } catch (_) {}
+    // claude CLI 自己会 openExternal, 我们别再重复。CLI 自动流已跑通(见 2026-07-11 排查日志), 不用 pty/paste UI。
+    // stdout/stderr 不转发到主进程(诊断完了不需要); 若未来登录再有问题, 临时加上 process.stdout.write 转发即可。
+    try { child.stdout.on('data', () => {}); child.stderr.on('data', () => {}); } catch (_) {}
     const ok = await waitForLogin(child, 180000);   // 最多等 3 分钟
     if (ok) return true;
   }
