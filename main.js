@@ -75,6 +75,8 @@ const sidOf = (homeDir) => path.resolve(homeDir);
 // #9 图片附件磁盘化: sha256 hash 去重 + 按日期分目录 · 落到 homeDir/attachments/YYYY-MM-DD/<hash>.<ext>
 // 只处理 image/* · 其他附件不落盘(渲染层仍走 fallback 📎N)
 const IMG_EXT = { 'image/png':'png', 'image/jpeg':'jpg', 'image/jpg':'jpg', 'image/webp':'webp', 'image/gif':'gif', 'image/heic':'heic', 'image/heif':'heif', 'image/bmp':'bmp' };
+// 门口白名单: 未来附件类型扩(pdf/audio/video)时这里是唯一的门, 现在建门比事后追门稳
+const IMG_EXT_ALLOW = new Set(['.png', '.jpg', '.jpeg', '.webp', '.gif', '.heic', '.heif', '.bmp']);
 function _dateDir() { const d = new Date(); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; }
 function saveImageAttachment(homeDir, a) {
   const mt = a.mediaType || '';
@@ -642,9 +644,15 @@ ipcMain.handle('get-attachment', async (_e, { sid, path: p } = {}) => {
     // 兼容: p 若相对则拼 homeDir(新, 15a057d 后新版); 若绝对则直接 resolve(旧 15a057d 版短期兼容)
     const resolved = path.isAbsolute(p || '') ? path.resolve(p) : path.resolve(s.butler.homeDir, p || '');
     if (!resolved.startsWith(allowRoot)) return { ok: false, error: '路径越界' };
+    // 扩展名白名单: 门口挡非图片, 不信任 renderer 传值
+    if (!IMG_EXT_ALLOW.has(path.extname(resolved).toLowerCase())) return { ok: false, error: 'unsupported media type' };
     if (!fs.existsSync(resolved)) return { ok: false, error: '文件不存在' };
-    // 软链再挡一层: 挡 attachments/foo → /etc/passwd 这种恶意符号链跳出
-    const real = fs.realpathSync(resolved);
+    // TOCTOU 说明: existsSync↔realpathSync↔readFileSync 之间理论有 race(软链被换).
+    // 接受此风险 — 本机同用户信任模型, 攻击面 = 本来就有权做任何事, 无价值攻击.
+    // realpath 挡软链穿越 · 精确 try/catch: 并发 rm 抛 ENOENT 不许穿透成 IPC 未处理异常
+    let real;
+    try { real = fs.realpathSync(resolved); }
+    catch (e) { return { ok: false, error: '文件读取失败' }; }
     if (!real.startsWith(allowRoot)) return { ok: false, error: '软链越界' };
     const buf = fs.readFileSync(real);
     return { ok: true, base64: buf.toString('base64') };
