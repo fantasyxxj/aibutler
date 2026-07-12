@@ -442,6 +442,8 @@ async function send() {
   const suffix = nonImgN > 0 ? `  📎×${nonImgN}` : '';
   if (imgSrcs.length) renderImageMessage(tab, 'user', text + suffix, imgSrcs);
   else addMsgTo(tab, 'user', text + suffix);
+  // #8 A: 治感知层 — tool 循环中 push 的 msg 得等本轮 SDK 读队列(数据未丢, 只是延迟). 立刻给用户一行明示, 避免以为被吞
+  if (interjecting) sysMsgTo(tab, '📮 已入队 · 当前工具循环结束后处理');
   tab.attachments = []; renderAttachStrip();
   tab.busy = true;
   // 新一轮才起占位思考气泡; 插话时不起(旧轮后续 onChunk 会在用户消息下方自建气泡, 避免 finalText 兜底重复正文)
@@ -477,7 +479,9 @@ async function doClear() {
     tab.chat.innerHTML = '';
     tab.activeBubble = null;
     clearActivity(tab);
-    sysMsgTo(tab, '🧹 已清空上下文 · 全新会话(无历史、无交接摘要)', 'compact');
+    // #8 clear buf drop 明示: 后端 r.droppedUsrMsgs 有 N > 0 → 用户知道"放弃了 N 条待处理", 避免默默吞
+    const clearMsg = (r.droppedUsrMsgs > 0) ? `🧹 已清空 · 放弃了 ${r.droppedUsrMsgs} 条待处理消息` : '🧹 已清空';
+    sysMsgTo(tab, clearMsg, 'compact');
   } else sysMsgTo(tab, '⚠️ 清空失败: ' + (r.error || r.note), 'compact');
   refreshBusy();
 }

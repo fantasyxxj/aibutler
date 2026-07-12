@@ -689,7 +689,9 @@ ipcMain.handle('clear', async (_e, { sid } = {}) => {
   try {
     const r = await s.butler.clear('手动');
     s.convo.length = 0;   // 关键: 原地清空 messages(闭包 persist 引用同一数组, 不能 =[]) → 盘上 .session.json 的 400 条一并清掉, 界面重载不再残留旧对话
-    s.convo.push({ role: 'system', text: '🧹 已清空上下文 · 全新会话(无历史、无交接摘要)', ts: Date.now() });
+    // #8 clear buf drop 明示: 有 pending user msg 就告诉用户"放弃了 N 条", 避免"我刚发的话去哪了"默默吞
+    const clearMsg = (r.droppedUsrMsgs > 0) ? `🧹 已清空 · 放弃了 ${r.droppedUsrMsgs} 条待处理消息` : '🧹 已清空';
+    s.convo.push({ role: 'system', text: clearMsg, ts: Date.now() });
     s.persist();
     sendUI('usage', { sid, usage: s.butler.usage() });
     return { ok: true, ...r };

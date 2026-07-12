@@ -38,6 +38,7 @@ function makeMsgQueue(tag = '?') {
       }
     },
     close() { closed = true; if (waiter) { const w = waiter; waiter = null; w({ value: undefined, done: true }); } },
+    pendingCount() { return buf.length },   // #8 clear buf drop: 拆流前扫 buf 里未消费 user msg 数
     [Symbol.asyncIterator]() {
       return {
         next() {
@@ -770,6 +771,8 @@ class Butler {
   // 与 doCompact 的本质区别: 不生成/不保留任何交接摘要, 整段历史彻底丢弃, 人格从零开始
   // (下轮 submit 时 ensureStream 用 sessionId=null → resume:undefined 建全新 session, 身份系统提示照常重注入)。
   async clear(reason = '手动') {
+    // #8 clear buf drop: 拆流前扫 buf pending user msg 数 (拆完 _queue=null 就没了), 后端返给 UI 明示"放弃了 N 条"
+    const droppedUsrMsgs = (this._queue && this._queue.pendingCount) ? this._queue.pendingCount() : 0;
     this._emit('onCompact', { phase: 'start', reason: `clear · ${reason}` });   // 复用 UI 处理中指示
     try {
       await withTimeout(this._teardownStream(), 15000, `clear teardown(${this.name})`);
@@ -785,7 +788,7 @@ class Butler {
     this._cur = ''; this._deltaText = ''; this._busy = false;
     this._emit('onUsage', this.usage());
     this._emit('onCompact', { phase: 'done' });
-    return { ok: true, reason };
+    return { ok: true, reason, droppedUsrMsgs };
   }
 }
 
