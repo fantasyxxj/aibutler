@@ -10,7 +10,54 @@ const persona = require('./persona');
 const paths = require('./paths');
 const { TgPlugin } = require('./plugins/tg');
 const { BothubPlugin } = require('./plugins/bothub');
-const pluginLog = (line) => { try { console.log(line); } catch (_) {} };   // 子进程日志出 Electron 主进程 stdout(butler 窗口菜单 View→Toggle DevTools 看不到, 命令行 npm start 能看)
+// —— 常驻文件日志 —— 拦截 console.log/warn/error/info → 除原 stdout/stderr 外, 追加到 bootstrapDir/logs/butler-YYYY-MM-DD.log
+// 位置 = paths.bootstrapDir()(打包版=userData, dev=仓库根), 首启选数据目录之前也能写(bootstrapDir 永远可写)。
+// 按天 rotate, 保留 7 天。也捕获 uncaughtException/unhandledRejection —— talk_peer 挂/SDK EPIPE 等静默错误在这能捞到 stack。
+// 打包版 Finder 起动看不到 stderr → 装完就有日志文件, 事后诸葛不依赖复现。
+(function initFileLogger() {
+  try {
+    const logsDir = path.join(paths.bootstrapDir(), 'logs');
+    fs.mkdirSync(logsDir, { recursive: true });
+    // 清理 > 7 天的老 log
+    try {
+      const cutoff = Date.now() - 7 * 24 * 3600 * 1000;
+      for (const f of fs.readdirSync(logsDir)) {
+        if (!/^butler-\d{4}-\d{2}-\d{2}\.log$/.test(f)) continue;
+        const p = path.join(logsDir, f);
+        if (fs.statSync(p).mtimeMs < cutoff) try { fs.unlinkSync(p); } catch (_) {}
+      }
+    } catch (_) {}
+    let stream = null;
+    let currentDay = '';
+    const openStream = () => {
+      const day = new Date().toISOString().slice(0, 10);
+      if (day === currentDay && stream) return stream;
+      if (stream) try { stream.end(); } catch (_) {}
+      currentDay = day;
+      stream = fs.createWriteStream(path.join(logsDir, `butler-${day}.log`), { flags: 'a' });
+      return stream;
+    };
+    openStream();
+    const fmt = (a) => (typeof a === 'string' ? a : (a && a.stack) ? a.stack : (() => { try { return JSON.stringify(a); } catch (_) { return String(a); } })());
+    const write = (level, args) => {
+      try { openStream().write(`[${new Date().toISOString()}] [${level}] ${args.map(fmt).join(' ')}\n`); } catch (_) {}
+    };
+    const orig = { log: console.log.bind(console), error: console.error.bind(console), warn: console.warn.bind(console), info: console.info.bind(console) };
+    console.log = (...a) => { write('INFO', a); orig.log(...a); };
+    console.info = (...a) => { write('INFO', a); orig.info(...a); };
+    console.warn = (...a) => { write('WARN', a); orig.warn(...a); };
+    console.error = (...a) => { write('ERROR', a); orig.error(...a); };
+    process.on('uncaughtException', (e) => console.error('[uncaughtException]', e && e.stack || e));
+    process.on('unhandledRejection', (r) => console.error('[unhandledRejection]', r && r.stack || r));
+    orig.log(`[logger] 文件日志已启用: ${path.join(logsDir, `butler-${currentDay}.log`)} (按天 rotate, 保留 7 天)`);
+    console.log(`[logger] boot at ${new Date().toISOString()} isPackaged=${paths.isPackaged()} dataDir=${paths.dataDir()}`);
+  } catch (e) {
+    // 日志初始化失败别拖死主进程, 静默降级
+    try { require('electron').dialog.showErrorBox('日志初始化失败(不影响主功能)', String(e && e.stack || e)); } catch (_) {}
+  }
+})();
+
+const pluginLog = (line) => { try { console.log(line); } catch (_) {} };   // 现在 pluginLog 走 console.log 会自动落文件
 
 // sid = 人格目录(绝对路径) → 天然去重: 一个目录 = 一个标签。sessions: sid -> { butler, convo, persist }
 const sessions = new Map();
