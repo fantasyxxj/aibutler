@@ -86,7 +86,8 @@ function saveImageAttachment(homeDir, a) {
   fs.mkdirSync(dir, { recursive: true });
   const full = path.join(dir, `${hash}.${ext}`);
   if (!fs.existsSync(full)) fs.writeFileSync(full, buf);   // dedup: 相同 hash 直接复用
-  return { path: full, mediaType: mt, name: a.name || `${hash}.${ext}` };
+  // 存相对路径(相对 homeDir): 迁移/rename homeDir/导出对话都不断链, 而绝对路径 3 场景全失效
+  return { path: path.relative(homeDir, full), mediaType: mt, name: a.name || `${hash}.${ext}` };
 }
 const sendUI = (ch, payload) => { if (mainWin && !mainWin.isDestroyed()) mainWin.webContents.send(ch, payload); };
 // 登记簿有变(建/改/删) → 主窗 + 管理窗口都刷列表
@@ -629,16 +630,21 @@ ipcMain.handle('send-message', async (_e, payload = {}) => {
   catch (e) { return { ok: false, error: String((e && e.stack) || e) }; }
 });
 
-// #9 图片附件回读: renderer 载历史时点缩略图/初次渲染时 IPC 拿 base64 dataURL. 严格校验路径前缀防穿越.
+// #9 图片附件回读: renderer 载历史时点缩略图/初次渲染时 IPC 拿 base64 dataURL. 严格校验路径前缀防穿越+软链.
 ipcMain.handle('get-attachment', async (_e, { sid, path: p } = {}) => {
   const s = sessionFor(sid);
   if (!s) return { ok: false, error: '标签无会话' };
   try {
-    const abs = path.resolve(p || '');
-    const attachRoot = path.resolve(path.join(s.butler.homeDir, 'attachments')) + path.sep;
-    if (!abs.startsWith(attachRoot)) return { ok: false, error: '路径越界' };   // 只能读本人格 attachments 目录下
-    if (!fs.existsSync(abs)) return { ok: false, error: '文件不存在' };
-    const buf = fs.readFileSync(abs);
+    // path.resolve 自带平台归一化(mac/linux/win 各正确), 尾巴只拼一次 path.sep
+    const allowRoot = path.resolve(s.butler.homeDir, 'attachments') + path.sep;
+    // 兼容: p 若相对则拼 homeDir(新, 15a057d 后新版); 若绝对则直接 resolve(旧 15a057d 版短期兼容)
+    const resolved = path.isAbsolute(p || '') ? path.resolve(p) : path.resolve(s.butler.homeDir, p || '');
+    if (!resolved.startsWith(allowRoot)) return { ok: false, error: '路径越界' };
+    if (!fs.existsSync(resolved)) return { ok: false, error: '文件不存在' };
+    // 软链再挡一层: 挡 attachments/foo → /etc/passwd 这种恶意符号链跳出
+    const real = fs.realpathSync(resolved);
+    if (!real.startsWith(allowRoot)) return { ok: false, error: '软链越界' };
+    const buf = fs.readFileSync(real);
     return { ok: true, base64: buf.toString('base64') };
   } catch (e) { return { ok: false, error: String((e && e.message) || e) }; }
 });
