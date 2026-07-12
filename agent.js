@@ -19,16 +19,35 @@ async function loadSdk() {
 }
 
 // 可推送的异步消息队列: 作为 query 的 streaming-input prompt(开启流式模式 → interrupt 可用)
-function makeMsgQueue() {
+// tag = 人格名, 只用于 dbg 日志(#8 消息吞根因复现: 观察 push/next 的相对时序)
+function makeMsgQueue(tag = '?') {
   const buf = []; let waiter = null; let closed = false;
+  const preview = (m) => {
+    try { return (m && m.message && m.message.content && m.message.content[0] && m.message.content[0].text || '').slice(0, 60); } catch (_) { return ''; }
+  };
   return {
-    push(m) { if (closed) return; if (waiter) { const w = waiter; waiter = null; w({ value: m, done: false }); } else buf.push(m); },
+    push(m) {
+      if (closed) { console.error(`[dbg#8 queue.${tag}] push AFTER CLOSED, DROPPED: "${preview(m)}"`); return; }
+      if (waiter) {
+        const w = waiter; waiter = null;
+        console.error(`[dbg#8 queue.${tag}] push → waiter WOKE, delivered: "${preview(m)}"`);
+        w({ value: m, done: false });
+      } else {
+        buf.push(m);
+        console.error(`[dbg#8 queue.${tag}] push → NO waiter, buf.push, buf.len=${buf.length}, msg: "${preview(m)}" (等 SDK next())`);
+      }
+    },
     close() { closed = true; if (waiter) { const w = waiter; waiter = null; w({ value: undefined, done: true }); } },
     [Symbol.asyncIterator]() {
       return {
         next() {
-          if (buf.length) return Promise.resolve({ value: buf.shift(), done: false });
+          if (buf.length) {
+            const m = buf.shift();
+            console.error(`[dbg#8 queue.${tag}] SDK next() → buf.shift, 剩 buf.len=${buf.length}, took: "${preview(m)}"`);
+            return Promise.resolve({ value: m, done: false });
+          }
           if (closed) return Promise.resolve({ value: undefined, done: true });
+          console.error(`[dbg#8 queue.${tag}] SDK next() → buf empty, WAIT for push`);
           return new Promise((res) => { waiter = res; });
         },
         return() { closed = true; return Promise.resolve({ value: undefined, done: true }); },
@@ -526,7 +545,7 @@ class Butler {
     const butlerMcp = await this.buildMcp();
     const extMcp = this.resolveExtMcp();          // 该人格放行的外部 MCP(如 dc-platform), 缺省 {}
     const hasExt = Object.keys(extMcp).length > 0;
-    this._queue = makeMsgQueue();
+    this._queue = makeMsgQueue(this.name);
     this._cur = '';
     this._ac = new AbortController();
     // resume 前校验 CC session jsonl 是否还在 —— 悬空(手删/漏清/损坏/迁移)就回退全新会话,
@@ -641,8 +660,10 @@ class Butler {
       body = `[上下文交接摘要 — 上一段对话压缩后的续接记忆]\n${this.pendingHandoff}\n\n[用户]\n${text}`;
       this.pendingHandoff = null;
     }
+    console.error(`[dbg#8 submit] ${this.name} about to push, _busy=${this._busy}, has_q=${!!this._q}`);
     this._busy = true;
     this._queue.push(this.buildUserMessage(body, attachments));
+    console.error(`[dbg#8 submit] ${this.name} push returned`);
   }
 
   // 多人格互通: 别的人格问一个问题, 走标准 submit + UI 照常显示 + 挂一个 pending 收 finalText。
