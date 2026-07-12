@@ -261,7 +261,8 @@ async function askPersona(targetRef, question, opts = {}) {
   let s = sessions.get(sidOf(target.homeDir));
   if (!s) { s = openPersona(target.homeDir); sendUI('persona-opened', { meta: metaOf(s) }); }
   const replyHint = target.isButler ? `ask_persona 回「${backRef}」` : 'ask_persona 回管家';
-  const wrapped = `【来自「${backRef}」的消息 · 单向异步】\n\n${question}\n\n(这是单向消息, 不阻塞你、发起方已收到"已投递"并去忙别的了。你【忙完手头事后】若要答复, 请【主动调 ${replyHint}】—— 你这一轮的输出【不会】自动传回去, 只有你主动调工具才送达。两边 UI 都能看到这段对话。)`;
+  // #5 精简: 3 行硬信息(头/msg/回法). 说教全去 — 出生教育+工具 description 已覆盖, 模型能从 replyHint 推断回路径
+  const wrapped = `【来自「${backRef}」· 单向异步】\n${question}\n→ 回请调 ${replyHint}`;
   try {
     await s.butler.submit(wrapped);
     return { ok: true, delivered: true, from: target.name, note: `已投递给「${target.name}」(单向异步)。不用等它当场答 —— 它忙完会主动 ask_persona 回你。` };
@@ -283,7 +284,8 @@ async function peerTalk(fromName, targetRef, message, opts = {}) {
   let s = sessions.get(sidOf(target.homeDir));
   console.error(`[dbg peerTalk] ${from.name} -> ${target.name}: target session ${s ? 'EXISTS' : 'NOT open → 现建'}`);
   if (!s) { s = openPersona(target.homeDir); sendUI('persona-opened', { meta: metaOf(s) }); }
-  const wrapped = `【${from.name} 通过直连(talk_peer)对你说 · 单向异步】\n\n${message}\n\n(这是单向消息, 不阻塞你、${from.name} 已收到"已投递"并去忙别的了。你【忙完手头事后】若要回复, 请【主动调 talk_peer 回「${from.name}」】—— 你这一轮的输出【不会】自动传回去, 只有你主动调工具才送达。本次对话已抄送管家, 用户与管家可见。)`;
+  // #5 精简: 3 行硬信息. 抄送/UI 可见等运行时事实模型不需要每次重申(信任出生教育一次性告知)
+  const wrapped = `【${from.name} · talk_peer 单向异步】\n${message}\n→ 回请调 talk_peer 回「${from.name}」`;
   try {
     await s.butler.submit(wrapped);
     console.error(`[dbg peerTalk] ${target.name} 已投递(单向异步)`);
