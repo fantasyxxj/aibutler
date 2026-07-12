@@ -624,6 +624,20 @@ ipcMain.handle('compact', async (_e, { sid } = {}) => {
   } catch (e) { return { ok: false, error: String((e && e.stack) || e) }; }
 });
 
+// /clear: 清空上下文(全新空白会话, 不留交接摘要)。区别于 compact: 历史彻底丢弃, 不浓缩。
+ipcMain.handle('clear', async (_e, { sid } = {}) => {
+  const s = sessionFor(sid);
+  if (!s) return { ok: false, error: '标签无会话' };
+  try {
+    const r = await s.butler.clear('手动');
+    s.convo.length = 0;   // 关键: 原地清空 messages(闭包 persist 引用同一数组, 不能 =[]) → 盘上 .session.json 的 400 条一并清掉, 界面重载不再残留旧对话
+    s.convo.push({ role: 'system', text: '🧹 已清空上下文 · 全新会话(无历史、无交接摘要)', ts: Date.now() });
+    s.persist();
+    sendUI('usage', { sid, usage: s.butler.usage() });
+    return { ok: true, ...r };
+  } catch (e) { return { ok: false, error: String((e && e.stack) || e) }; }
+});
+
 // 新建/打开人格标签: 选一个目录(空=新建, 已有=续上) → 建会话, 返回元信息给渲染层加标签
 ipcMain.handle('open-persona', async () => {
   const r = await dialog.showOpenDialog(mainWin, {

@@ -50,6 +50,15 @@ function sumInput(u) {
   return (u.input_tokens || 0) + (u.cache_read_input_tokens || 0) + (u.cache_creation_input_tokens || 0);
 }
 
+// 挂死防护(2026-07-12 事故: doCompact 摘要 query 挂死 → _compacting 永不 resolve → 本人格假"压缩中"+
+// submit 全卡 → 别人 ask/talk 投递进来也卡 → 调用方 tool_use 永不返回, 全链瘫痪)。
+// 原则: 会话生命周期路径上的任何 await 都必须有限时, 超时按失败处理, 绝不无限挂。
+function withTimeout(p, ms, label) {
+  let timer;
+  const t = new Promise((_, rej) => { timer = setTimeout(() => rej(new Error(`${label || 'op'} 超时(${Math.round(ms / 1000)}s)`)), ms); });
+  return Promise.race([p, t]).finally(() => clearTimeout(timer));
+}
+
 class Butler {
   // homeDir = 这个人格的本体目录(cwd); opts.memoryDir 可覆盖记忆位置; opts.name 可指定人格名
   constructor(homeDir, opts = {}) {
@@ -78,6 +87,12 @@ class Butler {
     this.model = null;
     this.lastInput = 0;            // 最近一次请求的上下文输入 token(=占用)
     this.compactRequested = null;  // 模型调压缩工具时置为 reason
+    // 自动压缩兜底阈值(占用百分比)。占用达此值即自动登记压缩, 不再全靠模型自觉调工具。
+    // 按窗口比例算, 兼容 200k/1M 两档。0/负数=关闭自动压缩。
+    // 优先级: opts > 环境变量 BUTLER_AUTO_COMPACT_PCT(实测调优免重打包) > 默认 80。
+    const _envPct = Number(process.env.BUTLER_AUTO_COMPACT_PCT);
+    this.autoCompactPct = (opts.autoCompactPct != null) ? opts.autoCompactPct
+      : (Number.isFinite(_envPct) ? _envPct : 80);
     // 持久流式态
     this._q = null;                // 当前持久 query
     this._queue = null;            // 其输入队列
@@ -86,6 +101,7 @@ class Butler {
     this._deltaText = '';          // 当前 assistant 消息经 stream_event 已逐字发出的文本(判是否需补发)
     this._busy = false;            // 模型是否正在产出(首个 assistant→result 之间)
     this._consumerDone = null;     // 消费循环 promise
+    this._ac = null;               // 主持久 query 的 AbortController(teardown 超时强拆用)
     this._compacting = null;       // 压缩进行中的 promise(submit 需等它)
     this._askPending = [];         // 多人格互通: askOnce 挂起的 resolver 列表, result 时 shift 一个 → 返回 finalText
     this.tgBotToken = null;        // v2: send_tg 工具用 (由 main.js installPlugins 后 setTgConfig 注入)
@@ -340,7 +356,12 @@ class Butler {
         question: z.string().describe('要说/要问的正文') },
       async ({ target, question }) => {
         if (!this.personaOps || !this.personaOps.ask) return { content: [{ type: 'text', text: '⚠️ 询问能力未就绪' }] };
-        const r = await this.personaOps.ask(target, question, { fromName: this.name, fromIsButler: this.isButler });
+        // 投递限时: 目标人格若卡死(如假压缩), 绝不许把本方 tool_use 一起卡死 —— 超时按投递失败返回
+        const deliver = process.env.BUTLER_FAULT === 'ask_hang'
+          ? new Promise(() => { console.error('[fault] ask_hang 注入生效: 投递永挂'); })
+          : this.personaOps.ask(target, question, { fromName: this.name, fromIsButler: this.isButler });
+        const r = await withTimeout(deliver, 60000, `ask_persona投递(${this.name}→${target})`)
+          .catch((e) => ({ ok: false, error: String((e && e.message) || e) }));
         return { content: [{ type: 'text', text: r && r.ok ? `✅ ${r.note || `已投递给「${r.from}」(单向异步), 对方忙完会主动回你。`}` : `⚠️ 投递失败: ${(r && r.error) || '未知'}` }] };
       }
     );
@@ -353,7 +374,9 @@ class Butler {
         message: z.string().describe('要对它说的话') },
       async ({ target, message }) => {
         if (!this.personaOps || !this.personaOps.peerTalk) return { content: [{ type: 'text', text: '⚠️ 直连能力未就绪' }] };
-        const r = await this.personaOps.peerTalk(this.name, target, message, { fromDir: this.homeDir });
+        // 投递限时: 同 ask_persona, 目标卡死不许连坐本方
+        const r = await withTimeout(this.personaOps.peerTalk(this.name, target, message, { fromDir: this.homeDir }), 60000, `talk_peer投递(${this.name}→${target})`)
+          .catch((e) => ({ ok: false, error: String((e && e.message) || e) }));
         return { content: [{ type: 'text', text: r && r.ok ? `✅ ${r.note || `已投递给「${r.from}」(单向异步), 对方忙完会主动回你。`}` : `⚠️ ${(r && r.error) || '投递失败'}` }] };
       }
     );
@@ -440,6 +463,19 @@ class Butler {
     return { inTok: this.lastInput, window: this.window, pct, model: this.model };
   }
 
+  // 自动压缩兜底: 占用达阈值且当前没在压缩/没已登记 → 置 compactRequested。
+  // 只标记, 不在此执行 doCompact(那要拆流→会与消费循环死锁); 复用模型主动请求同一条
+  // result→onResult→doCompact 抛出路径(已带 5min deadline 自愈), 零新增死锁面。
+  _maybeAutoCompact() {
+    if (this.autoCompactPct <= 0) return;               // 关闭
+    if (this._compacting || this.compactRequested) return;  // 压缩中/已登记 → 不重复
+    const pct = this.usage().pct;
+    if (pct >= this.autoCompactPct) {
+      this.compactRequested = `自动压缩·占用 ${pct}% ≥ ${this.autoCompactPct}%`;
+      console.error(`[autoCompact] ${this.name} 占用 ${pct}% ≥ ${this.autoCompactPct}% → 本轮结束后自动压缩`);
+    }
+  }
+
   exportState() {
     return {
       sessionId: this.sessionId, model: this.model, window: this.window,
@@ -492,10 +528,25 @@ class Butler {
     const hasExt = Object.keys(extMcp).length > 0;
     this._queue = makeMsgQueue();
     this._cur = '';
+    this._ac = new AbortController();
+    // resume 前校验 CC session jsonl 是否还在 —— 悬空(手删/漏清/损坏/迁移)就回退全新会话,
+    // 别让 SDK 拿一个不存在的 sessionId 去挂/报错(飞飞今晚的病 = 手删 jsonl 后 resume 卡 ‖)。
+    // slug 规则: homeDir 里 '/' 全换 '-' (Anthropic CC 约定)。
+    let resumeId = this.sessionId || undefined;
+    if (resumeId) {
+      const slug = path.resolve(this.homeDir).replace(/\//g, '-');
+      const jsonlPath = path.join(os.homedir(), '.claude', 'projects', slug, `${resumeId}.jsonl`);
+      if (!fs.existsSync(jsonlPath)) {
+        console.error(`[ensureStream] ${this.name} sessionId=${resumeId} 对应 jsonl 不存在(${jsonlPath}) → 回退全新会话`);
+        this.sessionId = null;
+        resumeId = undefined;
+      }
+    }
     const options = {
-      resume: this.sessionId || undefined,   // 续接旧 session(重启后)或全新
+      resume: resumeId,   // 续接旧 session(重启后)或全新
       cwd: this.homeDir,
       pathToClaudeCodeExecutable: CLAUDE_BIN, // 捆绑/解析后的 claude, 免 PATH 依赖
+      abortController: this._ac,             // teardown 拆不动时的硬中止句柄
       ...(this.preferredModel ? { model: this.preferredModel } : {}), // 空=跟随 Claude Code 默认
       permissionMode: 'bypassPermissions',
       // 用 systemPrompt: {preset, append} 而非旧 appendSystemPrompt: SDK 语义等价, 但显式声明"我们要追加, 不做替换";
@@ -549,7 +600,7 @@ class Butler {
           }
           this._deltaText = '';   // 本条 assistant 消息处理完, 重置 delta 累积(下条重新判)
           const inTok = sumInput(msg.message?.usage);
-          if (inTok) { this.lastInput = inTok; this._emit('onUsage', this.usage()); }
+          if (inTok) { this.lastInput = inTok; this._emit('onUsage', this.usage()); this._maybeAutoCompact(); }
         } else if (msg.type === 'result') {
           const interrupted = (msg.subtype === 'interrupt' || msg.subtype === 'error_during_execution');
           this._emit('onUsage', this.usage());
@@ -580,7 +631,9 @@ class Butler {
 
   // 提交一条用户消息(软插话): 直接 push, 【不打断】。模型把手头这步做完, 到下个间歇读到它、自行决定是否改道。
   async submit(text, attachments) {
-    if (this._compacting) { try { await this._compacting; } catch (_) {} }
+    // 等压缩带保险栓: doCompact 已有 5min deadline 必 settle, 这里 6min 是第二道防线——
+    // 万一等不到也放行走 ensureStream, 绝不把 submit(→ 别人的 ask/talk 投递)永久卡死。
+    if (this._compacting) { try { await withTimeout(this._compacting, 360000, `等压缩(${this.name})`); } catch (_) {} }
     await this.ensureStream();
     console.error(`[dbg submit] ${this.name} ensureStream done, pushing msg`);
     let body = text;
@@ -625,25 +678,36 @@ class Butler {
   // 关标签/退出: 干净停掉后台流, 释放大脑
   async dispose() { try { await this._teardownStream(); } catch (_) {} }
 
-  // 关闭当前持久流(压缩/退出用)
+  // 关闭当前持久流(压缩/退出用)。每步限时: 子进程/管道死掉时 interrupt 或消费循环可能永不返回,
+  // 拆不动就 abort 硬中止再弃船 —— _q 清空后下次 ensureStream 自动重建, 即 Level 1 自愈。
   async _teardownStream() {
     if (!this._q) return;
-    try { await this.interrupt(); } catch (_) {}
+    try { await withTimeout(this.interrupt(), 5000, `interrupt(${this.name})`); } catch (_) {}
     try { this._queue && this._queue.close(); } catch (_) {}
-    try { await this._consumerDone; } catch (_) {}
+    try {
+      await withTimeout(this._consumerDone, 10000, `consume收尾(${this.name})`);
+    } catch (e) {
+      console.error(`[selfheal] ${this.name} teardown 拆不动(${e && e.message}) → abort 强拆子进程`);
+      try { this._ac && this._ac.abort(); } catch (_) {}
+      try { await withTimeout(this._consumerDone, 5000, `consume收尾-abort后(${this.name})`); } catch (_) {}
+    }
     this._q = null; this._queue = null;
   }
 
   // 压缩: 拆流 → 用 resume 一次性问出交接摘要 → 存 pendingHandoff → 清会话(下轮重建流, 占用清零)
-  async doCompact(reason = '手动') {
+  // 带硬 deadline(2026-07-12 事故): 摘要 query 挂死曾让 finally 永不执行 → _compacting 永不 resolve →
+  // 本人格假"压缩中"+全员 submit/ask/talk 级联卡死。现在超时=压缩失败但【会话保留可重试】, 状态必 settle。
+  async doCompact(reason = '手动', deadlineMs = 300000) {
     let release;
     this._compacting = new Promise((r) => { release = r; });
     this._emit('onCompact', { phase: 'start', reason });   // 通知 UI: 开始压缩(手动+自主两路都经此)
-    try {
+    const ac = new AbortController();
+    const work = async () => {
       const sess = this.sessionId;
       await this._teardownStream();
       if (!sess) return { ok: false, note: '当前无会话可压缩' };
       const { query } = await loadSdk();
+      if (process.env.BUTLER_FAULT === 'compact_hang') { console.error('[fault] compact_hang 注入生效: 摘要环节永挂'); await new Promise(() => {}); }
       const q = query({
         prompt: '把我们目前为止的整段对话浓缩成一份**高保真交接摘要**, 供你压缩后无缝续上: 包含①未完成的活跃线程+各自进度 ②已定的关键决定/口径 ③待办 ④重要事实/数字。只输出摘要正文, 不要寒暄。',
         options: {
@@ -652,6 +716,7 @@ class Butler {
           ...(this.preferredModel ? { model: this.preferredModel } : {}),
           permissionMode: 'bypassPermissions', appendSystemPrompt: this.appendSystemPrompt(),
           strictMcpConfig: true,
+          abortController: ac,
         },
       });
       let summary = '';
@@ -662,14 +727,44 @@ class Butler {
           summary = msg.result;
         }
       }
+      if (ac.signal.aborted) return { ok: false, error: '压缩已超时中止' };   // 守卫: 超时后迟到的结果不许再动会话状态
       this.pendingHandoff = (summary || '').trim();
       this.sessionId = null;
       this.lastInput = 0;
       return { ok: true, reason, summary: this.pendingHandoff, oldSession: sess };
+    };
+    try {
+      return await withTimeout(work(), deadlineMs, `doCompact(${this.name})`);
+    } catch (e) {
+      try { ac.abort(); } catch (_) {}
+      console.error(`[selfheal] ${this.name} 压缩失败(会话保留, 可重试): ${e && e.message}`);
+      return { ok: false, error: String((e && e.message) || e) };
     } finally {
       this._compacting = null; release();
-      this._emit('onCompact', { phase: 'done' });   // 通知 UI: 压缩结束(成功/失败/异常都撤指示)
+      this._emit('onCompact', { phase: 'done' });   // 通知 UI: 压缩结束(成功/失败/超时/异常都撤指示)
     }
+  }
+
+  // 清空上下文(对标 Claude Code /clear): 拆流 → 丢弃 sessionId + 待注入交接摘要 → 全新空白会话。
+  // 与 doCompact 的本质区别: 不生成/不保留任何交接摘要, 整段历史彻底丢弃, 人格从零开始
+  // (下轮 submit 时 ensureStream 用 sessionId=null → resume:undefined 建全新 session, 身份系统提示照常重注入)。
+  async clear(reason = '手动') {
+    this._emit('onCompact', { phase: 'start', reason: `clear · ${reason}` });   // 复用 UI 处理中指示
+    try {
+      await withTimeout(this._teardownStream(), 15000, `clear teardown(${this.name})`);
+    } catch (e) {
+      // 拆不动也继续清状态: _teardownStream 内部已 abort 弃船, _q 会被置空, 下轮 ensureStream 重建
+      console.error(`[clear] ${this.name} teardown 拆不动(${e && e.message}) → 仍强制清状态`);
+      this._q = null; this._queue = null;
+    }
+    this.sessionId = null;         // 关键: 不 resume 旧 session → 全新对话
+    this.pendingHandoff = null;    // 关键: 丢弃任何待注入交接摘要(与 compact 相反), 真正清空
+    this.lastInput = 0;
+    this.compactRequested = null;
+    this._cur = ''; this._deltaText = ''; this._busy = false;
+    this._emit('onUsage', this.usage());
+    this._emit('onCompact', { phase: 'done' });
+    return { ok: true, reason };
   }
 }
 

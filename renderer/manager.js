@@ -118,9 +118,13 @@ function makeEditPanel(p) {
     <div class="e-line"><label>模型</label>
       <select class="e-model" title="切换后要等会话重启才生效(关标签重开/重启app/下次压缩); 空=跟随 Claude Code 默认">
         <option value="" ${!p.model?'selected':''}>跟随默认</option>
-        <option value="sonnet" ${p.model==='sonnet'?'selected':''}>Sonnet(均衡, 日常首选)</option>
-        <option value="opus" ${p.model==='opus'?'selected':''}>Opus(旗舰, 复杂/长文)</option>
-        <option value="haiku" ${p.model==='haiku'?'selected':''}>Haiku(快省, 走量/简单)</option>
+        <option value="claude-opus-4-8[1m]"   ${p.model==='claude-opus-4-8[1m]'?'selected':''}>Opus 4.8 · 1M(最新旗舰)</option>
+        <option value="claude-opus-4-7[1m]"   ${p.model==='claude-opus-4-7[1m]'?'selected':''}>Opus 4.7 · 1M(稳定回退)</option>
+        <option value="claude-sonnet-4-6"     ${p.model==='claude-sonnet-4-6'?'selected':''}>Sonnet 4.6(均衡, 日常)</option>
+        <option value="claude-haiku-4-5-20251001" ${p.model==='claude-haiku-4-5-20251001'?'selected':''}>Haiku 4.5(快省, 走量)</option>
+        <option value="opus"   ${p.model==='opus'?'selected':''}>opus 别名(跟 Claude Code 定义走, 不锁版本)</option>
+        <option value="sonnet" ${p.model==='sonnet'?'selected':''}>sonnet 别名</option>
+        <option value="haiku"  ${p.model==='haiku'?'selected':''}>haiku 别名</option>
       </select>
     </div>
     <div class="e-line"><label>目录</label><div class="e-dir" title="切换目录暂不支持(需迁移记忆图/会话, 未来 P6 一起做)">${esc(p.homeDir)} <span class="e-dir-note">🔒 暂不可改</span></div></div>
