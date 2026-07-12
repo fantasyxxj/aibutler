@@ -221,7 +221,7 @@ class Butler {
       { reason: z.string().describe('现在压缩的理由(如: 占用已到X%, 刚收尾了Y)') },
       async ({ reason }) => {
         this.compactRequested = reason || '模型主动请求';
-        return { content: [{ type: 'text', text: '✅ 已登记压缩请求, 本轮回答结束后执行(写交接摘要→重启会话)。' }] };
+        return { content: [{ type: 'text', text: '✅ 已登记 · 本轮末压缩' }] };
       }
     );
     const ctxUsage = tool(
@@ -274,12 +274,12 @@ class Butler {
     const memHot = tool(
       'memory_hot', '当前最热 K 条记忆(近期最常用, 遗忘曲线排序)。想知道"最近在忙啥"用它, 不看编年史。',
       { k: z.number().optional() },
-      async ({ k }) => ({ content: [{ type: 'text', text: G().hot(k || 20).map((m) => `[${m.hot} ${m.importance} used=${m.use_count}] ${m.id} — ${m.description}`).join('\n') }] })
+      async ({ k }) => ({ content: [{ type: 'text', text: G().hot(k || 10).map((m) => `[${m.hot} ${m.importance} used=${m.use_count}] ${m.id} — ${m.description}`).join('\n') }] })
     );
     const memTimeline = tool(
       'memory_timeline', '时间线视图(按 last_used/created 排), 日期视图从图派生。',
       { k: z.number().optional(), by: z.enum(['last_used', 'created']).optional() },
-      async ({ k, by }) => ({ content: [{ type: 'text', text: G().timeline(k || 30, by || 'last_used').map((m) => `${m.date} [${m.type}] ${m.id} — ${m.description}`).join('\n') }] })
+      async ({ k, by }) => ({ content: [{ type: 'text', text: G().timeline(k || 15, by || 'last_used').map((m) => `${m.date} [${m.type}] ${m.id} — ${m.description}`).join('\n') }] })
     );
     const memNeighbors = tool(
       'memory_neighbors', '看某条记忆的图邻域(联想召回: 它连着哪些相关记忆)。',
@@ -381,7 +381,7 @@ class Butler {
           : this.personaOps.ask(target, question, { fromName: this.name, fromIsButler: this.isButler });
         const r = await withTimeout(deliver, 60000, `ask_persona投递(${this.name}→${target})`)
           .catch((e) => ({ ok: false, error: String((e && e.message) || e) }));
-        return { content: [{ type: 'text', text: r && r.ok ? `✅ ${r.note || `已投递给「${r.from}」(单向异步), 对方忙完会主动回你。`}` : `⚠️ 投递失败: ${(r && r.error) || '未知'}` }] };
+        return { content: [{ type: 'text', text: r && r.ok ? `✅ ${r.note || `已投递给「${r.from}」· 单向异步`}` : `⚠️ 投递失败: ${(r && r.error) || '未知'}` }] };
       }
     );
     tools.push(askP);
@@ -396,7 +396,7 @@ class Butler {
         // 投递限时: 同 ask_persona, 目标卡死不许连坐本方
         const r = await withTimeout(this.personaOps.peerTalk(this.name, target, message, { fromDir: this.homeDir }), 60000, `talk_peer投递(${this.name}→${target})`)
           .catch((e) => ({ ok: false, error: String((e && e.message) || e) }));
-        return { content: [{ type: 'text', text: r && r.ok ? `✅ ${r.note || `已投递给「${r.from}」(单向异步), 对方忙完会主动回你。`}` : `⚠️ ${(r && r.error) || '投递失败'}` }] };
+        return { content: [{ type: 'text', text: r && r.ok ? `✅ ${r.note || `已投递给「${r.from}」· 单向异步`}` : `⚠️ ${(r && r.error) || '投递失败'}` }] };
       }
     );
     tools.push(talkP);

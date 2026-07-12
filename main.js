@@ -265,7 +265,7 @@ async function askPersona(targetRef, question, opts = {}) {
   const wrapped = `【来自「${backRef}」· 单向异步】\n${question}\n→ 回请调 ${replyHint}`;
   try {
     await s.butler.submit(wrapped);
-    return { ok: true, delivered: true, from: target.name, note: `已投递给「${target.name}」(单向异步)。不用等它当场答 —— 它忙完会主动 ask_persona 回你。` };
+    return { ok: true, delivered: true, from: target.name, note: `已投递给「${target.name}」· 单向异步` };
   } catch (e) { return { ok: false, error: String(e && e.message) }; }
 }
 
@@ -290,7 +290,7 @@ async function peerTalk(fromName, targetRef, message, opts = {}) {
     await s.butler.submit(wrapped);
     console.error(`[dbg peerTalk] ${target.name} 已投递(单向异步)`);
     ccButler(from.name, target.name, message);
-    return { ok: true, delivered: true, from: target.name, note: `已投递给「${target.name}」(单向异步)。不用等它当场答 —— 它忙完会主动 talk_peer 回你。` };
+    return { ok: true, delivered: true, from: target.name, note: `已投递给「${target.name}」· 单向异步` };
   } catch (e) { console.error(`[dbg peerTalk] ${target.name} submit ERROR: ${e && e.message}`); return { ok: false, error: String(e && e.message) }; }
 }
 
