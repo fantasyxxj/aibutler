@@ -63,6 +63,47 @@ function addMsgTo(tab, role, text, ts) {
 }
 const bodyOf = (el) => (el && el._body) || el;
 
+// #9 图片消息: addMsgTo 上面盖一层图片网格. imgSources = [{src, alt?}] (src 可以是 dataURL / file: / 已 IPC 拿到 base64 转的 dataURL)
+function renderImageMessage(tab, role, text, imgSources, ts) {
+  const el = addMsgTo(tab, role, text || '', ts);
+  if (imgSources && imgSources.length) {
+    const grid = document.createElement('div');
+    grid.className = 'msg-imgs';
+    for (const s of imgSources) {
+      const thumb = document.createElement('div');
+      thumb.className = 'msg-thumb';
+      const img = document.createElement('img');
+      img.src = s.src; if (s.alt) img.alt = s.alt;
+      thumb.appendChild(img);
+      thumb.onclick = (e) => { e.stopPropagation(); openLightbox(s.src); };
+      grid.appendChild(thumb);
+    }
+    el.insertBefore(grid, el._body);   // msg-imgs 排在 msg-body 之前, 保 msg-time 位置不变
+  }
+  return el;
+}
+
+// lightbox 单例 · 首次点击时按需创建
+let _lightboxEl = null;
+function openLightbox(src) {
+  if (!_lightboxEl) {
+    _lightboxEl = document.createElement('div');
+    _lightboxEl.id = 'lightbox';
+    const img = document.createElement('img');
+    const btn = document.createElement('button');
+    btn.className = 'lb-close'; btn.textContent = '×';
+    btn.onclick = (e) => { e.stopPropagation(); closeLightbox(); };
+    _lightboxEl.appendChild(img);
+    _lightboxEl.appendChild(btn);
+    _lightboxEl.onclick = () => closeLightbox();   // 点背景关
+    document.body.appendChild(_lightboxEl);
+  }
+  _lightboxEl.querySelector('img').src = src;
+  _lightboxEl.style.display = 'flex';
+}
+function closeLightbox() { if (_lightboxEl) _lightboxEl.style.display = 'none'; }
+window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && _lightboxEl && _lightboxEl.style.display !== 'none') closeLightbox(); });
+
 // 把气泡正文按 markdown 整块渲染(收尾时调用; 流式中仍用纯文本逐字, 避免半截 md 抖动)
 function renderMd(body) {
   if (!body || typeof window.renderMarkdown !== 'function') return;
@@ -316,7 +357,21 @@ async function loadHistory(tab) {
   if (h && h.usage) { tab.usage = h.usage; if (tab.sid === activeSid) renderUsage(h.usage); }
   if (h && h.messages && h.messages.length) {
     for (const m of h.messages) {
-      const el = addMsgTo(tab, m.role, m.text + (m.img ? `  🖼×${m.img}` : ''), m.ts != null ? m.ts : null);
+      let el;
+      // #9: 新消息带 imgs 元数据 → IPC 拿 base64 渲缩略图; 拿失败或老消息只有 img:N → fallback 🖼×N
+      if (m.role === 'user' && Array.isArray(m.imgs) && m.imgs.length) {
+        const srcs = [];
+        for (const im of m.imgs) {
+          try {
+            const r = await window.butler.getAttachment(tab.sid, im.path);
+            if (r && r.ok) srcs.push({ src: `data:${im.mediaType};base64,${r.base64}`, alt: im.name });
+          } catch (_) { /* 单张失败不阻塞其他 */ }
+        }
+        if (srcs.length) el = renderImageMessage(tab, m.role, m.text, srcs, m.ts != null ? m.ts : null);
+        else el = addMsgTo(tab, m.role, m.text + (m.img ? `  🖼×${m.img}` : ''), m.ts != null ? m.ts : null);
+      } else {
+        el = addMsgTo(tab, m.role, m.text + (m.img ? `  🖼×${m.img}` : ''), m.ts != null ? m.ts : null);
+      }
       if (m.role === 'assistant') renderMd(bodyOf(el));   // 历史 AI 消息也 md 渲染
     }
     sysMsgTo(tab, '—— 以上为上次会话，已接续 ——');
@@ -380,7 +435,13 @@ async function send() {
   // 插话(软插话): 上一轮还在流式 → 先收尾当前 AI 气泡, 使旧轮后续输出排到本条用户消息之下(不再在上方旧气泡里长)
   const interjecting = !!tab.activeBubble;
   if (interjecting) finalizeAssistantBubble(tab);
-  addMsgTo(tab, 'user', text + (toSend.length ? `  📎×${toSend.length}` : ''));
+  // #9 图片附件: 用手里已有 dataURL 立即渲缩略图; 非图片仍显 📎×N (本轮 #9 精简范围: 非图片下载能力不做)
+  const imgSrcs = toSend.filter(a => (a.mediaType || '').startsWith('image/'))
+    .map(a => ({ src: `data:${a.mediaType};base64,${a.base64}`, alt: a.name }));
+  const nonImgN = toSend.length - imgSrcs.length;
+  const suffix = nonImgN > 0 ? `  📎×${nonImgN}` : '';
+  if (imgSrcs.length) renderImageMessage(tab, 'user', text + suffix, imgSrcs);
+  else addMsgTo(tab, 'user', text + suffix);
   tab.attachments = []; renderAttachStrip();
   tab.busy = true;
   // 新一轮才起占位思考气泡; 插话时不起(旧轮后续 onChunk 会在用户消息下方自建气泡, 避免 finalText 兜底重复正文)

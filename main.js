@@ -3,6 +3,7 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
+const crypto = require('crypto');
 const { Butler } = require('./agent');
 const store = require('./store');
 const registry = require('./registry');
@@ -70,6 +71,23 @@ let mainWin = null;
 let managerWin = null;   // 独立管理窗口(可空; 关了置 null)
 
 const sidOf = (homeDir) => path.resolve(homeDir);
+
+// #9 图片附件磁盘化: sha256 hash 去重 + 按日期分目录 · 落到 homeDir/attachments/YYYY-MM-DD/<hash>.<ext>
+// 只处理 image/* · 其他附件不落盘(渲染层仍走 fallback 📎N)
+const IMG_EXT = { 'image/png':'png', 'image/jpeg':'jpg', 'image/jpg':'jpg', 'image/webp':'webp', 'image/gif':'gif', 'image/heic':'heic', 'image/heif':'heif', 'image/bmp':'bmp' };
+function _dateDir() { const d = new Date(); const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; }
+function saveImageAttachment(homeDir, a) {
+  const mt = a.mediaType || '';
+  if (!mt.startsWith('image/')) return null;
+  const ext = IMG_EXT[mt] || 'bin';
+  const buf = Buffer.from(a.base64 || '', 'base64');
+  const hash = crypto.createHash('sha256').update(buf).digest('hex').slice(0, 16);
+  const dir = path.join(homeDir, 'attachments', _dateDir());
+  fs.mkdirSync(dir, { recursive: true });
+  const full = path.join(dir, `${hash}.${ext}`);
+  if (!fs.existsSync(full)) fs.writeFileSync(full, buf);   // dedup: 相同 hash 直接复用
+  return { path: full, mediaType: mt, name: a.name || `${hash}.${ext}` };
+}
 const sendUI = (ch, payload) => { if (mainWin && !mainWin.isDestroyed()) mainWin.webContents.send(ch, payload); };
 // 登记簿有变(建/改/删) → 主窗 + 管理窗口都刷列表
 const broadcastRegistry = () => {
@@ -596,9 +614,33 @@ ipcMain.handle('send-message', async (_e, payload = {}) => {
   if (!s) return { ok: false, error: '标签无会话' };
   const text = payload.text || '';
   const attachments = payload.attachments || [];
-  s.convo.push({ role: 'user', text, img: attachments.length, ts: Date.now() });
+  // #9: 图片类落磁盘, convo 存路径元数据(不存 base64 免撑盘); img:count 保留供老 fallback 兼容
+  const imgs = [];
+  for (const a of attachments) {
+    if ((a.mediaType || '').startsWith('image/')) {
+      try { const meta = saveImageAttachment(s.butler.homeDir, a); if (meta) imgs.push(meta); }
+      catch (e) { console.error('[#9 saveImage]', e && e.message); }
+    }
+  }
+  const entry = { role: 'user', text, img: attachments.length, ts: Date.now() };
+  if (imgs.length) entry.imgs = imgs;
+  s.convo.push(entry);
   try { await s.butler.submit(text, attachments); return { ok: true }; }
   catch (e) { return { ok: false, error: String((e && e.stack) || e) }; }
+});
+
+// #9 图片附件回读: renderer 载历史时点缩略图/初次渲染时 IPC 拿 base64 dataURL. 严格校验路径前缀防穿越.
+ipcMain.handle('get-attachment', async (_e, { sid, path: p } = {}) => {
+  const s = sessionFor(sid);
+  if (!s) return { ok: false, error: '标签无会话' };
+  try {
+    const abs = path.resolve(p || '');
+    const attachRoot = path.resolve(path.join(s.butler.homeDir, 'attachments')) + path.sep;
+    if (!abs.startsWith(attachRoot)) return { ok: false, error: '路径越界' };   // 只能读本人格 attachments 目录下
+    if (!fs.existsSync(abs)) return { ok: false, error: '文件不存在' };
+    const buf = fs.readFileSync(abs);
+    return { ok: true, base64: buf.toString('base64') };
+  } catch (e) { return { ok: false, error: String((e && e.message) || e) }; }
 });
 
 // 用户救援: 打断当前跑着的一轮。SDK interrupt() 触发 result subtype='interrupt', 走原有 onResult→onFinal 路径清 busy。

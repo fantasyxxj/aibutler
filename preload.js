@@ -5,6 +5,7 @@ contextBridge.exposeInMainWorld('butler', {
   listSessions: () => ipcRenderer.invoke('list-sessions'),            // { sessions:[{sid,persona,usage}], active }
   getHistory: (sid) => ipcRenderer.invoke('get-history', { sid }),
   send: (sid, payload) => ipcRenderer.invoke('send-message', { sid, ...payload }),  // payload:{text,attachments}
+  getAttachment: (sid, p) => ipcRenderer.invoke('get-attachment', { sid, path: p }),   // #9 拿磁盘上的图片附件 → { ok, base64 }
   compact: (sid) => ipcRenderer.invoke('compact', { sid }),
   clear: (sid) => ipcRenderer.invoke('clear', { sid }),   // 清空上下文(全新会话, 无历史/无交接摘要)
   cancelCurrent: (sid) => ipcRenderer.invoke('cancel-current', { sid }),   // 打断当前跑着的一轮(用户救援, 消息文本 renderer 侧回填草稿)
