@@ -610,7 +610,7 @@ const metaOf = (s) => ({ sid: s.sid, persona: personaOf(s.butler), usage: s.butl
 
 function createWindow() {
   mainWin = new BrowserWindow({
-    width: 980, height: 780, title: '全能管家', backgroundColor: '#1e1e28',
+    width: 980, height: 780, title: `全能管家 v${app.getVersion()}`, backgroundColor: '#1e1e28',
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false },
   });
   // http/https 链接左键点击 → 交给系统浏览器打开 (不在 butler 内开新窗口)

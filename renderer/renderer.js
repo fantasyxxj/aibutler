@@ -841,7 +841,7 @@ function showPersona(p) {
   personaName.textContent = p.name || '人格';
   personaDir.textContent = p.homeDir || '';
   personaDir.title = `目录: ${p.homeDir}\n记忆: ${p.memoryDir}`;
-  document.title = `全能管家 · ${p.name || ''}`;
+  document.title = `全能管家 v${window.butler.version} · ${p.name || ''}`;
 }
 
 // ---- 启动: 拉所有已开标签, 激活默认标签 ----

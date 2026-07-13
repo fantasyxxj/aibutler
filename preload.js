@@ -2,6 +2,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('butler', {
+  version: require('./package.json').version,   // 版本号 (0.0.2 起), renderer 显示在窗口 title
   listSessions: () => ipcRenderer.invoke('list-sessions'),            // { sessions:[{sid,persona,usage}], active }
   getHistory: (sid) => ipcRenderer.invoke('get-history', { sid }),
   send: (sid, payload) => ipcRenderer.invoke('send-message', { sid, ...payload }),  // payload:{text,attachments}
