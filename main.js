@@ -220,6 +220,87 @@ async function sendHeartbeat(sid) {
   }
 }
 
+// ——— idle_watcher (spec §1) v1.1: 每 30s 扫全体 sessions, 分级(T1/T2/T3)决策. ———
+// v1.1 精简: SLEEP 只 log 不实施 (subprocess 生命周期涉及 close-session 改动, 延后 v1.2).
+// v1.1 保留: KEEPALIVE 走 sendHeartbeat(), COMPACT 走 butler.doCompact(reason).
+const IDLE_WATCH_INTERVAL_MS = 30_000;
+
+function classifyTier(lastActivityTs) {
+  const hours = (Date.now() - lastActivityTs) / 3_600_000;
+  if (hours < 24) return 'T1';
+  if (hours < 24 * 7) return 'T2';
+  return 'T3';
+}
+
+function decideIdleAction(s) {
+  const u = s.butler.usage() || {};
+  const ctx_pct = u.pct || 0;
+  const ctx_tok = u.inTok || 0;
+
+  // 硬红线 (spec §1.4): 无视 tier 与 idle 时间, 立即压缩. 救命防被动压缩丢线索.
+  if (ctx_pct >= 80) return { type: 'COMPACT', reason: 'red_line', ctx_tok, ctx_pct };
+
+  const idle_min = (Date.now() - s.last_activity_ts) / 60_000;
+  if (idle_min < 4) return { type: 'NOOP' };
+
+  const tier = classifyTier(s.last_activity_ts);
+  const meta = { tier, idle_min: Math.round(idle_min), ctx_tok, ctx_pct };
+
+  if (tier === 'T3') return { type: 'SLEEP', ...meta, reason: 'tier3' };
+
+  if (tier === 'T2') {
+    // T2 定义 = idle >= 24h, 无子分支 (原 spec "idle < 20min" 是死码, 已修正 2026-07-13).
+    return ctx_tok >= 30_000 ? { type: 'COMPACT', reason: 'tier2_timeout', ...meta } : { type: 'SLEEP', ...meta, reason: 'tier2_small' };
+  }
+
+  // Tier 1
+  if (idle_min < 40) return ctx_tok >= 10_000 ? { type: 'KEEPALIVE', ...meta } : { type: 'SLEEP', ...meta, reason: 'tier1_ctx_small' };
+  if (idle_min < 60) {
+    if (ctx_tok >= 100_000) return { type: 'COMPACT', reason: 'big_ctx', ...meta };
+    if (ctx_tok >= 30_000) return { type: 'KEEPALIVE', ...meta };
+    return { type: 'SLEEP', ...meta, reason: 'tier1_transition_small' };
+  }
+  return ctx_tok >= 30_000 ? { type: 'COMPACT', reason: 'tier1_hard_cutoff', ...meta } : { type: 'SLEEP', ...meta, reason: 'tier1_hard_cutoff_small' };
+}
+
+async function executeIdleAction(action, s) {
+  const name = (s.butler && s.butler.name) || s.sid;
+  const tag = `[idle-watch] ${name}`;
+  switch (action.type) {
+    case 'NOOP':
+      return;
+    case 'KEEPALIVE':
+      console.log(`${tag} → KEEPALIVE (${action.tier}, idle=${action.idle_min}min, ctx=${action.ctx_tok}, pct=${action.ctx_pct}%)`);
+      return sendHeartbeat(s.sid);
+    case 'COMPACT':
+      console.log(`${tag} → COMPACT (${action.reason}, ctx=${action.ctx_tok}, pct=${action.ctx_pct}%)`);
+      try { await s.butler.doCompact(`idle-watcher: ${action.reason}`); }
+      catch (e) { console.error(`${tag} COMPACT 失败`, e && e.message); }
+      return;
+    case 'SLEEP':
+      // v1.1 延后 subprocess 生命周期改动, 仅记录观察.
+      console.log(`${tag} → SLEEP (v1.1 仅观察, ${action.reason}, tier=${action.tier}, idle=${action.idle_min}min, ctx=${action.ctx_tok})`);
+      return;
+  }
+}
+
+let _idleWatchTimer = null;
+function startIdleWatcher() {
+  if (_idleWatchTimer) return;
+  _idleWatchTimer = setInterval(async () => {
+    for (const s of sessions.values()) {
+      try {
+        const action = decideIdleAction(s);
+        await executeIdleAction(action, s);
+      } catch (e) { console.error('[idle-watch] scan error', (e && e.stack) || e); }
+    }
+  }, IDLE_WATCH_INTERVAL_MS);
+  console.log(`[idle-watch] 已启用, 每 ${IDLE_WATCH_INTERVAL_MS / 1000}s 扫全体 sessions`);
+}
+function stopIdleWatcher() {
+  if (_idleWatchTimer) { clearInterval(_idleWatchTimer); _idleWatchTimer = null; }
+}
+
 // 统一的"起插件"入口 (openPersona 首次 / update-persona 热切换都调它): 从 registry 拿最新配置起 TG/bothub。
 // 幂等 — 已在跑的先 stop 再 new + start, 不会重启失败。
 async function installPlugins(s) {
@@ -664,9 +745,11 @@ app.whenReady().then(async () => {
   registry.ensureButler(toOpen[0]);
   for (const d of toOpen) openPersona(d);
   createWindow();
+  startIdleWatcher();   // spec §1: 每 30s 扫全体 sessions, T1/T2/T3 决策保活/压缩
 });
 // app 退出前: 收所有人格的托管子进程(TG+bothub), 根治孤儿。同步 kill(before-quit 不 await, 用 SIGTERM 兜底)。
 app.on('before-quit', () => {
+  stopIdleWatcher();
   for (const s of sessions.values()) {
     try { s.tgPlugin && s.tgPlugin.stop(); } catch (_) {}
     try { s.bothubPlugin && s.bothubPlugin.stop(); } catch (_) {}
