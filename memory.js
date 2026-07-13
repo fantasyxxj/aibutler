@@ -220,6 +220,13 @@ class MemoryGraph {
     return res;
   }
 
+  // §2.2 pre-query 挡门用: 判断某 id 是否已在图中 (canon 后匹配).
+  hasNode(id) {
+    const nid = canon(id);
+    const idx = this._readIndex();
+    return !!(idx && idx.nodes && idx.nodes[nid]);
+  }
+
   hot(k = 20) {
     const idx = this._fresh();
     return Object.values(idx.nodes)

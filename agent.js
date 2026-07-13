@@ -252,15 +252,40 @@ class Butler {
     );
     const memUpsert = tool(
       'memory_upsert',
-      '把一件事沉淀成图记忆节点(建新或更新已有 .md): 拆成原子概念 + 带 [[links]] 连到相关节点。这是「图优先」收尾的主动作——别再写日期编年史。id 用 feedback_*/reference_*/project_* 命名。',
+      '把一件事沉淀成图记忆节点(建新或更新已有 .md): 拆成原子概念 + 带 [[links]] 连到相关节点。这是「图优先」收尾的主动作——别再写日期编年史。id 用 feedback_*/reference_*/project_* 命名。**沉前先 memory_query 查重**: 新建节点若与已有节点高度重合(top_score>200), 会被挡门, 请优先 update 老节点; 确认是新维度请传 confirm_new=true.',
       { id: z.string().describe('节点id=文件名(小写下划线, 如 feedback_xxx)'),
         title: z.string().optional(), type: z.enum(['feedback', 'reference', 'project', 'user']).optional(),
         importance: z.enum(['pinned', 'high', 'med', 'low']).optional(),
         description: z.string().describe('一句话摘要(检索命中用)'),
         body: z.string().describe('正文 markdown'),
-        links: z.array(z.string()).optional().describe('要连的相关节点id') },
+        links: z.array(z.string()).optional().describe('要连的相关节点id'),
+        confirm_new: z.boolean().optional().describe('§2.2 挡门绕过: 确认新建(不同角度) 传 true; 默认 false, 高度重合会被挡门') },
       async (a) => {
-        const r = G().upsert(a);
+        const graph = G();
+        // §2.2 pre-query 挡门 (spec: workspace/memory_engine_and_onboarding_upgrade_design_20260713.md §2.2).
+        // 只挡新建(id 不存在), 老 id (update) 直接落. confirm_new=true 绕过.
+        // 只看 hop=0 直接命中 top-1 (flat=true 跳过图扩散, 图跳不算重复).
+        // threshold=200 v1 (狂人 raw data: 主题相关不同角度常在 100-150, 200 = 几乎搬 title/description 才挡).
+        const PRE_QUERY_THRESHOLD = 200;
+        if (!a.confirm_new && !graph.hasNode(a.id)) {
+          const queryStr = ((a.title || '') + ' ' + (a.description || '')).trim();
+          const hits = queryStr ? graph.query(queryStr, { k: 3, flat: true }) : [];
+          const topScore = hits.length ? hits[0].score : 0;
+          console.log(`[mem-upsert-gate] id=${a.id} top_score=${topScore} threshold=${PRE_QUERY_THRESHOLD} hits=[${hits.map((h) => `${h.id}:${h.score}`).join(',')}]`);
+          if (topScore > PRE_QUERY_THRESHOLD) {
+            const hitLines = hits.map((h, i) => `${i + 1}. [score=${h.score}] ${h.id}\n   ${h.description}`).join('\n\n');
+            return { content: [{ type: 'text', text:
+              `⚠️ 挡门: 疑似重复 (top_score=${topScore} > ${PRE_QUERY_THRESHOLD})\n\n` +
+              `候选老节点 top-${hits.length}:\n${hitLines}\n\n` +
+              `请三选一:\n` +
+              `(a) 【推荐】合并到老节点: memory_append(parent_id="${hits[0].id}", section="<子标题>", body="...") — 呼应 §2.1 auto-touch\n` +
+              `(b) 确定是新角度必须新建: 重调 memory_upsert 传 confirm_new=true\n` +
+              `(c) 放弃沉此条`
+            }] };
+          }
+        }
+        // 通过 (老 id / confirm_new / 未过阈)
+        const r = graph.upsert(a);
         return { content: [{ type: 'text', text: `✅ 沉淀: ${r.id}\n${r.file_path}\n图: ${r.nodes}节点/${r.links}边/有效${r.validPct}%` }] };
       }
     );
