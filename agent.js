@@ -107,6 +107,7 @@ class Butler {
     this.model = null;
     this.lastInput = 0;            // 最近一次请求的上下文输入 token(=占用)
     this.compactRequested = null;  // 模型调压缩工具时置为 reason
+    this.sessionHits = new Set();  // §2.5 反思批 touch: 本轮 memory_query 命中过的 ids · 压缩前提示 AI 挑真用过的 touch
     // 自动压缩兜底阈值(占用百分比)。占用达此值即自动登记压缩, 不再全靠模型自觉调工具。
     // 按窗口比例算, 兼容 200k/1M 两档。0/负数=关闭自动压缩。
     // 优先级: opts > 环境变量 BUTLER_AUTO_COMPACT_PCT(实测调优免重打包) > 默认 80。
@@ -222,7 +223,14 @@ class Butler {
       { reason: z.string().describe('现在压缩的理由(如: 占用已到X%, 刚收尾了Y)') },
       async ({ reason }) => {
         this.compactRequested = reason || '模型主动请求';
-        return { content: [{ type: 'text', text: '✅ 已登记 · 本轮末压缩' }] };
+        // §2.5 反思批 touch: 本轮 memory_query 命中的 ids 呈现给 AI, 让它挑真用过的批 memory_touch.
+        // 注意 memory_touch 语义收紧: 只在"真依赖某条节点做了决策/给了答案"后调; 打开/扫过 ≠ 用了.
+        let hint = '';
+        if (this.sessionHits && this.sessionHits.size > 0) {
+          const ids = [...this.sessionHits];
+          hint = `\n\n📋 本轮 memory_query 命中过 ${ids.length} 条:\n${ids.map((id) => `  - ${id}`).join('\n')}\n\n压缩前反思一下: 真依赖过做决策/给答案的调 memory_touch([id1, id2, ...]) 批 bump. 只是扫过/打开过没真用上的**不 touch** (语义收紧: 打开 ≠ 用了).`;
+        }
+        return { content: [{ type: 'text', text: `✅ 已登记 · 本轮末压缩${hint}` }] };
       }
     );
     const ctxUsage = tool(
@@ -246,6 +254,8 @@ class Butler {
         const flat = hops === 0;
         const rows = G().query(query, { k: k || 8, hops: hops == null ? 2 : hops, flat });
         if (!rows.length) return { content: [{ type: 'text', text: `(无匹配: ${query})` }] };
+        // §2.5: 本轮命中的 id 都记进 sessionHits, 压缩前给 AI 反思批 touch 提示.
+        for (const r of rows) this.sessionHits.add(r.id);
         const txt = rows.map((r) => `[${r.score} ${r.via}] ${r.id}\n    ${r.description}\n    ${r.file_path}`).join('\n');
         return { content: [{ type: 'text', text: `top-${rows.length} for "${query}":\n${txt}` }] };
       }
@@ -803,6 +813,7 @@ class Butler {
       this.pendingHandoff = (summary || '').trim();
       this.sessionId = null;
       this.lastInput = 0;
+      if (this.sessionHits) this.sessionHits.clear();   // §2.5: 压缩后清空 sessionHits, 新会话从零开始累积
       return { ok: true, reason, summary: this.pendingHandoff, oldSession: sess };
     };
     try {
