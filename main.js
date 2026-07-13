@@ -884,6 +884,8 @@ ipcMain.handle('clear', async (_e, { sid } = {}) => {
     s.convo.push({ role: 'system', text: clearMsg, ts: Date.now() });
     s.persist();
     sendUI('usage', { sid, usage: s.butler.usage() });
+    // 主界面清空键已迁到人格管理独立窗口 (2026-07-14 起). 广播 'cleared' 让主 window 清对应 tab 的 DOM.
+    sendUI('cleared', { sid, droppedUsrMsgs: r.droppedUsrMsgs || 0, clearMsg });
     return { ok: true, ...r };
   } catch (e) { return { ok: false, error: String((e && e.stack) || e) }; }
 });

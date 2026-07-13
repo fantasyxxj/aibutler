@@ -34,4 +34,5 @@ contextBridge.exposeInMainWorld('butler', {
   onCompacting: (cb) => ipcRenderer.on('compacting', (_e, d) => cb(d.sid, d)),  // { phase:'start'|'done', reason }
   onResult: (cb) => ipcRenderer.on('turn-result', (_e, d) => cb(d.sid, d)),           // { finalText, interrupted, compacted }
   onUsage: (cb) => ipcRenderer.on('usage', (_e, d) => cb(d.sid, d.usage)),
+  onCleared: (cb) => ipcRenderer.on('cleared', (_e, d) => cb(d.sid, d)),   // 清空事件 (从人格管理窗口触发, 主 window 收到清对应 tab DOM)
 });

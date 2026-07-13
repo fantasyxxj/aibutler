@@ -7,7 +7,6 @@ const newTabBtn = document.getElementById('newTabBtn');
 const input = document.getElementById('input');
 const sendBtn = document.getElementById('sendBtn');
 const compactBtn = document.getElementById('compactBtn');
-const clearBtn = document.getElementById('clearBtn');
 const attachBtn = document.getElementById('attachBtn');
 const fileInput = document.getElementById('fileInput');
 const attachstrip = document.getElementById('attachstrip');
@@ -215,7 +214,6 @@ function renderUsage(u) {
 function refreshBusy() {
   const t = activeTab();
   compactBtn.disabled = !t || t.busy;
-  clearBtn.disabled = !t || t.busy;   // 清空同压缩: 需干净停顿点
   // 取消按钮: 只在当前标签 busy 时显示——用户按了发送、正在跑, 才能救援
   if (cancelBtn) cancelBtn.style.display = (t && t.busy) ? '' : 'none';
 }
@@ -468,23 +466,21 @@ async function doCompact() {
   refreshBusy();
 }
 
-async function doClear() {
-  const tab = activeTab();
-  if (!tab) return;
-  if (!confirm('清空上下文？\n\n将丢弃当前会话的全部历史, 开一个全新空白会话(不生成交接摘要、不续线程)。此操作不可撤销。')) return;
-  clearBtn.disabled = true;
-  const r = await window.butler.clear(tab.sid);
-  if (r.ok) {
-    // 关键: 后端已清 s.convo/sessionId, 但 DOM 里的旧气泡不会自己消失 → 手动清空容器, 撤活跃气泡引用
-    tab.chat.innerHTML = '';
-    tab.activeBubble = null;
-    clearActivity(tab);
-    // #8 clear buf drop 明示: 后端 r.droppedUsrMsgs 有 N > 0 → 用户知道"放弃了 N 条待处理", 避免默默吞
-    const clearMsg = (r.droppedUsrMsgs > 0) ? `🧹 已清空 · 放弃了 ${r.droppedUsrMsgs} 条待处理消息` : '🧹 已清空';
-    sysMsgTo(tab, clearMsg, 'compact');
-  } else sysMsgTo(tab, '⚠️ 清空失败: ' + (r.error || r.note), 'compact');
-  refreshBusy();
-}
+// 清空触发源已迁到"人格管理"独立窗口 (2026-07-14 起, 主界面顶栏不再放清空键).
+// 主 window 通过 'cleared' 事件收到清空发生 → 清对应 tab 的 DOM (后端 s.convo 早已 =[]).
+window.butler.onCleared && window.butler.onCleared((sid, info) => {
+  const tab = tabs.get(sid);
+  if (!tab) return;   // 主 window 没这个人格 tab (可能刚关的)
+  tab.chat.innerHTML = '';
+  tab.activeBubble = null;
+  clearActivity(tab);
+  // #8 clear buf drop 明示: droppedUsrMsgs > 0 → 用户知道"放弃了 N 条待处理", 避免默默吞
+  const clearMsg = (info && info.droppedUsrMsgs > 0)
+    ? `🧹 已清空 · 放弃了 ${info.droppedUsrMsgs} 条待处理消息`
+    : '🧹 已清空';
+  sysMsgTo(tab, clearMsg, 'compact');
+  if (activeSid === sid) refreshBusy();
+});
 
 // ---- 事件(按 sid 分发到对应标签) ----
 function markUnread(tab) {
@@ -611,7 +607,6 @@ if (cancelBtn) cancelBtn.addEventListener('click', async () => {
   } finally { cancelBtn.disabled = false; }
 });
 compactBtn.addEventListener('click', doCompact);
-clearBtn.addEventListener('click', doClear);
 // ＋号 = 弹已登记人格 picker; 底部两条 "新建人格…"/"管理人格…" 打开管理窗口。已开的置灰。
 async function showPicker() {
   const existing = document.querySelector('.picker-mask');

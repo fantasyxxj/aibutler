@@ -239,6 +239,14 @@ async function refresh() {
       if (r2.ok) toast(p.open ? `已设 ${p.name} 为管家 · 关标签重开后管家能力生效` : `已设 ${p.name} 为管家`);
     });
 
+    const clr = document.createElement('button'); clr.className = 'm-btn'; clr.textContent = '清空'; clr.disabled = !p.open;
+    clr.title = p.open ? '清空该人格的会话上下文(/clear): 丢弃全部历史+全新空白会话, 不留交接摘要' : '未打开的人格无会话可清';
+    clr.addEventListener('click', async () => {
+      if (!confirm(`清空「${p.name}」的会话上下文?\n\n将丢弃当前会话的全部历史, 开一个全新空白会话(不生成交接摘要、不续线程)。此操作不可撤销。`)) return;
+      const r2 = await window.butler.clear(p.homeDir);   // sid = homeDir (path.resolve idempotent)
+      if (r2.ok) toast(`已清空: ${p.name}`); else toast('清空失败: ' + (r2.error || r2.note));
+    });
+
     const del = document.createElement('button'); del.className = 'm-btn danger'; del.textContent = '删除'; del.disabled = !!p.open;
     del.title = p.open ? '打开中的人格不能删, 请先关闭标签' : '从登记簿删除(不删磁盘目录/记忆)';
     del.addEventListener('click', async () => {
@@ -247,7 +255,7 @@ async function refresh() {
       if (r2.ok) toast(`已删除: ${p.name}`); else toast('删除失败: ' + r2.error);
     });
 
-    row.append(name, dir, tags, editB, setB, del);
+    row.append(name, dir, tags, editB, setB, clr, del);
     listEl.appendChild(row);
 
     // 展开式编辑面板(隐藏或按上次状态)
