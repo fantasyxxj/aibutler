@@ -8,6 +8,7 @@ const os = require('os');
 const persona = require('./persona');
 const paths = require('./paths');
 const { MemoryGraph } = require('./memory');
+const { gateSubmit, CancelToken } = require('./rate-gate');   // 防幻觉 submit-time rate gate (spec: workspace/anti_hallucination_rate_gate_design_20260713.md)
 
 // SDK 默认去 ~/.claude/local 找 claude; 打包版那里没有 → 显式指向捆绑的二进制(或系统安装位)。
 const CLAUDE_BIN = paths.resolveClaudeBin();
@@ -108,6 +109,7 @@ class Butler {
     this.lastInput = 0;            // 最近一次请求的上下文输入 token(=占用)
     this.compactRequested = null;  // 模型调压缩工具时置为 reason
     this.sessionHits = new Set();  // §2.5 反思批 touch: 本轮 memory_query 命中过的 ids · 压缩前提示 AI 挑真用过的 touch
+    this._gateCancelToken = new CancelToken();  // rate gate 排队 cancel · interrupt 时 cancel + renew
     // 自动压缩兜底阈值(占用百分比)。占用达此值即自动登记压缩, 不再全靠模型自觉调工具。
     // 按窗口比例算, 兼容 200k/1M 两档。0/负数=关闭自动压缩。
     // 优先级: opts > 环境变量 BUTLER_AUTO_COMPACT_PCT(实测调优免重打包) > 默认 80。
@@ -705,15 +707,29 @@ class Butler {
 
   // 硬打断: 保留供以后「停止」按钮用; 软插话默认不调用
   async interrupt() {
+    // 顺便 cancel rate gate 里正在排队等桶的 acquire (waiter 立即返 cancelled=true), 免占坑.
+    try { this._gateCancelToken.cancel(); this._gateCancelToken = new CancelToken(); } catch (_) {}
     if (!this._q) return false;
     try { await this._q.interrupt(); return true; } catch (e) { return false; }
   }
 
   // 提交一条用户消息(软插话): 直接 push, 【不打断】。模型把手头这步做完, 到下个间歇读到它、自行决定是否改道。
-  async submit(text, attachments) {
+  // opts.sourceKind: 'user' (默认 · 用户主动) | 'auto' (bothub/tg/心跳/人格间/压缩自愈); 决定 rate gate 走哪个桶.
+  async submit(text, attachments, opts = {}) {
     // 等压缩带保险栓: doCompact 已有 5min deadline 必 settle, 这里 6min 是第二道防线——
     // 万一等不到也放行走 ensureStream, 绝不把 submit(→ 别人的 ask/talk 投递)永久卡死。
     if (this._compacting) { try { await withTimeout(this._compacting, 360000, `等压缩(${this.name})`); } catch (_) {} }
+    // 防幻觉 rate gate (spec §16.3.1): submit-time only, 只在真正打 API 那一瞬扣桶.
+    // Opus 4.x 走双桶 (user 30 RPM / auto 20 RPM), 非 Opus 直通不 gate. 干净 cancel: interrupt → cancelToken.cancel().
+    const gate = await gateSubmit({
+      model: this.model || this.preferredModel,
+      sourceKind: opts.sourceKind || 'user',
+      cancelToken: this._gateCancelToken,
+    });
+    if (gate.cancelled) { console.error(`[rate-gate] ${this.name} submit cancelled (interrupt during wait)`); return; }
+    if (gate.gated && gate.waitedMs > 500) {
+      console.log(`[rate-gate] ${this.name} bucket=${gate.bucketName} waited=${gate.waitedMs}ms`);
+    }
     await this.ensureStream();
     console.error(`[dbg submit] ${this.name} ensureStream done, pushing msg`);
     let body = text;
@@ -729,7 +745,7 @@ class Butler {
 
   // 多人格互通: 别的人格问一个问题, 走标准 submit + UI 照常显示 + 挂一个 pending 收 finalText。
   // 一举两得: 对话透明可见(UI 出气泡), 同时 caller 拿到答案。
-  async askOnce(text, timeoutMs = 90000) {
+  async askOnce(text, timeoutMs = 90000, opts = {}) {
     return new Promise((resolve, reject) => {
       let settled = false;
       let timer = null;
@@ -748,7 +764,7 @@ class Butler {
           reject(new Error(`对方(${this.name})${Math.round(timeoutMs / 1000)}s 内未响应 — askOnce 超时(已解开调用方, 防卡死)`));
         }, timeoutMs);
       }
-      this.submit(text).catch((e) => {
+      this.submit(text, undefined, opts).catch((e) => {
         if (settled) return;
         settled = true; cleanup(); drop();
         console.error(`[dbg askOnce] ${this.name} submit FAILED: ${e && e.message}`);

@@ -178,7 +178,7 @@ function openPersona(homeDir) {
           convo.push({ role: 'system', text: `🗜 自主压缩 · ${compacted.reason}`, ts: Date.now() });
           // 压缩自愈(取代 SessionStart hook): butler 内在程序自己戳一个 turn 唤醒续线程——不依赖 TG、不依赖用户输入。
           // 唤醒语按人格取(butler.wakePhrase, 来自各人格 wake.txt): 数据专家=加载数据专家续线程, 通用人格=喊名字载记忆。不再硬编码"加载数据专家"。
-          butler.submit(`（系统自动·压缩后自愈）你刚完成上下文压缩并重启会话。${butler.wakePhrase}`)
+          butler.submit(`（系统自动·压缩后自愈）你刚完成上下文压缩并重启会话。${butler.wakePhrase}`, undefined, { sourceKind: 'auto' })
             .catch((e) => console.error('[poke-compact]', e && e.message));
         }
         sendUI('usage', { sid, usage: butler.usage() });
@@ -212,7 +212,7 @@ async function sendHeartbeat(sid) {
   if (s.heartbeat_pending) return { ok: false, error: '心跳进行中' };
   s.heartbeat_pending = true;
   try {
-    await s.butler.submit('[[HEARTBEAT]] no-op cache keepalive. Reply with just "ok" and nothing else.');
+    await s.butler.submit('[[HEARTBEAT]] no-op cache keepalive. Reply with just "ok" and nothing else.', undefined, { sourceKind: 'auto' });
     return { ok: true };
   } catch (e) {
     s.heartbeat_pending = false;   // submit 失败清标记, 免卡死
@@ -254,7 +254,12 @@ function decideIdleAction(s) {
   }
 
   // Tier 1
-  if (idle_min < 40) return ctx_tok >= 10_000 ? { type: 'KEEPALIVE', ...meta } : { type: 'SLEEP', ...meta, reason: 'tier1_ctx_small' };
+  if (idle_min < 40) {
+    // v2 补丁 (2026-07-13 知秋提醒): 高 ctx 保活单次心跳成本 = ctx × cache_read 单价, 300k+ 保活 4 次 ≈ 一次冷读, 提前压更划算.
+    if (ctx_tok >= 300_000) return { type: 'COMPACT', reason: 'ctx_too_big_to_keepalive', ...meta };
+    if (ctx_tok >= 10_000) return { type: 'KEEPALIVE', ...meta };
+    return { type: 'SLEEP', ...meta, reason: 'tier1_ctx_small' };
+  }
   if (idle_min < 60) {
     if (ctx_tok >= 100_000) return { type: 'COMPACT', reason: 'big_ctx', ...meta };
     if (ctx_tok >= 30_000) return { type: 'KEEPALIVE', ...meta };
@@ -344,7 +349,8 @@ async function installPlugins(s) {
         `回复请调 send_tg 工具: chat_id=${record.chat_id}${record.reply_to ? ` (可 reply_to=${record.reply_to} 引用原消息)` : ''}。`,
         '按正常判断处理, 回不回、回什么由你决定。'
       ].join('\n'),
-      record.attachments || []
+      record.attachments || [],
+      { sourceKind: 'auto' }   // TG 消息触发的 submit 走 auto 桶 (rate gate)
     ).catch((e) => console.error('[tg-onmessage]', e && e.message));
   };
   s.tgPlugin = new TgPlugin(plugins.tg, s.butler.name, pluginLog, s.butler.memoryDir, tgOnMessage);
@@ -358,7 +364,7 @@ async function installPlugins(s) {
     if (s.butler.isRunning()) return;
     s.convo.push({ role: 'system', text: `🔔 收到 bothub 新消息 (${evt.count} 条 from ${evt.agent})`, ts: Date.now() });
     s.persist();
-    s.butler.submit(`（系统自动·bothub 唤醒）agent-bus 收到 ${evt.count} 条新消息 (endpoint ${evt.endpoint}, agent=${evt.agent})。请按 agent-bus 通道协议查阅并处理。`)
+    s.butler.submit(`（系统自动·bothub 唤醒）agent-bus 收到 ${evt.count} 条新消息 (endpoint ${evt.endpoint}, agent=${evt.agent})。请按 agent-bus 通道协议查阅并处理。`, undefined, { sourceKind: 'auto' })
       .catch((e) => console.error('[poke-bothub]', e && e.message));
   });
   const rBh = s.bothubPlugin.start(s.butler.homeDir);
@@ -392,7 +398,7 @@ async function askPersona(targetRef, question, opts = {}) {
   const wrapped = `【来自「${backRef}」· 单向异步】\n${question}\n→ 回请调 ${replyHint}`;
   markActivity(s);   // 目标收到 peer 消息 = activity, 也顺便清心跳短路 (spec §1.3)
   try {
-    await s.butler.submit(wrapped);
+    await s.butler.submit(wrapped, undefined, { sourceKind: 'auto' });   // 人格间投递走 auto 桶 (rate gate)
     ccButler({
       channel: 'ask_persona',
       from: backRef,
@@ -423,7 +429,7 @@ async function peerTalk(fromName, targetRef, message, opts = {}) {
   const wrapped = `【${from.name} · talk_peer 单向异步】\n${message}\n→ 回请调 talk_peer 回「${from.name}」`;
   markActivity(s);   // 目标收到 peer 消息 = activity, 也顺便清心跳短路 (spec §1.3)
   try {
-    await s.butler.submit(wrapped);
+    await s.butler.submit(wrapped, undefined, { sourceKind: 'auto' });   // 人格间投递走 auto 桶 (rate gate)
     console.error(`[dbg peerTalk] ${target.name} 已投递(单向异步)`);
     ccButler({
       channel: 'talk_peer',
@@ -539,7 +545,7 @@ async function runOnboarding(s, name, extra) {
     if (!s.butler || !s.butler._q) break;   // 中途人格被关/流已拆 → 停止喂
     sendUI('user-echo', { sid: s.sid, text });   // 先出 user 气泡(像有人在跟它一句句说话)
     try {
-      await s.butler.askOnce(text);   // 等它这一轮完整答完, 再进下一句
+      await s.butler.askOnce(text, undefined, { sourceKind: 'auto' });   // 等它这一轮完整答完, 再进下一句 · 出生教育走 auto 桶
     } catch (e) {
       console.error(`[createPersona] 出生教育第${i + 1}步失败:`, e && e.message);
       break;
