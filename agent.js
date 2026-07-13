@@ -289,6 +289,30 @@ class Butler {
         return { content: [{ type: 'text', text: `✅ 沉淀: ${r.id}\n${r.file_path}\n图: ${r.nodes}节点/${r.links}边/有效${r.validPct}%` }] };
       }
     );
+    // §2.3 memory_append: 往老节点指定 section 追加带签名头的 body. section 找/建 · 呼应 §2.2 挡门后合并路径.
+    const memAppend = tool(
+      'memory_append',
+      '§2.3: 往已有节点的指定 section 追加带签名头(时间·人格·理由)的 body. section 不存在自动建, 多个同名选最后一次. 场景: 补充血泪案例/反例/新引用到老节点. 呼应 §2.2 挡门后合并路径(推荐做法 a).',
+      { parent_id: z.string().describe('要追加的老节点 id'),
+        section: z.string().describe('目标 section 名 (如 "血泪案例" / "补充" / "反例")'),
+        body: z.string().describe('追加正文 markdown'),
+        reason: z.string().optional().describe('追加理由一句话, 进签名头便于追溯') },
+      async ({ parent_id, section, body, reason }) => {
+        const r = G().append({ parent_id, section, body, actor: this.name || '未知', reason: reason || '补充' });
+        return { content: [{ type: 'text', text: `✅ 追加: ${r.id} § ${r.section}${r.sectionCreated ? ' (新建section)' : ''}\n${r.file_path}\ntouched=${r.touched}` }] };
+      }
+    );
+    // §2.3 memory_link_bidirectional: 双向 [[link]] · 幂等 · 双 touch.
+    const memLinkBi = tool(
+      'memory_link_bidirectional',
+      '§2.3: 在两个已有节点间建立双向 [[link]] 关联 (from→to + to→from 各建一条 · 已有 link 幂等跳过). 双 touch 呼应 §2.1 auto-touch 语义. 场景: 发现两个老节点相关但未连边.',
+      { from_id: z.string().describe('节点 A id'),
+        to_id: z.string().describe('节点 B id') },
+      async ({ from_id, to_id }) => {
+        const r = G().linkBidirectional({ from_id, to_id });
+        return { content: [{ type: 'text', text: `✅ 双向链: ${r.from} ↔ ${r.to}\n新加边: from→to=${r.added.from}, to→from=${r.added.to} (幂等: 已存在=false)` }] };
+      }
+    );
     const memTouch = tool(
       'memory_touch', '用到/靠某条记忆解决了问题 → touch 强化它(bump 热度, 越用越热越靠前)。',
       { ids: z.array(z.string()).describe('节点id数组') },
@@ -392,7 +416,7 @@ class Butler {
         }
       }
     );
-    const tools = [compact, ctxUsage, memQuery, memUpsert, memTouch, memHot, memTimeline, memNeighbors, memDoctor, sendTg];
+    const tools = [compact, ctxUsage, memQuery, memUpsert, memAppend, memLinkBi, memTouch, memHot, memTimeline, memNeighbors, memDoctor, sendTg];
     // —— ask_persona: 星型互通, 所有人格都有。约束在 main.askPersona (非管家只能问管家; 叶子↔叶子走 talk_peer) ——
     const askP = tool(
       'ask_persona',
@@ -605,7 +629,8 @@ class Butler {
     // 让 dc-platform 那几十个工具都可用(逐个列名单不现实)。
     if (!hasExt) {
       options.allowedTools = ['mcp__butler__compact_context', 'mcp__butler__context_usage',
-        'mcp__butler__memory_query', 'mcp__butler__memory_upsert', 'mcp__butler__memory_touch',
+        'mcp__butler__memory_query', 'mcp__butler__memory_upsert', 'mcp__butler__memory_append', 'mcp__butler__memory_link_bidirectional',
+        'mcp__butler__memory_touch',
         'mcp__butler__memory_hot', 'mcp__butler__memory_timeline', 'mcp__butler__memory_neighbors',
         'mcp__butler__memory_doctor',
         'Read', 'Write', 'Edit', 'Grep', 'Glob', 'Bash'];

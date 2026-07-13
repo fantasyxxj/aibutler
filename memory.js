@@ -17,9 +17,15 @@ const INDEX_FILE = 'memory_index.json';
 const canon = (s) => (s || '').trim().toLowerCase().replace(/-/g, '_');
 
 function today() {
-  // 北京时间(UTC+8) 的 YYYY-MM-DD, 与 python 端一致
+  // 北京时间(UTC+8) 的 YYYY-MM-DD, 与 python 端一致 (legacy · use_count/hotness 稳定用)
   const d = new Date(Date.now() + 8 * 3600 * 1000);
   return d.toISOString().slice(0, 10);
+}
+// §2.3 memory_append 签名头用: 系统本地时区 YYYY-MM-DD HH:MM (butler 编码约定禁 UTC).
+function localTimestampShort() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 function daysBetween(d1, d2) {
   const a = Date.parse(d1 + 'T00:00:00Z'), b = Date.parse(d2 + 'T00:00:00Z');
@@ -295,6 +301,90 @@ class MemoryGraph {
     fs.writeFileSync(fname, fm + body + linkBlock + '\n', 'utf8');
     const stats = this.build();
     return { id: nid, file_path: fname, ...stats };
+  }
+
+  // §2.3 memory_append: 往指定 section 追加带签名头的 body. section 不存在则在文件末尾建.
+  // 多个同名 section 选最后一个 (追加式, 最新最相关). touch=true (默认) 呼应 §2.1 auto-touch 语义.
+  // 签名头统一: ### YYYY-MM-DD HH:MM · <actor 人格名> · <reason 一句话>  (本地时区 · butler 编码约定)
+  append({ parent_id, section, body, actor = '未知', reason = '无说明', touch = true }) {
+    if (!parent_id) throw new Error('append 需要 parent_id');
+    if (!section) throw new Error('append 需要 section');
+    const nid = canon(parent_id);
+    const fpath = path.join(this.dir, nid + '.md');
+    if (!fs.existsSync(fpath)) throw new Error(`节点不存在: ${nid}`);
+
+    const text = fs.readFileSync(fpath, 'utf8');
+    const stampHead = `### ${localTimestampShort()} · ${actor} · ${reason}`;
+    const insertBlock = `\n${stampHead}\n${body}\n`;
+
+    // 找 ## <section> 的最后一次出现 (追加式选最新)
+    const secEsc = section.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const secPattern = new RegExp(`^##\\s+${secEsc}\\s*$`, 'gm');
+    let m, lastMatch = null;
+    while ((m = secPattern.exec(text)) !== null) lastMatch = m;
+
+    let newText;
+    if (lastMatch) {
+      const secContentStart = lastMatch.index + lastMatch[0].length;
+      const nextSecPat = /^##\s+/gm;
+      nextSecPat.lastIndex = secContentStart;
+      const nextM = nextSecPat.exec(text);
+      const secEnd = nextM ? nextM.index : text.length;
+      newText = text.slice(0, secEnd).trimEnd() + insertBlock + '\n' + text.slice(secEnd);
+    } else {
+      newText = text.trimEnd() + `\n\n## ${section}\n${insertBlock}`;
+    }
+
+    // §2.1 auto-touch 呼应: append 也是"我用过"signal, 同步更新 frontmatter 里 use_count/last_used.
+    // 用正则替换 fm 字段, 避免 build 时被 fm 老值覆盖 index bump (memory_touch 有同类问题, 但 touch 不 build 故绕开).
+    if (touch) {
+      const ucMatch = newText.match(/^(\s*use_count:\s*)(\d+)/m);
+      const currentUc = ucMatch ? parseInt(ucMatch[2], 10) : 1;
+      newText = newText.replace(/^(\s*use_count:\s*)\d+/m, `$1${currentUc + 1}`);
+      newText = newText.replace(/^(\s*last_used:\s*).*$/m, `$1${today()}`);
+    }
+    fs.writeFileSync(fpath, newText, 'utf8');
+
+    const stats = this.build();
+    return { id: nid, file_path: fpath, section, sectionCreated: !lastMatch, touched: touch, ...stats };
+  }
+
+  // §2.3 memory_link_bidirectional: 双向链. from/to.md body 各追加 [[对方id]] 到 "## 关联" section.
+  // 幂等: 已有 link 不重复添加. touch=true (默认) 双 touch.
+  linkBidirectional({ from_id, to_id, touch = true }) {
+    if (!from_id || !to_id) throw new Error('linkBidirectional 需要 from_id 和 to_id');
+    const a = canon(from_id), b = canon(to_id);
+    if (a === b) throw new Error('自链无意义');
+
+    const addLinkTo = (nid, targetId, doTouch) => {
+      const fpath = path.join(this.dir, nid + '.md');
+      if (!fs.existsSync(fpath)) throw new Error(`节点不存在: ${nid}`);
+      let text = fs.readFileSync(fpath, 'utf8');
+      const linkStr = `[[${targetId}]]`;
+      const added = !text.includes(linkStr);
+      if (added) {
+        if (/^##\s+关联\s*$/m.test(text)) {
+          text = text.trimEnd() + ` · ${linkStr}\n`;
+        } else {
+          text = text.trimEnd() + `\n\n## 关联\n${linkStr}\n`;
+        }
+      }
+      // §2.1 auto-touch 呼应: 同步更新 fm.use_count/last_used, 免 build 覆盖 index bump.
+      if (doTouch) {
+        const ucMatch = text.match(/^(\s*use_count:\s*)(\d+)/m);
+        const currentUc = ucMatch ? parseInt(ucMatch[2], 10) : 1;
+        text = text.replace(/^(\s*use_count:\s*)\d+/m, `$1${currentUc + 1}`);
+        text = text.replace(/^(\s*last_used:\s*).*$/m, `$1${today()}`);
+      }
+      if (added || doTouch) fs.writeFileSync(fpath, text, 'utf8');
+      return added;
+    };
+
+    const addedA = addLinkTo(a, b, touch);
+    const addedB = addLinkTo(b, a, touch);
+
+    const stats = this.build();
+    return { from: a, to: b, added: { from: addedA, to: addedB }, touched: touch, ...stats };
   }
 }
 
