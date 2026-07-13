@@ -152,14 +152,23 @@ function openPersona(homeDir) {
   if (saved) butler.restore(saved);
   const persist = () => store.save(butler.sessionPath, { ...butler.exportState(), messages: convo });
 
-  butler.setCallbacks({
-    onText: (t) => sendUI('assistant-chunk', { sid, text: t }),
-    onActivity: (text) => sendUI('activity', { sid, text }),
-    onTool: (tool) => sendUI('tool-call', { sid, tool }),   // 每个工具调用→持久条目
-    onCompact: (s) => sendUI('compacting', { sid, ...s }),  // 压缩开始/结束→UI 动态指示
+  // 先建 s 引用, 让 callbacks 能读 s.heartbeat_pending 做心跳期短路 (spec §1.5 A2 UI 隔离)
+  const s = { sid, butler, convo, persist, last_activity_ts: Date.now(), heartbeat_pending: false, last_heartbeat_ts: 0 };
 
-    onUsage: (u) => sendUI('usage', { sid, usage: u }),
+  butler.setCallbacks({
+    onText: (t) => { if (s.heartbeat_pending) return; sendUI('assistant-chunk', { sid, text: t }); },
+    onActivity: (text) => { if (s.heartbeat_pending) return; sendUI('activity', { sid, text }); },
+    onTool: (tool) => { if (s.heartbeat_pending) return; sendUI('tool-call', { sid, tool }); },   // 每个工具调用→持久条目
+    onCompact: (info) => sendUI('compacting', { sid, ...info }),  // 压缩开始/结束→UI 动态指示 (心跳期不 skip, 压缩事件真实)
+
+    onUsage: (u) => sendUI('usage', { sid, usage: u }),   // usage 变化真实, 心跳期不 skip
     onResult: async ({ finalText, interrupted, compactReason }) => {
+      if (s.heartbeat_pending) {
+        s.heartbeat_pending = false;
+        s.last_heartbeat_ts = Date.now();
+        return;   // 心跳轮不 push convo / 不 persist / 不 sendUI turn-result
+      }
+      s.last_activity_ts = Date.now();
       if (finalText) convo.push({ role: 'assistant', text: finalText, ts: Date.now() });
       persist();
       let compacted = null;
@@ -179,11 +188,36 @@ function openPersona(homeDir) {
     },
   });
 
-  const s = { sid, butler, convo, persist };
   sessions.set(sid, s);
   saveOpenTabs();
   installPlugins(s);   // 从 registry 起 TG/bothub 插件 (v2: 通过 onMessage 回调直接唤醒, 也给热切换用)
   return s;
+}
+
+// 记录人格 activity (idle_watcher 分级依据) + 清心跳短路标记 (免真消息响应被吞).
+// 触发场景: user 主动发消息 / target 收到 peer 消息 / 未来 wake-up 触发.
+function markActivity(s) {
+  if (!s) return;
+  s.last_activity_ts = Date.now();
+  s.heartbeat_pending = false;
+}
+
+// ——— A2 心跳 (spec: workspace/idle_watcher_and_bcc_log_spec_v1.md §1.5) ———
+// butler push 一条 self-explanatory heartbeat, subprocess 走一次真 API 请求续 cache TTL.
+// 主进程 callbacks 检查 s.heartbeat_pending 短路所有 UI 事件 → 用户 UI 零污染.
+// 会话状态里 SDK 层仍会留痕(subprocess 侧), 无法阻止; 未来 idle_watcher 自动触发, 现阶段仅 IPC 手动测.
+async function sendHeartbeat(sid) {
+  const s = sessions.get(sid);
+  if (!s) return { ok: false, error: '会话不存在' };
+  if (s.heartbeat_pending) return { ok: false, error: '心跳进行中' };
+  s.heartbeat_pending = true;
+  try {
+    await s.butler.submit('[[HEARTBEAT]] no-op cache keepalive. Reply with just "ok" and nothing else.');
+    return { ok: true };
+  } catch (e) {
+    s.heartbeat_pending = false;   // submit 失败清标记, 免卡死
+    return { ok: false, error: String((e && e.message) || e) };
+  }
 }
 
 // 统一的"起插件"入口 (openPersona 首次 / update-persona 热切换都调它): 从 registry 拿最新配置起 TG/bothub。
@@ -265,6 +299,7 @@ async function askPersona(targetRef, question, opts = {}) {
   const replyHint = target.isButler ? `ask_persona 回「${backRef}」` : 'ask_persona 回管家';
   // #5 精简: 3 行硬信息(头/msg/回法). 说教全去 — 出生教育+工具 description 已覆盖, 模型能从 replyHint 推断回路径
   const wrapped = `【来自「${backRef}」· 单向异步】\n${question}\n→ 回请调 ${replyHint}`;
+  markActivity(s);   // 目标收到 peer 消息 = activity, 也顺便清心跳短路 (spec §1.3)
   try {
     await s.butler.submit(wrapped);
     ccButler({
@@ -295,6 +330,7 @@ async function peerTalk(fromName, targetRef, message, opts = {}) {
   if (!s) { s = openPersona(target.homeDir); sendUI('persona-opened', { meta: metaOf(s) }); }
   // #5 精简: 3 行硬信息. 抄送/UI 可见等运行时事实模型不需要每次重申(信任出生教育一次性告知)
   const wrapped = `【${from.name} · talk_peer 单向异步】\n${message}\n→ 回请调 talk_peer 回「${from.name}」`;
+  markActivity(s);   // 目标收到 peer 消息 = activity, 也顺便清心跳短路 (spec §1.3)
   try {
     await s.butler.submit(wrapped);
     console.error(`[dbg peerTalk] ${target.name} 已投递(单向异步)`);
@@ -685,9 +721,13 @@ ipcMain.handle('send-message', async (_e, payload = {}) => {
   const entry = { role: 'user', text, img: attachments.length, ts: Date.now() };
   if (imgs.length) entry.imgs = imgs;
   s.convo.push(entry);
+  markActivity(s);   // 记录活动 + 清心跳短路 (spec §1.3)
   try { await s.butler.submit(text, attachments); return { ok: true }; }
   catch (e) { return { ok: false, error: String((e && e.stack) || e) }; }
 });
+
+// A2 心跳手动触发 (spec §1.5): 供手动测试与 idle_watcher (v1.1) 调用. 返回 { ok, error? }.
+ipcMain.handle('trigger-heartbeat', async (_e, { sid } = {}) => sendHeartbeat(sid));
 
 // #9 图片附件回读: renderer 载历史时点缩略图/初次渲染时 IPC 拿 base64 dataURL. 严格校验路径前缀防穿越+软链.
 ipcMain.handle('get-attachment', async (_e, { sid, path: p } = {}) => {

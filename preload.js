@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('butler', {
   send: (sid, payload) => ipcRenderer.invoke('send-message', { sid, ...payload }),  // payload:{text,attachments}
   getAttachment: (sid, p) => ipcRenderer.invoke('get-attachment', { sid, path: p }),   // #9 拿磁盘上的图片附件 → { ok, base64 }
   compact: (sid) => ipcRenderer.invoke('compact', { sid }),
+  triggerHeartbeat: (sid) => ipcRenderer.invoke('trigger-heartbeat', { sid }),   // A2 心跳手动触发 (spec §1.5, 待 idle_watcher 接管)
   clear: (sid) => ipcRenderer.invoke('clear', { sid }),   // 清空上下文(全新会话, 无历史/无交接摘要)
   cancelCurrent: (sid) => ipcRenderer.invoke('cancel-current', { sid }),   // 打断当前跑着的一轮(用户救援, 消息文本 renderer 侧回填草稿)
   openPersona: () => ipcRenderer.invoke('open-persona'),             // 选目录 → { ok, meta:{sid,persona,usage} }
