@@ -266,12 +266,17 @@ class MemoryGraph {
     const nid = canon(id);
     const fname = path.join(this.dir, nid + '.md');
     const now = today();
-    let created = now, last_used = now, use_count = 1;
+    // spec §2.1 auto-touch: init 0, 结尾 +=1 → 新建首沉=1 (等价手动 touch), update=existing+1.
+    // 语义"凡 upsert 皆一次'我用过'signal", 跟 memory_touch 收紧后语义闭环.
+    // fallback ||1 三处 (build line 82 / touch line 216 / update 老值兜底) 保守不动.
+    let created = now, last_used = now;
+    let use_count = 0;
     const existing = this._readIndex();
     if (existing && existing.nodes[nid]) {
       created = existing.nodes[nid].created || now;
       last_used = now; use_count = (existing.nodes[nid].use_count || 1);
     }
+    use_count += 1;
     const imp = importance || TYPE_DEFAULT_IMP[type] || 'med';
     const linkBlock = (links && links.length)
       ? '\n\n## 关联\n' + links.map((l) => `[[${canon(l)}]]`).join(' · ') : '';
