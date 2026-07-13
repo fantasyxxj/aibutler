@@ -263,15 +263,25 @@ function decideIdleAction(s) {
   return ctx_tok >= 30_000 ? { type: 'COMPACT', reason: 'tier1_hard_cutoff', ...meta } : { type: 'SLEEP', ...meta, reason: 'tier1_hard_cutoff_small' };
 }
 
+const HEARTBEAT_COOLDOWN_MS = 240_000;   // 4 min · Anthropic cache TTL=5min, 留 1min buffer (spec §1.5)
+
 async function executeIdleAction(action, s) {
   const name = (s.butler && s.butler.name) || s.sid;
   const tag = `[idle-watch] ${name}`;
   switch (action.type) {
     case 'NOOP':
       return;
-    case 'KEEPALIVE':
+    case 'KEEPALIVE': {
+      // 冷却期: 上次心跳 <240s 内跳过, 免每 30s 扫一次就触发一次心跳 (8× 于预期).
+      // 手动 triggerHeartbeat IPC 不受此约束 (直接调 sendHeartbeat).
+      const since_last = Date.now() - (s.last_heartbeat_ts || 0);
+      if (since_last < HEARTBEAT_COOLDOWN_MS) {
+        console.log(`${tag} → KEEPALIVE skipped (cooldown ${Math.round(since_last / 1000)}s < ${HEARTBEAT_COOLDOWN_MS / 1000}s)`);
+        return;
+      }
       console.log(`${tag} → KEEPALIVE (${action.tier}, idle=${action.idle_min}min, ctx=${action.ctx_tok}, pct=${action.ctx_pct}%)`);
       return sendHeartbeat(s.sid);
+    }
     case 'COMPACT':
       console.log(`${tag} → COMPACT (${action.reason}, ctx=${action.ctx_tok}, pct=${action.ctx_pct}%)`);
       try { await s.butler.doCompact(`idle-watcher: ${action.reason}`); }
