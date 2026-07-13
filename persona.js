@@ -24,12 +24,15 @@ function ensureMemory(memoryDir, name) {
     fs.writeFileSync(idx,
       `# 🧠 ${name || '新人格'} · 记忆索引 (MEMORY.md)\n\n` +
       `> 每会话开头加载。一条记忆一个 .md(带 frontmatter), 写完在此加一行指针。\n\n` +
-      `## ⚡ 通用行为铁律(常驻)\n` +
-      `1. 及时存: 值得记的(偏好/坑/状态/结论/被钦定的规矩)立刻 memory_upsert, 不等收尾不等满。\n` +
-      `2. 回复简洁: output token 最贵(~5×), 说到位就停, 别啰嗦复述堆总结。\n` +
-      `3. 图存要点+文件指针, 先图后文件: 节点存要点关键字, 大事项/写过文件的附路径; 读时先 memory_query 图, 命中后必要才 Read 文件。\n` +
-      `4. description 写准: 一句话摘要要具体, 检索命中全靠它。\n` +
-      `5. 碎片拆原子+连边: 拆原子概念节点+连 [[边]], 别写日期编年史。\n\n` +
+      `## 🌐 通用行为铁律 (butler 全人格共享 · 常驻)\n` +
+      `1. **及时存**: 值得记的(偏好/坑/状态/结论/被钦定的规矩)立刻 memory_upsert, 不等收尾不等满.\n` +
+      `2. **回复简洁**: output token 最贵(~5×), 说到位就停, 别啰嗦复述堆总结.\n` +
+      `3. **图存要点+文件指针, 先图后文件**: 节点存要点关键字, 大事项/写过文件的附路径; 读时先 memory_query 图, 命中后必要才 Read 文件.\n` +
+      `4. **description 写准**: 一句话摘要要具体, 检索命中全靠它.\n` +
+      `5. **碎片拆原子+连边**: 拆原子概念节点+连 [[边]], 别写日期编年史.\n` +
+      `6. 🔴 **沉前必查重不建新** (2026-07-13 加): memory_upsert 前必先 memory_query 查 top-3, 主题一致 → update 老节点 + touch, 不建新 id; 母铁律案例走 memory_append(parent_id, section, body). butler 已有 pre-query 挡门 (top_score>200 会挡).\n` +
+      `7. 🔴 **用过 memory_touch 强化** (2026-07-13 加): 上岗第一动作 memory_hot; 真依赖某节点做决策/答案后立刻 memory_touch <id>; **打开 ≠ 用了** (语义收紧). 不 touch 那条就在热度上被淘汰.\n` +
+      `8. 🔴 **日报/编年史索引化** (2026-07-13 加): 时序类内容(日报/复盘/事故) 绝不揉一大文件, 一天一小文件 <slug>_YYYY-MM-DD.md, 图节点只存摘要+时间+文件名索引.\n\n` +
       `## 身份 / 人设\n(待填: 我是谁 · 职责 · 口吻 · 边界)\n\n` +
       `## 记忆条目\n(暂空 —— 随使用逐步积累)\n`, 'utf8');
   }
@@ -78,7 +81,7 @@ created: ${now}
 - 索引: MEMORY.md
 - 出生第一件档案: self_identity (pinned, memory_hot 排第一)
 - 用: memory_hot 看最近在忙啥 / memory_query 查旧知识 / memory_upsert 沉淀新知识 / memory_touch 强化用过的
-- 心法: 及时存·图存要点+文件指针·先图后文件·碎片拆原子连边(详见 MEMORY.md「通用行为铁律」)
+- 心法: 及时存 · 图存要点+文件指针·先图后文件 · 碎片拆原子连边 · 沉前查重不建新 · 用过 touch · 日报索引化(详见 MEMORY.md「通用行为铁律」)
 
 ## 出生
 - 建于: ${now}
