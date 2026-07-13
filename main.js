@@ -267,6 +267,13 @@ async function askPersona(targetRef, question, opts = {}) {
   const wrapped = `【来自「${backRef}」· 单向异步】\n${question}\n→ 回请调 ${replyHint}`;
   try {
     await s.butler.submit(wrapped);
+    ccButler({
+      channel: 'ask_persona',
+      from: backRef,
+      to: target.name,
+      message: question,
+      wrapperMeta: { tag: '· 单向异步', reply_hint: replyHint },
+    });
     return { ok: true, delivered: true, from: target.name, note: `已投递给「${target.name}」· 单向异步` };
   } catch (e) { return { ok: false, error: String(e && e.message) }; }
 }
@@ -291,24 +298,72 @@ async function peerTalk(fromName, targetRef, message, opts = {}) {
   try {
     await s.butler.submit(wrapped);
     console.error(`[dbg peerTalk] ${target.name} 已投递(单向异步)`);
-    ccButler(from.name, target.name, message);
+    ccButler({
+      channel: 'talk_peer',
+      from: from.name,
+      to: target.name,
+      message,
+      wrapperMeta: { tag: '· 单向异步', reply_hint: `talk_peer 回「${from.name}」` },
+    });
     return { ok: true, delivered: true, from: target.name, note: `已投递给「${target.name}」· 单向异步` };
   } catch (e) { console.error(`[dbg peerTalk] ${target.name} submit ERROR: ${e && e.message}`); return { ok: false, error: String(e && e.message) }; }
 }
 
-// 抄送管家(方案B · 单向异步): 每次外发的一条消息追加到管家记忆目录 peer_cc_log.md → 管家随时可查(掌握全局), 不打断。
-// 单向模型下没有"当场答复", 只记这一条投递; 对方回复时它自己也会走 talk_peer → 又抄送一条, 时序自然成链。
-function ccButler(fromName, toName, message) {
+// —— peer_talk 抄送日志 helpers (spec: workspace/idle_watcher_and_bcc_log_spec_v1.md §2, 2026-07-13) ——
+// 时间戳统一系统本地时区 (禁用 UTC, 见 spec 编码约定).
+function localIsoTimestamp() {
+  const d = new Date();
+  const pad = (n, w = 2) => String(n).padStart(w, '0');
+  const tzMin = -d.getTimezoneOffset();
+  const sign = tzMin >= 0 ? '+' : '-';
+  const oh = pad(Math.floor(Math.abs(tzMin) / 60));
+  const om = pad(Math.abs(tzMin) % 60);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+         `T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}` +
+         `.${pad(d.getMilliseconds(), 3)}${sign}${oh}:${om}`;
+}
+function localDateStr() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+const PEER_LOG_ROTATE_SIZE = 10 * 1024 * 1024;   // 10 MB
+function peerLogDir() { return path.join(paths.dataDir(), 'logs', 'peer_talk'); }
+function currentPeerLogPath() {
+  const dir = peerLogDir();
+  fs.mkdirSync(dir, { recursive: true });
+  const today = localDateStr();
+  let idx = 0;
+  let p = path.join(dir, `peer_talk_${today}.jsonl`);
+  while (fs.existsSync(p) && fs.statSync(p).size >= PEER_LOG_ROTATE_SIZE) {
+    idx++;
+    p = path.join(dir, `peer_talk_${today}.${String(idx).padStart(3, '0')}.jsonl`);
+  }
+  return p;
+}
+
+// 抄送管家日志 (v1 jsonl, 2026-07-13 起; 旧 peer_cc_log.md 保留存档不删, 新代码只写这里).
+// 双向都记: talk_peer 双方 + ask_persona 双方 (main 视角 direction='relay' 一次一条).
+// 独立日志文件, 不进任何人格会话历史(零污染 · 见 spec §2).
+function ccButler({ channel, from, to, message, wrapperMeta }) {
   try {
-    const b = registry.loadRegistry().personas.find((p) => p.isButler);
-    if (!b) return;
-    const memDir = persona.resolveMemoryDir(b.homeDir);
-    const logFile = path.join(memDir, 'peer_cc_log.md');
-    const ts = new Date().toISOString();
-    const block = `\n### ${ts} · ${fromName} → ${toName}\n- **${fromName}**: ${message}\n`;
-    fs.appendFileSync(logFile, block, 'utf8');
-    sendUI('peer-cc', { from: fromName, to: toName, ts });
-  } catch (e) { pluginLog('[peer-cc] 抄送管家失败: ' + (e && e.message)); }
+    const body = String(message == null ? '' : message);
+    const hash = crypto.createHash('sha256').update(body).digest('hex').slice(0, 16);
+    const summary = body.length > 200 ? body.slice(0, 200) + '...' : body;
+    const entry = {
+      ts: localIsoTimestamp(),
+      channel,
+      from,
+      to,
+      direction: 'relay',
+      msg_len: body.length,
+      msg_summary: summary,
+      msg_hash: hash,
+      wrapper_meta: wrapperMeta || null,
+    };
+    fs.appendFileSync(currentPeerLogPath(), JSON.stringify(entry) + '\n');
+    sendUI('peer-cc', { channel, from, to, ts: entry.ts });
+  } catch (e) { pluginLog('[peer-cc] 抄送日志失败: ' + (e && e.message)); }
 }
 
 // 管家授权/撤销叶子直连(用户跟管家说→管家调这两个, 不走界面)。
