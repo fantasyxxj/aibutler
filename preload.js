@@ -1,8 +1,12 @@
 // preload.js — 安全暴露 IPC 给渲染层。单窗口多标签: 所有请求带 sid(人格目录), 事件回调把 sid 一并回传。
 const { contextBridge, ipcRenderer } = require('electron');
 
+// 版本号 safe fetch: require 挂了不能拖垮整个 preload (否则 window.butler undefined, renderer 全崩人格看不见).
+let _pkgVersion = '?';
+try { _pkgVersion = require('./package.json').version || '?'; } catch (e) { console.error('[preload] read version failed:', e && e.message); }
+
 contextBridge.exposeInMainWorld('butler', {
-  version: require('./package.json').version,   // 版本号 (0.0.2 起), renderer 显示在窗口 title
+  version: _pkgVersion,   // 版本号 (0.0.2 起), renderer 显示在窗口 title
   listSessions: () => ipcRenderer.invoke('list-sessions'),            // { sessions:[{sid,persona,usage}], active }
   getHistory: (sid) => ipcRenderer.invoke('get-history', { sid }),
   send: (sid, payload) => ipcRenderer.invoke('send-message', { sid, ...payload }),  // payload:{text,attachments}
