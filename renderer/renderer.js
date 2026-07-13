@@ -158,12 +158,29 @@ function finalizeAssistantBubble(tab) {
 // 工具调用 → 一条持久简洁条目(读文件/写文件/跑命令…), 排进消息流不清除
 function addToolMsgTo(tab, tool) {
   const el = document.createElement('div');
-  el.className = 'msg tool';
-  el.textContent = (tool && tool.desc) || String(tool || '');
+  el.className = 'msg tool pending';   // 起手 pending (⋯), onToolDone 时 flip 成 done (✔)
+  el.dataset.toolName = (tool && tool.name) || '';
+  el.innerHTML = `<span class="tool-mark">⋯</span> <span class="tool-desc"></span>`;
+  el.querySelector('.tool-desc').textContent = (tool && tool.desc) || String(tool || '');
   tab.chat.appendChild(el);
+  tab.pendingToolEls = tab.pendingToolEls || [];
+  tab.pendingToolEls.push(el);
   if (tab.activityEl) tab.chat.appendChild(tab.activityEl);   // "进行中"状态行始终吊在底部
   maybeScroll(tab);
   return el;
+}
+
+// 会话 status bar 状态机: 让用户一眼看出"AI 能不能被打断/发消息"
+const statusEl = document.getElementById('statusbar');
+function setStatus(state, text) {
+  if (!statusEl) return;
+  const map = {
+    idle:     '🟢 待命 (可发送)',
+    thinking: '🔵 AI 思考中 (可插话)',
+    tool:     '🟡 工具执行中 (可插话)',
+  };
+  statusEl.textContent = text || map[state] || map.idle;
+  statusEl.dataset.state = state || 'idle';
 }
 
 // ---- 活着信号: 气泡下方一行实时状态(转圈 + 当前在干嘛), 出正文/出结果即清 ----
@@ -524,7 +541,7 @@ window.butler.onResult((sid, { finalText, interrupted, compacted }) => {
     tab.activeBubble = null;
   }
   tab.busy = false;
-  if (tab.sid === activeSid) refreshBusy();
+  if (tab.sid === activeSid) { refreshBusy(); setStatus('idle'); }
   if (compacted && compacted.ok) {
     sysMsgTo(tab, `🗜 已自主压缩上下文 · 理由: ${compacted.reason} · 摘要 ${compacted.summary.length} 字, 会话已重启`, 'compact');
   }
@@ -534,11 +551,24 @@ window.butler.onActivity((sid, text) => {
   const tab = tabs.get(sid);
   if (!tab) return;
   setActivity(tab, text);   // 实时显示"正在读文件/跑命令/搜索…" → 静默期也知道我活着
+  if (sid === activeSid) setStatus('thinking', text ? `🔵 ${text}` : null);
   markUnread(tab);
+});
+// 工具完成: flip 对应 pending tool 气泡 → done (⋯ → ✔). FIFO shift (agent.js 里 pendingTools 也是 FIFO).
+window.butler.onToolDone((sid, info) => {
+  const tab = tabs.get(sid);
+  if (!tab || !tab.pendingToolEls || !tab.pendingToolEls.length) return;
+  const el = tab.pendingToolEls.shift();
+  if (!el) return;
+  el.classList.remove('pending');
+  el.classList.add('done');
+  const mark = el.querySelector('.tool-mark');
+  if (mark) mark.textContent = '✔';
 });
 window.butler.onTool((sid, tool) => {
   const tab = tabs.get(sid);
   if (!tab) return;
+  if (sid === activeSid) setStatus('tool', tool && tool.desc ? `🟡 ${tool.desc}` : null);
   finalizeAssistantBubble(tab);   // 工具前收尾当前文本气泡 → 顺序: 文本→工具→后续文本
   addToolMsgTo(tab, tool);        // 持久条目, 不清除
   markUnread(tab);

@@ -31,6 +31,7 @@ contextBridge.exposeInMainWorld('butler', {
   onChunk: (cb) => ipcRenderer.on('assistant-chunk', (_e, d) => cb(d.sid, d.text)),
   onActivity: (cb) => ipcRenderer.on('activity', (_e, d) => cb(d.sid, d.text)),
   onTool: (cb) => ipcRenderer.on('tool-call', (_e, d) => cb(d.sid, d.tool)),   // { desc, name }
+  onToolDone: (cb) => ipcRenderer.on('tool-done', (_e, d) => cb(d.sid, d)),    // 工具完成 { name } → UI checkmark
   onCompacting: (cb) => ipcRenderer.on('compacting', (_e, d) => cb(d.sid, d)),  // { phase:'start'|'done', reason }
   onResult: (cb) => ipcRenderer.on('turn-result', (_e, d) => cb(d.sid, d)),           // { finalText, interrupted, compacted }
   onUsage: (cb) => ipcRenderer.on('usage', (_e, d) => cb(d.sid, d.usage)),

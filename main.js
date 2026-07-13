@@ -159,6 +159,7 @@ function openPersona(homeDir) {
     onText: (t) => { if (s.heartbeat_pending) return; sendUI('assistant-chunk', { sid, text: t }); },
     onActivity: (text) => { if (s.heartbeat_pending) return; sendUI('activity', { sid, text }); },
     onTool: (tool) => { if (s.heartbeat_pending) return; sendUI('tool-call', { sid, tool }); },   // 每个工具调用→持久条目
+    onToolDone: (info) => { if (s.heartbeat_pending) return; sendUI('tool-done', { sid, ...info }); },   // 工具完成→UI 变 checkmark (治"跟死了一样"假死感)
     onCompact: (info) => sendUI('compacting', { sid, ...info }),  // 压缩开始/结束→UI 动态指示 (心跳期不 skip, 压缩事件真实)
 
     onUsage: (u) => sendUI('usage', { sid, usage: u }),   // usage 变化真实, 心跳期不 skip

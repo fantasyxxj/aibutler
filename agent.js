@@ -110,6 +110,7 @@ class Butler {
     this.compactRequested = null;  // 模型调压缩工具时置为 reason
     this.sessionHits = new Set();  // §2.5 反思批 touch: 本轮 memory_query 命中过的 ids · 压缩前提示 AI 挑真用过的 touch
     this._gateCancelToken = new CancelToken();  // rate gate 排队 cancel · interrupt 时 cancel + renew
+    this._pendingTools = [];   // UI 反馈: tool_use 未收到 done 的名字队列 · 下次 assistant text/新 tool_use/result 出现时 flush → onToolDone
     // 自动压缩兜底阈值(占用百分比)。占用达此值即自动登记压缩, 不再全靠模型自觉调工具。
     // 按窗口比例算, 兼容 200k/1M 两档。0/负数=关闭自动压缩。
     // 优先级: opts > 环境变量 BUTLER_AUTO_COMPACT_PCT(实测调优免重打包) > 默认 80。
@@ -674,16 +675,29 @@ class Butler {
           }
         } else if (msg.type === 'assistant') {
           this._busy = true;
+          // 收到新 assistant 消息 (含 text 或新 tool_use) = 上一批 tool_use 已经 done. flush pendingTools 让 UI 变 checkmark.
+          if (this._pendingTools.length) {
+            for (const name of this._pendingTools) this._emit('onToolDone', { name });
+            this._pendingTools = [];
+          }
           for (const b of (msg.message?.content || [])) {
             // text: 已通过 stream_event 逐字发过则跳过(_deltaText 有值=覆盖过); 没发过(流式没覆盖)才补发整块
             if (b.type === 'text' && b.text) { if (!this._deltaText) { this._cur += b.text; this._emit('onText', b.text); } }
             // 每个工具调用抛成一条持久条目(而非挤成一条转瞬 activity), 渲染层排进消息流、不清除
-            else if (b.type === 'tool_use') this._emit('onTool', { desc: this._describeTool(b), name: b.name });
+            else if (b.type === 'tool_use') {
+              this._emit('onTool', { desc: this._describeTool(b), name: b.name });
+              this._pendingTools.push(b.name);
+            }
           }
           this._deltaText = '';   // 本条 assistant 消息处理完, 重置 delta 累积(下条重新判)
           const inTok = sumInput(msg.message?.usage);
           if (inTok) { this.lastInput = inTok; this._emit('onUsage', this.usage()); this._maybeAutoCompact(); }
         } else if (msg.type === 'result') {
+          // 本轮结束: 兜底 flush 剩余 pendingTools (若最后一个 tool_use 后没 assistant 消息就到了 result)
+          if (this._pendingTools.length) {
+            for (const name of this._pendingTools) this._emit('onToolDone', { name });
+            this._pendingTools = [];
+          }
           const interrupted = (msg.subtype === 'interrupt' || msg.subtype === 'error_during_execution');
           this._emit('onUsage', this.usage());
           const finalText = this._cur; this._cur = ''; this._deltaText = ''; this._busy = false;

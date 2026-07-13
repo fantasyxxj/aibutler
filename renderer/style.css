@@ -195,6 +195,19 @@ mark.search-hit.current { background: #f59e0b; color: #1a1a1a; }
   color: #b9b9d0; font-size: 12px; font-family: "SF Mono", Menlo, Consolas, monospace;
   padding: 4px 10px; border-radius: 6px; white-space: pre-wrap; word-break: break-word; opacity: .92;
 }
+.msg.tool.pending .tool-mark { color: #f0c060; animation: pulse 1.4s infinite; }
+.msg.tool.done { border-left-color: #4caf50; opacity: 1; }
+.msg.tool.done .tool-mark { color: #4caf50; }
+.msg.tool.done .tool-desc::after { content: ' · 完成'; color: #8fbf8f; font-size: 11px; }
+
+/* ===== status bar: 会话状态一眼可见 (治"跟死了一样"假死感) ===== */
+#statusbar {
+  padding: 4px 16px; background: #12121a; border-top: 1px solid var(--line);
+  color: #d0d0e0; font-size: 11px; font-family: "SF Mono", Menlo, Consolas, monospace;
+  min-height: 20px; user-select: none; transition: background 0.2s;
+}
+#statusbar[data-state="thinking"] { background: #1a1a2e; }
+#statusbar[data-state="tool"] { background: #1a1e12; }
 
 /* ===== 活着信号: 思考占位脉动 + 实时活动状态行 ===== */
 @keyframes pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
