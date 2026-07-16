@@ -1,16 +1,18 @@
 {
   "name": "butler",
-  "version": "0.0.5",
+  "version": "0.0.15",
   "description": "全能管家 — 独立聊天窗口 (Electron + Claude Agent SDK), 复用订阅认证, 真 usage 上下文条 + 自主压缩",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder",
     "dist:mac": "electron-builder --mac",
-    "dist:win": "electron-builder --win"
+    "dist:win": "node -e \"require('fs').accessSync('build/bin/win/x64/claude.exe')\" && electron-builder --win --x64"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.3.201",
+    "katex": "^0.17.0",
+    "mermaid": "^11.16.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -31,6 +33,7 @@
       "!scripts/**",
       "!build/**",
       "!release/**",
+      "!logs/**",
       "!personas.json",
       "!personas.json.bak",
       "!.opentabs.json",
@@ -48,7 +51,10 @@
       "icon": "build/icon.png",
       "category": "public.app-category.productivity",
       "extraResources": [
-        { "from": "build/bin/mac/${arch}/claude", "to": "bin/claude" }
+        {
+          "from": "build/bin/mac/${arch}/claude",
+          "to": "bin/claude"
+        }
       ]
     },
     "win": {
@@ -58,7 +64,10 @@
       ],
       "icon": "build/icon.png",
       "extraResources": [
-        { "from": "build/bin/win/${arch}/claude.exe", "to": "bin/claude.exe" }
+        {
+          "from": "build/bin/win/${arch}/claude.exe",
+          "to": "bin/claude.exe"
+        }
       ]
     },
     "nsis": {

@@ -6,6 +6,8 @@
 >
 > Making AI more than a one-shot Q&A tool — a companion with personality, memory, and the ability to grow.
 
+> ⚠️ **Please use the latest version (v0.0.15+). Older versions (≤ v0.0.5) have a token over-consumption bug** (coupled keepalive/compaction logic, retries without backoff) that can quickly burn through your Claude subscription quota. Fixed since v0.0.6 (decoupled keepalive/compaction + rate-gate throttling + SDK resume disabled).
+
 ---
 
 ## Why this project

@@ -57,7 +57,8 @@ function needsFirstRunChoice() {
 // 记下用户选的数据目录(写指针 + 清缓存, 下次 dataDir() 立即生效)
 function setDataDir(dir) {
   const abs = path.resolve(dir);
-  fs.mkdirSync(abs, { recursive: true });
+  // Win 上对盘符根(D:\)mkdir 即使带 recursive 也报 EPERM → 已存在就不建
+  if (!fs.existsSync(abs)) fs.mkdirSync(abs, { recursive: true });
   fs.mkdirSync(bootstrapDir(), { recursive: true });
   fs.writeFileSync(pointerFile(), JSON.stringify({ dataDir: abs }, null, 2), 'utf8');
   _cached = abs;
@@ -92,6 +93,7 @@ function resolveClaudeBin() {
   }
   cands.push(
     path.join(os.homedir(), '.claude', 'local', name),
+    path.join(os.homedir(), '.local', 'bin', name),   // 官方原生安装器落点(Win/mac/linux 通用), Win 兜底尤其靠它
     '/opt/homebrew/bin/claude',
     '/usr/local/bin/claude',
   );

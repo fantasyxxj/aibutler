@@ -18,7 +18,8 @@ const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</
 
 // ---- 头像选择器 ----
 const isImgAvatar = (v) => typeof v === 'string' && /^(data:|file:|https?:|\/)/.test(v);
-const COMMON_EMOJIS = ['🤖','🧑‍💻','👩‍💻','🧑‍🎨','🐱','🦊','🐼','🦉','🐧','🐷','🦁','🐰','🌸','🚀','💰','📊','📈','🎨','🎯','🧠','📚','☕','🔧','🛡️','⚡','🎭','🍜','🐉','🌟','🦄'];
+// 全部用单码点 emoji: ZWJ 组合(🧑‍💻/👩‍💻/🧑‍🎨)在 Windows 上会被拆成两个字形, 撑乱格子且预览显示成两个
+const COMMON_EMOJIS = ['🤖','💻','👾','🦋','🐱','🦊','🐼','🦉','🐧','🐷','🦁','🐰','🌸','🚀','💰','📊','📈','🎨','🎯','🧠','📚','☕','🔧','🎮','⚡','🎭','🍜','🐉','🌟','🦄'];
 // 上传照片 → 居中裁成 128px 小方图 → JPEG data URL(体积小, 存 registry)
 function fileToAvatarDataURL(file) {
   return new Promise((resolve) => {
@@ -102,7 +103,7 @@ function makeEditPanel(p) {
           </div>
           <div class="ap-pane ap-pane-emoji">
             <div class="ap-grid"></div>
-            <input class="ap-emoji-input" placeholder="或粘贴一个 emoji" maxlength="4" />
+            <input class="ap-emoji-input" placeholder="或粘贴一个 emoji" maxlength="8" />
           </div>
           <div class="ap-pane ap-pane-photo" hidden>
             <button type="button" class="m-btn ap-photo-btn">选择照片…</button>
@@ -118,7 +119,8 @@ function makeEditPanel(p) {
     <div class="e-line"><label>模型</label>
       <select class="e-model" title="切换后要等会话重启才生效(关标签重开/重启app/下次压缩); 空=跟随 Claude Code 默认">
         <option value="" ${!p.model?'selected':''}>跟随默认</option>
-        <option value="claude-opus-4-8[1m]"   ${p.model==='claude-opus-4-8[1m]'?'selected':''}>Opus 4.8 · 1M(最新旗舰)</option>
+        <option value="claude-fable-5"        ${p.model==='claude-fable-5'?'selected':''}>Fable 5 · 1M(新旗舰, 2026-06 发, $10/$50 贵)</option>
+        <option value="claude-opus-4-8[1m]"   ${p.model==='claude-opus-4-8[1m]'?'selected':''}>Opus 4.8 · 1M(前旗舰)</option>
         <option value="claude-opus-4-7[1m]"   ${p.model==='claude-opus-4-7[1m]'?'selected':''}>Opus 4.7 · 1M(稳定回退)</option>
         <option value="claude-sonnet-4-6"     ${p.model==='claude-sonnet-4-6'?'selected':''}>Sonnet 4.6(均衡, 日常)</option>
         <option value="claude-haiku-4-5-20251001" ${p.model==='claude-haiku-4-5-20251001'?'selected':''}>Haiku 4.5(快省, 走量)</option>
@@ -128,6 +130,10 @@ function makeEditPanel(p) {
       </select>
     </div>
     <div class="e-line"><label>目录</label><div class="e-dir" title="切换目录暂不支持(需迁移记忆图/会话, 未来 P6 一起做)">${esc(p.homeDir)} <span class="e-dir-note">🔒 暂不可改</span></div></div>
+    <div class="e-line"><label>🔊 语音</label>
+      <label style="font-weight:normal; margin-right:12px"><input type="checkbox" class="e-voice-en" ${p.voice && p.voice.enabled ? 'checked' : ''}> 开启 TTS 朗读</label>
+      <span class="e-dir-note" style="margin-left:8px">勾选立即生效并保存 · 读什么声音 AI 按语言/你的要求自选(中日英粤等)</span>
+    </div>
 
     <div class="e-persona-md">
       <div class="e-plugin-head">🧬 身份档案 (persona.md, LLM 载入的 identity 真源)</div>
@@ -278,6 +284,14 @@ async function refresh() {
       if (!showing) panel.querySelector('.e-name').focus();
     });
     if (expanded.has(p.id)) { editB.textContent = '收起'; loadPersonaMdIfNeeded(); }
+
+    // 语音开关: 勾选立即生效 + 落盘, 不依赖底部「保存」(之前要点保存才存, 太容易忘 → 状态丢)
+    panel.querySelector('.e-voice-en').addEventListener('change', async (ev) => {
+      const en = ev.target.checked;
+      const r = await window.butler.updatePersona(p.id, { voice: { enabled: en, voice: (p.voice && p.voice.voice) || 'Tingting' } });
+      if (r.ok) toast(en ? '🔊 语音已开启并保存' : '语音已关闭并保存');
+      else { toast('语音保存失败: ' + r.error); ev.target.checked = !en; }
+    });
 
     panel.querySelector('.e-save').addEventListener('click', async () => {
       const newName = panel.querySelector('.e-name').value.trim();

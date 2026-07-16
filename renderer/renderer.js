@@ -107,7 +107,30 @@ window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && _lightboxE
 function renderMd(body) {
   if (!body || typeof window.renderMarkdown !== 'function') return;
   const html = window.renderMarkdown(body.textContent);
-  if (html) { body.innerHTML = html; body.classList.add('md'); decorateCode(body); }
+  if (html) { body.innerHTML = html; body.classList.add('md'); decorateCode(body);
+    // md 图片点击走 lightbox (和附件图片一套)
+    body.querySelectorAll('img.md-img').forEach(img => { img.onclick = (e) => { e.stopPropagation(); openLightbox(img.src); }; });
+    // KaTeX 公式: 同步渲染 (md.js 已把 $$..$$ / $..$ 变成 .math-block / .math-inline data-tex)
+    if (window.katex) {
+      body.querySelectorAll('.math-inline, .math-block').forEach(n => {
+        try { window.katex.render(n.dataset.tex || '', n, { displayMode: n.classList.contains('math-block'), throwOnError: false }); }
+        catch (e) { n.textContent = '$' + (n.dataset.tex || '') + '$'; }
+      });
+    }
+    // Mermaid 流程图: 异步渲染 (md.js 把 ```mermaid 块变成 .mermaid-block data-src)
+    if (window.mermaid) {
+      body.querySelectorAll('.mermaid-block').forEach(async (n, idx) => {
+        const src = n.dataset.src || '';
+        try {
+          const id = 'mmd-' + performance.now().toString(36).replace('.', '') + '-' + idx;
+          const { svg } = await window.mermaid.render(id, src);
+          n.innerHTML = svg;
+        } catch (e) {
+          n.innerHTML = '<pre class="mermaid-err">' + src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '\n\n// 渲染失败: ' + (e && e.message ? e.message : e) + '</pre>';
+        }
+      });
+    }
+  }
 }
 
 // 给渲染后的代码块加"复制"按钮(VSCode 式: 右上角悬浮, 点一下复制代码原文)
@@ -233,6 +256,9 @@ function refreshBusy() {
   compactBtn.disabled = !t || t.busy;
   // 取消按钮: 只在当前标签 busy 时显示——用户按了发送、正在跑, 才能救援
   if (cancelBtn) cancelBtn.style.display = (t && t.busy) ? '' : 'none';
+  // statusbar 兜底: !busy = 一定 idle. busy 时不覆盖(让 onActivity/onTool 自己驱到 thinking/tool).
+  // 治两个漏点: ① MCP tool 挂死拿不到 result → 状态永卡 🟡 (切 tab 或 refreshBusy 时就地兜底) ② 切 tab 时状态残留
+  if (!t || !t.busy) setStatus('idle');
 }
 
 // ---- 头像: emoji 或 字母(名字首字 + 按名字 hash 的稳定背景色) ----
@@ -465,6 +491,7 @@ async function send() {
   if (!interjecting) { tab.activeBubble = addMsgTo(tab, 'assistant', '…'); tab.activeBubble.classList.add('thinking'); }
   refreshBusy();
   setActivity(tab, '思考中');
+  if (tab.sid === activeSid) setStatus('thinking');   // 显式切: 免依赖 onActivity 到达前的小空窗残留 idle
   try {
     const r = await window.butler.send(tab.sid, { text, attachments: toSend });
     if (r && !r.ok) sysMsgTo(tab, '⚠️ 发送出错: ' + r.error);
@@ -510,6 +537,9 @@ window.butler.onUserEcho((sid, text) => {   // 程序注入的消息(如 butler 
   maybeScroll(tab);
   markUnread(tab);
 });
+// SSML 剥标签: 后端 stripSsmlTags 每 chunk 内剥, 跨 chunk 边界(标签断在两 chunk 中间)漏出的靠前端 onResult 收尾兜底剥.
+const SSML_TAG_RE = /<\/?(speak|break|emphasis|prosody|sub|voice|lang|mute|hidden)\b[^>]*\/?>/gi;
+const SSML_HIDDEN_RE = /<hidden\b[^>]*>[\s\S]*?<\/hidden>/gi;   // hidden=朗读不显示 → 内容也删
 window.butler.onChunk((sid, t) => {
   const tab = tabs.get(sid);
   if (!tab) return;
@@ -536,7 +566,9 @@ window.butler.onResult((sid, { finalText, interrupted, compacted }) => {
       else if (interrupted) { body.textContent = '⏸'; }
       else { tab.activeBubble.remove(); }
     } else {
-      renderMd(body);   // 收尾: 正文整块 markdown 渲染(表格/代码/粗体/列表)
+      // 收尾: 先兜底删 hidden 内容 + 剥 SSML 标签(跨 chunk 漏的), 再整块 markdown 渲染
+      body.textContent = body.textContent.replace(SSML_HIDDEN_RE, '').replace(SSML_TAG_RE, '');
+      renderMd(body);
     }
     tab.activeBubble = null;
   }
@@ -867,6 +899,12 @@ function showPersona(p) {
   personaDir.textContent = p.homeDir || '';
   personaDir.title = `目录: ${p.homeDir}\n记忆: ${p.memoryDir}`;
   document.title = `全能管家 v${window.butler.version} · ${p.name || ''}`;
+}
+
+// Mermaid 一次性初始化 (securityLevel:'strict' 禁止图内 <script> / 点击回调; startOnLoad:false 由 renderMd 手动 render)
+if (window.mermaid) {
+  try { window.mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'strict' }); }
+  catch (e) { console.warn('mermaid init 失败', e); }
 }
 
 // ---- 启动: 拉所有已开标签, 激活默认标签 ----

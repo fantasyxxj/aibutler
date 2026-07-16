@@ -108,7 +108,8 @@ function ensureWakeFile(homeDir, memoryDir, wakePhrase) {
 // 已存在真目录(用户手动建过 CC 项目)不动 → 只在无冲突时创建。
 function ensureCcSymlink(homeDir, memoryDir) {
   try {
-    const slug = '-' + path.resolve(homeDir).replace(/^\//, '').replace(/\//g, '-');
+    // CC 的项目 slug 规则: 绝对路径里非字母数字一律变 '-' (mac '/Users/x'→'-Users-x', win 'C:\\Users\\x'→'C--Users-x')
+    const slug = path.resolve(homeDir).replace(/[^a-zA-Z0-9]/g, '-');
     const ccProjectDir = path.join(os.homedir(), '.claude', 'projects', slug);
     fs.mkdirSync(ccProjectDir, { recursive: true });
     const link = path.join(ccProjectDir, 'memory');

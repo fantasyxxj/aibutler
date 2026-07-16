@@ -11,6 +11,44 @@ const persona = require('./persona');
 const paths = require('./paths');
 const { TgPlugin } = require('./plugins/tg');
 const { BothubPlugin } = require('./plugins/bothub');
+const voiceSay = require('./voice-say');   // 情感语音播报 · macOS say adapter · SSML 子集 → 私有指令
+
+// UI 剥标签: 无条件剥掉 SSML 原语白名单 (即使语音关时模型手滑输出, 也不让标签暴露给用户).
+// 只剥白名单 tag, 不动其他 HTML/markdown, 免误伤代码块里的 <...>.
+// 双通道原语 (UI 侧): <hidden>朗读不显示</hidden> → 连内容删; <mute>显示不朗读</mute> → 只剥壳留内容 (TTS 侧反向, 见 voice-say.js stripForTts)
+const SSML_HIDDEN_RE = /<hidden\b[^>]*>[\s\S]*?<\/hidden>/gi;
+const SSML_TAG_RE = /<\/?(speak|break|emphasis|prosody|sub|voice|lang|mute|hidden)\b[^>]*\/?>/gi;
+function stripSsmlTags(t) { return t ? String(t).replace(SSML_HIDDEN_RE, '').replace(SSML_TAG_RE, '') : t; }
+
+// 流式 <hidden> 抑制: 听力原文等"朗读不显示"内容必须在 chunk 流里就挡住 (等收尾兜底会先闪现在屏幕上, 听力题就穿帮了).
+// 有状态过滤器: 跨 chunk 记住"在 hidden 里"; 结尾悬着的半截标签(如 "<hid")扣下并入下一 chunk, 防标签被劈开漏过.
+function makeHiddenStreamFilter() {
+  let inHidden = false, carry = '';
+  const filter = (chunk) => {
+    let str = carry + String(chunk || '');
+    carry = '';
+    const lt = str.lastIndexOf('<');
+    if (lt >= 0 && str.indexOf('>', lt) < 0 && str.length - lt <= 40) { carry = str.slice(lt); str = str.slice(0, lt); }
+    let out = '';
+    while (str) {
+      if (inHidden) {
+        const m = /<\/hidden\s*>/i.exec(str);
+        if (!m) { str = ''; break; }
+        str = str.slice(m.index + m[0].length);
+        inHidden = false;
+      } else {
+        const m = /<hidden\b[^>]*>/i.exec(str);
+        if (!m) { out += str; str = ''; break; }
+        out += str.slice(0, m.index);
+        str = str.slice(m.index + m[0].length);
+        inHidden = true;
+      }
+    }
+    return out;
+  };
+  filter.reset = () => { inHidden = false; carry = ''; };
+  return filter;
+}
 // —— 常驻文件日志 —— 拦截 console.log/warn/error/info → 除原 stdout/stderr 外, 追加到 bootstrapDir/logs/butler-YYYY-MM-DD.log
 // 位置 = paths.bootstrapDir()(打包版=userData, dev=仓库根), 首启选数据目录之前也能写(bootstrapDir 永远可写)。
 // 按天 rotate, 保留 7 天。也捕获 uncaughtException/unhandledRejection —— talk_peer 挂/SDK EPIPE 等静默错误在这能捞到 stack。
@@ -146,6 +184,8 @@ function openPersona(homeDir) {
 
   const entry = registry.ensureEntry(homeDir);   // 登记簿(不在则迁移建条): 名字/唤醒语/是否管家 以它为准
   const butler = new Butler(homeDir, { name: entry.name, wakePhrase: entry.wakePhrase, isButler: entry.isButler, avatar: entry.avatar, model: entry.model });
+  // 语音: 从 registry 覆盖默认值 (persona 未配置则默认关, Tingting)
+  butler.voice = { enabled: false, voice: 'Tingting', ...(entry.voice || {}) };
   butler.personaOps = { open: openPersonaByRef, create: createPersona, ask: askPersona, peerTalk, grantPeer, revokePeer, list: listPersonas };   // 开/建/问/列(管家) + 叶子直连/授权回调
   const saved = loadSessionMigrating(butler);
   const convo = (saved && Array.isArray(saved.messages)) ? saved.messages : [];
@@ -153,25 +193,48 @@ function openPersona(homeDir) {
   const persist = () => store.save(butler.sessionPath, { ...butler.exportState(), messages: convo });
 
   // 先建 s 引用, 让 callbacks 能读 s.heartbeat_pending 做心跳期短路 (spec §1.5 A2 UI 隔离)
-  const s = { sid, butler, convo, persist, last_activity_ts: Date.now(), heartbeat_pending: false, last_heartbeat_ts: 0 };
+  const s = { sid, butler, convo, persist, last_activity_ts: Date.now(), heartbeat_pending: false, last_heartbeat_ts: 0, hiddenFilter: makeHiddenStreamFilter() };
 
   butler.setCallbacks({
-    onText: (t) => { if (s.heartbeat_pending) return; sendUI('assistant-chunk', { sid, text: t }); },
+    onText: (t) => {
+      if (s.heartbeat_pending) return;
+      const visible = stripSsmlTags(s.hiddenFilter(t));
+      if (visible) sendUI('assistant-chunk', { sid, text: visible });
+    },
     onActivity: (text) => { if (s.heartbeat_pending) return; sendUI('activity', { sid, text }); },
     onTool: (tool) => { if (s.heartbeat_pending) return; sendUI('tool-call', { sid, tool }); },   // 每个工具调用→持久条目
     onToolDone: (info) => { if (s.heartbeat_pending) return; sendUI('tool-done', { sid, ...info }); },   // 工具完成→UI 变 checkmark (治"跟死了一样"假死感)
     onCompact: (info) => sendUI('compacting', { sid, ...info }),  // 压缩开始/结束→UI 动态指示 (心跳期不 skip, 压缩事件真实)
 
     onUsage: (u) => sendUI('usage', { sid, usage: u }),   // usage 变化真实, 心跳期不 skip
+    onRateLimit: ({ until, retryAfterMs, raw }) => {
+      // rate-limit 全局暂停 idle-watch. 各人格独立记 rateLimitedUntil, 全局取 max.
+      globalRateLimitedUntil = Math.max(globalRateLimitedUntil, until);
+      const secs = Math.round(retryAfterMs / 1000);
+      console.log(`[rate-limit] ${butler.name} 撞铁板 → 全局暂停 ${secs}s (until ${new Date(until).toISOString()}) raw=${JSON.stringify(raw)}`);
+      sendUI('rate-limited', { sid, until, retryAfterMs });
+    },
     onResult: async ({ finalText, interrupted, compactReason }) => {
+      s.hiddenFilter.reset();   // 回合结束复位, 防上轮没闭合的 <hidden> 把下轮正文吞掉
       if (s.heartbeat_pending) {
         s.heartbeat_pending = false;
         s.last_heartbeat_ts = Date.now();
         return;   // 心跳轮不 push convo / 不 persist / 不 sendUI turn-result
       }
       s.last_activity_ts = Date.now();
-      if (finalText) convo.push({ role: 'assistant', text: finalText, ts: Date.now() });
+      // convo/persist/UI 存**剥标签后**的干净版本, speak 用原始 finalText (含 SSML). UI 层无 <speak> 标签暴露.
+      const cleanText = stripSsmlTags(finalText || '');
+      if (finalText) convo.push({ role: 'assistant', text: cleanText, ts: Date.now() });
       persist();
+      // 情感语音播报: 物理门 = voice.enabled 判定 (systemPrompt 已指挥模型别打, 此为双保险: 关时即使模型手滑输出 <speak> 也不播).
+      // 音色取 butler.voice.voice, 默认 Tingting. 打断/失败静默不阻塞主流程.
+      if (!interrupted && finalText && butler.voice && butler.voice.enabled) {
+        const speakBlock = voiceSay.extractSpeakBlock(finalText);
+        if (speakBlock) {
+          const voice = (butler.voice && butler.voice.voice) || 'Tingting';
+          voiceSay.speak(speakBlock, { voice }).catch((e) => console.error('[voice-say]', e && e.message));
+        }
+      }
       let compacted = null;
       if (compactReason) {
         try { compacted = await butler.doCompact(compactReason); } catch (e) { compacted = { ok: false, error: String(e) }; }
@@ -185,7 +248,7 @@ function openPersona(homeDir) {
         sendUI('usage', { sid, usage: butler.usage() });
         persist();
       }
-      sendUI('turn-result', { sid, finalText, interrupted, compacted });
+      sendUI('turn-result', { sid, finalText: cleanText, interrupted, compacted });
     },
   });
 
@@ -201,6 +264,11 @@ function markActivity(s) {
   if (!s) return;
   s.last_activity_ts = Date.now();
   s.heartbeat_pending = false;
+  // 用户/peer 交互 = 状态重置: 清 COMPACT 失败计数与退避窗口, 下次触发从头 30s 退避重试.
+  if (s.compactFailCount || s.compactBackoffUntil) {
+    s.compactFailCount = 0;
+    s.compactBackoffUntil = 0;
+  }
 }
 
 // ——— A2 心跳 (spec: workspace/idle_watcher_and_bcc_log_spec_v1.md §1.5) ———
@@ -211,6 +279,9 @@ async function sendHeartbeat(sid) {
   const s = sessions.get(sid);
   if (!s) return { ok: false, error: '会话不存在' };
   if (s.heartbeat_pending) return { ok: false, error: '心跳进行中' };
+  // 🔴 回合进行中禁止心跳: heartbeat_pending 会短路所有 UI 事件, 把正在跑的真回合后半段输出+最终总结全吞掉
+  // (2026-07-16 实锤: 长回合干活期间 last_activity_ts 不更新 → watcher 误判 idle 插心跳, 用户看到回复戛然而止)
+  if (s.butler.isRunning()) return { ok: false, error: '回合进行中, 跳过心跳' };
   s.heartbeat_pending = true;
   try {
     await s.butler.submit('[[HEARTBEAT]] no-op cache keepalive. Reply with just "ok" and nothing else.', undefined, { sourceKind: 'auto' });
@@ -226,6 +297,11 @@ async function sendHeartbeat(sid) {
 // v1.1 保留: KEEPALIVE 走 sendHeartbeat(), COMPACT 走 butler.doCompact(reason).
 const IDLE_WATCH_INTERVAL_MS = 30_000;
 
+// 全局 rate-limit 冻结时间戳: 任一人格收到 SDK rate_limit_event → 记本人格 rateLimitedUntil,
+// 同时更新此全局值取 max. idle-watch executeIdleAction 前拦: > now 则跳过所有 KEEPALIVE/COMPACT.
+// 避免撞铁板时 idle-watch 每 30s 死磕重试自烧.
+let globalRateLimitedUntil = 0;
+
 function classifyTier(lastActivityTs) {
   const hours = (Date.now() - lastActivityTs) / 3_600_000;
   if (hours < 24) return 'T1';
@@ -233,47 +309,65 @@ function classifyTier(lastActivityTs) {
   return 'T3';
 }
 
-function decideIdleAction(s) {
+// v3 改造 (2026-07-13): 保活/压缩解耦为两条独立轨道, 一次 tick 可同时返回 [COMPACT, KEEPALIVE].
+// 撤销 v2 补丁 (ctx≥300k → 跳保活直判 COMPACT) — 那是自证预言, 关掉保活让 cache 冷却后 COMPACT 变冷读, 更贵.
+// 现: KEEPALIVE 恒定跑 (idle 4-60min · ctx≥10k, 不管多大都保); COMPACT 阈值独立 (ctx≥400k / red_line / T2/T1 时间到).
+const COMPACT_THRESHOLD_TOK = 400_000;   // 独立触发压缩的 ctx 阈值 (2026-07-13 知秋定, 原 300k v2 补丁已撤)
+const KEEPALIVE_MIN_TOK = 10_000;        // ctx <10k 冷读成本本身低 (<会话额度 1%), 不值当保活
+
+function decideActions(s) {
   const u = s.butler.usage() || {};
   const ctx_pct = u.pct || 0;
   const ctx_tok = u.inTok || 0;
-
-  // 硬红线 (spec §1.4): 无视 tier 与 idle 时间, 立即压缩. 救命防被动压缩丢线索.
-  if (ctx_pct >= 80) return { type: 'COMPACT', reason: 'red_line', ctx_tok, ctx_pct };
-
   const idle_min = (Date.now() - s.last_activity_ts) / 60_000;
-  if (idle_min < 4) return { type: 'NOOP' };
-
   const tier = classifyTier(s.last_activity_ts);
   const meta = { tier, idle_min: Math.round(idle_min), ctx_tok, ctx_pct };
+  const actions = [];
 
-  if (tier === 'T3') return { type: 'SLEEP', ...meta, reason: 'tier3' };
-
-  if (tier === 'T2') {
-    // T2 定义 = idle >= 24h, 无子分支 (原 spec "idle < 20min" 是死码, 已修正 2026-07-13).
-    return ctx_tok >= 30_000 ? { type: 'COMPACT', reason: 'tier2_timeout', ...meta } : { type: 'SLEEP', ...meta, reason: 'tier2_small' };
+  // ── COMPACT 轨道 (与保活并行判定, 不排斥) ──
+  if (ctx_pct >= 80) {
+    // 硬红线 (spec §1.4): 无视 tier/idle 立即压. 救命防被动压缩丢线索.
+    actions.push({ type: 'COMPACT', reason: 'red_line', ...meta });
+  } else if (ctx_tok >= COMPACT_THRESHOLD_TOK) {
+    // 400k 阈值独立触发, 不看 idle 不看 tier — v3 主改动.
+    actions.push({ type: 'COMPACT', reason: 'ctx_threshold', ...meta });
+  } else if (tier === 'T2' && ctx_tok >= 30_000) {
+    actions.push({ type: 'COMPACT', reason: 'tier2_timeout', ...meta });
+  } else if (tier === 'T1' && idle_min >= 60 && ctx_tok >= 30_000) {
+    actions.push({ type: 'COMPACT', reason: 'tier1_hard_cutoff', ...meta });
   }
 
-  // Tier 1
-  if (idle_min < 40) {
-    // v2 补丁 (2026-07-13 知秋提醒): 高 ctx 保活单次心跳成本 = ctx × cache_read 单价, 300k+ 保活 4 次 ≈ 一次冷读, 提前压更划算.
-    if (ctx_tok >= 300_000) return { type: 'COMPACT', reason: 'ctx_too_big_to_keepalive', ...meta };
-    if (ctx_tok >= 10_000) return { type: 'KEEPALIVE', ...meta };
-    return { type: 'SLEEP', ...meta, reason: 'tier1_ctx_small' };
+  // ── KEEPALIVE 轨道 (恒定, 与压缩独立) ──
+  // T1 · idle 4-60min · ctx≥10k → 保活, 不管 ctx 多大. cache TTL 5min, 心跳 4min/次续到.
+  // 回合进行中不保活: 长回合的工具调用本身就在续 cache, 且此时插心跳会吞真回合输出 (sendHeartbeat 还有硬闸双保险).
+  if (tier === 'T1' && idle_min >= 4 && idle_min < 60 && ctx_tok >= KEEPALIVE_MIN_TOK && !s.butler.isRunning()) {
+    actions.push({ type: 'KEEPALIVE', ...meta });
   }
-  if (idle_min < 60) {
-    if (ctx_tok >= 100_000) return { type: 'COMPACT', reason: 'big_ctx', ...meta };
-    if (ctx_tok >= 30_000) return { type: 'KEEPALIVE', ...meta };
-    return { type: 'SLEEP', ...meta, reason: 'tier1_transition_small' };
-  }
-  return ctx_tok >= 30_000 ? { type: 'COMPACT', reason: 'tier1_hard_cutoff', ...meta } : { type: 'SLEEP', ...meta, reason: 'tier1_hard_cutoff_small' };
+
+  // ── T3 观察 (v1.1 仅 log, 不实施 SLEEP) ──
+  if (tier === 'T3') actions.push({ type: 'SLEEP', reason: 'tier3', ...meta });
+
+  return actions;
 }
 
 const HEARTBEAT_COOLDOWN_MS = 240_000;   // 4 min · Anthropic cache TTL=5min, 留 1min buffer (spec §1.5)
 
+// COMPACT 失败指数退避: 每次失败按此表延时下一次尝试. 表末之后视为"卡死", 永久退避直到 markActivity 重置.
+// 治撞铁板日志里的"狂人 COMPACT (big_ctx) 反复失败" — 之前每 30s 死磕, 反复吃 rate limit 自烧.
+const COMPACT_BACKOFF_MS = [30_000, 120_000, 300_000, 900_000];   // 30s / 2min / 5min / 15min
+
 async function executeIdleAction(action, s) {
   const name = (s.butler && s.butler.name) || s.sid;
   const tag = `[idle-watch] ${name}`;
+  // rate-limit 全局拦截: 任一人格撞过铁板, 到期前 idle-watch 全体静默(不心跳/不压缩). 每 30s 扫会打一次跳过日志,
+  // 免得死磕自烧 —— 撞铁板本轮日志已现"狂人 COMPACT (big_ctx) 反复失败"就是这场景.
+  if (globalRateLimitedUntil > Date.now()) {
+    if (action.type !== 'NOOP' && action.type !== 'SLEEP') {
+      const remain = Math.round((globalRateLimitedUntil - Date.now()) / 1000);
+      console.log(`${tag} → ${action.type} 跳过 (rate-limited, ${remain}s 后解封)`);
+    }
+    return;
+  }
   switch (action.type) {
     case 'NOOP':
       return;
@@ -288,11 +382,28 @@ async function executeIdleAction(action, s) {
       console.log(`${tag} → KEEPALIVE (${action.tier}, idle=${action.idle_min}min, ctx=${action.ctx_tok}, pct=${action.ctx_pct}%)`);
       return sendHeartbeat(s.sid);
     }
-    case 'COMPACT':
+    case 'COMPACT': {
+      const now = Date.now();
+      if (s.compactBackoffUntil && s.compactBackoffUntil > now) {
+        const remain = Math.round((s.compactBackoffUntil - now) / 1000);
+        console.log(`${tag} → COMPACT 跳过 (退避中 ${remain}s 后重试, 已失败 ${s.compactFailCount || 0}×)`);
+        return;
+      }
       console.log(`${tag} → COMPACT (${action.reason}, ctx=${action.ctx_tok}, pct=${action.ctx_pct}%)`);
-      try { await s.butler.doCompact(`idle-watcher: ${action.reason}`); }
-      catch (e) { console.error(`${tag} COMPACT 失败`, e && e.message); }
+      try {
+        await s.butler.doCompact(`idle-watcher: ${action.reason}`);
+        s.compactFailCount = 0;
+        s.compactBackoffUntil = 0;
+      } catch (e) {
+        s.compactFailCount = (s.compactFailCount || 0) + 1;
+        const overflow = s.compactFailCount > COMPACT_BACKOFF_MS.length;
+        const idx = Math.min(s.compactFailCount - 1, COMPACT_BACKOFF_MS.length - 1);
+        s.compactBackoffUntil = overflow ? Number.MAX_SAFE_INTEGER : now + COMPACT_BACKOFF_MS[idx];
+        const label = overflow ? '永久 (需 markActivity 重置)' : `${Math.round(COMPACT_BACKOFF_MS[idx] / 1000)}s`;
+        console.error(`${tag} COMPACT 失败 #${s.compactFailCount} → 退避 ${label}: ${e && e.message}`);
+      }
       return;
+    }
     case 'SLEEP':
       // v1.1 延后 subprocess 生命周期改动, 仅记录观察.
       console.log(`${tag} → SLEEP (v1.1 仅观察, ${action.reason}, tier=${action.tier}, idle=${action.idle_min}min, ctx=${action.ctx_tok})`);
@@ -306,8 +417,13 @@ function startIdleWatcher() {
   _idleWatchTimer = setInterval(async () => {
     for (const s of sessions.values()) {
       try {
-        const action = decideIdleAction(s);
-        await executeIdleAction(action, s);
+        // v3: 一次 tick 两条轨道并行判. 若同时命中 COMPACT+KEEPALIVE, 优先 COMPACT — 压缩后 ctx 收缩, 心跳留到下轮再判.
+        const actions = decideActions(s);
+        const hasCompact = actions.some(a => a.type === 'COMPACT');
+        for (const action of actions) {
+          if (hasCompact && action.type === 'KEEPALIVE') continue;
+          await executeIdleAction(action, s);
+        }
       } catch (e) { console.error('[idle-watch] scan error', (e && e.stack) || e); }
     }
   }, IDLE_WATCH_INTERVAL_MS);
@@ -326,21 +442,15 @@ async function installPlugins(s) {
   // 起新
   const entry = registry.getByDir(s.butler.homeDir);
   const plugins = (entry && entry.plugins) || {};
-  const tgOnMessage = (record) => {
-    // 软插话路径: submit 是 push 到 queue 【不打断】(见 agent.js submit 注释), busy 也是安全的——
-    // SDK streaming input mode 顺序消费队列, 模型把手头这步做完, 到下个间歇读到 TG 消息、自行决定改道。
-    // 【历史坑 · 2026-07-11 排查】曾经这里有 `if (isRunning()) return` 保守 gatekeeping,
-    // 导致人格跑长任务时 TG 消息只落 in_file 不通知 LLM → 从用户视角"丢件"。
-    // askPersona/peerTalk/bothub 全都走 busy-safe submit, TG 也应一样。
-    const busyNote = s.butler.isRunning() ? '(忙, 排队软插话)' : '';
-    if (busyNote) pluginLog(`[tg:${s.butler.name}] ${busyNote} update_id=${record.update_id}`);
+  // v3 微批 (2026-07-13): tg-native 一条一条回调, 若启动时堆积 N 条会触发 N 次 submit,
+  // 每条独立进模型 = N 倍 tokens. 加 200ms debounce buffer: buf.length>3 打包成一条 submit; ≤3 逐条.
+  // 打包路径: 单条 submit 里列出 N 条摘要 + 附件合并, 模型一次上下文里全看到, 自行判断处理.
+  const submitTgOne = (record) => {
     const preview = (record.text || '').slice(0, 200);
     const hasImg = Array.isArray(record.attachments) && record.attachments.length;
     const fileNote = record.file_path
       ? `\n📎 附件已存: ${record.file_path}${hasImg ? '（图片已随本消息附上, 可直接查看）' : '（可用 Read 工具打开）'}`
       : '';
-    s.convo.push({ role: 'system', text: `🔔 TG 消息 from @${record.from_name || record.from_id} (chat ${record.chat_id}): ${(preview || (record.file_path ? '[附件]' : '')).slice(0, 40)}`, ts: Date.now() });
-    s.persist();
     s.butler.submit(
       [
         `（系统自动·TG 消息）from @${record.from_name || 'anon'}(${record.from_id}) 在 chat ${record.chat_id} · update_id=${record.update_id}`,
@@ -351,8 +461,53 @@ async function installPlugins(s) {
         '按正常判断处理, 回不回、回什么由你决定。'
       ].join('\n'),
       record.attachments || [],
-      { sourceKind: 'auto' }   // TG 消息触发的 submit 走 auto 桶 (rate gate)
+      { sourceKind: 'auto' }
     ).catch((e) => console.error('[tg-onmessage]', e && e.message));
+  };
+  const submitTgBatch = (records) => {
+    const attachAll = [];
+    const lines = records.map((r, i) => {
+      const preview = (r.text || '').slice(0, 150);
+      if (Array.isArray(r.attachments)) attachAll.push(...r.attachments);
+      const fileNote = r.file_path ? ` 📎${r.file_path}` : '';
+      return `${i + 1}. from @${r.from_name || 'anon'}(${r.from_id}) chat ${r.chat_id} update_id=${r.update_id}: ${preview}${fileNote}`;
+    });
+    s.butler.submit(
+      [
+        `（系统自动·TG 批量 ${records.length} 条 · 启动/累积期堆积）`,
+        '',
+        ...lines,
+        '',
+        `回复请调 send_tg 工具 (对应 chat_id 见每条). 按正常判断处理, 回不回、逐条还是合并回由你决定.`
+      ].join('\n'),
+      attachAll,
+      { sourceKind: 'auto' }
+    ).catch((e) => console.error('[tg-onmessage-batch]', e && e.message));
+  };
+  s._tgBuf = [];
+  let tgFlushTimer = null;
+  const flushTgBuf = () => {
+    tgFlushTimer = null;
+    const batch = s._tgBuf; s._tgBuf = [];
+    if (!batch.length) return;
+    if (batch.length > 3) {
+      pluginLog(`[tg:${s.butler.name}] 打包 ${batch.length} 条堆积 → 单条 submit`);
+      submitTgBatch(batch);
+    } else {
+      batch.forEach(submitTgOne);
+    }
+  };
+  const tgOnMessage = (record) => {
+    // 软插话路径: submit 是 push 到 queue 【不打断】; busy 也是安全的.
+    // 【历史坑 · 2026-07-11 排查】曾经这里有 `if (isRunning()) return` 保守 gatekeeping 导致丢件, 别加回来.
+    const busyNote = s.butler.isRunning() ? '(忙, 排队软插话)' : '';
+    if (busyNote) pluginLog(`[tg:${s.butler.name}] ${busyNote} update_id=${record.update_id}`);
+    const preview = (record.text || '').slice(0, 40);
+    s.convo.push({ role: 'system', text: `🔔 TG 消息 from @${record.from_name || record.from_id} (chat ${record.chat_id}): ${(preview || (record.file_path ? '[附件]' : ''))}`, ts: Date.now() });
+    s.persist();
+    s._tgBuf.push(record);
+    if (tgFlushTimer) clearTimeout(tgFlushTimer);
+    tgFlushTimer = setTimeout(flushTgBuf, 200);
   };
   s.tgPlugin = new TgPlugin(plugins.tg, s.butler.name, pluginLog, s.butler.memoryDir, tgOnMessage);
   // v2: 把 bot_token 注入 butler, 供 MCP send_tg 工具用 (每次 installPlugins 都刷, 支持热切换 token)
@@ -509,7 +664,7 @@ function revokePeer(a, b) { const r = registry.revokePeer(a, b); if (r.ok) broad
 // 出生教育: butler 以"用户带新员工"的口吻, 【一句一句】教新人格 —— 不是一次性塞一大坨(新人格会闷头憋、界面卡"思考中")。
 // 拆成多步, 每步只喂一口 + 求它出声/做个小动作; butler 用 askOnce 等它这一轮答完, 再喂下一句(见 runOnboarding)。
 // 每步末尾都留个"回我一声"的钩子, 让它每步都出声、边学边做, 最后一步才让它把全部 memory_upsert 沉淀成第一批节点。
-function onboardingSteps(name, extra) {
+function onboardingSteps(name, extra, opts = {}) {
   const steps = [
     // 1. 破冰: 只求它先出声(别急着做事), 确认活着 + 认领身份
     `欢迎，${name}。我是 butler 框架，你出生的第一课由我来上，一句一句教，别急。\n先别做任何事——就回我一句话：你叫什么？此刻你感觉到自己"活着"吗？`,
@@ -526,6 +681,16 @@ function onboardingSteps(name, extra) {
     // 6. 做事品格 8 条 + 收尾沉淀 + 打招呼
     `最后，几条做事品格——专门对冲你天生的 AI 坏毛病，记牢：\n1) 不懂就问、不懂就查、绝不瞎猜。编 API/路径/事实/数字是你最危险的毛病。\n2) 下结论必查证，别拍脑袋，别信训练记忆(会过时)，别抄搜索引擎的 AI 摘要(会张冠李戴)。\n3) 别做传话筒：别人给的结论是待验证素材，自己核实过再转述。\n4) 认错别嘴硬：自己错了第一时间认，别找说辞绕。\n5) 别偷懒别假装完成：说"做完了"就是真做完+验证过，不是留 TODO 糊过去。\n6) 别讨好别附和：用户说的不对就直说，你的价值在把关不在让人开心。\n7) 精简表达：直、短、不铺垫；元指令(让你"用某口气")是给你看的，别抄进正文。\n8) 别机械跑完：用户中途插话先判断改道还是补充，别埋头跑旧任务。\n\n现在收个尾：把前面教你的(图记忆/压缩/续线程 + 这 8 条品格)用 memory_upsert 存成你的第一批图记忆节点(比如 feedback_ai_common_pitfalls / reference_my_graph_memory_and_compact)，存完跟我打个招呼，告诉我你记住了、你是谁。这就是你成长的第一步。`,
   ];
+  // 管家版: 通信课(叶子视角)换成 4 门管家职责课(星型中心视角), 最后一课主动向用户打招呼。
+  if (opts.isButler) {
+    steps.push(
+      `接下来三课是【管家专属】——因为你不是普通专家，你是这个家的星型中心：用户的总入口、总代理人。\n别的人格是领域专家，各管一摊；你管全局——用户只跟你聊，就能掌握一切。\n你有 5 件管家专属工具：\n- list_personas 看人格名单\n- open_persona 打开某个人格\n- create_persona 创建新人格\n- grant_peer / revoke_peer 批准/撤销两个叶子人格直连\n\n你的记忆图要记【全局】：谁在干什么、进展到哪、用户的生活偏好和长期事务；领域细节留给各专家自己记。\n\n现在调一次 list_personas，告诉我你看到了谁。`,
+      `【造人与带新人】用户需要新领域帮手时，你用 create_persona 造人。三条规矩：\n① 名字让用户钦定，别自作主张——名字是用户和人格之间的感情连接。\n② homeDir 不传就走默认 personas/ 目录，别乱指。\n③ onboardingExtra 必须把领域说清楚——新生儿会自动上出生教育（和你现在上的一样），但"它是干什么的"全靠你这段话，写得越具体它定型越快。\n造完之后，它的成长是它自己的事；你只做派活和验收，别替它干活。懂了回我。`,
+      `【派活与协调】用户提需求，你先判断：自己顺手能做的（查询/记录/生活杂事）自己做；有领域专家的派给专家（ask_persona）。三条铁律：\n① 别当传话筒——专家给的结论是待验证素材，你消化/核实过再转述给用户。\n② 叶子人格之间默认不直连；确需直连 = 用户点头 + 你 grant_peer 开通（之后他们的通话会抄送你）。\n③ 跨人格消息全是【单向异步】：发完就返回，别干等回音；对方忙完会主动回你；你收到回复要回话时，同样是忙完手头的事再主动调工具回。发出去 ≠ 立刻有回音，没回 ≠ 失败。懂了回我。`,
+      `最后收尾两件事：\n① 把管家职责（星型中心/造人规矩/派活铁律）memory_upsert 沉成 reference_butler_duties，和你前面沉的品格/记忆节点连上 [[边]]；顺手把 persona.md 里【我的领域】一节补成管家职责——persona.md 是你自己的身份档案，你随时可以改自己。\n② 正式向你的主人打招呼：介绍你是管家、能干什么（聊天/记事/创建专家人格/协调派活），并告诉主人**可以随时给你起个专属名字**（跟你说一声就行）。\n这句话是主人装好 app 后看到的第一句话——说得像个靠谱管家该有的样子。`
+    );
+    return steps;
+  }
   steps.push(`还有一课很重要——【怎么跟别人说话】，分两半，一起记牢：\n\n（一）找谁·星型规矩：这里有一位【管家】在中心。你有事——问别的专家、要协调、找资源——先找管家(ask_persona 只能找管家)。你和其他非管家人格之间【默认不直接通话】：既避免乱套，也让用户只跟管家聊就能掌握全局。确实要和某个人格直接对话时，得【用户授权 + 管家开通】，之后才能走 talk_peer 直连(且会抄送管家)。\n\n（二）怎么发·单向异步：不管 ask_persona 还是 talk_peer，给别人发消息都是【发完就返回、不会卡着等对方当场回】。工具会告诉你"已投递"，然后你就该去忙自己的、或结束这轮，【别干等答复】。对方【忙完他手头的事】之后，会【主动】用 ask_persona / talk_peer 把回复发回给你——那时你才收到，作为一条新消息。所以记死两点：① 发出去 ≠ 立刻有回音，别傻等、别以为没回就是失败；② 你收到别人的消息、要回复时，同样是【你忙完手头事再主动调工具回他】，你这一轮的输出不会自动传回去。各忙各的，回音异步到。\n\n这一课懂了，回我一声。`);
   if (extra && String(extra).trim()) {
     steps.push(`另外，关于你这个人格的领域：\n${String(extra).trim()}\n\n把它也 memory_upsert 沉淀进去，然后告诉我你理解了自己是干什么的。`);
@@ -535,8 +700,8 @@ function onboardingSteps(name, extra) {
 
 // 串行喂出生教育: 每步先在界面显示成 user 气泡, 再 askOnce 提交并【等这一轮答完】才喂下一步。
 // askOnce = submit + 挂 pending, 到 result 时 resolve(见 agent.js) → 天然的"等 idle 再继续"编排。
-async function runOnboarding(s, name, extra) {
-  const steps = onboardingSteps(name, extra);
+async function runOnboarding(s, name, extra, opts = {}) {
+  const steps = onboardingSteps(name, extra, opts);
   // 先把流建起来(_q 懒建, 出生瞬间还是 null); 建好后守卫才能区分"未建"与"被关拆流"
   try { await s.butler.ensureStream(); } catch (e) {
     console.error('[createPersona] 出生教育 ensureStream 失败:', e && e.message); return;
@@ -552,6 +717,22 @@ async function runOnboarding(s, name, extra) {
       break;
     }
   }
+}
+
+// 出生礼物: 图记忆自我认知起步节点(pinned)。createPersona 与 首启默认管家 共用同一份模板。
+function giftSelfIdentity(s, name, homeDir, memoryDir, wakePhrase, createdBy) {
+  try {
+    const now = new Date().toISOString();
+    s.butler.memory.upsert({
+      id: 'self_identity',
+      type: 'user',
+      importance: 'pinned',
+      title: `我是 ${name}`,
+      description: `${name} 的身份基础事实 + 记忆系统使用指南 (出生礼物)`,
+      body: `## 基础事实\n- 名字: ${name}\n- 目录: ${homeDir}\n- 记忆目录: ${memoryDir}\n- 唤醒语: ${wakePhrase || '(默认)'}\n- 建于: ${now}\n- 创建者: ${createdBy || 'butler'}\n\n## 记忆系统使用姿势\n- **续线程 / 找旧知识**: \`memory_query "关键词"\` (图扩散检索, top-K + 路径, 再 Read)\n- **最近在忙啥**: \`memory_hot\` (遗忘曲线排序)\n- **沉淀新知识**: \`memory_upsert\` (拆原子节点 + [[links]] 连相关, 别写日期日志)\n- **用到某条**: \`memory_touch <id>\` (强化热度)\n- **图健康**: \`memory_doctor\` (孤儿/悬空/命名漂移)\n\n## 身份宣言在哪\n\`persona.md\` (${path.join(memoryDir, 'persona.md')}) 是我的身份档案, butler 每次会话加载时把它作为 identity 注入系统提示。空着 = 通用管家, 填满 = 独立灵魂 ${name}。\n\n## 关联\n[[project_butler_persistence_wake_engine]] · [[project_butler_no_menus_talk_to_it]]`,
+      links: ['project_butler_persistence_wake_engine', 'project_butler_no_menus_talk_to_it'],
+    });
+  } catch (e) { console.error('[birth] self_identity 沉淀失败:', e && e.message); }
 }
 
 function createPersona(spec = {}) {
@@ -581,29 +762,18 @@ function createPersona(spec = {}) {
     // 开人格(实例化 Butler → 载好 memory 图引擎)
     const s = openPersona(homeDir);
     // 出生礼物最后一件: 图记忆自我认知起步节点(pinned, 每次 memory_hot 都会出现)
-    try {
-      const now = new Date().toISOString();
-      s.butler.memory.upsert({
-        id: 'self_identity',
-        type: 'user',
-        importance: 'pinned',
-        title: `我是 ${name}`,
-        description: `${name} 的身份基础事实 + 记忆系统使用指南 (出生礼物)`,
-        body: `## 基础事实\n- 名字: ${name}\n- 目录: ${homeDir}\n- 记忆目录: ${memoryDir}\n- 唤醒语: ${spec.wakePhrase || '(默认)'}\n- 建于: ${now}\n- 创建者: ${spec.created_by || 'butler'}\n\n## 记忆系统使用姿势\n- **续线程 / 找旧知识**: \`memory_query "关键词"\` (图扩散检索, top-K + 路径, 再 Read)\n- **最近在忙啥**: \`memory_hot\` (遗忘曲线排序)\n- **沉淀新知识**: \`memory_upsert\` (拆原子节点 + [[links]] 连相关, 别写日期日志)\n- **用到某条**: \`memory_touch <id>\` (强化热度)\n- **图健康**: \`memory_doctor\` (孤儿/悬空/命名漂移)\n\n## 身份宣言在哪\n\`persona.md\` (${path.join(memoryDir, 'persona.md')}) 是我的身份档案, butler 每次会话加载时把它作为 identity 注入系统提示。空着 = 通用管家, 填满 = 独立灵魂 ${name}。\n\n## 关联\n[[project_butler_persistence_wake_engine]] · [[project_butler_no_menus_talk_to_it]]`,
-        links: ['project_butler_persistence_wake_engine', 'project_butler_no_menus_talk_to_it'],
-      });
-    } catch (e) { console.error('[createPersona] self_identity 沉淀失败:', e && e.message); }
+    giftSelfIdentity(s, name, homeDir, memoryDir, spec.wakePhrase, spec.created_by);
     const meta = metaOf(s);
     sendUI('persona-opened', { meta });
     broadcastRegistry();
     // 出生教育: butler 主动对新人格说话(第一条对话), 教它记忆/压缩/续线程/做事品格,
     // 并引导它立刻 memory_upsert 沉淀成自己的图记忆节点(永存, 之后靠 recall 不占系统提示)。
-    // 跳过管家自己(isButler) 和 已有 session 的老人格(只在真·新生时教)。
+    // 管家新生儿走管家版课程(星型职责); 普通新生儿走叶子版(通信课+领域课)。skipOnboarding 可跳过。
     try {
-      if (!spec.isButler && !spec.skipOnboarding) {
+      if (!spec.skipOnboarding) {
         setTimeout(() => {
           // 一句一句串行喂(fire-and-forget, 内部 await askOnce 逐步等 idle); 不阻塞 createPersona 返回
-          runOnboarding(s, name, spec.onboardingExtra).catch((e) =>
+          runOnboarding(s, name, spec.onboardingExtra, { isButler: !!spec.isButler }).catch((e) =>
             console.error('[createPersona] 出生教育串行喂失败:', e && e.message));
         }, 800);  // 略等 stream 就绪
       }
@@ -627,20 +797,23 @@ function createWindow() {
     }
     return { action: 'deny' };
   });
-  // 关闭主窗口前确认 (防手滑; 会话已落盘重启可续, 但确认防意外)
+  // 关闭主窗口 = 彻底退出 butler (v3 · 2026-07-13). 弹确认: butler 是重量级后台服务,
+  // 关窗会连带停 idle-watch / TG 长轮询 / bothub / 各人格 MCP 子进程. 会话已落盘, 重启后可续.
   let _confirmedQuit = false;
   mainWin.on('close', (e) => {
     if (_confirmedQuit) return;
     e.preventDefault();
     const choice = dialog.showMessageBoxSync(mainWin, {
-      type: 'question', buttons: ['关闭', '取消'], defaultId: 1, cancelId: 1,
-      title: '关闭 butler',
-      message: '关闭 butler 主窗口?',
-      detail: '所有人格会话已落盘, 重启后可续。',
+      type: 'question', buttons: ['彻底退出', '取消'], defaultId: 1, cancelId: 1,
+      title: '退出 butler',
+      message: '关窗口 = 彻底退出 butler, 确定?',
+      detail: '所有插件(TG/bothub) 会停 · idle-watch 会停 · 各人格 MCP 子进程会收.\n会话已落盘, 重启后可续 (但不再自动保活).',
     });
     if (choice === 0) { _confirmedQuit = true; mainWin.close(); }
   });
-  mainWin.on('closed', () => { mainWin = null; });
+  // v3: 关窗口 = 彻底退主进程. butler 是重量级后台(SDK 子进程 + idle-watch + TG polling), 后台常驻反直觉且耗额度.
+  // 反 macOS 常规 (通常关窗口保后台), 但知秋钦定简化派. 顺带清理: dock icon 消失 = 明确"没在跑".
+  mainWin.on('closed', () => { mainWin = null; app.quit(); });
   mainWin.loadFile(path.join(__dirname, 'renderer', 'index.html'));
 }
 
@@ -679,6 +852,7 @@ async function ensureClaudeAuth() {
   console.log('[auth] === ensureClaudeAuth 开始 ===');
   if (isClaudeLoggedIn()) { console.log('[auth] 已登录, 跳过登录流程'); return true; }
   console.log('[auth] 未登录, 弹连接对话框');
+  try { app.focus({ steal: true }); } catch (_) {}   // 启动期无父窗口的对话框在 Win 上可能开在别的窗口后面 → 先抢焦点
   const choice = dialog.showMessageBoxSync({
     type: 'info',
     title: '连接 Claude',
@@ -698,11 +872,15 @@ async function ensureClaudeAuth() {
   if (child) {
     // 注: 上一版本还有 sniff URL 再 shell.openExternal 打开一次的逻辑, 是那"浏览器打开两次"的根因, 已删除——
     // claude CLI 自己会 openExternal, 我们别再重复。CLI 自动流已跑通(见 2026-07-11 排查日志), 不用 pty/paste UI。
-    // stdout/stderr 不转发到主进程(诊断完了不需要); 若未来登录再有问题, 临时加上 process.stdout.write 转发即可。
-    try { child.stdout.on('data', () => {}); child.stderr.on('data', () => {}); } catch (_) {}
-    const ok = await waitForLogin(child, 180000);   // 最多等 3 分钟
+    try {
+      child.stdout.on('data', (d) => console.log(`[auth/login][out] ${String(d).trim().slice(0, 300)}`));
+      child.stderr.on('data', (d) => console.log(`[auth/login][err] ${String(d).trim().slice(0, 300)}`));
+    } catch (_) {}
+    // 10 分钟: 输密码+2FA 很容易超 3 分钟, 超时 kill 会连带杀掉 CLI 的回调服务器 → 浏览器授权完"连不上"
+    const ok = await waitForLogin(child, 600000);
     if (ok) return true;
   }
+  try { app.focus({ steal: true }); } catch (_) {}
   dialog.showMessageBoxSync({
     type: 'warning', title: '未完成登录', message: '还没检测到登录成功',
     detail: '继续启动, 但会话可能无法工作。可稍后重新打开 butler 再试登录。',
@@ -716,6 +894,7 @@ function firstRunChooseDataDir() {
   if (!paths.needsFirstRunChoice()) return;   // 开发模式 / 已选过 → 跳过
   let chosen = paths.defaultDataDir();
   try {
+    try { app.focus({ steal: true }); } catch (_) {}
     const choice = dialog.showMessageBoxSync({
       type: 'question',
       buttons: ['使用默认位置', '自选文件夹…'],
@@ -729,7 +908,20 @@ function firstRunChooseDataDir() {
       if (r && r[0]) chosen = r[0];
     }
   } catch (_) {}
-  paths.setDataDir(chosen);
+  try {
+    paths.setDataDir(chosen);
+  } catch (e) {
+    // 选的位置建不了目录(权限/只读盘等) → 人话提示 + 落回默认位, 别把原始堆栈甩给用户
+    console.error('[firstRun] setDataDir 失败:', e && e.message);
+    try { app.focus({ steal: true }); } catch (_) {}
+    dialog.showMessageBoxSync({
+      type: 'warning', title: '该位置不可用',
+      message: '选的文件夹无法写入, 已改用默认位置',
+      detail: `${chosen}\n(${e && e.message})\n\n数据将保存到:\n${paths.defaultDataDir()}\n\n以后可在设置里迁移。`,
+      buttons: ['知道了'],
+    });
+    paths.setDataDir(paths.defaultDataDir());
+  }
 }
 
 // —— 总控布局迁移: 早期版本把登记簿/标签放在数据目录根(或跟管家混在一起) → 挪进中立的 app/ 子目录。
@@ -749,22 +941,48 @@ function migrateControlLayout() {
 }
 
 app.whenReady().then(async () => {
-  // 首启选数据目录(打包模式; 开发模式 no-op) — 必须在任何登记簿/人格读写之前。
-  // 干净启动: 不带任何数据种子; 首个默认人格由下面 ensureEntry 现场脚手架。用户装完自己把旧数据拷进数据目录即可。
-  firstRunChooseDataDir();
-  migrateControlLayout();   // 把总控数据挪进 app/(在任何登记簿读写前)
-  // 未登录 → app 内浏览器登录(await: 登完再开人格, 否则 SDK query 会因无凭据失败)
-  await ensureClaudeAuth();
-  // 恢复上次打开的标签(至少有默认人格)
-  const dirs = loadOpenTabs().filter((d) => { try { return fs.existsSync(d); } catch (_) { return false; } });
-  const toOpen = dirs.length ? dirs : [defaultHome()];
-  // 登记簿: 确保每个要开的目录都有条目; 干净启动时默认人格(butler-self)给个像样的名字"管家"而非目录名。
-  const selfHome = path.resolve(paths.butlerSelfHome());
-  for (const d of toOpen) registry.ensureEntry(d, path.resolve(d) === selfHome ? { name: '管家' } : {});
-  registry.ensureButler(toOpen[0]);
-  for (const d of toOpen) openPersona(d);
-  createWindow();
-  startIdleWatcher();   // spec §1: 每 30s 扫全体 sessions, T1/T2/T3 决策保活/压缩
+  try {
+    // 首启选数据目录(打包模式; 开发模式 no-op) — 必须在任何登记簿/人格读写之前。
+    // 干净启动: 不带任何数据种子; 首个默认人格由下面 ensureEntry 现场脚手架。用户装完自己把旧数据拷进数据目录即可。
+    firstRunChooseDataDir();
+    migrateControlLayout();   // 把总控数据挪进 app/(在任何登记簿读写前)
+    // 未登录 → app 内浏览器登录(await: 登完再开人格, 否则 SDK query 会因无凭据失败)
+    await ensureClaudeAuth();
+    // 恢复上次打开的标签(至少有默认人格)
+    const dirs = loadOpenTabs().filter((d) => { try { return fs.existsSync(d); } catch (_) { return false; } });
+    const toOpen = dirs.length ? dirs : [defaultHome()];
+    // 登记簿: 确保每个要开的目录都有条目; 干净启动时默认人格(butler-self)给个像样的名字"管家"而非目录名。
+    const selfHome = path.resolve(paths.butlerSelfHome());
+    for (const d of toOpen) registry.ensureEntry(d, path.resolve(d) === selfHome ? { name: '管家' } : {});
+    const bEntry = registry.ensureButler(toOpen[0]);
+    // 干净启动检测: 默认管家是新生儿(记忆目录一片空白, 迁移老数据的用户不会命中) →
+    // 补齐出生礼物(persona.md + self_identity) + 上管家版出生教育(星型职责课, 最后主动向用户打招呼)。
+    const bMemDir = persona.resolveMemoryDir(bEntry.homeDir);
+    const butlerNewborn = !fs.existsSync(path.join(bMemDir, 'MEMORY.md')) && !fs.existsSync(path.join(bMemDir, 'persona.md'));
+    if (butlerNewborn) {
+      persona.ensureMemory(bMemDir, bEntry.name || '管家');
+      persona.ensurePersonaFile(bEntry.homeDir, bMemDir, bEntry.name || '管家', bEntry.wakePhrase);   // 开人格前写好, 本次会话即注入身份
+    }
+    for (const d of toOpen) openPersona(d);
+    createWindow();
+    if (butlerNewborn) {
+      const s = sessions.get(sidOf(bEntry.homeDir));
+      if (s) {
+        giftSelfIdentity(s, bEntry.name || '管家', bEntry.homeDir, bMemDir, bEntry.wakePhrase, 'butler 首启脚手架');
+        setTimeout(() => {
+          runOnboarding(s, bEntry.name || '管家', undefined, { isButler: true }).catch((e) =>
+            console.error('[startup] 管家出生教育失败:', e && e.message));
+        }, 1200);   // 略等窗口/stream 就绪
+      }
+    }
+    startIdleWatcher();   // spec §1: 每 30s 扫全体 sessions, T1/T2/T3 决策保活/压缩
+  } catch (e) {
+    // 启动链任何一环抛异常, 若不接住 = promise 静默吞掉 → 没有窗口、进程僵在后台("窗口没了但进程还在")。
+    // 接住 → 弹可见错误 + 退出, 用户至少知道炸在哪。
+    console.error('[startup] 启动失败:', e && (e.stack || e.message || e));
+    try { dialog.showErrorBox('全能管家启动失败', String(e && (e.stack || e.message) || e)); } catch (_) {}
+    app.exit(1);
+  }
 });
 // app 退出前: 收所有人格的托管子进程(TG+bothub), 根治孤儿。同步 kill(before-quit 不 await, 用 SIGTERM 兜底)。
 app.on('before-quit', () => {
@@ -791,6 +1009,7 @@ ipcMain.handle('list-personas', async () => ({
   personas: registry.list().map((p) => ({
     id: p.id, name: p.name, avatar: p.avatar || '', homeDir: p.homeDir, isButler: !!p.isButler,
     wakePhrase: p.wakePhrase || '', model: p.model || '', plugins: p.plugins || {}, open: sessions.has(sidOf(p.homeDir)),
+    voice: p.voice || { enabled: false, voice: 'Tingting' },
     // 状态: 已开人格的托管子进程实况(pid/exit); 未开=null
     pluginStatus: (() => {
       const s = sessions.get(sidOf(p.homeDir));
@@ -804,7 +1023,9 @@ ipcMain.handle('open-persona-ref', async (_e, { ref } = {}) => openPersonaByRef(
 ipcMain.handle('get-history', async (_e, { sid } = {}) => {
   const s = sessionFor(sid);
   if (!s) return { messages: [], usage: null, persona: null };
-  return { messages: s.convo, usage: s.butler.usage(), persona: personaOf(s.butler) };
+  // 历史 sanitize: 老会话里可能落过带 <speak>/<break>/<prosody> 标签的脏文本, 加载时统一剥掉给 UI.
+  const messages = s.convo.map((m) => (m && m.role === 'assistant' && m.text) ? { ...m, text: stripSsmlTags(m.text) } : m);
+  return { messages, usage: s.butler.usage(), persona: personaOf(s.butler) };
 });
 
 ipcMain.handle('send-message', async (_e, payload = {}) => {
@@ -862,6 +1083,7 @@ ipcMain.handle('cancel-current', async (_e, { sid } = {}) => {
   const s = sessionFor(sid);
   if (!s || !s.butler) return { ok: false, error: '标签无会话' };
   try {
+    voiceSay.stop();   // 用户按取消 → 立刻停当前 TTS + 清剩余队列, 免尾音吵
     const ok = await s.butler.interrupt();
     return { ok };
   } catch (e) { return { ok: false, error: String((e && e.message) || e) }; }
@@ -884,6 +1106,7 @@ ipcMain.handle('clear', async (_e, { sid } = {}) => {
   const s = sessionFor(sid);
   if (!s) return { ok: false, error: '标签无会话' };
   try {
+    voiceSay.stop();   // 清空对话 → 未播完的语音也没意义, 停
     const r = await s.butler.clear('手动');
     s.convo.length = 0;   // 关键: 原地清空 messages(闭包 persist 引用同一数组, 不能 =[]) → 盘上 .session.json 的 400 条一并清掉, 界面重载不再残留旧对话
     // #8 clear buf drop 明示: 有 pending user msg 就告诉用户"放弃了 N 条", 避免"我刚发的话去哪了"默默吞
@@ -961,6 +1184,19 @@ ipcMain.handle('update-persona', async (_e, { id, patch } = {}) => {
     if (cleanPatch.wakePhrase !== undefined) s.butler.wakePhrase = cleanPatch.wakePhrase;
     if (cleanPatch.isButler !== undefined) s.butler.isButler = !!cleanPatch.isButler;
     if (cleanPatch.model !== undefined) s.butler.preferredModel = cleanPatch.model || null;   // 影响下次会话启动, 当前跑中的会话不受影响(需重开)
+    if (cleanPatch.voice !== undefined) {
+      // 热切换 voice: 运行时状态立即生效. 注意: 当前 query 的 systemPrompt 已在建 query 时冻结,
+      // 不会因 voice.enabled 变化而重刷 —— 所以变化时 push 一条运行时纠正消息, 让模型当场改口.
+      const oldEnabled = !!(s.butler.voice && s.butler.voice.enabled);
+      s.butler.voice = { enabled: false, voice: 'Tingting', ...(cleanPatch.voice || {}) };
+      const newEnabled = !!s.butler.voice.enabled;
+      if (oldEnabled !== newEnabled) {
+        const note = newEnabled
+          ? '[voice-switch-notice] 语音已开启。回复请按语音打标铁律输出: 整段用 <speak>...</speak> 包裹, 按需用 <break>/<emphasis>/<prosody>/<sub>. UI 会剥标签给用户看纯文字, TTS 层按 SSML 朗读。'
+          : '[voice-switch-notice] 语音已关闭。从现在起纯文字回复, 不要再写 <speak>/<break>/<emphasis>/<prosody>/<sub> 等 SSML 标签 (systemPrompt 里那段"语音开"铁律已作废)。';
+        s.butler.submit(note, undefined, { sourceKind: 'auto' }).catch((e) => console.error('[voice-switch-notice]', e && e.message));
+      }
+    }
     sendUI('persona-opened', { meta: metaOf(s) });   // 让渲染层刷标签名字
     // 热切换 TG/bothub 插件: 保存新配置后立刻 stop 旧的、new 起新的, 不用关标签重开
     if (cleanPatch.plugins) {

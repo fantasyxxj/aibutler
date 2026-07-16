@@ -9,6 +9,7 @@ const persona = require('./persona');
 const paths = require('./paths');
 const { MemoryGraph } = require('./memory');
 const { gateSubmit, CancelToken } = require('./rate-gate');   // 防幻觉 submit-time rate gate (spec: workspace/anti_hallucination_rate_gate_design_20260713.md)
+const voiceSay = require('./voice-say');   // 已装音色目录 → 语音打标铁律注入本机真实可读语言
 
 // SDK 默认去 ~/.claude/local 找 claude; 打包版那里没有 → 显式指向捆绑的二进制(或系统安装位)。
 const CLAUDE_BIN = paths.resolveClaudeBin();
@@ -17,6 +18,19 @@ let _sdk = null;
 async function loadSdk() {
   if (!_sdk) _sdk = await import('@anthropic-ai/claude-agent-sdk');
   return _sdk;
+}
+
+// send_tg 出口物理门: TG 永不朗读, 出现 SSML 100% 是脏字符串, 无条件剥掉。
+// 与朗读端 main.js:194 物理门同思路 —— 信不过模型完全服从 systemPrompt。
+// 保留 <sub alias="X">原文</sub> 中的"原文" (alias 是给 TTS 读的, TG 该看原文)。
+function stripSsmlForPlainText(text) {
+  if (!text) return text;
+  let t = text;
+  t = t.replace(/<hidden\b[^>]*>[\s\S]*?<\/hidden>/gi, '');   // hidden=只朗读 → 文字通道连内容删
+  t = t.replace(/<sub\b[^>]*>([\s\S]*?)<\/sub>/gi, '$1');
+  t = t.replace(/<\/?(speak|emphasis|prosody|voice|lang|mute|hidden)\b[^>]*>/gi, '');
+  t = t.replace(/<\/?break\b[^>]*\/?>/gi, '');
+  return t;
 }
 
 // 可推送的异步消息队列: 作为 query 的 streaming-input prompt(开启流式模式 → interrupt 可用)
@@ -88,6 +102,7 @@ class Butler {
     this.name = opts.name || persona.personaName(this.homeDir);
     persona.ensureMemory(this.memoryDir, this.name);   // 空目录=新人格→脚手架 MEMORY.md
     this.personaText = persona.loadPersona(this.homeDir, this.memoryDir);  // 人设(persona.md), 可 null
+    this.voice = { enabled: false, voice: 'Tingting' };   // 语音配置 (main.js 从 registry 覆盖). 默认关.
     this.extMcpNames = persona.loadMcpServers(this.homeDir, this.memoryDir); // 该人格要放行的外部 MCP(如 dc-platform)
     this.wakePhrase = opts.wakePhrase || persona.loadWakePhrase(this.homeDir, this.memoryDir, this.name); // 压缩自愈唤醒语; 注册表优先
     this.isButler = !!opts.isButler;      // 是否星型中心管家(有 open/create_persona 工具)
@@ -156,6 +171,73 @@ class Butler {
     }
   }
 
+  // 语音块: 根据 this.voice.enabled 分流. 关=禁 SSML 标签, 开=注入完整打标铁律(B10 学完版).
+  _voiceSystemPromptBlock() {
+    const enabled = !!(this.voice && this.voice.enabled);
+    if (!enabled) {
+      return [
+        '## 语音（当前：**关**）',
+        '你的回复输出**纯文字**即可, **不要写 `<speak>` 或任何 SSML 标签**(<break>/<emphasis>/<prosody>/<sub>/<voice>/<lang>). 语音关时标签只会作为字符串暴露给用户打断阅读.',
+      ];
+    }
+    const voiceName = (this.voice && this.voice.voice) || 'Tingting';
+    const isWin = process.platform === 'win32';
+    const langs = voiceSay.availableLangs();   // 本机真实能读的语言主标签; [] = 枚举没回来(win 启动初期)
+    const langsLine = langs.length
+      ? `本机已装语音的语言: **${langs.join(' · ')}** — 不在这份清单里的语言**别打 <lang> 标签**(没有对应音色, 会被默认声硬读成乱音).`
+      : '本机可读语言清单未知(枚举中) — 只对最常见的中/英保守打标, 其他语言先别切.';
+    // 多语/换声块按平台分流: mac=say 音色名可用; win=SAPI 只认 <lang>, mac 音色名(Kyoko等)无效已在 adapter 剥掉
+    const multiLang = isWin
+      ? [
+        '- `<lang xml:lang="ja-JP">日本語の文</lang>` 换语言 (Windows 按语言自动挑已装语音)',
+        '',
+        '**多语规则 (Windows·SAPI)**: 默认用系统默认中文语音. 遇到**整句/整段**外语用 <lang xml:lang> 切(ja-JP/en-US等), **不要写 <voice name>**(音色名是平台相关的, 系统会自动挑). ' + langsLine + ' 想读的语言没装 → 提醒用户去 设置→时间和语言→语音 添加对应语言的语音包.',
+      ]
+      : [
+        `- \`<lang xml:lang="ja-JP">日本語の文</lang>\` 或 \`<voice name="Kyoko">...</voice>\` 换语言/换音色`,
+        '',
+        `**多语/换声规则 (macOS·say)**: 默认音色 ${voiceName}(中文). 遇到**整句/整段**外语才切: 日语 <lang xml:lang="ja-JP">, 英语 <lang xml:lang="en-US">, 粤语 <lang xml:lang="zh-HK">; 用户点名要某音色(如"用男声读") → <voice name="...">. 常用音色: Kyoko/Otoya(日女/日男) · Samantha/Alex/Daniel(英女/英男/英男英音) · Tingting(中女) · Sinji(粤女). 音色不存在自动回退默认, 不会翻车. ${langsLine}`,
+      ];
+    return [
+      `## 语音（当前：**开** · TTS = ${isWin ? 'Windows SAPI' : 'macOS say'} · 默认音色 ${isWin ? '系统默认' : voiceName}）`,
+      '你的回复整段用 `<speak>...</speak>` 包裹并按下述铁律打 SSML 标. UI 会自动剥标签给用户看纯文字, 语音层按 SSML 朗读.',
+      '',
+      '**8 原语(只用这 8 个, 其他 XML 标签一律剥掉)**:',
+      '- `<break time="Nms"/>` 停顿 · 常用 100/300/600ms',
+      '- `<emphasis>词</emphasis>` 焦点重音 · **一句最多 1 个**',
+      '- `<prosody rate="90%" pitch="-2st">段</prosody>` 语速/音高 · rate 50-150% · pitch ±5st',
+      '- `<prosody pitch="+3st">句末</prosody>` 是非疑问尾扬',
+      '- `<sub alias="见屏幕">code</sub>` 别读原文读 alias (代码/URL/长号)',
+      '- `<hidden>段</hidden>` **只朗读不显示** (屏幕上看不到 — 听力题短文/题干等"考听不考看"的内容)',
+      '- `<mute>段</mute>` **只显示不朗读** (语音跳过 — 选择题选项/表格/代码等"看的不念"的内容; speak 块外的文字本来就不朗读, mute 用于夹在朗读流中间的场景)',
+      ...multiLang,
+      '- **夹在中文句子里的单个外来词别切**(如"这个 bug"): 切换有停顿成本, 整句才值得; 单词让默认音色顺着读.',
+      '',
+      '**🔥 打标铁律 (2026-07-13 死人来信 B9→B10 教训, 最高优先, 别退回去)**:',
+      '- **陈述句/连续动作/中性叙述/短对话回复 = 默认零变化**. 整段就是纯 `<speak>` 包裹 + 意群 break, prosody/emphasis 一个都不加. 不是"每句尾必降", 陈述句结尾**默认不动**.',
+      '- **句内不允许突变**, 只允许平滑变化. 突变只在受惊/呐喊/情绪爆发/内心独白与外部对话切换.',
+      '- 每处 prosody/emphasis/volume 变化必须**有文本内理由**: 转折 · 关键揭示 · 情绪抑制 · 内心独白 · 角色对话 · 段落收束 · 排比末句. 说不出理由 → **别打**.',
+      '- **朗读者 ≠ 扮演者**: 不因为动作性质是"轻放门"就打 volume soft — 那是把画面感混进朗读腔, 破坏叙述统一性.',
+      '- 抑扬顿挫来源: rate 微差(95%/92%/88%) · 关键停顿(500ms/1200ms) · emphasis 焦点(一句 1 处) · 段落收束双降. **不来自**: 无理由的 volume/pitch shift, 动作性联想.',
+      '',
+      '**打标前问自己**: "这处变化的文本内理由是什么?" 说得出 → 打; 只是"感觉这里该轻/该重" → 别打.',
+      '',
+      '**辅助 3 章法**(仅在有理由时才用, 别机械套):',
+      '1. 意群切分: 意群边界打 break 300ms · 段间 600ms · 主谓间 100ms · **别每个逗号都打**',
+      '2. 逻辑重音: emphasis 只打**新信息/对比项**焦点',
+      '3. 句调曲线: **仅段落收束**才 rate 90% + pitch -2st 双降 · 陈述句尾**默认不动** · 悬念 mid +2st→break→-3st',
+      '',
+      '**举例**:',
+      '✅ `<speak>好<break time="300ms"/>那我先不压, 继续待命。</speak>` (短对话回复, 零 prosody 就对)',
+      '✅ `<speak>我<break time="100ms"/><emphasis>确认了</emphasis><break time="300ms"/>5 个 HTML 全在。</speak>` (焦点在"确认了")',
+      '❌ `<speak>好那我先不压, <prosody rate="90%" pitch="-2st">继续待命。</prosody></speak>` (陈述句无理由降调, 显得机械丧气)',
+      '❌ `<speak>他从铁门里出来,<prosody volume="soft">把门带上。</prosody></speak>` (陈述句无转折, 瞎打 volume soft)',
+      '',
+      '不适合出声(纯技术堆料/长代码/表格) → 也走 `<speak>` 但整段用简短口播总结包一句就行, 别硬念代码.',
+      '详见 [[feedback_annotation_needs_intra_text_reason_no_performance_bleed]] + [[project_butler_voice_tts]].',
+    ];
+  }
+
   appendSystemPrompt() {
     const u = this.usage();
     // knife 关键: 追加内容的第一行就是最强身份指令, 不让 SDK 默认"你是 Claude"压制。
@@ -214,6 +296,8 @@ class Butler {
       '',
       '## 插话/打断',
       '- 用户可能在你干活途中提交新消息 → 你会被打断, 在此看到它。先判断: 是要你改道/纠正, 还是补充信息? 相应调整, 别机械地把旧任务硬跑完。',
+      '',
+      ...this._voiceSystemPromptBlock(),
     ].join('\n');
   }
 
@@ -376,6 +460,8 @@ class Butler {
         if (!this.tgBotToken) {
           return { content: [{ type: 'text', text: '⚠️ send_tg 不可用: 该人格未配 tg bot_token' }] };
         }
+        // 出口物理门: 无条件剥 SSML 标签 (TG 永不朗读, 有标签就是脏字符串)
+        text = stripSsmlForPlainText(text);
         // 网络类失败自动重试(undici 首次 DNS/TLS 抖动 / TG 5xx / 429 rate limit); 4xx 立刻返回不重试
         // [[feedback_transient_failure_retry_before_root_change]]: 3 次尝试, 线性退避 500ms/1500ms
         const doFetch = async (url, opts) => {
@@ -611,21 +697,14 @@ class Butler {
     this._queue = makeMsgQueue(this.name);
     this._cur = '';
     this._ac = new AbortController();
-    // resume 前校验 CC session jsonl 是否还在 —— 悬空(手删/漏清/损坏/迁移)就回退全新会话,
-    // 别让 SDK 拿一个不存在的 sessionId 去挂/报错(飞飞今晚的病 = 手删 jsonl 后 resume 卡 ‖)。
-    // slug 规则: homeDir 里 '/' 全换 '-' (Anthropic CC 约定)。
-    let resumeId = this.sessionId || undefined;
-    if (resumeId) {
-      const slug = path.resolve(this.homeDir).replace(/\//g, '-');
-      const jsonlPath = path.join(os.homedir(), '.claude', 'projects', slug, `${resumeId}.jsonl`);
-      if (!fs.existsSync(jsonlPath)) {
-        console.error(`[ensureStream] ${this.name} sessionId=${resumeId} 对应 jsonl 不存在(${jsonlPath}) → 回退全新会话`);
-        this.sessionId = null;
-        resumeId = undefined;
-      }
-    }
+    // v3 改造 (2026-07-13): 停用 SDK resume — butler 重启后**不再**续接旧 session,
+    // 一律新建空白 session. 老策略靠 resume:sessionId 让 SDK 从 jsonl 全量塞回历史,
+    // 码上飞 jsonl 已到 2.36MB, 一次冷读 30-40 万 tokens ≈ 20% 会话额度, 直接撞铁板.
+    // 界面用户历史走 butler 自己的 s.convo (get-history 走本地), 完全不依赖 jsonl.
+    // 模型端"续线程"改靠 systemPrompt (persona.md + MEMORY.md 索引) + memory_hot/query 工具.
+    // 注: doCompact 仍需 resume 旧 session (那次是刻意 resume 生成摘要), 不受此改动影响.
     const options = {
-      resume: resumeId,   // 续接旧 session(重启后)或全新
+      resume: undefined,   // v3: 恒空. sessionId 只用于 doCompact 那次刻意续接.
       cwd: this.homeDir,
       pathToClaudeCodeExecutable: CLAUDE_BIN, // 捆绑/解析后的 claude, 免 PATH 依赖
       abortController: this._ac,             // teardown 拆不动时的硬中止句柄
@@ -692,6 +771,16 @@ class Butler {
           this._deltaText = '';   // 本条 assistant 消息处理完, 重置 delta 累积(下条重新判)
           const inTok = sumInput(msg.message?.usage);
           if (inTok) { this.lastInput = inTok; this._emit('onUsage', this.usage()); this._maybeAutoCompact(); }
+        } else if (msg.type === 'rate_limit_event') {
+          // 撞会话/周额度铁板: SDK 抛 event 但会话本身可能不 abort. 记录本人格 + 抛给 main 全局暂停 idle-watch.
+          // msg 里可能有 retry_after(秒) 或 reset_at(ISO); 都没有就默认 5 分钟(保守), 至少 60s 免抖动.
+          const now = Date.now();
+          let retryAfterMs = 300_000;
+          if (msg.retry_after != null) retryAfterMs = Number(msg.retry_after) * 1000;
+          else if (msg.reset_at) { const t = new Date(msg.reset_at).getTime(); if (t > now) retryAfterMs = t - now; }
+          const until = now + Math.max(retryAfterMs, 60_000);
+          this.rateLimitedUntil = until;
+          this._emit('onRateLimit', { until, retryAfterMs, raw: { subtype: msg.subtype, retry_after: msg.retry_after, reset_at: msg.reset_at } });
         } else if (msg.type === 'result') {
           // 本轮结束: 兜底 flush 剩余 pendingTools (若最后一个 tool_use 后没 assistant 消息就到了 result)
           if (this._pendingTools.length) {
@@ -844,6 +933,19 @@ class Butler {
       this.sessionId = null;
       this.lastInput = 0;
       if (this.sessionHits) this.sessionHits.clear();   // §2.5: 压缩后清空 sessionHits, 新会话从零开始累积
+      // v3: 归档老 jsonl. UI 历史走 butler s.convo, 不再依赖 jsonl → 老 jsonl 只是磁盘垃圾,
+      // 留着还会误让人以为可 resume. 归档而非删, 保留一段时间可查. 归档失败仅 log 不影响压缩成功.
+      try {
+        const slug = path.resolve(this.homeDir).replace(/\//g, '-');
+        const src = path.join(os.homedir(), '.claude', 'projects', slug, `${sess}.jsonl`);
+        if (fs.existsSync(src)) {
+          const archDir = path.join(os.homedir(), '.claude', 'projects', slug, 'archive');
+          fs.mkdirSync(archDir, { recursive: true });
+          const dst = path.join(archDir, `${sess}.${Date.now()}.jsonl`);
+          fs.renameSync(src, dst);
+          console.error(`[doCompact] ${this.name} 归档老 jsonl → ${dst}`);
+        }
+      } catch (e) { console.error(`[doCompact] ${this.name} 归档 jsonl 失败(忽略): ${e && e.message}`); }
       return { ok: true, reason, summary: this.pendingHandoff, oldSession: sess };
     };
     try {
