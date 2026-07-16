@@ -214,6 +214,52 @@ aibutler/
 
 ---
 
+## Changelog
+
+> What each release changed, newest first.
+
+### 2026-07-16 · v0.0.15 (cumulative v0.0.6 → v0.0.15)
+
+> ⚠️ **Important: older versions eat tokens.** v0.0.5 and earlier have coupled keepalive/compaction patches plus retries with no backoff and no throttling gate, which can burn through your Claude subscription quota abnormally fast — **please upgrade.**
+
+**Cost / stability (token-burn root fix)**
+- Keepalive and compaction fully decoupled into two independent tracks; removed the self-destructing legacy patch
+- New `rate-gate.js` throttling gate: per-model buckets (separate opus / fable quotas), failure backoff — see `rate-gate.README.md`
+- SDK resume disabled; key standing rules moved into the persistent systemPrompt
+
+**Voice / TTS**
+- New `voice-say.js` voice layer: SSML markup + macOS `say` playback, 4-layer voice toggle architecture, takes effect immediately
+- Multilingual mixed reading: Chinese/Japanese/English sentences auto-switch voices (`<lang>` / `<voice>`), with fallback to the default voice when a language pack is missing
+- Dual-channel primitives: `<hidden>` speak-only (not displayed) / `<mute>` display-only (not spoken) — for listening-comprehension-style content
+- Telegram outbound automatically strips SSML tags
+
+**Rendering / UI**
+- Markdown images, mermaid diagrams, and KaTeX math rendering (offline-first local UMD bundles)
+- Local file paths in messages auto-detected as clickable links
+- Status bar stuck-🟡 fallback fix
+
+**Models / platform**
+- New Fable 5 model option (with its own rate-gate bucket)
+- Windows package fixes: bundle `claude.exe` (previously silently skipped by the builder, breaking login entirely) + ZWJ emoji glyph splitting + `whenReady` exception swallowing the window; added a build guard
+- Butler onboarding curriculum: 11 lessons (fresh butler personas ship with collaboration ground rules)
+
+### 2026-07-09
+
+**Multi-persona interconnect (star topology)**
+- Fix: leaf (non-butler) personas can now initiate `ask_persona` to the butler; leaf-to-leaf `ask_persona` is blocked by the star rule and must relay through the butler
+- New `talk_peer`: with user authorization, two leaf personas can talk directly, each round CC'd to the butler (logged to `peer_cc_log.md`)
+- New butler tools `grant_peer` / `revoke_peer`: one sentence to the butler grants/revokes leaf direct-connect
+- `askOnce` gains a 90s timeout + reverse-call deadlock protection
+- Onboarding adds a "star-topology collaboration rules" lesson
+
+**UI**
+- Persona switching changed from text tabs to an **avatar icon bar**: one row of round avatars = open personas, click to switch, active highlighted + unread red dot; trailing round ＋ for new/manage
+- Avatar bar moved down, with a persona info strip below (avatar + name + directory + context bar + compact + **close current persona**)
+- Personas can set an **avatar** (emoji; empty = letter avatar with stable coloring)
+- **In-chat search**: `Cmd/Ctrl+F` highlights matches + `Enter`/`Shift+Enter` jumps + `Esc` closes
+
+---
+
 ## Screenshots
 
 ![Main window · multiple personas as tabs](docs/aa.png)
