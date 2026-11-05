@@ -175,7 +175,11 @@ The call returns as soon as the message is delivered. The persona works on it in
 
 ## Build from source
 
-Requires Node.js 20 or later.
+Requires Node.js 20, 22 or 24; 22 is recommended (the repo ships an `.nvmrc`). Node 26 is not supported yet: Electron 33's install script fails to unpack under Node 26, and `npm start` then reports `Electron failed to install correctly`. Switch versions with [n](https://github.com/tj/n) or nvm:
+
+```bash
+n 22        # or: nvm use
+```
 
 ```bash
 git clone https://github.com/fantasyxxj/aibutler.git
@@ -191,6 +195,8 @@ Packaging:
 npm run dist:mac   # → release/*.dmg
 npm run dist:win   # → release/*.exe
 ```
+
+Voice input uses a local whisper.cpp. The official installers bundle it; when building from source, run `brew install whisper-cpp` first on macOS, while Windows downloads it automatically on first use.
 
 ## Configuration and data
 

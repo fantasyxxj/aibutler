@@ -175,7 +175,11 @@ curl -X POST http://127.0.0.1:8787/v1/poke \
 
 ## 从源码构建
 
-需要 Node.js 20 或更高版本。
+需要 Node.js 20、22 或 24，推荐 22（仓库带 `.nvmrc`）。Node 26 暂不支持：Electron 33 的安装脚本在 Node 26 下解压失败，`npm start` 会报 `Electron failed to install correctly`。可以用 [n](https://github.com/tj/n) 或 nvm 切换版本：
+
+```bash
+n 22        # 或 nvm use
+```
 
 ```bash
 git clone https://github.com/fantasyxxj/aibutler.git
@@ -191,6 +195,8 @@ npm start                 # 开发模式启动
 npm run dist:mac   # → release/*.dmg
 npm run dist:win   # → release/*.exe
 ```
+
+语音输入用本机的 whisper.cpp。官方安装包已经内置；从源码构建时，macOS 上先 `brew install whisper-cpp`，Windows 上首次使用会自动下载。
 
 ## 配置与数据
 

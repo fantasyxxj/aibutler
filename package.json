@@ -3,6 +3,9 @@
   "version": "1.0.9",
   "description": "全能管家",
   "main": "personal/main.js",
+  "engines": {
+    "node": ">=20 <26"
+  },
   "scripts": {
     "start": "electron .",
     "dist:mac": "node scripts/dist.js --mac",
