@@ -3,7 +3,8 @@
 // 想用 Claude 订阅的人在系统设置里自己开启, 那时才从 npm 下载(core/cc-sdk-install.js)。
 // 下载认的版本和哈希在这里从 package-lock 取出, 烙进包内 package.json 的 butlerCcSdk。
 //
-// 用法: node scripts/dist.js --mac | --win  [--locked]  [--dir]
+// 用法: node scripts/dist.js --mac | --win  [--x64]  [--locked]  [--dir]
+//   --x64 = mac 打 Intel 包(默认跟本机架构)
 //   --locked = 分发版(源码锁, 见 personal/paths.js isLockedBuild) · --dir = 只出未压缩的 app 目录, 用来核内容
 'use strict';
 const { execFileSync } = require('child_process');
@@ -19,13 +20,14 @@ function ccSdkManifest() {
   return m;
 }
 
-function buildConfig(base, { locked = false } = {}) {
+function buildConfig(base, { locked = false, intel = false } = {}) {
   const cfg = JSON.parse(JSON.stringify(base));
   cfg.extraMetadata = { ...(cfg.extraMetadata || {}), butlerCcSdk: ccSdkManifest(), ...(locked ? { butlerFlavor: 'locked' } : {}) };
   if (locked) {
     cfg.mac = { ...cfg.mac, artifactName: '${productName}-${version}-${arch}-locked.${ext}' };
     cfg.nsis = { ...cfg.nsis, artifactName: '${productName} Setup ${version} locked.${ext}' };
   }
+  if (intel) cfg.mac = { ...cfg.mac, artifactName: `\${productName}-\${version}-x64-intel${locked ? '-locked' : ''}.\${ext}` };
   return cfg;
 }
 
@@ -40,10 +42,10 @@ if (require.main === module) (async () => {
   const os = require('os');
   const fs = require('fs');
   const cfgFile = path.join(os.tmpdir(), `butler-build-${process.pid}.json`);
-  fs.writeFileSync(cfgFile, JSON.stringify(buildConfig(pkg.build, { locked: want.includes('--locked') }), null, 2));
+  fs.writeFileSync(cfgFile, JSON.stringify(buildConfig(pkg.build, { locked: want.includes('--locked'), intel: want.includes('--x64') }), null, 2));
   const builder = require('electron-builder');
   const dir = want.includes('--dir') ? 'dir' : undefined;
-  const targets = want.includes('--win') ? builder.Platform.WINDOWS.createTarget(dir, builder.Arch.x64) : builder.Platform.MAC.createTarget(dir);
+  const targets = want.includes('--win') ? builder.Platform.WINDOWS.createTarget(dir, builder.Arch.x64) : builder.Platform.MAC.createTarget(dir, ...(want.includes('--x64') ? [builder.Arch.x64] : []));
   await builder.build({ targets, config: cfgFile });
 })().catch((e) => { console.error(e); process.exit(1); });
 

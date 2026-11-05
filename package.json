@@ -9,6 +9,7 @@
   "scripts": {
     "start": "electron .",
     "dist:mac": "node scripts/dist.js --mac",
+    "dist:mac:intel": "node scripts/dist.js --mac --x64",
     "dist:win": "node scripts/dist.js --win",
     "dist:mac:locked": "node scripts/dist.js --mac --locked",
     "dist:win:locked": "node scripts/dist.js --win --locked",

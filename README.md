@@ -42,7 +42,7 @@ In the back-and-forth with "Teacher", whatever my child imagines gets an answer 
 
 ## Quick start
 
-1. Download from [Releases](https://github.com/fantasyxxj/aibutler/releases): `.dmg` for macOS (Apple Silicon), `Setup .exe` for Windows.
+1. Download from [Releases](https://github.com/fantasyxxj/aibutler/releases): `arm64.dmg` for Apple Silicon Macs, `x64.dmg` for Intel Macs (both macOS 11 or later), `setup.exe` for Windows.
 2. Install, launch, and follow the guide to create your first persona.
 3. Pick a model and enter an API key in Settings, and start talking.
 
@@ -192,8 +192,9 @@ npm start                 # launch in development mode
 Packaging:
 
 ```bash
-npm run dist:mac   # → release/*.dmg
-npm run dist:win   # → release/*.exe
+npm run dist:mac         # → release/*.dmg (this Mac's architecture)
+npm run dist:mac:intel   # → release/*-x64-intel.dmg
+npm run dist:win         # → release/*.exe
 ```
 
 Voice input uses a local whisper.cpp. The official installers bundle it; when building from source, run `brew install whisper-cpp` first on macOS, while Windows downloads it automatically on first use.

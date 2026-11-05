@@ -42,7 +42,7 @@ aibutler 起步于我自己的开发日常。最早是在 VS Code 里用官方�
 
 ## 快速开始
 
-1. 到 [Releases](https://github.com/fantasyxxj/aibutler/releases) 下载安装包：macOS（Apple Silicon）用 `.dmg`，Windows 用 `Setup .exe`。
+1. 到 [Releases](https://github.com/fantasyxxj/aibutler/releases) 下载安装包：Apple Silicon 的 Mac 用 `arm64.dmg`，Intel 的 Mac 用 `x64.dmg`（都要 macOS 11 或更高），Windows 用 `setup.exe`。
 2. 安装后打开，按引导创建第一个人格。
 3. 在设置里选模型、填 API key，就可以开始对话。
 
@@ -192,8 +192,9 @@ npm start                 # 开发模式启动
 打包：
 
 ```bash
-npm run dist:mac   # → release/*.dmg
-npm run dist:win   # → release/*.exe
+npm run dist:mac         # → release/*.dmg（本机架构）
+npm run dist:mac:intel   # → release/*-x64-intel.dmg
+npm run dist:win         # → release/*.exe
 ```
 
 语音输入用本机的 whisper.cpp。官方安装包已经内置；从源码构建时，macOS 上先 `brew install whisper-cpp`，Windows 上首次使用会自动下载。
