@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>全能管家</title>
+  <link rel="stylesheet" href="../../node_modules/katex/dist/katex.min.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<!-- 界面文字一律走 data-i18n / data-i18n-title / data-i18n-ph, renderer.js 的 applyStrings 统一刷。
+     这里写的中文只是"没刷之前那一帧"的兜底, 不是真源 —— 真源在 i18n.js。
+     门禁 test-i18n.js 会扫: 带中文的元素必须有 data-i18n*, 否则切了语言它不跟着变。 -->
+<body>
+  <!-- 人格切换栏(最上): 一排头像图标=开启的人格(点击切换), ＋=新建/管理 -->
+  <nav id="tabbar" data-i18n-title="tabbar_hint" title="点头像切换人格 · ＋新建/管理">
+    <div id="tabs"></div>
+    <button id="newTabBtn" data-i18n-title="new_tab" title="新建/打开人格(空目录=新建, 已有=续上)">＋</button>
+    <select class="lang" id="lang" data-i18n-title="lang_hint" title="界面语言 / Display language"></select>
+    <button id="settingsBtn" data-i18n="sys_btn" data-i18n-title="sys_open" title="系统设置(API 凭据 · 代理 · 本机 API) — 对所有人格生效">设置</button>
+  </nav>
+
+  <!-- 认证失效常驻横幅: 某人格吃到 401 时挂出, 点按钮走 OAuth 重登(不重启 app)。
+       刻意做成常驻而非 toast —— 401 不自愈, 用户可能几小时后才回到电脑前, 提示必须一直在。 -->
+  <div id="authBanner" class="hidden">
+    <span id="authBannerText" data-i18n="auth_expired">登录已失效，AI 暂时无法回复</span>
+    <button id="authReloginBtn" data-i18n="relogin">重新登录</button>
+  </div>
+
+  <header id="topbar">
+    <div class="brand"><span id="personaAvatar" class="cur-avatar"></span><span id="personaName" data-i18n="title">全能管家</span>
+      <span class="sub" id="personaDir" data-i18n-title="persona_dir_hint" title="当前人格的目录(记忆体所在)">—</span>
+    </div>
+    <div class="ctxwrap" data-i18n-title="ctx_hint" title="上下文占用(真 usage)">
+      <div class="ctxbar"><div id="ctxfill"></div></div>
+      <div id="ctxlabel">— %</div>
+    </div>
+    <button id="compactBtn" data-i18n="compact" data-i18n-title="compact_hint" title="清空: 沉淀关键线程到图记忆 → 清空 AI 上下文 → 重启唤醒 (UI 历史保留展示)">清空</button>
+    <button id="closeCurrentBtn" data-i18n-title="close_persona" title="关闭当前人格(会话记忆已落盘, 可重开续上)">×</button>
+  </header>
+
+  <!-- 舞台: 每个标签一个面板, 仅活动标签可见 -->
+  <main id="stage">
+    <div id="searchbar" class="hidden">
+      <input id="searchInput" data-i18n-ph="search_ph" placeholder="搜索当前对话…" />
+      <span id="searchCount">0/0</span>
+      <button id="searchPrev" data-i18n-title="search_prev" title="上一个 (Shift+Enter)">↑</button>
+      <button id="searchNext" data-i18n-title="search_next" title="下一个 (Enter)">↓</button>
+      <button id="searchClose" data-i18n-title="search_close" title="关闭 (Esc)">×</button>
+    </div>
+  </main>
+
+  <div id="attachstrip"></div>
+
+  <!-- 会话 status bar: 让用户一眼看出"AI 现在能不能被打断/发消息" -->
+  <div id="statusbar" data-i18n="status_idle" data-i18n-title="statusbar_hint" title="会话状态 · 🟢=可以发消息 · 🔵=AI 思考中(可插话) · 🟡=工具执行中(可插话)">🟢 待命 (可发送)</div>
+
+  <!-- v0.0.22 关闭前沉淀 overlay: 后端 IPC 'sediment' 控制 show/progress/alive/notice/hide.
+       notice 态是**通知不是拦路框**: 后台写完会自己把它收掉, 下面两个按钮没人点也不会卡住退出。 -->
+  <div id="sedimentOverlay" class="hidden">
+    <div class="sediment-card">
+      <div class="sediment-title" data-i18n="sediment_title">正在存档手头活…</div>
+      <div class="sediment-sub" data-i18n="sediment_sub">存档完成后 butler 才会关闭</div>
+      <ul id="sedimentList"></ul>
+      <div id="sedimentActions" class="sediment-actions hidden">
+        <button id="sedimentWait" class="sediment-btn" data-i18n="sediment_btn_wait">先别关，让它写完</button>
+        <button id="sedimentForce" class="sediment-btn sediment-btn-warn" data-i18n="sediment_btn_force">不等了，强制关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- prompt chips: 快捷按钮一屏铺开. 点一下直接把整条 prompt 发出去(不是填输入框). 出厂 chip 点过即消失, 空了整条隐藏 -->
+  <div id="chipbar" style="display:none"></div>
+
+  <footer id="inputbar">
+    <button id="attachBtn" data-i18n-title="attach" title="加附件·任意文件(也可粘贴截图/拖拽文件)">📎</button>
+    <button id="micBtn" data-i18n-title="mic" title="语音输入(点开始 · 再点结束 · 需先 brew install whisper-cpp)">🎤</button>
+    <textarea id="input" rows="1" data-i18n-ph="input_ph" placeholder="跟管家说点什么…  (Enter 发送 / Shift+Enter 换行 / 可粘贴截图、拖拽文件)"></textarea>
+    <!-- 文字是「⏹ + 字典值」拼的, 所以由 applyStrings 单独刷, 不走 data-i18n。data-i18n-js 只是给门禁看的标记。 -->
+    <button id="cancelBtn" data-i18n-js="cancel" data-i18n-title="cancel_turn" title="打断当前一轮 · 消息文本回填到输入框" style="display:none">⏹ 取消</button>
+    <button id="sendBtn" data-i18n="send">发送</button>
+    <input id="fileInput" type="file" multiple hidden />
+  </footer>
+
+  <!-- 排在所有库前面: 它自包含无依赖, 越早起覆盖的时间越长(后面那两个库加载本身就要时间)。 -->
+  <script src="frame-watchdog.js"></script>
+
+  <!-- ../../ 不是 ../: 本文件在 personal/renderer/, node_modules 在仓根。单仓拆分把 renderer/ 挪进
+       personal/ 时漏改这两行, 于是公式和流程图一起哑了 —— 且当时零报错, 见 renderer.js 的 mermaid 兜底。 -->
+  <script src="../../node_modules/katex/dist/katex.min.js"></script>
+  <script src="../../node_modules/mermaid/dist/mermaid.min.js"></script>
+  <script src="recorder.js"></script>
+  <script src="record-host.js"></script>
+  <script src="record-widget.js"></script>
+  <script src="md.js"></script>
+  <script src="widgets.js"></script>
+  <script src="sandbox.js"></script>
+  <script src="../../core/i18n-pick.js"></script>
+  <script src="board.js"></script>
+  <script src="chips.js"></script>
+  <script src="hub-firstrun.js"></script>
+  <script src="empty-state.js"></script>
+  <script src="renderer.js"></script>
+  <!-- renderer.js 之后: 关闭遮罩要用那边的 t() -->
+  <script src="sediment-overlay.js"></script>
+  <!-- renderer.js 之后: 要用 t() -->
+  <script src="image-save.js"></script>
+  <!-- renderer.js 之后: 要用那边的 curLocale / switchTab / emitUserMessage -->
+  <script src="reminder-banner.js"></script>
+</body>
+</html>

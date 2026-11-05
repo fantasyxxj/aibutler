@@ -1,0 +1,7 @@
+{
+  "_": "默认起床语。注册表(personas.json.wakePhrase)是唯一真源, 空/缺省时用这里的默认句。🔴 这句【用户在聊天窗里看得见】(它以对话形式显示), 所以必须四语齐全、跟界面语言走 —— 不同于喂给模型而用户看不见的那些文本(那些一律英文单份)。{{name}} 是人格名占位符。",
+  "zh-CN": "起床啦, {{name}}。请载入你的记忆(读 MEMORY.md / 用图记忆检索)续上压缩前的线程, 该干嘛干嘛。",
+  "zh-TW": "起床囉, {{name}}。請載入你的記憶(讀 MEMORY.md / 用圖記憶檢索)接上壓縮前的線程, 該幹嘛幹嘛。",
+  "ja": "起きて、{{name}}。記憶をロードして(MEMORY.md を読む / グラフ記憶を検索)圧縮前のスレッドを引き継ぎ、やるべきことを続けて。",
+  "en": "Wake up, {{name}}. Load your memory (read MEMORY.md / search the memory graph), pick up the thread from before the compaction, and carry on."
+}

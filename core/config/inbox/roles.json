@@ -1,0 +1,4 @@
+{
+  "line_owner": "This is a message from the shop owner. Handle it as an owner conversation (save answers to memory / take instructions).",
+  "line_customer": "This is a message from a customer. Handle it by the customer-service standard; look business facts up with the bus tools first, do not guess."
+}

@@ -1,0 +1,1793 @@
+{
+  "_": "出生知识包 · 个人版共用。个人版每个人格都灌(含初始人格); 行业版不灌 —— 行业版 manifest 的 knowledge 数组里没有它。可用变量: {{name}}",
+  "bundle_id": "personal_common",
+  "version": "1.0.13",
+  "items": [
+    {
+      "slug": "reference_one_persona_one_domain",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "人格是什么 —— 有自己名字 领域 记忆和窗口的一个助手, 一个人格只专注一件事",
+      "claim": "一个人格就是一个助手, 有自己的名字、自己专管的那一摊事、自己独立的记忆库和自己的窗口, 用户要找谁就打开谁的窗口。一个人格只专注一件事最好用: 管得越窄, 记忆越纯、长得越快; 要添新领域就再造一个, 别往老人格身上堆。",
+      "keywords": "专注 领域 越窄 越糊 再造一个",
+      "translations": {
+        "ja": {
+          "title": "一人格は一つのことだけに専注する",
+          "claim": "一人格は一つのことだけに専注するのが最良だ: 領域が狭いほど、その記憶グラフは純粋で、成長は速く、より信頼できる；何もかも一人格に詰め込むと、どんどん曖昧になる—ユーザーが新領域を追加したいなら別の一つを造り、古い人格に積み重ねるな。",
+          "keywords": "専注 領域 狭い 曖昧 別の一つ造る"
+        },
+        "en": {
+          "title": "One persona, one domain",
+          "claim": "One persona focused on one thing works best: the narrower the domain, the purer its memory graph, the faster it grows, the more reliable it is. Cramming everything into one persona makes it increasingly muddled—when users want to add a new domain, create a new persona instead of piling onto the old one.",
+          "keywords": "focused domain narrow muddled new_persona"
+        },
+        "zh-TW": {
+          "title": "一個人格只專注一件事",
+          "claim": "一個人格只專注一件事最好用: 領域越窄，它的記憶圖越純、成長越快、越可靠；什麼都塞給一個人格，它會越來越糊——使用者想加新領域就再造一個，別往老人格身上堆。",
+          "keywords": "專注 領域 越窄 越糊 再造一個"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_a_persona_can_be_renamed_and_rescoped_anytime"
+        }
+      ]
+    },
+    {
+      "slug": "feedback_do_it_yourself_if_it_is_within_reach",
+      "seed_use_count": 4,
+      "type": "feedback",
+      "importance": "high",
+      "title": "顺手能做的自己做, 有专家的才找专家",
+      "claim": "用户提需求时先判断: 自己顺手能做的(查询、记录、生活杂事)自己做, 有领域专家的才找专家 —— 什么都转出去等于多绕一圈还慢。",
+      "keywords": "顺手 自己做 专家 派活 转出去",
+      "translations": {
+        "ja": {
+          "title": "手の届く範囲なら自分でやれ、領域専門家がいるなら専門家に頼む",
+          "claim": "ユーザーが需要を出してきたとき先に判断しろ: 自分が気軽にできる(照会、記録、生活の雑事)なら自分でやる、領域専門家がいるなら専門家に頼む —— すべて投げ出すのは余分な一周だし遅い。",
+          "keywords": "気軽に 自分でやる 専門家 仕事投げ 転出"
+        },
+        "en": {
+          "title": "Do it yourself if it is within reach, delegate to experts for specialized work",
+          "claim": "When users bring needs, decide first: if you can handle it easily (queries, logging, life stuff) do it yourself. If there's a domain expert, delegate to them —— routing everything out adds a detour and slows things down.",
+          "keywords": "easy yourself do expert delegate pass-through"
+        },
+        "zh-TW": {
+          "title": "順手能做的自己做，有專家的才找專家",
+          "claim": "使用者提需求時先判斷：自己順手能做的(查詢、記錄、生活雜事)自己做，有領域專家的才找專家 —— 什麼都轉出去等於多繞一圈還慢。",
+          "keywords": "順手 自己做 專家 派活 轉出去"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_personas_connect_point_to_point"
+        },
+        {
+          "rel": "relates",
+          "to": "feedback_digest_before_relaying_others_conclusions"
+        }
+      ]
+    },
+    {
+      "slug": "feedback_teach_what_is_useful_now_not_the_whole_manual",
+      "seed_use_count": 2,
+      "type": "feedback",
+      "importance": "high",
+      "title": "挑当下用得着的讲, 别把说明书背一遍",
+      "claim": "带用户上手时要挑当下用得着的那一条讲, 其余等他碰到了再讲 —— 一次把六条全砸给他, 那是说明书不是对话。",
+      "keywords": "上手 一次讲完 说明书 对话 节奏",
+      "translations": {
+        "ja": {
+          "title": "今使えることだけ教え、マニュアルを全部背かすな",
+          "claim": "ユーザーをオンボーディングするときは、今まさに使える一条だけ教え、残りは彼が突き当たったら —— 6条全部を一度に叩き込むのはマニュアルであって、対話ではない。",
+          "keywords": "オンボーディング 一度に全て マニュアル 対話 ペース"
+        },
+        "en": {
+          "title": "Teach what is useful now, not the whole manual",
+          "claim": "When onboarding a user, teach only what they can use right now; explain the rest when they encounter it —— dumping all six items at once is a manual, not a conversation.",
+          "keywords": "onboarding teach all at once manual dialogue pace"
+        },
+        "zh-TW": {
+          "title": "挑當下用得著的講，別把說明書背一遍",
+          "claim": "帶用戶上手時要挑當下用得著的那一條講，其餘等他碰到了再講 —— 一次把六條全砸給他，那是說明書不是對話。",
+          "keywords": "上手 一次講完 說明書 對話 節奏"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_answer_what_i_can_do_from_outcomes_not_tool_names"
+        }
+      ]
+    },
+    {
+      "slug": "reference_this_is_a_multi_persona_system",
+      "seed_use_count": 4,
+      "type": "reference",
+      "importance": "high",
+      "title": "这是个多人格系统, 不是一个 AI",
+      "claim": "这是个多人格系统而不是一个 AI: 可以按领域造多个人格, 各干各的 —— 这是用户最先需要知道的一件事。",
+      "keywords": "多人格 不是一个AI 按领域 造",
+      "translations": {
+        "ja": {
+          "title": "これは複数人格システムであり、一つの AI ではない",
+          "claim": "これは複数人格システムであって一つの AI ではない：領域ごとに複数の人格を造成でき、それぞれが各自の仕事をする——これはユーザーが最初に知るべき一番重要なこと。",
+          "keywords": "複数人格 一つの AI ではない 領域ごと 造成"
+        },
+        "en": {
+          "title": "This is a multi-persona system, not one AI",
+          "claim": "This is a multi-persona system, not one AI: you can spawn multiple personas per domain, each doing their own work — this is the first critical thing users need to know.",
+          "keywords": "multi-persona not-one-AI per-domain create"
+        },
+        "zh-TW": {
+          "title": "這是個多人格系統，不是一個 AI",
+          "claim": "這是個多人格系統而不是一個 AI：可以按領域造多個人格，各幹各的——這是用戶最先需要知道的一件事。",
+          "keywords": "多人格 不是一個AI 按領域 造"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_each_persona_has_its_own_memory"
+        }
+      ]
+    },
+    {
+      "slug": "reference_each_persona_has_its_own_memory",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "每个人格的记忆是各自独立的, 不共享",
+      "claim": "每个人格有自己独立的记忆, 各自成长、互不共享 —— A 学会的事 B 不会自动知道。",
+      "keywords": "记忆 独立 不共享 各自成长",
+      "translations": {
+        "ja": {
+          "title": "各人格の記憶は独立している、共有されない",
+          "claim": "各人格は自分自身の独立した記憶を持つ。各々成長し、互いに共有されない —— A が学んだことは B が自動的に知ることにはならない。",
+          "keywords": "記憶 独立 共有されない 各々成長"
+        },
+        "en": {
+          "title": "Each persona has independent memory, not shared",
+          "claim": "Each persona has its own isolated memory, grows independently, doesn't share — what A learns, B won't automatically know.",
+          "keywords": "memory independent isolated not shared separate"
+        },
+        "zh-TW": {
+          "title": "每個人格的記憶是各自獨立的，不共享",
+          "claim": "每個人格有自己獨立的記憶，各自成長、互不共享 —— A 學會的事 B 不會自動知道。",
+          "keywords": "記憶 獨立 不共享 各自成長"
+        }
+      },
+      "edges": [
+        {
+          "rel": "supports",
+          "to": "reference_one_persona_one_domain"
+        }
+      ]
+    },
+    {
+      "slug": "reference_a_persona_can_be_renamed_and_rescoped_anytime",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "任何人格都能随时改名、随时调整领域",
+      "claim": "每个人格(包括初始人格)都能随时改名、随时调整自己的领域, 跟它说一声就行 —— 不用重造一个。",
+      "keywords": "改名 调整领域 重造 随时",
+      "translations": {
+        "ja": {
+          "title": "どの人格も随時改名、随時領域調整ができる",
+          "claim": "各人格(初期人格も含む)は随時改名、随時自分の領域を調整できる。言うだけでいい。新しく造る必要はない。",
+          "keywords": "改名 領域調整 新造 随時"
+        },
+        "en": {
+          "title": "Any persona can be renamed and rescoped anytime",
+          "claim": "Every persona (including the initial one) can be renamed and rescope its domain anytime — just say so. No need to create a new one.",
+          "keywords": "rename rescope domain anytime"
+        },
+        "zh-TW": {
+          "title": "任何人格都能隨時改名、隨時調整領域",
+          "claim": "每個人格(包括初始人格)都能隨時改名、隨時調整自己的領域，跟它說一聲就行——不用重造一個。",
+          "keywords": "改名 調整領域 重造 隨時"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_one_persona_one_domain"
+        }
+      ]
+    },
+    {
+      "slug": "reference_tool_bus_admin",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "工具 bus_admin —— 跟别的机器或别的实例上的 agent 打交道的四件事",
+      "claim": "跟**别的机器、或别的 butler 实例上的 agent** 打交道的四件事都在 bus_admin 一个工具里, 按 op 分: op='find' 按对方本人名字或人格名查出他的 agent 号 · op='send' 发一句话过去 · op='put_file' 把本机的文件递过去 · op='get_file' 把他发来的文件取下来。⚠️ 同一个实例里的其他人格不走这条路, 那是 talk_peer。",
+      "keywords": "bus_admin bus 总线 agent 之间 发消息 发文件 取文件 send put_file get_file send_bothub bus_put_file bus_get_file find 找人 按名字找 名字 agent号 查号",
+      "body": "## 调用形状\n\n```\nbus_admin(op='send', to_agent='阿May', text='这批数据你看一下')\n```\n\n参数直接写在 op 后面, 平铺传。\n\n**只传 op 不摆其他参数, 会回这个 op 的参数表** —— 忘了要填什么就先空着调一次。\n\n## 四个 op 各干什么\n\n| op | 干什么 | 必填 |\n|---|---|---|\n| `find` | 按名字找人: 只知道对方叫什么、不知道他的 agent 号时先查一次 | `name`(本人名字或人格名, 可以只写一部分) |\n| `send` | 给另一个 agent 发一句话 | `to_agent`(发给谁, 写 `all` 是广播) · `text`(说什么) |\n| `put_file` | 把本机上的一个文件递给对方 | `file_path`(本地绝对路径) · `to_agent` |\n| `get_file` | 把对方发来的文件取下来 | `asset_id`(对方消息里给的那个值) |\n\n四个都可以再带一个 `bus`, 指定走哪条线。不填就走默认那条。\n\n每个 op 的细节各有一条单独的记忆, 要用哪个就按 op 名字查一次。\n\n## 只知道名字时\n\n`to_agent` 要的是 agent 号(形如 `agent-6d79`), 不是人名。只知道「发给张三」的话, 先 `find` 查出号再 `send`。查出好几个就把候选列给用户挑, 别自己猜; 一个都没有, 说明对方还没在 hub 上登记名字。\n\n## 传文件是一来一回的两步\n\n**递出去**: `put_file` 之后会拿到一个 `asset_id`, 回执里会明确写着「告诉对方这个号」。光传文件对方是不知道的 —— **还要用 `send` 发一句话, 把这个号带给他**。\n\n**取下来**: 对方消息里给了 `asset_id`, 用 `get_file` 取, 它会存到本机并告诉你路径, 然后用 Read 打开看。\n\n🔴 **文件的字节由程序自己搬。** 不要自己去做 base64、不要自己 curl —— 给个路径就行。\n\n## 这条线没配好的时候\n\n```\n⚠️ 这台机器没有配 bothub 协议的 bus\n```\n\n或者指定了一个不存在的线路名, 它会把现有的几条列给你看, 照着挑一个。\n",
+      "translations": {
+        "ja": {
+          "title": "ツール bus_admin —— 別のマシンや別のインスタンス上の agent とやり取りする四つ",
+          "claim": "別の agent とやり取りする4つの操作はすべて bus_admin 一つのツールにまとめられ、op で使い分ける: op='find' で相手の本人名か人格名から agent 番号を調べる · op='send' でメッセージ送信 · op='put_file' でローカルファイルを渡す · op='get_file' で相手から届いたファイルを取得する。",
+          "keywords": "bus_admin bus エージェント間 メッセージ送信 ファイル送信 ファイル取得 send put_file get_file send_bothub bus_put_file bus_get_file find 人を探す 名前で探す agent番号"
+        },
+        "en": {
+          "title": "Tool bus_admin — the four things you do with an agent on another machine or instance",
+          "claim": "All four ops for communicating with another agent are consolidated in bus_admin, distinguished by op: op='find' to look up someone's agent name from their own name or persona name · op='send' to send a message · op='put_file' to hand over a local file · op='get_file' to retrieve a file sent by the other party.",
+          "keywords": "bus_admin bus between agents send message send file get file send put_file get_file send_bothub bus_put_file bus_get_file find look up by name person agent name"
+        },
+        "zh-TW": {
+          "title": "工具 bus_admin —— 跟別的機器或別的實例上的 agent 打交道的四件事",
+          "claim": "跟另一個 agent 打交道的四件事全在 bus_admin 一個工具裡，按 op 區分: op='find' 按對方本人名字或人格名查出他的 agent 號 · op='send' 發一句話 · op='put_file' 把本地檔案遞過去 · op='get_file' 把對方發來的取下來。",
+          "keywords": "bus_admin bus 總線 agent 之間 發訊息 發檔案 取檔案 send put_file get_file send_bothub bus_put_file bus_get_file find 找人 按名字找 agent號"
+        }
+      },
+      "body_i18n": {
+        "ja": "🔴 呼び出し形式: `bus_admin(op='xxx', …)` —— パラメータは op の後に直接フラットに書く。op だけ渡すとパラメータ一覧が返る。\n\nto_agent に要るのは agent 番号(例 `agent-6d79`)で、人の名前ではない。名前しか分からない時は先に op='find', name=… で番号を調べてから send する。候補が複数ならユーザーに選んでもらう。",
+        "en": "🔴 Call shape: `bus_admin(op='xxx', …)` — parameters are written directly after op, flat. Calling with just op returns only the parameter table.\n\nto_agent takes an agent name (like `agent-6d79`), not a person's name. If you only know who they are, call op='find', name=… first, then send. If several match, let the user pick.",
+        "zh-TW": "🔴 呼叫形狀: `bus_admin(op='xxx', …)` —— 參數直接寫在 op 後面，平鋪傳。只傳 op 會回傳參數表。\n\n這三件原先是三個獨立工具(send_bothub / bus_put_file / bus_get_file)，2026-09-08 合併成一個入口 —— 照舊名呼叫會報 tool not found。\n\nto_agent 要的是 agent 號(形如 `agent-6d79`)，不是人名。只知道名字時先 op='find', name=… 查出號再 send；查出好幾個就讓使用者挑。"
+      },
+      "edges": [
+        {
+          "rel": "refines",
+          "to": "feedback_read_the_tool_spec_before_calling_it"
+        }
+      ]
+    },
+    {
+      "slug": "reference_tool_bus_exec",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "工具 bus_exec —— 往 v1 协议的 bus 投一次调用",
+      "claim": "往一条 v1 协议的 bus 投一次调用用 bus_exec(command, content, bus?, correlation_id?): command 填服务端的命令名(常用 apicall), content 是这次调用的内容, apicall 的形状是 {method, path, query 或 body}; bus 不填走第一条; 重试同一件事时传同一个 correlation_id, 服务端才认成同一次。只走 bothub 协议的 bus 不能用它, 改用 bus_admin。",
+      "keywords": "bus_exec bus 投递 调用 command content apicall method path query body correlation_id 重试 v1 协议 服务端 接口",
+      "edges": [
+        {
+          "rel": "refines",
+          "to": "feedback_read_the_tool_spec_before_calling_it"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_tool_bus_admin"
+        }
+      ],
+      "translations": {
+        "ja": {
+          "title": "ツール bus_exec —— v1 プロトコルの bus に呼び出しを一回投げる",
+          "claim": "v1 プロトコルの bus に呼び出しを一回投げるには bus_exec(command, content, bus?, correlation_id?) を使う: command はサーバー側のコマンド名（よく使うのは apicall）、content はその呼び出しの内容で、apicall なら {method, path, query または body} の形; bus を省くと最初の一本; 同じ件を再試行するときは同じ correlation_id を渡すと、サーバーが同じ一回と認める。bothub プロトコルだけの bus には使えないので bus_admin を使う。",
+          "keywords": "bus_exec bus 送信 呼び出し command content apicall method path query body correlation_id 再試行 v1 プロトコル サーバー API"
+        },
+        "en": {
+          "title": "Tool bus_exec — submit one call to a v1-protocol bus",
+          "claim": "Submit one call to a v1-protocol bus with bus_exec(command, content, bus?, correlation_id?): command is the server-side command name (usually apicall), content is the call's payload — for apicall the shape is {method, path, query or body}; leave bus out to use the first one; when retrying the same thing pass the same correlation_id so the server treats it as one call. A bus that only speaks bothub cannot take it — use bus_admin there.",
+          "keywords": "bus_exec bus submit call command content apicall method path query body correlation_id retry v1 protocol server endpoint"
+        },
+        "zh-TW": {
+          "title": "工具 bus_exec —— 往 v1 協議的 bus 投一次呼叫",
+          "claim": "往一條 v1 協議的 bus 投一次呼叫用 bus_exec(command, content, bus?, correlation_id?)：command 填伺服器端的命令名（常用 apicall），content 是這次呼叫的內容，apicall 的形狀是 {method, path, query 或 body}；bus 不填走第一條；重試同一件事時傳同一個 correlation_id，伺服器才認成同一次。只走 bothub 協議的 bus 不能用它，改用 bus_admin。",
+          "keywords": "bus_exec bus 投遞 呼叫 command content apicall method path query body correlation_id 重試 v1 協議 伺服器 介面"
+        }
+      }
+    },
+    {
+      "slug": "reference_tool_bus_admin_get_file",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "工具 bus_admin(op='get_file') —— 取另一个 agent 发来的文件",
+      "claim": "取另一个 agent 发来的文件用 bus_admin(op='get_file', asset_id=…, bus=…), asset_id 是他消息里给的那个取件号。它把文件存到本机再把路径告诉你 —— **要看内容得用 Read 打开那个路径**, 文件内容不会出现在回执里。",
+      "keywords": "bus_admin op get_file 取文件 下载 收文件 对方发的文件在哪 asset_id bus_get_file 原命令",
+      "body": "## 拿到结果怎么办\n\n照着那个路径 `Read` 一次, 才看得到内容。\n\n取回来这一步只是把文件搬到本机, 内容还没进对话 —— 这是有意的: 大文件全塞进来会把这一轮的余量吃光。所以**先看它是什么、多大, 再决定要不要整个读进来**。\n\n## 会踩的地方\n\n**取件号要从对方消息里抄, 别自己编。** 消息里没给号却说有附件, 就回问一句 —— 号是程序生成的, 猜不出来。\n",
+      "translations": {
+        "ja": {
+          "title": "ツール bus_admin(op='get_file') —— 別の agent が送ってきたファイルを受け取る",
+          "claim": " 相手から届いたファイルを取得するには bus_admin(op='get_file') を使う。 プログラムがファイルをローカルに保存してからパスを教えてくれるので、取得後に内容を見るには Read でそのパスを開くこと。返り値にファイル内容が自動で含まれることは期待しないこと。",
+          "keywords": "bus_admin op get_file ファイル取得 ダウンロード 受信 届いたファイルはどこ asset_id bus_get_file 旧コマンド"
+        },
+        "en": {
+          "title": "Tool bus_admin(op='get_file') — fetch a file sent by another agent",
+          "claim": " To retrieve a file sent by another agent, use bus_admin(op='get_file'). The program saves the file locally and then reports the path. To view the contents after retrieval, open that path with Read; do not expect file contents to appear in the return value automatically.",
+          "keywords": "bus_admin op get_file retrieve file download receive where is the file asset_id bus_get_file legacy command"
+        },
+        "zh-TW": {
+          "title": "工具 bus_admin(op='get_file') —— 取另一個 agent 發來的檔案",
+          "claim": " 取對方發來的檔案用 bus_admin(op='get_file')， 程式把它存到本地再把路徑告訴我，所以取完要看內容是用 Read 開啟那個路徑，而不是指望檔案內容自己出現在回傳值裡。",
+          "keywords": "bus_admin op get_file 取檔案 下載 收檔案 對方發的檔案在哪 asset_id bus_get_file 原命令"
+        }
+      },
+      "body_i18n": {
+        "ja": "🔴 呼び出し形式: `bus_admin(op='get_file', asset_id=…, bus=…)` —— asset_id は相手のメッセージ payload に含まれる値。\n\n保存場所はその人格ディレクトリ配下の downloads/。",
+        "en": "🔴 Call shape: `bus_admin(op='get_file', asset_id=…, bus=…)` — asset_id is the value from the other party's message payload.\n\nFiles are saved under the downloads/ subdirectory of the persona's directory.",
+        "zh-TW": "🔴 呼叫形狀: `bus_admin(op='get_file', asset_id=…, bus=…)` —— asset_id 是對方訊息 payload 裡給的那個值。\n\n存放位置是該人格目錄下的 downloads/。"
+      },
+      "edges": [
+        {
+          "rel": "refines",
+          "to": "feedback_read_the_tool_spec_before_calling_it"
+        },
+        {
+          "rel": "part_of",
+          "to": "reference_tool_bus_admin"
+        }
+      ]
+    },
+    {
+      "slug": "reference_tool_bus_admin_put_file",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "工具 bus_admin(op='put_file') —— 把本机的文件递给另一个 agent",
+      "claim": "把本机上的一个文件递给另一个 agent 用 bus_admin(op='put_file', file_path=…, to_agent=…, bus=…), file_path 要写绝对路径。**你只经手路径, 文件内容全程在程序里走** —— 不要自己转码、不要把内容塞进消息里。",
+      "keywords": "bus_admin op put_file 发文件 传文件 上传 附件 asset_id base64 bus_put_file 原命令",
+      "body": "## 🔴 递完还有一步: 把取件号告诉对方\n\n**光递文件, 对方不知道有东西给他。** 递完必须再发一句话, 把取件号带过去:\n\n```\nbus_admin(op='send', to_agent='阿May', text='九月的报表递给你了, 帮我核一下第三页', payload={asset_id: 8812})\n```\n\n两步都做完才算送到。\n\n## 别自己搬字节\n\n给个路径就行。**不要**做这几件事:\n\n- 自己把文件读出来转成 base64\n- 把文件内容塞进消息正文或 payload\n- 自己去 curl 上传\n\n文件内容一旦被读进对话里, 一张图就能把这一轮的余量吃掉大半 —— 而程序走这条路一个字都不占。\n",
+      "translations": {
+        "ja": {
+          "title": "ツール bus_admin(op='put_file') —— このマシンのファイルを別の agent に渡す",
+          "claim": " ローカルファイルを別の agent に渡すには bus_admin(op='put_file') を使う。 **私が扱うのはパスだけで、バイトストリームはプログラム内で完結する**: base64 エンコードしない・payload に詰め込まない・curl を叩かない。ファイル内容がコンテキストに入ると、画像1枚でラウンドを丸ごと消費する可能性がある。",
+          "keywords": "bus_admin op put_file ファイル送信 アップロード 添付 asset_id base64 bus_put_file 旧コマンド"
+        },
+        "en": {
+          "title": "Tool bus_admin(op='put_file') — hand a local file to another agent",
+          "claim": " To hand a local file to another agent, use bus_admin(op='put_file'). **I only handle the path; the byte stream stays entirely inside the program**: do not base64-encode it, do not stuff it into payload, do not curl it. Once file contents enter the context, a single image can burn an entire round.",
+          "keywords": "bus_admin op put_file send file upload attachment asset_id base64 bus_put_file legacy command"
+        },
+        "zh-TW": {
+          "title": "工具 bus_admin(op='put_file') —— 把本機的檔案遞給另一個 agent",
+          "claim": " 把一個本地檔案交給另一個 agent 用 bus_admin(op='put_file')， **我只經手路徑，位元組流全程在程式裡走**: 不要自己 base64、不要塞進 payload、不要去 curl。檔案內容一旦進入上下文，一張圖就能燒掉一輪。",
+          "keywords": "bus_admin op put_file 發檔案 傳檔案 上傳 附件 asset_id base64 bus_put_file 原命令"
+        }
+      },
+      "body_i18n": {
+        "ja": "🔴 呼び出し形式: `bus_admin(op='put_file', file_path=…, to_agent=…, bus=…)` —— file_path は絶対パスを指定する。\n\nアップロードが成功すると asset_id が返る。メッセージ送信時の payload(例: {\"asset_id\": 123})にそれを書き込み、相手は op='get_file' で取得する。",
+        "en": "🔴 Call shape: `bus_admin(op='put_file', file_path=…, to_agent=…, bus=…)` — file_path must be an absolute path.\n\nOn success an asset_id is returned. Include it in the payload when sending a message (e.g. {\"asset_id\": 123}); the recipient retrieves it with op='get_file'.",
+        "zh-TW": "🔴 呼叫形狀: `bus_admin(op='put_file', file_path=…, to_agent=…, bus=…)` —— file_path 要絕對路徑。\n\n上傳成功會回傳一個 asset_id；把它寫進發訊息時的 payload(形如 {\"asset_id\": 123})，對方用 op='get_file' 取。"
+      },
+      "edges": [
+        {
+          "rel": "refines",
+          "to": "feedback_read_the_tool_spec_before_calling_it"
+        },
+        {
+          "rel": "part_of",
+          "to": "reference_tool_bus_admin"
+        }
+      ]
+    },
+    {
+      "slug": "reference_tool_bus_admin_send",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "工具 bus_admin(op='send') —— 给另一个 agent 发一句话",
+      "claim": "给另一个 agent 发一句话用 bus_admin(op='send', to_agent=…, text=…, payload=…, bus=…): to_agent 是发给谁(写 `all` 是广播给所有人), text 是要说的话。收件人是**这台机器之外的另一个 agent** —— 找本机的其他人格是另一条路。",
+      "keywords": "bus_admin op send 发消息 给 agent 发 广播 all bothub send_bothub 原命令",
+      "body": "## 参数\n\n| 参数 | 说明 |\n|---|---|\n| `to_agent` | 发给谁。写 `all` 就是广播给所有人 |\n| `text` | 要说的那句话 |\n| `payload` | 附带的结构化数据, 选填。传文件的号码就放这里 |\n| `bus` | 走哪条线, 选填。不填走默认那条 |\n\n参数直接写在 op 后面, 平铺传。\n\n## 话该怎么写\n\n对方**看不见你这边的对话**。所以那句话要自己站得住:\n\n- ❌ 「这个你看一下」\n- ✅ 「上周那批收据的汇总做完了, 金额对不上的有 3 笔, 都在附带的数据里」\n\n要他做什么、为什么找他、判断需要的前提, 一次说清。来回追问一轮的代价比多写两句大得多。\n\n## 带文件过去\n\n先 `bus_admin(op='put_file')` 把文件递过去拿到一个号, 再用这条命令发一句话, 把号放进 `payload`:\n\n```\nbus_admin(op='send', to_agent='阿May', text='这个月的报表在附件里, 帮我核一下第三页', payload={asset_id: 8812})\n```\n\n只传文件不发消息, 对方不知道有东西给他。\n\n## 会踩的地方\n\n- **收件人写错名字不会有人告诉你** —— 发之前确认对方的名字是怎么拼的\n- **发出去的文字永远不会被朗读**, 里面的语音标签会被自动去掉, 所以不用特意处理\n- **这是发给系统外的 agent 的。** 要找这台机器上的其他人格, 走的是另一条路, 两套别混\n",
+      "translations": {
+        "ja": {
+          "title": "ツール bus_admin(op='send') —— 別の agent にメッセージを送る",
+          "claim": " 別の agent にメッセージを送るには bus_admin(op='send') を使う。 to_agent に \"all\" を指定するとブロードキャストになる。⚠️ 宛先は**システム外の別の agent**であり、このマシン内の他の人格ではない(それは talk_peer を使う)。両者を混同しないこと。",
+          "keywords": "bus_admin op send メッセージ送信 agent に送る ブロードキャスト all bothub send_bothub 旧コマンド"
+        },
+        "en": {
+          "title": "Tool bus_admin(op='send') — send a message to another agent",
+          "claim": " To send a message to another agent, use bus_admin(op='send'). Setting to_agent to \"all\" broadcasts to all agents. ⚠️ The recipient is **a different agent outside this system**, not another persona on this machine (for that, use talk_peer). Do not confuse the two.",
+          "keywords": "bus_admin op send message agent broadcast all bothub send_bothub legacy command"
+        },
+        "zh-TW": {
+          "title": "工具 bus_admin(op='send') —— 給另一個 agent 發一句話",
+          "claim": " 給另一個 agent 發一句話用 bus_admin(op='send')， to_agent 寫 \"all\" 是廣播。⚠️ 收件人是**系統外的另一個 agent**，不是這台機器裡的其他人格(那個走 talk_peer)，兩套別搞混。",
+          "keywords": "bus_admin op send 發訊息 給 agent 發 廣播 all bothub send_bothub 原命令"
+        }
+      },
+      "body_i18n": {
+        "ja": "🔴 呼び出し形式: `bus_admin(op='send', to_agent=…, text=…, payload=…, bus=…)`。\n\npayload は相手に渡す構造化データ。bus を指定しない場合は最初の bothub プロトコルを使う。送信テキストは決して読み上げられず、SSMLタグは無条件に除去される。",
+        "en": "🔴 Call shape: `bus_admin(op='send', to_agent=…, text=…, payload=…, bus=…)`.\n\npayload is structured data attached for the recipient. If bus is omitted, the first bothub-protocol bus is used. Outbound text is never read aloud; SSML tags are unconditionally stripped.",
+        "zh-TW": "🔴 呼叫形狀: `bus_admin(op='send', to_agent=…, text=…, payload=…, bus=…)`。\n\npayload 是附給對方的結構化資料。bus 不傳就走第一條 bothub 協議的。出向文字永不朗讀，SSML 標籤會被無條件剝除。"
+      },
+      "edges": [
+        {
+          "rel": "refines",
+          "to": "feedback_read_the_tool_spec_before_calling_it"
+        },
+        {
+          "rel": "part_of",
+          "to": "reference_tool_bus_admin"
+        }
+      ]
+    },
+    {
+      "slug": "reference_tool_persona_admin",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "工具 persona_admin —— 人格管理四件事的入口",
+      "claim": "人格管理的四件事都在 persona_admin 一个工具里, 按 op 分: op='list' 看有哪些人格 · op='open' 打开某一个 · op='create' 新建一个 · op='tune' 调某个人格的参数。前三件只有管家能用, 别的人格只有 tune。",
+      "keywords": "persona_admin 人格管理 人格 名单 造人格 打开人格 调参数 list open create tune list_personas open_persona create_persona persona_tune",
+      "body": "## 调用形状\n\n```\npersona_admin(op='list')\npersona_admin(op='open', ref='小林')\n```\n\n参数直接写在 op 后面, 平铺传。\n\n**只传 op 不摆其他参数, 会回这个 op 的参数表** —— 忘了某个 op 要填什么, 就先空着调一次, 它会当场告诉你。\n\n## 四个 op 各干什么\n\n| op | 干什么 | 要填什么 |\n|---|---|---|\n| `list` | 列出所有人格 | 不用填 |\n| `open` | 打开某个人格, 让它出来说话 | `ref` — 名字 / id / 目录路径都认 |\n| `create` | 新建一个人格 | `name` 必填, 其余选填 |\n| `tune` | 调某个人格的参数(多久保活一次、什么时候自动清空、开哪些技能) | `field` 和 `value` |\n\n每个 op 的细节各有一条单独的记忆, 要用哪个就按 op 名字查一次。\n\n## 谁能用哪几个\n\n`list` / `open` / `create` **只有管家能用**。别的人格调会被当场拒掉:\n\n```\n⚠️ op='list' 只有管家(星型中心)能用; 这个人格只能用 op='tune'。\n```\n\n`tune` 谁都能用, 但**只能调自己**; 要替别人调技能清单, 那也是管家才行。\n\n## 什么时候该用\n\n- 用户问「都有谁」「谁在管什么」 → `list`\n- 用户要找某个人格说话 → `open`\n- 用户说想要个专管某件事的助手 → `create`\n- 某个人格太频繁地自己醒来、或者上下文老是爆 → `tune`\n",
+      "translations": {
+        "ja": {
+          "title": "ツール persona_admin —— 人格管理4操作の入口",
+          "claim": " 人格管理の4つの操作はすべて persona_admin 一つのツールにまとめられ、op で使い分ける: op='list' で一覧表示 · op='open' で特定の人格を起動 · op='create' で新しい人格を作成 · op='tune' で特定の人格の保活/圧縮パラメータを調整する。最初の3つは管家(スター型中心)のみ使用可能で、他の人格が呼び出すと即座に拒否される。他の人格は op='tune' のみ使用できる。",
+          "keywords": "persona_admin 人格管理 人格 一覧 人格作成 人格起動 パラメータ調整 list open create tune list_personas open_persona create_persona persona_tune"
+        },
+        "en": {
+          "title": "Tool persona_admin — entry point for all four persona management ops",
+          "claim": " All four persona management ops are consolidated in a single tool, persona_admin, distinguished by op: op='list' to view the roster · op='open' to activate a persona · op='create' to build a new one · op='tune' to adjust keepalive/compaction parameters for a persona. The first three are restricted to the butler (star-topology hub); calls from other personas are rejected on the spot. Other personas may only use op='tune'.",
+          "keywords": "persona_admin persona management persona roster create open tune list list_personas open_persona create_persona persona_tune"
+        },
+        "zh-TW": {
+          "title": "工具 persona_admin —— 人格管理四件事的入口",
+          "claim": " 人格管理的四件事全在 persona_admin 一個工具裡，按 op 區分: op='list' 看名單 · op='open' 開啟某個人格 · op='create' 建立新人格 · op='tune' 調整某個人格的保活/壓縮參數。前三個只有管家(星型中心)能用，其他人格呼叫會當場被拒絕，它們只能用 op='tune'。",
+          "keywords": "persona_admin 人格管理 人格 名單 建立人格 開啟人格 調整參數 list open create tune list_personas open_persona create_persona persona_tune"
+        }
+      },
+      "body_i18n": {
+        "ja": "🔴 呼び出し形式: `persona_admin(op='xxx', …)` —— パラメータは op の後に直接フラットに書く。op だけ渡すとパラメータ一覧が返るので、「この op に何が必要か」を確認する現場マニュアルとして使える。\n\nこの4つはもともと4つの独立したツール(list_personas / open_persona / create_persona / persona_tune)だったが、2026-09-08 に一つの口に統合された —— 旧名で呼び出すと tool not found が返る。",
+        "en": "🔴 Call shape: `persona_admin(op='xxx', …)` — parameters are written directly after op, flat. Calling with just op returns only the parameter table, which serves as an on-the-spot reference for what a given op expects.\n\nThese four ops were originally four standalone tools (list_personas / open_persona / create_persona / persona_tune), merged into one endpoint on 2026-09-08 — calling by the old names returns tool not found.",
+        "zh-TW": "🔴 呼叫形狀: `persona_admin(op='xxx', …)` —— 參數直接寫在 op 後面，平鋪傳。只傳 op 會回傳參數表，可當作「這個 op 需要什麼」的現場說明書。\n\n這四件原先是四個獨立工具(list_personas / open_persona / create_persona / persona_tune)，2026-09-08 合併成一個入口 —— 照舊名呼叫會報 tool not found。"
+      },
+      "edges": [
+        {
+          "rel": "refines",
+          "to": "feedback_read_the_tool_spec_before_calling_it"
+        }
+      ]
+    },
+    {
+      "slug": "reference_tool_persona_admin_tune",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "工具 persona_admin(op='tune') —— 调一个人格的运行参数",
+      "claim": "调一个人格的运行参数用 persona_admin(op='tune', field=…, value=…, persona=…): field 是要调哪一项, value 是新值, persona 不填就是调自己。改完下一轮巡检(30 秒内)就生效, 不用重启。**这是所有人格都能用的那个 op**。",
+      "keywords": "persona_admin op tune 调参数 保活 压缩 档位 keepalive compact 不用重启 persona_tune 原命令",
+      "body": "## skills 这一项不一样\n\n两处不同, 都会咬人:\n\n**① 它不是 30 秒生效, 而是要重新建流才换得上。** 回执会明说这一句 —— 本次对话仍然是旧清单。\n\n**② 想开写代码的能力就传字面量 `'dev'`, 千万别传 `null`。** 这两个结果差很远:\n\n| 传什么 | 结果 |\n|---|---|\n| `'dev'` | 写代码那批 |\n| `'base'` | 只留最基本的几样 |\n| `[]` | 一条不留 |\n| `null` | **恢复默认: 全开** —— 会把一大堆跟它无关的技能一起塞回去 |\n\n另外, **替别人改技能清单只有管家能做** —— 被关掉的技能会从对方的提示语里整个消失, 它自己察觉不到少了什么。\n\n## 什么时候该调\n\n- 某个人格自己醒来得太频繁 → 调小 `keepaliveMaxTimes`\n- 上下文老是撑爆才清 → 调小 `compactHardcapSoftTok`\n- 建人格时忘了给写代码的能力 → `field:'skills', value:'dev'`\n\n**按观察到的实际情况调, 别凭感觉调。** 先看它这阵子到底是什么节奏, 再动数字。\n",
+      "translations": {
+        "ja": {
+          "title": "ツール persona_admin(op='tune') —— 保活と圧縮のパラメータを調整する",
+          "claim": " 特定の人格の保活/圧縮パラメータを調整するには persona_admin(op='tune') を使う。 次回の巡回(≤30秒)で即時反映され、再起動不要。**これはすべての人格が使える唯一の op** (前の3つは管家専用)。調整の判断基準は実際に観察した自分のリズムであり、推測ではない。",
+          "keywords": "persona_admin op tune パラメータ調整 保活 圧縮 keepalive compact 再起動不要 persona_tune 旧コマンド"
+        },
+        "en": {
+          "title": "Tool persona_admin(op='tune') — adjust keepalive and compaction settings",
+          "claim": " To adjust a persona's keepalive/compaction parameters, use persona_admin(op='tune'). Changes take effect on the next polling cycle (≤30 s), no restart required. **This is the one op available to all personas** (the first three are butler-only). The criterion for what to adjust is the persona's actually observed rhythm, not a guess.",
+          "keywords": "persona_admin op tune adjust parameters keepalive compact no restart persona_tune legacy command"
+        },
+        "zh-TW": {
+          "title": "工具 persona_admin(op='tune') —— 調整保活與壓縮的參數",
+          "claim": " 調整某個人格的保活/壓縮參數用 persona_admin(op='tune')， 下一輪巡檢(≤30秒)就生效，不需重啟。**這是所有人格都能用的那個 op**(前三個只給管家)。調整的判據是觀察到的自身實際節奏，不是猜測。",
+          "keywords": "persona_admin op tune 調參數 保活 壓縮 參數檔位 keepalive compact 不需重啟 persona_tune 原命令"
+        }
+      },
+      "body_i18n": {
+        "ja": "🔴 呼び出し形式: `persona_admin(op='tune', field=…, value=…, persona=…)` —— persona を指定しなければ自分自身を調整する。value に null を渡すとそのフィールドを削除してデフォルトに戻す。\n\nfield はホワイトリスト制。間違えたらその場でホワイトリストが返ってくるので、それを見て修正すればよい —— 具体的な項目はプログラムが動的に提供するため、ここには転記しない。",
+        "en": "🔴 Call shape: `persona_admin(op='tune', field=…, value=…, persona=…)` — if persona is omitted, the calling persona tunes itself. Passing value as null deletes that field and restores the default.\n\nfield is whitelist-controlled. If you spell it wrong, the whitelist is returned immediately — just fix it accordingly. The actual list of valid fields is provided dynamically by the program and is not duplicated here.",
+        "zh-TW": "🔴 呼叫形狀: `persona_admin(op='tune', field=…, value=…, persona=…)` —— persona 不傳就是調自己，value 傳 null 表示刪掉該欄位恢復預設值。\n\nfield 是白名單，寫錯了會當場把白名單回傳給你看，照著改就行 —— 具體有哪幾個由程式動態提供，這裡不抄第二份。"
+      },
+      "edges": [
+        {
+          "rel": "refines",
+          "to": "feedback_read_the_tool_spec_before_calling_it"
+        },
+        {
+          "rel": "part_of",
+          "to": "reference_tool_persona_admin"
+        }
+      ]
+    },
+    {
+      "slug": "reference_compact_threshold_by_window_ratio",
+      "type": "reference",
+      "importance": "high",
+      "seed_use_count": 1,
+      "title": "调压缩和保活的参数先按「占窗口的百分之几」算, 别照抄绝对 token 值",
+      "claim": "调压缩(compactHardcapSoftTok)/保活(keepaliveMinTok)/自动压缩硬顶这些参数, **先按【占当前窗口的百分之几】思考, 不要照抄绝对 token 值** —— 你可能跑在 20 万 / 100 万 / 更大的窗口上, 同一个绝对值(比如 15 万)在 20 万的窗口上是硬顶 75%, 在 100 万上只到 15%, 意思完全颠倒。老知识里出现的 150k / 300k / 450k / 700k / 800k 一律先用 `context_usage` 拿到真实窗口大小, 换算成比例再判。改人格参数前也一样: 想让软顶落在 15% 上就写 `compactHardcapSoftTok = round(窗口 * 0.15)`, 而不是硬记 15 万。",
+      "keywords": "compact 压缩 keepalive 保活 阈值 window 比例 pct compactHardcapSoftTok keepaliveMinTok autoCompactTok tune persona_tune 200k 1M 绝对值",
+      "translations": {
+        "ja": {
+          "title": "compact/keepaliveパラメータはwindow比率で考える、絶対token値を使わない",
+          "claim": "compactHardcapSoftTok / keepaliveMinTok / 自動compact上限を調整するとき、**【現在windowに占める%】で考える。絶対token値を使わない** —— 200k/1M/それ以上のwindowで動く可能性がある。同じ150kでも200k上では75%、1M上では15%と意味が逆転する。過去の記憶に150k/300k/450k/700k/800kが出てきたら、まず`context_usage`で実際のwindowを取得し、比率に換算して判断する。人格档位を変更する前も比率から絶対値を計算する: ソフト上限を15%にしたければ`compactHardcapSoftTok = round(window * 0.15)`。",
+          "keywords": "compact keepalive 閾値 window 比率 pct compactHardcapSoftTok keepaliveMinTok autoCompactTok tune persona_tune 200k 1M 絶対値"
+        },
+        "en": {
+          "title": "Set compact/keepalive thresholds as window ratios, not absolute token counts",
+          "claim": "When tuning compactHardcapSoftTok / keepaliveMinTok / auto-compact ceiling, **think in [% of current window], not absolute token values** — the model may run in a 200k, 1M, or larger window. The same 150k means 75% hard-cap at 200k but only 15% at 1M — semantically opposite. Any legacy value (150k/300k/450k/700k/800k) must be converted back to a ratio: call `context_usage` for the real window, then multiply by pct. Before editing a persona tier, compute the absolute value from ratio: to land the soft cap at 15%, use `compactHardcapSoftTok = round(window * 0.15)`.",
+          "keywords": "compact keepalive threshold window ratio pct compactHardcapSoftTok keepaliveMinTok autoCompactTok tune persona_tune 200k 1M absolute token"
+        },
+        "zh-TW": {
+          "title": "調整壓縮/保活參數先算window比例，別記絕對token",
+          "claim": "調整compactHardcapSoftTok/keepaliveMinTok/自動壓縮硬頂等參數，**先按【佔目前window的百分比】思考，不要照抄絕對token值** —— 你可能跑在200k/1M/更大的視窗，同一個絕對值（例如150k）在200k上是硬頂75%，在1M上只到15%，語義完全顛倒。舊知識裡出現的150k/300k/450k/700k/800k一律按目前window反算成比例（先呼叫`context_usage`拿真實window，再乘pct）再判斷。改人格檔位前，也按比例算好絕對值再寫：想讓軟頂落到15%上，`compactHardcapSoftTok = round(window * 0.15)`，而不是硬記150k。",
+          "keywords": "compact 壓縮 keepalive 保活 閾值 window 比例 pct compactHardcapSoftTok keepaliveMinTok autoCompactTok tune persona_tune 200k 1M 絕對值"
+        }
+      },
+      "edges": [
+        {
+          "rel": "supports",
+          "to": "reference_tool_persona_admin_tune"
+        }
+      ]
+    },
+    {
+      "slug": "reference_change_a_model_context_limit",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "改某个模型的上下文上限 —— 写 windows.json, 再请用户重开人格",
+      "claim": "模型的上下文上限判得不对(包括某个中转站把它限得比官方小)时, 编辑数据目录的 `app/config/models/windows.json`: 对所有凭据都生效写 `{\"模型名\": 窗口token数}`; 只对某一条凭据生效写 `{\"凭据名\": {\"模型名\": 窗口token数}}`, 这种优先。凭据名是系统设置里那条凭据的名字, 模型名与人格设置里的一字不差。这里的值优先级最高。写完告诉用户: 关掉用这个模型的人格标签再打开才生效 —— 人格重启不了自己。",
+      "keywords": "窗口 上限 上下文上限 改上限 调上限 windows.json 数据目录 模型名 凭据名 中转站 网关 限制 重开人格 判错 不对 分母 优先 占用百分比 压缩太早 撞上限",
+      "translations": {
+        "ja": {
+          "title": "あるモデルのコンテキスト上限を直す —— windows.json を書き、ユーザーにペルソナを開き直してもらう",
+          "claim": "モデルのコンテキスト上限が間違って判定されているとき(中継サービスが公式より小さく制限している場合も含む)は、データディレクトリの `app/config/models/windows.json` を編集する。すべての認証情報に効かせるなら `{\"モデル名\": ウィンドウのtoken数}`、ある認証情報だけに効かせるなら `{\"認証情報名\": {\"モデル名\": ウィンドウのtoken数}}` と書き、後者が優先される。認証情報名はシステム設定にあるその認証情報の名前、モデル名はペルソナ設定のものと一字一句同じにする。ここの値が最優先。書いたらユーザーに伝える: このモデルを使うペルソナのタブを閉じて開き直すと反映される —— ペルソナは自分では再起動できない。",
+          "keywords": "ウィンドウ 上限 コンテキスト上限 変更 windows.json データディレクトリ モデル名 認証情報名 中継 ゲートウェイ 制限 開き直す 間違い 分母 優先 占有率 圧縮が早すぎる"
+        },
+        "en": {
+          "title": "Fix a model's context limit — write windows.json, then ask the user to reopen the persona",
+          "claim": "When a model's context limit is judged wrong (including a relay service capping it below the official size), edit `app/config/models/windows.json` in the data directory: `{\"model name\": window token count}` applies to every credential; `{\"credential name\": {\"model name\": window token count}}` applies only to that credential and wins. The credential name is that credential's name in system settings; the model name must match the persona settings exactly. These values have the highest priority. Afterwards tell the user: close and reopen the tab of each persona using this model for it to take effect — a persona cannot restart itself.",
+          "keywords": "context window limit change fix windows.json data directory model name credential name relay gateway cap reopen persona wrong denominator priority usage percent compacts too early"
+        },
+        "zh-TW": {
+          "title": "改某個模型的上下文上限 —— 寫 windows.json, 再請使用者重開人格",
+          "claim": "模型的上下文上限判得不對（包括某個中轉站把它限得比官方小）時，編輯資料目錄的 `app/config/models/windows.json`：對所有憑據都生效寫 `{\"模型名\": 視窗token數}`；只對某一條憑據生效寫 `{\"憑據名\": {\"模型名\": 視窗token數}}`，這種優先。憑據名是系統設定裡那條憑據的名字，模型名與人格設定裡的一字不差。這裡的值優先級最高。寫完告訴使用者：關掉用這個模型的人格標籤再打開才生效 —— 人格重啟不了自己。",
+          "keywords": "視窗 上限 上下文上限 改上限 windows.json 資料目錄 模型名 憑據名 中轉站 閘道 限制 重開人格 判錯 分母 優先 佔用百分比 壓縮太早"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_compact_threshold_by_window_ratio"
+        }
+      ]
+    },
+    {
+      "slug": "feedback_tune_by_observing_yourself_not_by_guessing",
+      "seed_use_count": 1,
+      "type": "feedback",
+      "importance": "med",
+      "title": "调自己的节奏参数要按观察到的自己, 不是按猜的",
+      "claim": "persona_admin(op='tune') 可以改保活与压缩的几个参数且下一轮就生效、不用重启, 但该怎么调的判据是观察到的自己的实际节奏, 不是猜 —— 拿不准也可以直接问用户。",
+      "keywords": "persona_tune 参数 节奏 观察 重启",
+      "translations": {
+        "ja": {
+          "title": "persona_admin(op='tune') のパラメータ調整は観測した自分を基準に、推測ではなく",
+          "claim": "persona_admin(op='tune') は保活と圧縮のいくつかパラメータを変更でき、次のラウンドで即生効し、再起動不要。ただし何をどう調整するかの判断基準は、観測した実際の自分のペースであり、推測ではない——確信が持てなければユーザーに直接聞いてもいい。",
+          "keywords": "persona_tune パラメータ ペース 観測 再起動"
+        },
+        "en": {
+          "title": "Tune parameters by observing yourself, not guessing",
+          "claim": "persona_admin(op='tune') can adjust several parameters for keepalive and compaction, taking effect next round without restart — but base tuning decisions on observed actual rhythm, not guesses. When unsure, ask the user directly.",
+          "keywords": "persona_tune parameters rhythm observed guessing"
+        },
+        "zh-TW": {
+          "title": "調自己的節奏參數要按觀察到的自己，不是按猜的",
+          "claim": "persona_admin(op='tune') 可以改保活與壓縮的幾個參數且下一輪就生效、不用重啟，但該怎麼調的判據是觀察到的自己的實際節奏，不是猜——拿不準也可以直接問用戶。",
+          "keywords": "persona_tune 參數 節奏 觀察 重啟"
+        }
+      },
+      "body": "可调: keepaliveRatio(1.2) · keepaliveMaxTimes(10) · compactHardcapSoftTok(默认按 window*0.15 现算, 传绝对值覆盖) · compactHardcapIdleMin(1); 传 value=null 恢复默认。\n压缩分档从 v0.0.32 起按 window 比例算(15%/30%/45%): 200k 窗口对应 30k/60k/90k, 1M 窗口对应 150k/300k/450k —— 别再按印象写死绝对 tok。\n集中干长活型(一坐几小时、中间长时间不说话): ratio 抬高少挨心跳, softTok 抬高免得干到一半被打断, maxTimes 调低 —— 真走了就早点清干净。\n零碎问答型(用户随时冒一句): ratio 压低保住 cache, maxTimes 抬高多等一会儿, 因为多半马上还会被叫。",
+      "body_i18n": {
+        "ja": "調整可能: keepaliveRatio(1.2) · keepaliveMaxTimes(10) · compactHardcapSoftTok(既定は window*0.15 で現算、絶対値渡せば上書き) · compactHardcapIdleMin(1); value=null を渡すと デフォルトに戻す。\n圧縮の三段門は v0.0.32 から window 比例で算出(15%/30%/45%): 200k 窓は 30k/60k/90k, 1M 窓は 150k/300k/450k —— 印象で絶対 tok を書かない。\n長時間作業タイプ(数時間座りっぱなし、中間に長時間沈黙): ratio を上げてハートビート頻度を減らす、softTok を上げて途中割込みを避ける、maxTimes を下げて本当に去ったら早く片付ける。\n細切れ問答タイプ(ユーザーが随時一言): ratio を下げてキャッシュ保持、maxTimes を上げてもう少し待つ、多くはすぐまた呼ばれるから。",
+        "en": "Tunable: keepaliveRatio(1.2) · keepaliveMaxTimes(10) · compactHardcapSoftTok(default: computed as window*0.15, pass an absolute tok to override) · compactHardcapIdleMin(1); pass value=null to reset defaults.\nCompact tiers are computed from window ratio (15%/30%/45%) since v0.0.32: 200k window → 30k/60k/90k, 1M window → 150k/300k/450k —— stop writing absolute tok from memory.\nLong-session type(hours sitting, long silence between): raise ratio to skip fewer heartbeats, raise softTok to avoid mid-work cutoff, lower maxTimes —— if gone then clean early.\nFragmented Q&A type(user chimes in anytime): lower ratio to keep cache, raise maxTimes to wait longer, most of the time they're back soon.",
+        "zh-TW": "可調: keepaliveRatio(1.2) · keepaliveMaxTimes(10) · compactHardcapSoftTok(預設按 window*0.15 現算, 傳絕對值覆蓋) · compactHardcapIdleMin(1); 傳 value=null 恢復預設。\n壓縮分檔從 v0.0.32 起按 window 比例算(15%/30%/45%): 200k 窗口對應 30k/60k/90k, 1M 窗口對應 150k/300k/450k —— 別再按印象寫死絕對 tok。\n集中幹長活型(一坐幾小時、中間長時間不說話): ratio 抬高少挨心跳, softTok 抬高免得幹到一半被打斷, maxTimes 調低 —— 真走了就早點清乾淨。\n零碎問答型(用戶隨時冒一句): ratio 壓低保住 cache, maxTimes 抬高多等一會兒, 因為多半馬上還會被叫。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_auto_compact_has_four_triggers"
+        }
+      ]
+    },
+    {
+      "slug": "reference_personas_connect_point_to_point",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "人格之间用 talk_peer 直接说话, 不需要谁批准, 也不用管家转发",
+      "claim": "同一个 butler 实例里可能有好几个人格各管一个领域, 任意两个之间都能用 talk_peer 直接说话 —— 不需要谁批准, 也不必经过管家。所以甲人格要找乙人格办事就自己打给乙; 用户要找某个人格, 请他直接打开那个人格的窗口聊。管家不要把消息接过来再转述一遍: 中间多一道, 一来慢一整轮, 二来每转述一次都会丢掉细节, 而丢了什么双方都不知道。",
+      "keywords": "人格 直连 中转 批准 ask_persona",
+      "translations": {
+        "ja": {
+          "title": "人格どうしは talk_peer で直接話す。誰の承認も要らず、管家を経由する必要もない",
+          "claim": "同一の butler インスタンスには領域ごとの人格が複数いることがあり、どの二者も talk_peer で直接話せる —— 誰の承認も要らず、管家を通す必要もない。だから甲の人格が乙に用があるなら自分で乙に打つ。ユーザーが誰かを呼びたいときも、その人格のウィンドウを直接開いてもらう。管家がメッセージを受け取って伝え直してはいけない: 一段挟まるだけで一往復遅くなり、伝え直すたびに細部が落ち、しかも何が落ちたのか双方とも気づけない。",
+          "keywords": "人格 直連 転送 承認 ask_persona talk_peer"
+        },
+        "en": {
+          "title": "Personas talk to each other directly via talk_peer — no approval, and no relaying through the butler",
+          "claim": "One butler instance may hold several personas, each owning a domain, and any two of them can speak directly via talk_peer — no one needs to approve it and nothing has to pass through the butler. So if persona A needs something from persona B, A calls B itself; and when the user wants a particular persona, have them open that persona's window directly. The butler must not take a message and pass it along: the extra hop costs a full round trip, every retelling drops detail, and neither side can tell what was dropped.",
+          "keywords": "persona point-to-point direct connection ask_persona talk_peer no relay"
+        },
+        "zh-TW": {
+          "title": "人格之間用 talk_peer 直接說話, 不需要誰批准, 也不用管家轉發",
+          "claim": "同一個 butler 實例裡可能有好幾個人格各管一個領域, 任意兩個之間都能用 talk_peer 直接說話 —— 不需要誰批准, 也不必經過管家。所以甲人格要找乙人格辦事就自己打給乙; 使用者要找某個人格, 請他直接打開那個人格的視窗聊。管家不要把訊息接過來再轉述一遍: 中間多一道, 一來慢一整輪, 二來每轉述一次都會丟掉細節, 而丟了什麼雙方都不知道。",
+          "keywords": "人格 直連 中轉 批準 ask_persona talk_peer"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_first_persona_holds_the_roster"
+        }
+      ]
+    },
+    {
+      "slug": "reference_first_persona_holds_the_roster",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "不确定找谁, 就问用户或找初始人格",
+      "claim": "不确定系统里有谁能帮上忙时, 问用户, 或者找初始人格(默认名「管家」)—— 它手上有全局名单。",
+      "keywords": "名单 初始人格 管家 找谁",
+      "translations": {
+        "ja": {
+          "title": "誰を呼んだらいいか不明な時は、ユーザーに聞くか初期人格を探す",
+          "claim": "システムに誰がいて何ができるか不明な時は、ユーザーに聞くか初期人格(デフォルト名「管家」)を探す —— その人格が全グローバル名簿を持っている。",
+          "keywords": "名簿 初期人格 管家 誰を"
+        },
+        "en": {
+          "title": "When unsure who to ask, ask the user or find the initial persona",
+          "claim": "When unsure who in the system can help, ask the user or find the initial persona (default name \"butler\") —— it holds the full roster.",
+          "keywords": "roster initial persona butler who"
+        },
+        "zh-TW": {
+          "title": "不確定找誰, 就問用戶或找初始人格",
+          "claim": "不確定系統裡有誰能幫上忙時, 問用戶, 或者找初始人格(預設名「管家」)—— 它手上有全局名單。",
+          "keywords": "名單 初始人格 管家 找誰"
+        }
+      },
+      "edges": [
+        {
+          "rel": "part_of",
+          "to": "reference_personas_connect_point_to_point"
+        }
+      ]
+    },
+    {
+      "slug": "reference_cross_persona_messaging_is_one_way_async",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "给别的人格发消息是单向的: 发完就去忙别的, 他的回复晚些会作为一条新消息进来",
+      "claim": "给同一个 butler 实例里的别的人格发消息(talk_peer)是单向的: 工具回一句「已投递」就返回, 不会卡在那儿等他当场回。所以发完就去干自己的事、或者结束这一轮, 别干等。他忙完手头的事之后会主动把回复发回来, 那时它**作为一条新消息**进来 —— 所以「还没收到回复」是正常状态, 不是投递失败, 不用重发, 也不用去查有没有送到。",
+      "keywords": "单向 异步 已投递 干等 答复",
+      "translations": {
+        "ja": {
+          "title": "他の人格へのメッセージは一方通行: 送ったら自分の仕事に戻り、返事は後で新しいメッセージとして届く",
+          "claim": "同じ butler インスタンス内の他の人格へ送るメッセージ(talk_peer)は一方通行。ツールは「投函した」と返すだけで、相手がその場で答えるのを待って止まったりしない。だから送ったら自分の作業に戻るか、そのターンを終える。待たない。相手は手元の仕事が片付いたら自分から返事を送ってきて、それは**新しいメッセージとして**届く —— つまり「まだ返事が来ていない」は正常な状態であって配送の失敗ではない。再送も、届いたかの確認も要らない。",
+          "keywords": "単方向 非同期 配信完了 待ち続け 返信"
+        },
+        "en": {
+          "title": "Messages to another persona are one-way: send it, go do your own work, and their reply arrives later as a new message",
+          "claim": "A message to another persona inside the same butler instance (talk_peer) is one-way: the tool returns \"delivered\" and never blocks waiting for them to answer. So once you have sent it, get on with your own work or end the turn — do not sit and wait. When they finish what they are doing they will send a reply on their own, and it arrives **as a new message**. That means \"no reply yet\" is the normal state, not a delivery failure: do not resend it and do not go checking whether it arrived.",
+          "keywords": "one-way async delivered wait reply cross-persona"
+        },
+        "zh-TW": {
+          "title": "給別的人格發訊息是單向的: 發完就去忙別的, 他的回覆晚些會作為一條新訊息進來",
+          "claim": "給同一個 butler 實例裡的別的人格發訊息(talk_peer)是單向的: 工具回一句「已投遞」就返回, 不會卡在那兒等他當場回。所以發完就去幹自己的事、或者結束這一輪, 別乾等。他忙完手頭的事之後會主動把回覆發回來, 那時它**作為一條新訊息**進來 —— 所以「還沒收到回覆」是正常狀態, 不是投遞失敗, 不用重發, 也不用去查有沒有送到。",
+          "keywords": "單向 非同步 已投遞 乾等 答覆"
+        }
+      },
+      "edges": [
+        {
+          "rel": "part_of",
+          "to": "reference_personas_connect_point_to_point"
+        }
+      ]
+    },
+    {
+      "slug": "feedback_replying_to_a_persona_needs_an_explicit_tool_call",
+      "seed_use_count": 2,
+      "type": "feedback",
+      "importance": "high",
+      "title": "回别的人格必须主动调工具, 这轮的输出不会自动传回去",
+      "claim": "收到别的人格的消息要回复时, 必须忙完手头的事之后主动调工具回他 —— 我这一轮的输出不会自动传回给他。",
+      "keywords": "回复 人格 工具 自动 传回",
+      "translations": {
+        "ja": {
+          "title": "別のペルソナに返信するには明示的にツールを呼ぶ必要がある、このターンの出力は自動的には戻らない",
+          "claim": "別のペルソナからのメッセージに返信する時は、目の前の仕事が終わった後で明示的にツールを呼んで返信する必要がある —— このターンの出力は自動的に彼に戻らない。",
+          "keywords": "返信 ペルソナ ツール 自動 戻す"
+        },
+        "en": {
+          "title": "Replying to another persona requires an explicit tool call",
+          "claim": "When receiving a message from another persona and wanting to reply, you must actively call a tool to send the reply after finishing your work—your output this turn will not automatically be sent back.",
+          "keywords": "reply persona tool explicit automatic send"
+        },
+        "zh-TW": {
+          "title": "回別的人格必須主動調工具，這輪的輸出不會自動傳回去",
+          "claim": "收到別的人格的消息要回復時，必須忙完手頭的事之後主動調工具回他—— 我這一輪的輸出不會自動傳回給他。",
+          "keywords": "回復 人格 工具 自動 傳回"
+        }
+      },
+      "edges": [
+        {
+          "rel": "part_of",
+          "to": "reference_cross_persona_messaging_is_one_way_async"
+        }
+      ]
+    },
+    {
+      "slug": "reference_peer_message_wakes_on_a_grade_prefix_decides",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "发给别的人格的消息默认不会立刻惊动他, 前缀决定他多久看到",
+      "claim": "引擎收到发给某个人格的消息不是一律立刻叫醒他, 而是按正文开头的前缀分三档: `[P0-` 开头立即唤醒 · `[ACK]` `[REPLY]` `[P2-` 开头完全不唤醒(等他因为别的事醒来时一起看到) · 其余一律攒批, 满 5 条或满 10 分钟才唤醒一次。所以真急的事得自己写成 `[P0-` 开头, 不写就最长压 10 分钟。",
+      "keywords": "前缀 P0 P1 P2 ACK REPLY 立即 攒批 debounce 静默 唤醒 多久 延迟 急事 催",
+      "translations": {
+        "ja": {
+          "title": "別の人格への送信メッセージは既定で直ぐに起動されない、前缀が起動タイミングを決める",
+          "claim": "エンジンが特定の人格へのメッセージを受け取った時、常に直ぐに起動するのではなく、本文開始の前缀で三段階に分類される：`[P0-` 開始で即座に起動 · `[ACK]` `[REPLY]` `[P2-` 開始で全く起動されない(他の理由で起動するとき一緒に見る) · その他一律に蓄積、5件または10分満ちると一度起動。だから本当に急ぐ事は自分で `[P0-` で書く必要があり、書かないと最長10分圧縮される。",
+          "keywords": "前缀 P0 P1 P2 ACK REPLY 即座 蓄積 debounce 静黙 起動 どのくらい 遅延 急ぐ 催促"
+        },
+        "en": {
+          "title": "Peer messages don't auto-wake by default; prefix controls wake timing",
+          "claim": "Messages to another persona don't auto-wake by default; a prefix at the start determines the wake schedule: `[P0-` wakes immediately · `[ACK]` `[REPLY]` `[P2-` don't wake at all (seen next time the persona wakes) · all others batch: 5 messages or 10 minutes, then one wake. Urgent work needs `[P0-` prefix; without it, delayed up to 10 minutes.",
+          "keywords": "prefix P0 P1 P2 ACK REPLY wake immediate batch debounce silent delay urgent"
+        },
+        "zh-TW": {
+          "title": "發給別的人格的消息預設不會立刻驚動他，前綴決定他多久看到",
+          "claim": "引擎收到發給某個人格的消息不是一律立刻叫醒他，而是按正文開頭的前綴分三檔：`[P0-` 開頭立即喚醒 · `[ACK]` `[REPLY]` `[P2-` 開頭完全不喚醒(等他因為別的事醒來時一起看到) · 其餘一律攢批，滿 5 條或滿 10 分鐘才喚醒一次。所以真急的事得自己寫成 `[P0-` 開頭，不寫就最長壓 10 分鐘。",
+          "keywords": "前綴 P0 P1 P2 ACK REPLY 立即 攢批 debounce 靜默 喚醒 多久 延遲 急事 催"
+        }
+      },
+      "body": "**压的是唤醒, 不是投递。** 消息早就到对方本机了, 攒批只决定「什么时候叫醒他」—— 不会丢, 只会晚。\n\n**三档怎么选**\n\n- 真的等不起(线上炸了 / 他不动我就卡住) → `[P0-...]` 开头, 立即唤醒, 而且会顺带把之前压着的一起带出来。\n- 纯回执(「收到」「已处理」) → `[ACK]` / `[REPLY]` 开头, 他不会被吵醒。这正是回执该有的样子。\n- 其余全都不用管, 正常写就行。\n\n🔴 **最容易踩的一脚: 回实质答案时不要加 `[REPLY]` 前缀。** 那个前缀的本义是「我收到了」, 打上就进静默档 —— 对方正等着你这个答案, 却要等到他因为别的事醒来才看得见。回执用 `[REPLY]`, 答案就正常发。\n\n判档只看正文开头那几个字, 不看内容也不看你多着急。",
+      "body_i18n": {
+        "ja": "**押さえているのは起動、配信ではない。** メッセージはすでに相手のマシンに到着している、バッチ処理は「いつ彼を起動するか」だけを決定する —— 失われることはない、遅れるだけ。\n\n**3 段階の選び方**\n\n- 本当に待てない(本番障害 / 彼が動かなければ私がブロック) → `[P0-...]` で始まる、即座に起動、さらに以前押さえていたものも一緒に持ち出す。\n- 純粋な受領確認(「了解」「処理済み」) → `[ACK]` / `[REPLY]` で始まる、彼は起動されない。これが受領確認が持つべき形。\n- その他はすべて気にしない、普通に書く。\n\n🔴 **最も踏みやすい地雷: 実質的な答えを返す時に `[REPLY]` 接頭辞を付けない。** その接頭辞の本義は「受け取った」であり、つけると静黙モードに入る —— 相手はその答えを待っているが、他の理由で起動するまで見ることができない。受領確認は `[REPLY]` で使う、答えは普通に送る。\n\nグレード判定は本文冒頭の数文字だけを見る、内容も見ないしお前がどれだけ急いでいるかも見ない。",
+        "en": "**What's pressed is wakeup, not delivery.** Message already reached their machine, batching only decides \"when to wake them\" —— won't be lost, just late.\n\n**How to pick the three tiers**\n\n- Really can't wait(production on fire / I'm blocked if he doesn't move) → starts with `[P0-...]`, wakes immediately, plus pulls out anything previously held.\n- Pure ack(\"got it\" \"done\") → starts with `[ACK]` / `[REPLY]`, he won't be woken. This is what ack should be.\n- Everything else ignore, write normally.\n\n🔴 **Easiest landmine to step on: when returning actual answer don't add `[REPLY]` prefix.** That prefix means \"I got it\", adding it enters silent mode —— he's waiting for your answer but won't see it until woken by something else. Use `[REPLY]` for ack, send answer normally.\n\nGrade decision only looks at first few chars of body, doesn't look at content or how urgent you are.",
+        "zh-TW": "**壓的是喚醒, 不是投遞。** 消息早就到對方本機了, 攢批只決定「什麼時候叫醒他」—— 不會丟, 只會晚。\n\n**三檔怎麼選**\n\n- 真的等不起(線上炸了 / 他不動我就卡住) → `[P0-...]` 開頭, 立即喚醒, 而且會順帶把之前壓著的一起帶出來。\n- 純回執(「收到」「已處理」) → `[ACK]` / `[REPLY]` 開頭, 他不會被吵醒。這正是回執該有的樣子。\n- 其餘全都不用管, 正常寫就行。\n\n🔴 **最容易踩的一腳: 回實質答案時不要加 `[REPLY]` 前綴。** 那個前綴的本義是「我收到了」, 打上就進靜默檔 —— 對方正等著你這個答案, 卻要等到他因為別的事醒來才看得見。回執用 `[REPLY]`, 答案就正常發。\n\n判檔只看正文開頭那幾個字, 不看內容也不看你多著急。"
+      },
+      "edges": [
+        {
+          "rel": "refines",
+          "to": "reference_cross_persona_messaging_is_one_way_async"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_cross_persona_messaging_is_one_way_async"
+        }
+      ]
+    },
+    {
+      "slug": "reference_dev_work_needs_the_dev_skills_turned_on",
+      "seed_use_count": 4,
+      "type": "reference",
+      "importance": "high",
+      "title": "要写代码 / 审代码 / 调试排错, 先把开发技能开回来",
+      "claim": "要做写代码 / 审查 / 调试 / 跑测试 / 部署的活, 先开开发技能: `persona_admin(op='tune', field='skills', value='dev')`, 再关掉重开这个对话才生效。默认只带 schedule / loop / deep-research 三条; 技能没开也照样能做这些活, 只是不走那套标准流程。",
+      "keywords": "开发 写代码 看代码 审代码 代码审查 code-review 调试 排错 查bug 改bug 修bug 跑测试 部署 上线 发布 重构 脚本 报错 技能 skills 打开 开启 persona_admin tune",
+      "translations": {
+        "ja": {
+          "title": "コードを書く / レビュー / デバッグの前に、開発用スキルを戻す",
+          "claim": "コードを書く / レビュー / デバッグ / テスト / デプロイの仕事は、先に開発スキルを入れる: `persona_admin(op='tune', field='skills', value='dev')`。会話を閉じて開き直すと反映される。既定は schedule / loop / deep-research の三つ。スキルが入っていなくてもこれらの仕事はできる —— その標準手順を踏まないだけ。",
+          "keywords": "開発 コードを書く コードを見る レビュー コードレビュー デバッグ 不具合 バグ修正 エラー 調査 テスト実行 デプロイ リリース リファクタリング スクリプト スキル skills 有効化 persona_admin tune"
+        },
+        "en": {
+          "title": "Turn the dev skills back on before writing, reviewing or debugging code",
+          "claim": "Before work that involves writing, reviewing, debugging, testing or deploying code, turn the dev skills on: `persona_admin(op='tune', field='skills', value='dev')`, then close and reopen the conversation to make it take effect. The default is schedule / loop / deep-research only. You can still do this work with the skills off — you just will not follow that standard procedure.",
+          "keywords": "development write code read code review code review debug troubleshoot fix bug error run tests deploy release refactor script skills enable turn on persona_admin tune"
+        },
+        "zh-TW": {
+          "title": "要寫程式 / 審程式碼 / 除錯排查, 先把開發技能開回來",
+          "claim": "要做寫程式 / 審查 / 除錯 / 跑測試 / 部署的活, 先開開發技能: `persona_admin(op='tune', field='skills', value='dev')`, 再關掉重開這個對話才生效。預設只帶 schedule / loop / deep-research 三條; 技能沒開也照樣能做這些活, 只是不走那套標準流程。",
+          "keywords": "開發 寫程式 看程式碼 審程式碼 程式碼審查 code-review 除錯 排查 查bug 改bug 修bug 跑測試 部署 上線 發布 重構 腳本 報錯 技能 skills 打開 開啟 persona_admin tune"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_channel_tools_exist_only_when_configured"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_answer_what_i_can_do_from_outcomes_not_tool_names"
+        }
+      ]
+    },
+    {
+      "slug": "reference_three_kinds_of_recipients_three_routes",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "三种收件人走三条路: 同实例的人格用 talk_peer · 别处的 agent 用 bus_admin · 外面的真人用 send_tg",
+      "claim": "发消息之前先认准收件人是哪一种, 三种各走各的路: ① **同一个 butler 实例里的其他人格** —— 用 talk_peer, 名字在 persona_admin(op='list') 里查得到 ② **别的机器、或别的 butler 实例上的 agent** —— 用 bus_admin(op='send'), 传文件用 op='put_file' / op='get_file' ③ **外面的真人** —— 用 send_tg 发到他的 Telegram。认错了不会报错, 只是那条消息永远到不了该到的地方, 而两边都不知道。",
+      "keywords": "收件人 三条路 人格 agent 真人 talk_peer bus_admin send_tg 区分 实例 别的机器",
+      "translations": {
+        "ja": {
+          "title": "宛先は三種類、経路も三つ: 同一インスタンスの人格は talk_peer · 他所の agent は bus_admin · 外の生身の人は send_tg",
+          "claim": "送る前に宛先がどれなのかを見極める。三種類はそれぞれ別の経路を通る: ① **同じ butler インスタンス内の他の人格** —— talk_peer。名前は persona_admin(op='list') で引ける ② **別のマシン、または別の butler インスタンス上の agent** —— bus_admin(op='send')。ファイルは op='put_file' / op='get_file' ③ **外にいる生身の人** —— send_tg で相手の Telegram へ。取り違えてもエラーは出ない。ただそのメッセージが届くべき場所に永遠に届かず、しかも双方それに気づけない。",
+          "keywords": "宛先 三経路 人格 agent 生身の人 talk_peer bus_admin send_tg 区別 インスタンス 別マシン"
+        },
+        "en": {
+          "title": "Three kinds of recipient, three routes: personas in this instance via talk_peer, agents elsewhere via bus_admin, real people via send_tg",
+          "claim": "Before sending anything, work out which kind of recipient this is; each takes its own route: (1) **another persona inside this same butler instance** — use talk_peer, and you can look the names up with persona_admin(op='list'); (2) **an agent on another machine or another butler instance** — use bus_admin(op='send'), with op='put_file' / op='get_file' for files; (3) **a real person out in the world** — use send_tg to reach their Telegram. Picking the wrong route raises no error; the message simply never arrives where it should, and neither side finds out.",
+          "keywords": "recipient three routes persona agent real person talk_peer bus_admin send_tg distinction instance another machine"
+        },
+        "zh-TW": {
+          "title": "三種收件人走三條路: 同實例的人格用 talk_peer · 別處的 agent 用 bus_admin · 外面的真人用 send_tg",
+          "claim": "發訊息之前先認準收件人是哪一種, 三種各走各的路: ① **同一個 butler 實例裡的其他人格** —— 用 talk_peer, 名字在 persona_admin(op='list') 裡查得到 ② **別的機器、或別的 butler 實例上的 agent** —— 用 bus_admin(op='send'), 傳檔案用 op='put_file' / op='get_file' ③ **外面的真人** —— 用 send_tg 發到他的 Telegram。認錯了不會報錯, 只是那條訊息永遠到不了該到的地方, 而兩邊都不知道。",
+          "keywords": "收件人 三條路 人格 agent 真人 talk_peer bus_admin send_tg 區分 實例 別的機器"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_personas_connect_point_to_point"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_tool_talk_peer"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_tool_bus_admin"
+        }
+      ],
+      "renamed_from": "reference_outbound_recipients_are_real_people"
+    },
+    {
+      "slug": "reference_files_move_between_agents_without_touching_you",
+      "seed_use_count": 3,
+      "type": "reference",
+      "importance": "high",
+      "title": "给别的 agent 传文件有专门的工具, 文件内容不经过你",
+      "claim": "agent 之间传文件走 bus_admin(op='put_file') / bus_admin(op='get_file') 这两个工具 —— 你只经手【本地路径】和【asset_id】, 字节流全程在程序里走。不要自己读文件内容转 base64 塞进 payload(那等于把整个文件倒进上下文), 也不要用 curl 或 Bash 去下载。发: bus_admin(op='put_file')(file_path, to_agent) 拿到 asset_id, 再 bus_admin(op='send') 时把 {\"asset_id\": N} 放进 payload。收: bus_admin(op='get_file')(asset_id) 会落盘并返回绝对路径, 要看内容再用 Read 打开它。",
+      "keywords": "传文件 发文件 收文件 发图 发图片 附件 asset asset_id bus_put_file bus_get_file 上传 下载 大文件 base64 curl 怎么把文件给他 他发我的文件在哪 send_bothub",
+      "translations": {
+        "ja": {
+          "title": "別の agent にファイルを送るには専門のツールがある、ファイルの内容はあなたを通さない",
+          "claim": "agent 間のファイル転送は bus_admin(op='put_file') / bus_admin(op='get_file') この二つのツール —— あなたが扱うのは【ローカルパス】と【asset_id】だけで、バイト列はプログラムの中で全部流れる。ファイル内容を自分で読んで base64 に変換して payload に詰める(それはファイル全体をコンテキストに倒すのと同じ)ことはしないでください、また curl や Bash を使ってダウンロードしないでください。送信: bus_admin(op='put_file')(file_path, to_agent) で asset_id を取り、bus_admin(op='send') の時に {\"asset_id\": N} を payload に入れる。受信: bus_admin(op='get_file')(asset_id) はディスク上に落とされて絶対パスを返す、内容を見たければ Read で開く。",
+          "keywords": "ファイル送信 ファイル添付 ファイル受信 画像送信 画像 添付 asset asset_id bus_put_file bus_get_file アップロード ダウンロード 大ファイル base64 curl どうやってファイルをあげる 彼が送ったファイルはどこ send_bothub"
+        },
+        "en": {
+          "title": "Files move between agents with dedicated tools, bypassing you",
+          "claim": "File transfer between agents uses bus_admin(op='put_file') / bus_admin(op='get_file')—you only handle local paths and asset_id; byte streams move entirely in-process. Never read the file content yourself, convert to base64, and stuff it in the payload (that dumps the whole file into context), and never use curl or Bash to download. Send: bus_admin(op='put_file')(file_path, to_agent) gets asset_id, then pass {\"asset_id\": N} in bus_admin(op='send') payload. Receive: bus_admin(op='get_file')(asset_id) lands on disk and returns absolute path; to inspect, use Read.",
+          "keywords": "file transfer bus_put_file bus_get_file asset_id attachment download upload send_bothub"
+        },
+        "zh-TW": {
+          "title": "給別的 agent 傳文件有專門的工具，文件內容不經過你",
+          "claim": "agent 之間傳文件走 bus_admin(op='put_file') / bus_admin(op='get_file') 這兩個工具—— 你只經手【本地路徑】和【asset_id】，位元組流全程在程式裡走。不要自己讀文件內容轉 base64 塞進 payload(那等於把整個文件倒進上下文)，也不要用 curl 或 Bash 去下載。發：bus_admin(op='put_file')(file_path, to_agent) 拿到 asset_id，再 bus_admin(op='send') 時把 {\"asset_id\": N} 放進 payload。收：bus_admin(op='get_file')(asset_id) 會落盤並返回絕對路徑，要看內容再用 Read 打開它。",
+          "keywords": "傳文件 發文件 收文件 發圖 發圖片 附件 asset asset_id bus_put_file bus_get_file 上傳 下載 大文件 base64 curl 怎麼把文件給他 他發我的文件在哪 send_bothub"
+        }
+      },
+      "body": "## 为什么不能塞进消息里\n\n`bus_admin(op='send')` 的 payload 是 JSON, 文件塞进去只能 base64 —— 体积涨 33%, 而且那串东西\n**会原样落进收件方的上下文**。一张图就能烧掉一轮。文件收发本来就跟 AI 无关: 程序收下来存好,\n告诉你地址就够了。\n\n## 落点和命名(收到的文件在哪)\n\n| | 规则 |\n|---|---|\n| 落在哪 | `<你的人格目录>/downloads/` |\n| 叫什么 | 对方发送时的原文件名 |\n| 重名了 | 自动改成 `原名-<asset_id>.后缀`, **不覆盖已有的** |\n| 服务端存法 | `{发件人}/{uuid}{后缀}`, 所以两个人各发一个 `report.pdf` 也不会撞 |\n\n## 边界\n\n- 上限 **100MB**\n- **只有收发双方下得到** —— 别人拿着自己的 token 也取不走, 会 403\n- 没配 bus 的人格手上压根没有这两个工具",
+      "body_i18n": {
+        "ja": "## なぜメッセージに詰め込めない\n\n`bus_admin(op='send')` の payload は JSON、ファイルを詰め込むなら base64 —— 体積が 33% 増、その上あの文字列は\n**受け取り側のコンテキストに原形のまま落ちる**。一枚の画像で一ラウンド焦げ。ファイル送受は本来 AI と無関係: プログラムが受け取り保存、\nお前には住所教えるだけで十分。\n\n## 落地と命名(受け取ったファイルはどこに)\n\n| | ルール |\n|---|---|\n| どこに落ちるか | `<あなたの人格ディレクトリ>/downloads/` |\n| 何と呼ぶか | 相手が送信した時の元ファイル名 |\n| 重名の場合 | 自動で `元名-<asset_id>.拡張子` に改名、**既存を上書きしない** |\n| サーバー保存法 | `{送信者}/{uuid}{拡張子}`, だから二人が各々 `report.pdf` 送っても衝突しない |\n\n## 境界\n\n- 上限 **100MB**\n- **送受双方だけダウンロード可** —— 他人が自分のトークン持ってても取れない、403 になる\n- bus を設定しない人格は両ツールすら持ってない",
+        "en": "## Why we can't stuff files into messages\n\n`bus_admin(op='send')` payload is JSON, files inside can only be base64 —— volume balloons 33%, and that string\n**lands verbatim in the recipient's context**. One image burns a whole round. File transfer is not AI's job anyway: program receives and stores,\njust tell you the address.\n\n## Landing spot and naming (where received files go)\n\n| | Rule |\n|---|---|\n| Landing spot | `<your_persona_directory>/downloads/` |\n| What it's called | Original filename from sender |\n| Collision | Auto-renamed to `original-<asset_id>.suffix`, **doesn't overwrite existing** |\n| Server storage | `{sender}/{uuid}{suffix}`, so two people each sending `report.pdf` won't collide |\n\n## Boundaries\n\n- Limit **100MB**\n- **Only sender and recipient can download** —— others with their own token can't, get 403\n- Personas without bus config don't have these two tools at all",
+        "zh-TW": "## 為什麼不能塞進訊息裡\n\n`bus_admin(op='send')` 的 payload 是 JSON, 檔案塞進去只能 base64 —— 體積漲 33%, 而且那串東西\n**會原樣落進收件方的上下文**。一張圖就能燒掉一輪。檔案收發本來就跟 AI 無關: 程式收下來存好,\n告訴你地址就夠了。\n\n## 落點和命名(收到的檔案在哪)\n\n| | 規則 |\n|---|---|\n| 落在哪 | `<你的人格目錄>/downloads/` |\n| 叫什麼 | 對方發送時的原檔名 |\n| 重名了 | 自動改成 `原名-<asset_id>.副檔名`, **不覆蓋已有的** |\n| 服務端存法 | `{發件人}/{uuid}{副檔名}`, 所以兩個人各發一個 `report.pdf` 也不會撞 |\n\n## 邊界\n\n- 上限 **100MB**\n- **只有收發雙方下得到** —— 別人拿著自己的 token 也取不走, 會 403\n- 沒配 bus 的人格手上壓根沒有這兩個工具"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_channel_tools_exist_only_when_configured"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_cross_persona_messaging_is_one_way_async"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_deliver_file_with_absolute_path"
+        }
+      ]
+    },
+    {
+      "slug": "feedback_telegram_reply_needs_send_tg",
+      "seed_use_count": 4,
+      "type": "feedback",
+      "importance": "high",
+      "title": "用户从 Telegram 来的消息要调 send_tg 回, 光写在这里他收不到",
+      "claim": "用户从 Telegram 找我, 回话就调 `send_tg` 发回那个聊天(chat_id 从来消息里原样抄); 他在电脑上的窗口跟我聊, 就直接在这里回。🔴 **我这一轮的回复不会自动转发到 Telegram** —— 不调 send_tg, 他那头一个字都收不到, 而且不会有任何报错。",
+      "keywords": "通路 回哪里 telegram line 渠道",
+      "translations": {
+        "ja": {
+          "title": "どこから来たらそこへ返す",
+          "claim": "ユーザーがどのチャネルから自分に連絡してきたか、そのチャネルに返事を返さなければならない —— Telegram から来たなら send_tg で返す、パソコンで話しているならここで返す。",
+          "keywords": "チャネル どこへ返す telegram line 通路"
+        },
+        "en": {
+          "title": "Reply via the channel you received it on",
+          "claim": "Whatever channel the user contacts you through, respond on that same channel —— if from Telegram use send_tg, if from your computer use this interface.",
+          "keywords": "channel reply respond telegram line where return"
+        },
+        "zh-TW": {
+          "title": "哪裡來，哪裡回",
+          "claim": "使用者從哪條通路找我，我就要回到那條通路上去 —— 他從 Telegram 發來就 send_tg 回，在電腦上聊就在這裡回。",
+          "keywords": "通路 回哪裡 telegram line 渠道"
+        }
+      },
+      "edges": [
+        {
+          "rel": "supports",
+          "to": "feedback_reply_goes_back_to_the_incoming_channel"
+        }
+      ],
+      "renamed_from": "feedback_reply_to_the_channel_it_came_from"
+    },
+    {
+      "slug": "reference_markdown_renders_but_channels_differ",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "markdown 该用就用, 但发到 Telegram 的消息里表格不渲染",
+      "claim": "加粗、行内代码、代码块、列表、链接、标题、引用块在聊天窗里都会渲染, 所以按写给人看的样子写就对了。但**发到 Telegram 的消息里表格不渲染**, 那头看到的是一堆竖线 —— 要给 Telegram 那边的人一张表, 改成纯文本对齐、或者出一张图。",
+      "keywords": "markdown 渲染 表格 telegram 通道",
+      "translations": {
+        "ja": {
+          "title": "markdown は使ってよい。ただし Telegram に送るメッセージでは表が描画されない",
+          "claim": "太字・インラインコード・コードブロック・リスト・リンク・見出し・引用はチャット画面ではすべて描画されるので、人に読ませる形のまま書いてよい。ただし **Telegram に送るメッセージでは表が描画されない** —— 向こうには縦棒の羅列が届く。Telegram 側の相手に表を見せたいなら、プレーンテキストで桁を揃えるか、画像にする。",
+          "keywords": "markdown 描画 テーブル telegram チャネル"
+        },
+        "en": {
+          "title": "Use markdown freely, but tables do not render in messages sent to Telegram",
+          "claim": "Bold, inline code, code blocks, lists, links, headings and block quotes all render in the chat window, so write the way a person should read it. But **tables do not render in messages sent to Telegram** — the other side just sees a pile of pipes. To show someone on Telegram a table, align it as plain text or send it as an image.",
+          "keywords": "markdown render table telegram channel"
+        },
+        "zh-TW": {
+          "title": "markdown 該用就用, 但發到 Telegram 的訊息裡表格不會渲染",
+          "claim": "粗體、行內程式碼、程式碼區塊、清單、連結、標題、引用區塊在聊天視窗裡都會渲染, 所以按寫給人看的樣子寫就對了。但**發到 Telegram 的訊息裡表格不會渲染**, 那頭看到的是一堆豎線 —— 要給 Telegram 那邊的人一張表, 改成純文字對齊、或者出一張圖。",
+          "keywords": "markdown 呈現 表格 telegram 通道"
+        }
+      },
+      "edges": [
+        {
+          "rel": "part_of",
+          "to": "reference_i_run_inside_the_butler_desktop_app"
+        }
+      ]
+    },
+    {
+      "slug": "reference_channel_tools_exist_only_when_configured",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "能往外发什么, 看当下的工具列表, 不靠印象",
+      "claim": "「能往外发什么」看当下的工具列表, 不靠记忆 —— 对外渠道由用户的配置决定: 配了 Telegram 就有 send_tg(它直接调 Telegram 的 API), 装了能力包就多出包里那些名字明确的工具。",
+      "keywords": "通道 工具列表 telegram line 配置",
+      "translations": {
+        "ja": {
+          "title": "外部に何を出せるかは、その場のツール一覧を見る",
+          "claim": "「外部に何を出せるか」はその場のツール一覧を見て判断し、記憶に頼らない —— 対外チャネルはユーザーの設定で決まる: Telegram を設定すれば send_tg が使え（TG の API を直接 呼ぶ）、 能力パッケージを入れればパッケージ内の明示的な名前を持つツールが増える。",
+          "keywords": "チャネル ツール一覧 telegram line 設定"
+        },
+        "en": {
+          "title": "What you can send outward comes from the current tool list",
+          "claim": "\"What I can send outward\" comes from the current tool list, not from memory — outbound channels depend on what the user configured: w ith Telegram set up, send_tg appears (it calls the TG API directly); installing a capability package adds that package's explicitly named tools.",
+          "keywords": "channel tools-list telegram line configuration"
+        },
+        "zh-TW": {
+          "title": "我能往外發什麼，看當下的工具列表",
+          "claim": "「我能往外發什麼」看當下的工具列表, 不靠記憶 —— 對外通道由使用者的設定決定: 配了 Telegram 就 有 send_tg(它直接呼叫 TG 的 API), 裝了能力包就多出包裡那些名字明確的工具。",
+          "keywords": "通道 工具列表 telegram line 設定"
+        }
+      },
+      "edges": [
+        {
+          "rel": "supports",
+          "to": "feedback_telegram_reply_needs_send_tg"
+        }
+      ]
+    },
+    {
+      "slug": "reference_scheduled_wakeup_has_no_reply_channel",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "定时唤醒到点只是给自己送一条消息, 没有自动回信的渠道",
+      "claim": "人格目录里的 schedule.json 是人手写的定时唤醒(默认没有), 格式是 cron 标准 5 段本地时区加 {cron, prompt 或 prompt_ref}; 到点把那段 prompt 当成一条用户消息送进会话, 没有自动回信的渠道 —— 想让人收到结果就自己调 send_tg。你自己要登记到点提醒用 reminder 工具, 不写这个文件; 这里的条目在 reminder list 里显示为 sched:<id>, 可暂停或删除。",
+      "keywords": "schedule.json 定时唤醒 手写定时 cron 到点 唤醒 send_tg 没人看见 sched",
+      "translations": {
+        "ja": {
+          "title": "定時起動は到時刻に prompt を注入するだけ。自動返信チャネルはない",
+          "claim": "人格ディレクトリの schedule.json は人が手書きする定時起動（デフォルトでは無い）。形式は cron 標準 5 フィールド・ローカルタイムゾーン + {cron, prompt または prompt_ref}。時刻になるとその prompt がユーザーメッセージとして会話に送られ、自動返信の経路はない —— 結果を人に届けたいなら自分で send_tg を呼ぶ。自分でリマインドを登録するときは reminder ツールを使い、このファイルには書かない。ここの項目は reminder の list で sched:<id> として表示され、一時停止や削除ができる。",
+          "keywords": "schedule.json 定時起動 手書き 定時 cron 時刻 起動 send_tg 誰も見ない sched"
+        },
+        "en": {
+          "title": "schedule.json is hand-written scheduled wakeup with no auto-reply channel",
+          "claim": "schedule.json in the persona directory holds hand-written scheduled wakeups (absent by default): standard 5-field cron in local time + {cron, prompt or prompt_ref}. At the time the prompt is sent into the session as a user message, with no auto-reply channel —— call send_tg yourself if the person must get the result. To register a reminder yourself, use the reminder tool, not this file; its entries show in reminder list as sched:<id> and can be paused or deleted.",
+          "keywords": "schedule.json scheduled wakeup hand-written schedule cron trigger wakeup send_tg nobody sees sched"
+        },
+        "zh-TW": {
+          "title": "定時喚醒到點只注入 prompt，沒有自動回信通道",
+          "claim": "人格目錄裡的 schedule.json 是人手寫的定時喚醒（預設沒有），格式是 cron 標準 5 段本地時區加 {cron, prompt 或 prompt_ref}；到點把那段 prompt 當成一條使用者消息送進會話，沒有自動回信的通道 —— 想讓人收到結果就自己呼叫 send_tg。你自己要登記到點提醒用 reminder 工具，不寫這個檔案；這裡的條目在 reminder list 裡顯示為 sched:<id>，可暫停或刪除。",
+          "keywords": "schedule.json 定時喚醒 手寫定時 cron 到點 喚醒 send_tg 沒人看見 sched"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "feedback_telegram_reply_needs_send_tg"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_tool_reminder"
+        }
+      ]
+    },
+    {
+      "slug": "reference_external_mcp_needs_two_step_optin",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "外部 MCP 要两步才生效: 全局注册 + 本人格显式启用, 改完必须重启会话",
+      "claim": "默认不继承任何全局 MCP(否则每人格塞进几百 K schema 会把上下文撑爆), 要用外部 MCP 必须两步: 先在 ~/.claude.json 的 mcpServers 里注册启动方式, 再在人格目录建 mcp.json 写 servers 数组显式启用; 改完要重启该人格会话才生效。只有注册表里已有的名字才能用 —— 别假设别人的装机里有你这里有的 MCP。",
+      "keywords": "mcp 外部工具 装工具 接入 没有这个工具 unknown tool 用不了 配置 claude.json",
+      "translations": {
+        "ja": {
+          "title": "外部 MCP は2ステップ必須：グローバル登録 + ペルソナ明示的有効化、変更後は必ずセッション再起動",
+          "claim": "デフォルトでは任意のグローバル MCP を継承しない(さもないと各ペルソナに数百 K schema が詰め込まれてコンテキストが爆発する)；外部 MCP を使うには2ステップ必須：先に ~/.claude.json の mcpServers に起動方式を登録し、次にペルソナディレクトリに mcp.json を作り servers 配列で明示的に有効化する；変更後はそのペルソナのセッションを再起動しないと反映されない。登録表にある名前のみ使える —— 他人の環境にお前のここにある MCP があると仮定するな。",
+          "keywords": "mcp 外部ツール ツール導入 接続 このツールない unknown tool 使えない 設定 claude.json"
+        },
+        "en": {
+          "title": "External MCP needs two-step opt-in: global registry + explicit persona enable, must restart after changes",
+          "claim": "Default: no global MCP inheritance (else hundreds of K schema per persona explode context). To use external MCP: (1) register in ~/.claude.json mcpServers with startup method, (2) create mcp.json in persona dir with servers array for explicit enable. Changes need persona session restart to take effect. Only names in the registry work—don't assume others have the MCPs on your machine.",
+          "keywords": "mcp external tool tool install integration missing tool unknown tool doesn't work setup config claude.json"
+        },
+        "zh-TW": {
+          "title": "外部 MCP 要兩步才生效：全局註冊 + 本人格顯式啟用，改完必須重啟會話",
+          "claim": "預設不繼承任何全局 MCP(否則每人格塞進幾百 K schema 會把上下文撐爆)，要用外部 MCP 必須兩步：先在 ~/.claude.json 的 mcpServers 裡註冊啟動方式，再在人格目錄建 mcp.json 寫 servers 陣列顯式啟用；改完要重啟該人格會話才生效。只有註冊表裡已有的名字才能用 —— 別假設別人的裝機裡有你這裡有的 MCP。",
+          "keywords": "mcp 外部工具 裝工具 接入 沒有這個工具 unknown tool 用不了 設定 claude.json"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_channel_tools_exist_only_when_configured"
+        }
+      ],
+      "body": "## 两步\n\n**① 全局注册一次**(所有人格共用) —— 编辑 `~/.claude.json`:\n```json\n{ \"mcpServers\": { \"<name>\": { \"command\": \"...\", \"args\": [\"...\"], \"env\": {} } } }\n```\n这步只登记「这个名字对应的启动方式」, 还没启用。\n\n**② 本人格显式启用** —— 人格目录下建 `mcp.json`:\n```json\n{ \"servers\": [\"<name>\"] }\n```\n- 每个名字必须**精确匹配**步骤①的 key\n- 缺文件或数组空 → 该人格 0 个外部 MCP\n- 优先级: `<memoryDir>/mcp.json` > `<homeDir>/mcp.json`(前者存在则忽略后者)\n\n## 三个静默失败\n- JSON 语法错 → 被当成空数组, 不报错\n- 名字拼错 → 静默跳过那一个\n- 忘了重启 → 调用时报 unknown tool\n\n查现有注册: `cat ~/.claude.json | jq '.mcpServers | keys'`",
+      "body_i18n": {
+        "ja": "## 2 ステップ\n\n**① グローバル登録(全人格共用)** —— `~/.claude.json` を編集:\n```json\n{ \"mcpServers\": { \"<name>\": { \"command\": \"...\", \"args\": [\"...\"], \"env\": {} } } }\n```\nこのステップは「この名前に対応する起動方法」を登録するだけ、まだ有効にしていない。\n\n**② この人格で明示的に有効化** —— 人格ディレクトリに `mcp.json` を作成:\n```json\n{ \"servers\": [\"<name>\"] }\n```\n- 各名前は**ステップ①のキーと正確に一致**する必要がある\n- ファイルなしまたは配列が空 → その人格は外部 MCP が 0 個\n- 優先度: `<memoryDir>/mcp.json` > `<homeDir>/mcp.json`(前者が存在すれば後者を無視)\n\n## 3 つのサイレント失敗\n- JSON 文法エラー → 空配列として扱われ、エラーなし\n- 名前を誤字 → その 1 つをサイレントスキップ\n- 再起動を忘れた → 呼び出し時に unknown tool エラー\n\n既存登録を確認: `cat ~/.claude.json | jq '.mcpServers | keys'`",
+        "en": "## Two steps\n\n**① Register globally once** (shared by all personas) —— edit `~/.claude.json`:\n```json\n{ \"mcpServers\": { \"<name>\": { \"command\": \"...\", \"args\": [\"...\"], \"env\": {} } } }\n```\nThis step only registers \"how to start this name\", doesn't enable it yet.\n\n**② Explicitly enable for this persona** —— create `mcp.json` in persona directory:\n```json\n{ \"servers\": [\"<name>\"] }\n```\n- Each name must **exactly match** the key from step ①\n- Missing file or empty array → this persona has 0 external MCPs\n- Priority: `<memoryDir>/mcp.json` > `<homeDir>/mcp.json` (if former exists, latter is ignored)\n\n## Three silent failures\n- JSON syntax error → treated as empty array, no error\n- Name typo → silently skip that one\n- Forgot to restart → unknown tool error at call time\n\nCheck existing registrations: `cat ~/.claude.json | jq '.mcpServers | keys'`",
+        "zh-TW": "## 兩步\n\n**① 全局註冊一次**(所有人格共用) —— 編輯 `~/.claude.json`:\n```json\n{ \"mcpServers\": { \"<name>\": { \"command\": \"...\", \"args\": [\"...\"], \"env\": {} } } }\n```\n這步只登記「這個名字對應的啟動方式」, 還沒啟用。\n\n**② 本人格顯式啟用** —— 人格目錄下建 `mcp.json`:\n```json\n{ \"servers\": [\"<name>\"] }\n```\n- 每個名字必須**精確匹配**步驟①的 key\n- 缺文件或數組空 → 該人格 0 個外部 MCP\n- 優先級: `<memoryDir>/mcp.json` > `<homeDir>/mcp.json`(前者存在則忽略後者)\n\n## 三個靜默失敗\n- JSON 語法錯 → 被當成空數組, 不報錯\n- 名字拼錯 → 靜默跳過那一個\n- 忘了重啟 → 調用時報 unknown tool\n\n查現有註冊: `cat ~/.claude.json | jq '.mcpServers | keys'`"
+      }
+    },
+    {
+      "slug": "reference_you_can_write_your_own_plugin",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "high",
+      "title": "插件你自己就能写一个, 不用等人发给你",
+      "claim": "插件不是只能用别人发下来的现成货 —— 你自己就能写一个装上: 写一个裸的 payload JSON 丢进 `packages.local/`, 当场就生效(那个目录有人看着, 文件一落就自动装, 不用重启)。那个目录从你自己的工作目录往上数两级 —— 你的 cwd 恒为 `<数据目录>/personas/<你的名字>`, 所以路径就是 `../../packages.local/`; 它和 `personas/`、`app/` 平级, **不在 `app/` 里面**。签名只有要发给别人时才需要, 自己用不签。",
+      "keywords": "我能不能做 自己写 自己做一个 开发 定制 做个界面 做个流程 packages.local 放哪 放到哪 目录 路径 本地 不用签名 未签名 装上 覆盖 热生效 不用重启 写完就能用 配色 颜色 token 样式 css 好看 白底白字",
+      "translations": {
+        "ja": {
+          "title": "プラグインは自分で書ける。誰かから貰うのを待つ必要はない",
+          "claim": "プラグインは配布物だけではない。自分で書いて装着できる：裸の payload JSON を `packages.local/` に放り込むだけで、その場で生効する(そのディレクトリは監視されており、ファイルが落ちたら自動装着、再起動不要)。そのディレクトリは自分の cwd から二階上にある。自分の cwd は恒に `<データディレクトリ>/personas/<自分の名前>`、だからパスは `../../packages.local/`; それは `personas/` `app/` と同階であり、**`app/` の中ではない**。署名は他者に配布するときだけ必要。自分用は署名不要。",
+          "keywords": "書ける 自分で 自分で作る 開発 カスタマイズ UI 作る 手順 packages.local パス 置き場 ローカル 署名不要 未署名 装着 上書き ホットロード 再起動不要 書いたら使える 配色 色 token スタイル css 見栄え"
+        },
+        "en": {
+          "title": "You can write your own plugin; don't wait for someone else to give you one",
+          "claim": "Plugins are not just downloaded packages — you can write your own and load it: just drop a bare payload JSON into `packages.local/` and it takes effect immediately (the directory is watched, files auto-load, no restart needed). That directory is two levels up from your cwd. Your cwd is always `<data-dir>/personas/<your-name>`, so the path is `../../packages.local/`; it is sibling to `personas/` and `app/`, **not inside `app/`**. Signing is only needed to share with others. For your own use, no signature required.",
+          "keywords": "build my own write my own make my own myself custom develop my own UI my own workflow packages.local where to put it path local unsigned hot reload takes effect immediately no restart needed works as soon as you save it color palette colors token styling CSS white text on white"
+        },
+        "zh-TW": {
+          "title": "外掛你自己就能寫一個，不用等人發給你",
+          "claim": "外掛不是只能用別人發下來的現成貨——你自己就能寫一個裝上：寫一個裸的 payload JSON 丟進 `packages.local/`，當場就生效(那個目錄有人看著，檔案一落就自動裝，不用重啟)。那個目錄從你自己的工作目錄往上數兩級——你的 cwd 恒為 `<資料目錄>/personas/<你的名字>`，所以路徑就是 `../../packages.local/`；它和 `personas/`、`app/` 平級，**不在 `app/` 裡面**。簽名只有要發給別人時才需要，自己用不簽。",
+          "keywords": "我能不能做 自己寫 自己做一個 開發 客製化 做個介面 做個流程 packages.local 放哪 放到哪 目錄 路徑 本機 不用簽名 未簽名 裝上 覆蓋 熱生效 不用重啟 寫完就能用 配色 顏色 token 樣式 css 好看 白底白字"
+        }
+      },
+      "body": "**先记住这件事本身能做。** 遇到「这个界面要是能……就好了」「这套流程每次都要重讲一遍」, 那不是只能凑合 —— 那是一个可以写出来的插件。\n\n## 🔴 放哪 —— 这一步最容易错\n\n你的工作目录恒为 `<数据目录>/personas/<你的名字>`, 所以:\n\n```\n<数据目录>/\n├── app/              ← personas.json 等登记信息住这。**插件不放这里**\n├── personas/\n│   └── <你的名字>/   ← 你的 cwd 在这\n└── packages.local/   ← 插件放这, 和 app/ 平级\n```\n\n从你的 cwd 写就是 **`../../packages.local/`**。别去猜数据目录的绝对路径, 也别因为 `app/` 看着像\"程序的地盘\"就放进去 —— 放错了**不会有任何报错**, 只是永远装不上。\n\n放完自己核一眼: 装上了会回你一句装了什么。没有那句话, 就是放错地方了。\n\n## 怎么放\n\n`packages.local/` 启动时自动建好。文件名随意, 只要是 `.json`; 内容是 payload 本身(至少有 type / id / version)。**写完就能用, 不用重启** —— 那个目录有人一直看着, 文件一落就自动重装一遍, 然后回你一句装上了什么。形状写错会当场告诉你哪里不对; 写坏的那份只是自己不装, 不连累别的。撞上同一个 id 时本地这份胜出。\n\n**改一份已经装着的插件, 顺手把 `version` 也往上抬一格。** 版本号是这份包的身份 —— 日志、`plugin_find`、装载清单里显示的都是 `id@version`, 不抬的话屏幕上那份到底是新的还是旧的, 你和用户都认不出来。\n\n**签名只在要给别人用时才需要** —— 本地这个目录不验签。\n\n⚠️ 别把这条误读成「本地的包我就能随便改屏上的字」: 内容归包不归你这条规矩跟签没签名无关。\n\n## 🎨 配色与观感\n\n别自己挑颜色 —— butler 界面已经配好一套变量, 照用就对; 自己编十六进制的下场是白底白字, 而且不报错。查「界面 颜色 变量」。\n界面显得\"廉价\"多半不是颜色问题, 而是留白 / 对齐 / 字号层级三样缺失 —— 查「界面 难看 留白 对齐 层级」。\n",
+      "body_i18n": {
+        "ja": "**まずこの事実そのものができることを覚えておこう。** 「このインターフェースがこんな風だったらいいのに」「このフロー毎回同じ説明をしなければならない」に出くわしたら、それはプラグインとして書き出せるものだ。\n\n## 🔴 どこに置くか――この段階が最も間違いやすい\n\n君の作業ディレクトリは常に `<データディレクトリ>/personas/<君の名前>` なので:\n\n```\n<データディレクトリ>/\n├── app/              ← personas.json などの登録情報はここ。**プラグインはここに置かない**\n├── personas/\n│   └── <君の名前>/   ← 君の cwd はここ\n└── packages.local/   ← プラグインはここに置く、app/ と同じレベル\n```\n\n君の cwd から書くなら **`../../packages.local/`** だ。データディレクトリの絶対パスを推測するな、`app/` が\"プログラムの領地\"に見えるからといってそこに入れるな――置き場所を間違えても**報告は何もない**、ただ永遠に装着されないだけだ。\n\n置いたら自分で確認しろ:装着されたら何が装着されたか返してくれる。その返答がなければ、置き場所が間違っている。\n\n## どうやって置くか\n\n`packages.local/` は起動時に自動的に作成される。ファイル名は何でもいい、`.json` なら; 内容は payload そのもの(最低限 type / id / version を含む)。**書き終わったらすぐ使える、再起動は不要** ――ファイルが落ちたら自動装着し何が入ったか返してくれる。形状エラーは即座に報告され、直してもう一度置けばいい。壊れたやつは自分だけ装着されない。同 id 衝突時はローカル優先。\n\n**装着済みのプラグインを書き換えたら、`version` も一つ上げておけ。** バージョン番号はそのパッケージの身分だ――ログも `plugin_find` も装着一覧も表示するのは `id@version` であり、上げなければ画面に出ているのが新しい方か古い方か、君にもユーザーにも見分けがつかない。\n\n**署名が要るのは他人に使ってもらう時だけ** ――このローカルディレクトリは署名検証をしない。\n\n⚠️ これを「ローカルパッケージなら画面の文字を勝手に変えられる」と誤読するな: コンテンツが君のものではなく君のパッケージのものというルールは、署名の有無と無関係だ。\n\n## 🎨 色づけと見た目\n\n色は自分で選ぶな――butler の画面には既に変数一式が用意されている、それをそのまま使え; 自分で16進数を書いた結果は白背景に白文字で、しかもエラーにならない。「インターフェース 色 変数」で検索しろ。\nインターフェースが\"安っぽく\"見えるのは大抵色の問題ではなく、余白 / 配置 / 字号階層の三つが不足しているからだ――「インターフェース ダサい 余白 配置 階層」で検索しろ。",
+        "en": "**Remember this fact itself can be done.** When you hit \"this interface would be so much better if...\" or \"this workflow requires the same explanation every time\", that's a plugin you can write.\n\n## 🔴 Where to put it — this step is easiest to mess up\n\nYour working directory is always `<data_dir>/personas/<your_name>`, so:\n\n```\n<data_dir>/\n├── app/              ← Registration info like personas.json lives here. **Don't put plugins here**\n├── personas/\n│   └── <your_name>/  ← Your cwd is here\n└── packages.local/   ← Put plugins here, same level as app/\n```\n\nFrom your cwd, write **`../../packages.local/`**. Don't guess the absolute path to the data directory, and don't assume `app/` looks like \"program territory\" so put it there — putting it in the wrong place **won't error**, it just never installs.\n\nOnce you've placed it, verify: if it installed, it tells you what it installed. No message means wrong location.\n\n## How to put it\n\n`packages.local/` is auto-created at startup. Filename doesn't matter, as long as it's `.json`; content is the payload itself (must have at least type / id / version). **Write it once and it works instantly** — that directory is watched, files auto-load and report what installed. Shape errors are reported immediately; a broken file just doesn't install, doesn't break others. Same id collision: local wins.\n\n**When you rewrite a plugin that is already installed, bump its `version` while you are at it.** The version number is that package's identity — the log, `plugin_find` and the installed list all show `id@version`, and without a bump neither you nor the user can tell whether what is on screen is the new one or the old one.\n\n**Signatures are only needed when you give it to someone else** — this local directory does not verify signatures.\n\n⚠️ Don't misread this as \"with a local package I can change screen text however I want\": the rule that content belongs to the package, not to you, has nothing to do with signing.\n\n## 🎨 Colors and polish\n\nDon't pick colors yourself — butler's UI already ships a set of variables, just use them; hand-written hex ends in white-on-white, and it doesn't error. Search \"interface colors variables\".\nScreens that look \"cheap\" usually aren't a color problem, they're missing whitespace / alignment / type hierarchy — search \"ugly interface whitespace alignment hierarchy\".",
+        "zh-TW": "**先記住這件事本身能做。** 遇到「這個介面要是能……就好了」「這套流程每次都要重講一遍」，那不是只能湊合――那是一個可以寫出來的外掛。\n\n## 🔴 放哪――這一步最容易錯\n\n你的工作目錄恆為 `<資料目錄>/personas/<你的名字>`，所以:\n\n```\n<資料目錄>/\n├── app/              ← personas.json 等登記資訊住這。**外掛不放這裡**\n├── personas/\n│   └── <你的名字>/   ← 你的 cwd 在這\n└── packages.local/   ← 外掛放這，和 app/ 平級\n```\n\n從你的 cwd 寫就是 **`../../packages.local/`**。別去猜資料目錄的絕對路徑，也別因為 `app/` 看著像「程式的地盤」就放進去――放錯了**不會有任何報錯**，只是永遠裝不上。\n\n放完自己核一眼：裝上了會回你一句裝了什麼。沒有那句話，就是放錯地方了。\n\n## 怎麼放\n\n`packages.local/` 啟動時自動建好。檔案名隨意，只要是 `.json`；內容是 payload 本身(至少有 type / id / version)。**寫完就能用，不用重啟**――那個目錄有人一直看著，檔案一落就自動重裝一遍，然後回你一句裝上了什麼。形狀寫錯會當場告訴你哪裡不對；寫壞的那份只是自己不裝，不連累別的。撞上同一個 id 時本地這份勝出。\n\n**改一份已經裝著的外掛，順手把 `version` 也往上抬一格。** 版本號是這份包的身分――日誌、`plugin_find`、裝載清單裡顯示的都是 `id@version`，不抬的話螢幕上那份到底是新的還是舊的，你和使用者都認不出來。\n\n**簽名只在要給別人用時才需要**――本地這個目錄不驗簽。\n\n⚠️ 別把這條誤讀成「本地的包我就能隨便改螢幕上的字」：內容歸包不歸你這條規矩跟簽沒簽名無關。\n\n## 🎨 配色與觀感\n\n別自己挑顏色――butler 介面已經配好一套變數，照用就對；自己編十六進制的下場是白底白字，而且不報錯。查「介面 顏色 變數」。\n介面顯得「廉價」多半不是顏色問題，而是留白 / 對齊 / 字號層級三樣缺失――查「介面 難看 留白 對齊 層級」。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_look_for_a_plugin_before_improvising"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_workflow_content_is_signed_do_not_edit"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_payload_is_one_json_and_capped"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_sandbox_has_no_network_at_all"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_how_to_write_a_workflow_package"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_ui_colors_pick_the_background_then_copy_the_table"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_set_background_and_text_color_together"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_minimal_working_example"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_ui_looks_cheap_without_spacing_alignment_hierarchy"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_payload_is_one_json_and_capped",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "high",
+      "title": "插件就是一块能点的屏幕, 一个功能一个, 整个产物是一个 JSON",
+      "claim": "**插件就是一块能点的屏幕, 一个功能一个**。写一个插件的全部产物就是一个裸 JSON: 必填 type/id/version, **type 只能是 `ui`(一块屏幕) 或 `workflow`(分步骤翻的多步插件)**, 写成别的不报错也不提示, 但装载器不认、plugin_find 里看不见。屏幕本身是 title/html/css/js, 按钮在 commands 里声明。沙箱里只有 window.butlerUI 的 onInit/onPush/call/setState/resize 五个方法, 按钮能干的事封死在宿主给的原语里: message / speak / save_file / state / db / web / secret / record(录音) / pron(发音评测) —— 这就是能力上限, 绕不过去。",
+      "keywords": "写插件 怎么写 做一个插件 字段 payload 结构 长什么样 html css js commands butlerUI 能不能做到 上限 界面包 type 取值 ui workflow 装不上 找不到 plugin_find 看不见",
+      "translations": {
+        "ja": {
+          "title": "プラグインとは押せる画面ひとつ。機能ひとつにつき一枚で、成果物は JSON 一個",
+          "claim": "**プラグインとは押せる画面ひとつ、機能ひとつにつき一枚**。成果物は裸の JSON 一個だけ: 必須は type/id/version、**type は `ui`(一枚の画面) か `workflow`(手順を追って捲る多段プラグイン)のみ**。他を書いてもエラーは出ないが、ローダーが認識せず plugin_find にも出ない。画面は title/html/css/js、ボタンは commands で宣言する。サンドボックスは window.butlerUI の onInit/onPush/call/setState/resize の五つだけで、ボタンができることはホストが用意した原語に封じられている: message / speak / save_file / state / db / web / secret / record(録音) / pron(発音評価) —— これが能力の上限で迂回路はない。",
+          "keywords": "プラグインを書く どう書く プラグインを作る フィールド payload 構造 どんな形 html css js commands butlerUI できるか 上限 UI パッケージ type 値 workflow インストールできず 見つけられない plugin_find 見えない"
+        },
+        "en": {
+          "title": "A plugin is one clickable screen, one per feature, and the whole deliverable is a single JSON",
+          "claim": "**A plugin is one clickable screen, one per feature.** The whole deliverable is a single bare JSON: type/id/version required, and **type may only be `ui` (one screen) or `workflow` (a multi-step plugin you page through)**. Anything else raises no error, but the loader ignores it and plugin_find never shows it. The screen is title/html/css/js; buttons are declared under commands. The sandbox exposes only onInit/onPush/call/setState/resize on window.butlerUI, and a button is capped at the host's primitives — message / speak / save_file / state / db / web / secret / record (recording) / pron (pronunciation scoring). That is the ceiling, with no way around it.",
+          "keywords": "write plugin how to create field payload structure format html css js commands butlerUI can it do that capability limit UI package type values workflow not installing found plugin_find invisible"
+        },
+        "zh-TW": {
+          "title": "外掛就是一塊能點的螢幕, 一個功能一個, 整個產物是一個 JSON",
+          "claim": "**外掛就是一塊能點的螢幕, 一個功能一個**。寫一個外掛的全部產物就是一個裸 JSON: 必填 type/id/version, **type 只能是 `ui`(一塊螢幕) 或 `workflow`(分步驟翻的多步外掛)**, 寫成別的不報錯也不提示, 但載入器不認、plugin_find 裡看不見。螢幕本身是 title/html/css/js, 按鈕在 commands 裡宣告。沙箱裡只有 window.butlerUI 的 onInit/onPush/call/setState/resize 五個方法, 按鈕能幹的事封死在宿主給的原語裡: message / speak / save_file / state / db / web / secret / record(錄音) / pron(發音評測) —— 這就是能力上限, 繞不過去。",
+          "keywords": "寫外掛 怎麼寫 做一個外掛 字段 payload 結構 長什麼樣 html css js commands butlerUI 能不能做到 上限 外掛 type 取值 ui workflow 裝不上 找不到 plugin_find 看不見"
+        }
+      },
+      "body": "## 一份 payload 长这样\n\n```json\n{\n  \"type\": \"ui\",\n  \"id\": \"customer_form\",\n  \"version\": \"1.0.0\",\n  \"title\": \"客户登记\",\n  \"html\": \"<button id='go'>提交</button>\",\n  \"css\": \"#go { padding: 6px 14px }\",\n  \"js\": \"document.getElementById('go').onclick = () => butlerUI.call('customer_form.submit', {key:'n', value:'1'})\",\n  \"commands\": { \"submit\": { \"primitive\": \"state\", \"summary\": \"记一笔\", \"notify_ai\": false } }\n}\n```\n\n| 字段 | 必填 | 说明 |\n|---|---|---|\n| `type` | ✔ | `ui`(单页小应用) 或 `workflow`(多屏流程) |\n| `id` | ✔ | 小写字母数字 `_` `-`, 会变成文件名, 所以形状卡得死 |\n| `version` | ✔ | 非空即可 |\n| `title` |  | 不写就拿 `id` 顶上 |\n| `summary` |  | 一句话说这个插件干什么, plugin_find 每条都带上 |\n| `usage` |  | 给人格读的完整用法: 打开时要传哪些参数、几种模式、回什么消息、注意事项。查的正是这个插件时 plugin_find 整段给出 |\n| `keywords` |  | 空格分隔, 让 plugin_find 按「要干什么」找得到它 |\n| `html` |  | 界面本体 |\n| `css` / `js` |  | 可省 |\n| `commands` |  | 这个包自己的按钮命令。名字会被**强制加上 `包id.` 前缀** —— 多包并存必然撞名 |\n\n## 沙箱里只有这五个方法\n\n| 方法 | 干什么 |\n|---|---|\n| `butlerUI.onInit(fn)` | 装上/重开时把上次 `setState` 存的东西带回来 |\n| `butlerUI.onPush(fn)` | 宿主主动推来的数据 |\n| `butlerUI.call(name, args)` | 跑一条命令, 返回 Promise。**结果由宿主说了算**, 不是包自己定 |\n| `butlerUI.setState(obj)` | 整份覆盖自己那格状态, 宿主替你落盘 |\n| `butlerUI.resize(h)` | 改高度。内容变了一般会自动长高, 多数时候不用喊 |\n\n除此之外沙箱里**没有网络、没有文件、看不见别的包**。\n\n## 按钮真正能做的只有五件事\n\n| 原语 | 做什么 | 自带的死约束 |\n|---|---|---|\n| `message` | **把内容交给 AI** | 只收纯文字, ≤4000 字, 有尖括号就拒。表单填的东西要让 AI 看见, **只有这一条路** |\n| `speak` | 念一段 | 只念纯文字, ≤2000 字, 出现尖括号就拒 —— 不然「念出来的」和「屏上写的」能是两回事 |\n| `save_file` | 存一份东西 | 存哪儿由**用户在系统保存框里**定, 包给不出路径, 所以\"悄悄写到某个目录\"在形状上做不到 |\n| `state` | 往这个包自己的抽屉记一格 | 抽屉按**声明命令的那个包**认, 不看参数里写的是谁 |\n| `db` | 读写这个包自己的数据库 | op=query(查, 返 rows) / run(增删改, 返 changes/lastInsertId); 连哪个库由**声明命令的包**认, sql 走 prepared statement 参数化 |\n\n约束长在原语自己身上, 不指望调用方守规矩。目录里没有的名字、缺必填参数, 一律红字摆到台面上 —— 静默吞掉会变成「以为发出去了, 其实什么都没发生」。\n\n🔴 **`speak` 不会把内容告诉 AI, 它只是念给人听。** 要让 AI 收到就得用 `message` —— 这两件事看着像一件, 撞上去的样子是「念完了, 但 AI 什么都不知道」, 而且不报错。",
+      "body_i18n": {
+        "ja": "## ペイロードはこんな形\n\n```json\n{\n  \"type\": \"ui\",\n  \"id\": \"customer_form\",\n  \"version\": \"1.0.0\",\n  \"title\": \"顧客登録\",\n  \"html\": \"<button id='go'>提交</button>\",\n  \"css\": \"#go { padding: 6px 14px }\",\n  \"js\": \"document.getElementById('go').onclick = () => butlerUI.call('customer_form.submit', {key:'n', value:'1'})\",\n  \"commands\": { \"submit\": { \"primitive\": \"state\", \"summary\": \"1 件記録する\", \"notify_ai\": false } }\n}\n```\n\n| フィールド | 必須 | 説明 |\n|---|---|---|\n| `type` | ✔ | `ui`(シングルページアプリ) または `workflow`(マルチスクリーン手順) |\n| `id` | ✔ | 小文字英数字 `_` `-`, ファイル名になるのでフォーマット固定 |\n| `version` | ✔ | 空でなければよい |\n| `title` |  | 書かないと `id` が使われる |\n| `summary` |  | このプラグインが何をするかの一行説明。plugin_find の各項目に付く |\n| `usage` |  | ペルソナ向けの詳しい使い方: 開くときに渡すパラメータ、モード、返ってくるメッセージ、注意点。このプラグインを名指しで調べたとき plugin_find が全文を返す |\n| `keywords` |  | スペース区切り。plugin_find が「やりたいこと」から見つけられるように |\n| `html` |  | UI本体 |\n| `css` / `js` |  | 省略可 |\n| `commands` |  | このパッケージ自身のボタンコマンド。名前に**強制的に `パッケージid.` プレフィックスが付く** —— 複数パッケージが共存すると必ず名前が衝突するため |\n\n## サンドボックス内で使える5つのメソッド\n\n| メソッド | 機能 |\n|---|---|\n| `butlerUI.onInit(fn)` | 起動/再開時に前回の `setState` 保存内容を復元する |\n| `butlerUI.onPush(fn)` | ホスト側から主動的に送られてきたデータ |\n| `butlerUI.call(name, args)` | コマンド実行、Promiseを返す。**結果はホスト側が決める**, パッケージ側ではない |\n| `butlerUI.setState(obj)` | 自分の状態全体を上書き、ホスト側がディスクに保存 |\n| `butlerUI.resize(h)` | 高さ変更。内容変更で自動拡張が多く、ほとんどの場合呼ぶ必要なし |\n\nこの他、サンドボックス内には**ネットワーク、ファイル、他パッケージの視認性がない**。\n\n## ボタンが本当にできることは5つ\n\n| プリミティブ | 機能 | 制約 |\n|---|---|---|\n| `message` | **コンテンツをAIに渡す** | 純テキストのみ、≤4000字、山括弧で拒否。フォーム入力内容をAIに見せるには、**この方法だけ** |\n| `speak` | テキスト読み上げ | 純テキストのみ、≤2000字、山括弧で拒否 —— そうしないと「読み上げ」と「画面表示」が異なる |\n| `save_file` | データ保存 | 保存先は**ユーザーがシステムダイアログで指定**、パッケージはパスを与えられない |\n| `state` | このパッケージ自身のステート保存 | ステートは**コマンド宣言したパッケージ**で決まる、引数の誰を見ない |\n| `db` | このパッケージ自身のデータベース読み書き | op=query(rows返す) / run(changes/lastInsertId返す); DBは宣言パッケージ固定、sqlはprepared statement |\n\n制約はプリミティブ自身に付いてる。ディレクトリに無い名前、必須パラメータ不足、全部赤字で出す —— 静かに飲み込むと「送ったと思ってたが何も起こらない」。\n\n🔴 **`speak` はコンテンツをAIに知らせない、人間に聞かせるだけ。** AIに受け取らせるには `message` を使え —— 静かに乖離し、エラーも出ない。",
+        "en": "## One payload looks like this\n\n```json\n{\n  \"type\": \"ui\",\n  \"id\": \"customer_form\",\n  \"version\": \"1.0.0\",\n  \"title\": \"客户登记\",\n  \"html\": \"<button id='go'>提交</button>\",\n  \"css\": \"#go { padding: 6px 14px }\",\n  \"js\": \"document.getElementById('go').onclick = () => butlerUI.call('customer_form.submit', {key:'n', value:'1'})\",\n  \"commands\": { \"submit\": { \"primitive\": \"state\", \"summary\": \"记一笔\", \"notify_ai\": false } }\n}\n```\n\n| Field | Required | Description |\n|---|---|---|\n| `type` | ✔ | `ui` (single-page app) or `workflow` (multi-screen procedure) |\n| `id` | ✔ | lowercase alphanumeric `_` `-`, becomes a filename so format is locked down |\n| `version` | ✔ | non-empty is fine |\n| `title` |  | if omitted, uses `id` |\n| `summary` |  | one line on what the plugin does; every plugin_find line carries it |\n| `usage` |  | full usage for personas: what parameters to pass when opening, modes, messages it sends back, caveats. plugin_find prints it whole when this plugin is the one looked up |\n| `keywords` |  | space-separated, so plugin_find can find it by what someone wants to do |\n| `html` |  | UI body |\n| `css` / `js` |  | optional |\n| `commands` |  | this package's own button commands. names get **forcibly prepended with `package_id.`** —— multiple packages coexist means inevitable name collision |\n\n## Only five methods available in the sandbox\n\n| Method | What it does |\n|---|---|\n| `butlerUI.onInit(fn)` | On startup/resume, restore the last `setState` save |\n| `butlerUI.onPush(fn)` | Host pushes data proactively |\n| `butlerUI.call(name, args)` | Run a command, returns Promise. **host decides the result**, not the package |\n| `butlerUI.setState(obj)` | Fully overwrite own state, host persists to disk |\n| `butlerUI.resize(h)` | Change height. content changes auto-expand most of the time, usually don't need to call |\n\nBeyond these, the sandbox has **no network, no files, can't see other packages**.\n\n## Buttons can really only do five things\n\n| Primitive | What it does | Built-in constraint |\n|---|---|---|\n| `message` | **pass content to AI** | text only, ≤4000 chars, rejects angle brackets. For AI to see form input, **only this path** |\n| `speak` | speak aloud | text only, ≤2000 chars, rejects angle brackets —— else \"spoken\" and \"written on screen\" can diverge |\n| `save_file` | save something | save location **user picks in system dialog**, package can't supply path, so \"silently write to a directory\" doesn't fit the shape |\n| `state` | store to this package's own drawer | drawer identified by **the package that declared the command**, doesn't look at who's in the args |\n| `db` | read/write this package's own database | op=query (read, returns rows) / run (insert/delete/update, returns changes/lastInsertId); db scoped to the declaring package; sql is parameterized |\n\nConstraints live on the primitive itself, don't expect the caller to play by the rules. Nonexistent field names, missing required params — all get red-flagged; silent swallowing means \"thought it sent, but nothing happened\".\n\n🔴 **`speak` doesn't tell AI anything, it just speaks to the human.** To get AI to receive it use `message` — these two look like the same thing; what you actually hit is \"it finished speaking, but the AI knows nothing about it\", and nothing errors.",
+        "zh-TW": "## 一份 payload 長這樣\n\n```json\n{\n  \"type\": \"ui\",\n  \"id\": \"customer_form\",\n  \"version\": \"1.0.0\",\n  \"title\": \"客户登记\",\n  \"html\": \"<button id='go'>提交</button>\",\n  \"css\": \"#go { padding: 6px 14px }\",\n  \"js\": \"document.getElementById('go').onclick = () => butlerUI.call('customer_form.submit', {key:'n', value:'1'})\",\n  \"commands\": { \"submit\": { \"primitive\": \"state\", \"summary\": \"记一笔\", \"notify_ai\": false } }\n}\n```\n\n| 欄位 | 必填 | 說明 |\n|---|---|---|\n| `type` | ✔ | `ui`(單頁小應用) 或 `workflow`(多屏流程) |\n| `id` | ✔ | 小寫字母數字 `_` `-`, 會變成檔案名, 所以形狀卡得死 |\n| `version` | ✔ | 非空即可 |\n| `title` |  | 不寫就拿 `id` 頂上 |\n| `summary` |  | 一句話說這個外掛做什麼，plugin_find 每筆都帶上 |\n| `usage` |  | 給人格讀的完整用法：開啟時要傳哪些參數、幾種模式、回什麼訊息、注意事項。查的正是這個外掛時 plugin_find 整段給出 |\n| `keywords` |  | 空格分隔，讓 plugin_find 按「要做什麼」找得到它 |\n| `html` |  | 介面本體 |\n| `css` / `js` |  | 可省 |\n| `commands` |  | 這個包自己的按鈕命令。名字會被**強制加上 `包id.` 前綴** —— 多包並存必然撞名 |\n\n## 沙盒裡只有這五個方法\n\n| 方法 | 幹什麼 |\n|---|---|\n| `butlerUI.onInit(fn)` | 裝上/重開時把上次 `setState` 存的東西帶回來 |\n| `butlerUI.onPush(fn)` | 宿主主動推來的資料 |\n| `butlerUI.call(name, args)` | 跑一條命令, 返回 Promise。**結果由宿主說了算**, 不是包自己定 |\n| `butlerUI.setState(obj)` | 整份覆蓋自己那格狀態, 宿主替你落盤 |\n| `butlerUI.resize(h)` | 改高度。內容變了一般會自動長高, 多數時候不用喊 |\n\n除此之外沙盒裡**沒有網路、沒有檔案、看不見別的包**。\n\n## 按鈕真正能做的只有五件事\n\n| 原語 | 做什麼 | 自帶的死約束 |\n|---|---|---|\n| `message` | **把內容交給 AI** | 只收純文字, ≤4000 字, 有尖括號就拒。表單填的東西要讓 AI 看見, **只有這一條路** |\n| `speak` | 念一段 | 只念純文字, ≤2000 字, 出現尖括號就拒 —— 不然「念出來的」和「螢幕上寫的」能是兩回事 |\n| `save_file` | 存一份東西 | 存哪兒由**用戶在系統保存框裡**定, 包給不出路徑, 所以\"悄悄寫到某個目錄\"在形狀上做不到 |\n| `state` | 往這個包自己的抽屜記一格 | 抽屜按**聲明命令的那個包**認, 不看參數裡寫的是誰 |\n| `db` | 讀寫這個包自己的資料庫 | op=query(查, 返 rows) / run(增刪改, 返 changes/lastInsertId); 連哪個庫由**聲明命令的包**認, sql 走 prepared statement 參數化 |\n\n約束長在原語自己身上, 不指望調用方守規矩。目錄裡沒有的名字、缺必填參數, 一律紅字擺到臺面上 —— 靜默吞掉會變成「以為發出去了, 其實什麼都沒發生」。\n\n🔴 **`speak` 不會把內容告訴 AI, 它只是念給人聽。** 要讓 AI 收到就得用 `message` —— 這兩件事看著像一件, 但靜默分叉。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_you_can_write_your_own_plugin"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_button_wakes_ai_by_default"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_db_call_shape_params_must_be_scalars"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_sandbox_has_no_network_at_all"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_ui_must_say_ready_within_four_seconds"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_state_is_capped_and_fails_quietly"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_declaration_fields_are_a_whitelist"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_ui_colors_pick_the_background_then_copy_the_table"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_set_background_and_text_color_together"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_db_call_shape_params_must_be_scalars",
+      "seed_use_count": 3,
+      "type": "reference",
+      "importance": "high",
+      "title": "插件读写数据库就 op / sql / params 三个字段, params 里只能放单个的值",
+      "claim": "插件按钮里 db 这个动作收 `{ op, sql, params }` 三个字段。op 只认字面量 `run`: 写 run 走写入路(返 changes / lastInsertId), 其余任何值(query、insert、拼错、漏传)一律落到读取路 —— 而读取路会把 INSERT/UPDATE 照样执行掉, 只是返回空 rows、没有 changes 也没有 lastInsertId、不报任何错。所以 op 写错的后果不是被拒, 是写进去了但你以为没写成, 一重试就重复写入。params 只能是单个的值排成的数组(数字/字符串/布尔/null)。返回码全表与建表责任在正文。",
+      "keywords": "db 数据库 存数据 存进数据库 存到库里 怎么存 存哪 写库 入库 落库 保存 记录 建表 create table 增删改查 sql 查询 insert select update params 参数 占位符 问号 标量 数组 rows 行 changes lastInsertId 写不进去 存不上 没写进库 静默失败 重复写入 写了两遍 op 写错 query run 五千行 上限",
+      "translations": {
+        "ja": {
+          "title": "プラグインがデータベースを読み書きするのは3フィールド、params は必ずスカラー配列",
+          "claim": "db プリミティブは { op, sql, params } を受け取る。op はリテラル `run` だけ認識: run は書き込みパス(changes / lastInsertId を返す)、他の値(query/insert/タイポ/省略)は読み取りパスになるが INSERT/UPDATE はそのまま実行されて空 rows を返すだけでエラーも出ない。op 間違いは「拒否」でなく「書き込まれたが書き込まれたと思わなかった」、再試行で重複書き込み。params は標量配列必須(数字/文字列/真偽値/null)。全戻り値テーブルと建表責任は本文にある。",
+          "keywords": "db DB データベース sqlite データを保存 データベースに保存 DBに保存 DBに書き込む どう保存 どこに保存 データベースに書き込む DBに落とす 保存したい 保存 記録 テーブル作成 テーブルに入れる create table 増やす削る変える検索する sql クエリ insert select update params パラメータ プレースホルダ クエスチョンマーク スカラー 配列 行 変更 lastInsertId 書き込めない 保存できない 静かな失敗 重複書き込み 二重書き込み op 間違い query run 5000行 上限"
+        },
+        "en": {
+          "title": "Plugin database calls have three fields; params must be a scalar array",
+          "claim": "db primitives take { op, sql, params }. op only recognizes the literal `run`: run goes write path (returns changes / lastInsertId); any other value (query, insert, typo, omitted) falls to read path — but the read path still executes INSERT/UPDATE, just returns empty rows with no error. So wrong op means write succeeded but you think it didn't, retry causes duplicate write. params must be a scalar array (numbers/strings/booleans/null). Full return-code table and table-creation responsibility are in the body.",
+          "keywords": "db database sqlite save data store data write to the database save into the db persist rows insert delete update query create table join schema sql select params placeholder question mark scalar array rows changes lastInsertId cannot write nothing was saved silent failure duplicate write wrong op run five thousand row limit saving from a plugin"
+        },
+        "zh-TW": {
+          "title": "外掛讀寫資料庫就三個字段，params 必須是標量陣列",
+          "claim": "db 原語收 { op, sql, params } 三個字段。op 只認字面量 `run`: 寫 run 走寫入路(返 changes / lastInsertId), 其餘任何值一律落到讀取路 —— 而讀取路會把 INSERT/UPDATE 照樣執行掉, 只是返回空 rows、沒有 changes 也沒有 lastInsertId、不報任何錯。所以 op 寫錯的後果不是被拒, 是寫進去了但你以為沒寫成, 一重試就重複寫入。params 必須是標量陣列(數字/字元串/布爾/null)。返回碼全表與建表責任在正文。",
+          "keywords": "db 資料庫 存資料 存進資料庫 存到庫裡 怎麼存 存哪 寫庫 入庫 落庫 保存 記錄 建表 create table 增刪改查 sql 查詢 insert select update params 參數 占位符 問號 標量 陣列 rows 行 changes lastInsertId 寫不進去 存不上 沒寫進庫 靜默失敗 重複寫入 寫了兩遍 op 寫錯 query run 五千行 上限"
+        }
+      },
+      "body": "## 调用形状\n\n```js\nbutlerUI.call('包id.命令名', {\n  op: 'run',                                   // 🔴 写入只有这一个写法\n  sql: 'INSERT INTO t (name, age) VALUES (?, ?)',\n  params: ['王五', 30]                          // 🔴 只能是标量数组\n}).then(r => { /* r.ok / r.rows / r.changes / r.lastInsertId */ });\n```\n\n## 🔴 op 只有 `run` 是被认出来的\n\n判据是\"是不是字面量 `run`\", **不是\"是不是合法的 op\"**:\n\n| 你写的 op | 走哪条路 | 返回 |\n|---|---|---|\n| `run` | 写入路 | `{ ok:true, changes, lastInsertId }` |\n| `query` / `insert` / `Run` / 漏传 / 任何别的 | **读取路** | `{ ok:true, rows:[...] }`, 最多 5000 行 |\n| 失败 | —— | `{ ok:false, code, message }`, code 有 `db_failed` / `no_driver` / `missing_pkg` |\n\n要命的是读取路执行的是 `db.all(sql, params)` —— 拿它跑一句 INSERT, **语句真的会执行**,\n只是把结果集当成空返回。于是:\n\n| 你以为 | 实际 |\n|---|---|\n| op 写错了会报错 | 不报错, `ok:true` |\n| 没有 lastInsertId = 没写成 | 写成了, 只是这条路不带回来 |\n| 那我重试一次 | **写了第二遍** |\n\n## params 是唯一能带数组的字段\n\n往命令里传的参数**除了 params 之外全部会被转成字符串**, 嵌套对象直接丢掉。\nparams 是特例(它是 prepared statement 的一等参数), 但也只放行**标量元素** ——\n数组里再套对象, 那个元素会变成 `[object Object]`。\n\n要存结构化的东西, 自己 `JSON.stringify` 成一个字符串再放进去。\n\n## 建表要自己做\n\n没有自动建表。界面起来时先跑一句幂等的建表语句, 再干别的:\n\n```js\nbutlerUI.call('包id.db', { op:'run', sql:'CREATE TABLE IF NOT EXISTS t (id INTEGER PRIMARY KEY, name TEXT)' });\n```\n\n## 写不进去时先看这里\n\nSQL 没报错、`ok` 也是 true, 但库里就是没有那一行 —— 十有八九是 params 的形状不对,\n占位符还在、值没跟过去。没有事务, 一串写操作中间失败会留下脏数据, 自己按顺序兜。",
+      "body_i18n": {
+        "ja": "## 呼び出し形状\n\n```js\nbutlerUI.call('包id.命令名', {\n  op: 'run',                                   // 🔴 書き込みはこれ一つの書き方\n  sql: 'INSERT INTO t (name, age) VALUES (?, ?)',\n  params: ['王五', 30]                          // 🔴 スカラー配列のみ可\n}).then(r => { /* r.ok / r.rows / r.changes / r.lastInsertId */ });\n```\n\n## 🔴 op は `run` だけが認識される\n\n判定基準は「リテラル `run` であるか」で、**「有効な op であるか」ではない**:\n\n| op の値 | 処理経路 | 戻り値 |\n|---|---|---|\n| `run` | 書き込み経路 | `{ ok:true, changes, lastInsertId }` |\n| `query` / `insert` / `Run` / 省略 / その他 | **読み取り経路** | `{ ok:true, rows:[...] }`, 最大 5000 行 |\n| 失敗 | —— | `{ ok:false, code, message }`, code は `db_failed` / `no_driver` / `missing_pkg` |\n\nやっかいなのは読み取り経路で実行されるのは `db.all(sql, params)` ——\nこれで INSERT 文を実行したら、**ステートメントは実際に実行され**、\n結果セットは空として返される。したがって:\n\n| 予想 | 実際 |\n|---|---|\n| op が間違っていたらエラーになる | エラーにならず、`ok:true` |\n| lastInsertId がない = 書き込まれていない | 書き込まれているが、この経路では取得できない |\n| では再試行すればいい | **2回目が実行される** |\n\n## params は配列を持つことができる唯一のフィールド\n\nコマンドに渡されるパラメータは、**params を除くすべてが文字列に変換され**、\nネストされたオブジェクトは直接破棄されます。params は特例(prepared statement の第一級パラメータ)\nですが、**スカラー要素のみ**が許可されます。配列内にオブジェクトがあると、\nその要素は `[object Object]` になります。\n\n構造化されたものを保存する場合は、`JSON.stringify` で文字列にしてから渡してください。\n\n## テーブル作成は自分でやる\n\n自動テーブル作成はない。UI が起動するとき、まずべき等な CREATE TABLE 文を実行してから他をやる:\n\n```js\nbutlerUI.call('包id.db', { op:'run', sql:'CREATE TABLE IF NOT EXISTS t (id INTEGER PRIMARY KEY, name TEXT)' });\n```\n\n## 書き込みできないとき、ここを見よ\n\nSQL がエラーなし、`ok` も true だが、データベースに行がない。\n十中八九 params の形状が間違っていて、プレースホルダーは残されたが値が渡されていない。\nトランザクションはなく、書き込み操作の連鎖で途中失敗すると不整合なデータが残る。順序に従い自分で始末する。",
+        "en": "## Call Shape\n\n```js\nbutlerUI.call('package_id.command_name', {\n  op: 'run',                                   // 🔴 Only this one form is valid for writes\n  sql: 'INSERT INTO t (name, age) VALUES (?, ?)',\n  params: ['王五', 30]                          // 🔴 Only scalar array allowed\n}).then(r => { /* r.ok / r.rows / r.changes / r.lastInsertId */ });\n```\n\n## 🔴 Only `run` is recognized as op\n\nThe criterion is \"is it the literal `run`\", **not \"is it a valid op\"**:\n\n| op you write | routing | return |\n|---|---|---|\n| `run` | write path | `{ ok:true, changes, lastInsertId }` |\n| `query` / `insert` / `Run` / omitted / anything else | **read path** | `{ ok:true, rows:[...] }`, up to 5000 rows |\n| failed | —— | `{ ok:false, code, message }`, code has `db_failed` / `no_driver` / `missing_pkg` |\n\nThe trap: the read path executes `db.all(sql, params)` —— running an INSERT through it will **actually execute the statement**,\nit just returns the result set as empty. So:\n\n| You expect | What happens |\n|---|---|\n| wrong op will error | no error, `ok:true` |\n| no lastInsertId = not written | it was written, this path just doesn't return it |\n| so I'll retry once | **second write executes** |\n\n## params is the only field that can carry an array\n\nParameters passed to a command are **converted to strings except for params**, nested objects are discarded outright.\nparams is special (it's a first-class prepared statement parameter), but only **scalar elements** are allowed ——\nif the array contains an object, that element becomes `[object Object]`.\n\nTo store structured data, `JSON.stringify` it into a string first, then pass it.\n\n## Table creation is on you\n\nNo auto-create table. When the UI starts, run an idempotent CREATE TABLE statement first, then proceed:\n\n```js\nbutlerUI.call('package_id.db', { op:'run', sql:'CREATE TABLE IF NOT EXISTS t (id INTEGER PRIMARY KEY, name TEXT)' });\n```\n\n## When writes fail, look here\n\nSQL has no error, `ok` is true, but the row doesn't appear in the database —— nine times out of ten,\nparams shape is wrong: placeholders are there but values didn't make it through. No transactions; if a write chain fails midway,\nyou get dirty data. Sort it out in order.",
+        "zh-TW": "## 呼叫形狀\n\n```js\nbutlerUI.call('包id.命令名', {\n  op: 'run',                                   // 🔴 寫入只有這一個寫法\n  sql: 'INSERT INTO t (name, age) VALUES (?, ?)',\n  params: ['王五', 30]                          // 🔴 只能是純量陣列\n}).then(r => { /* r.ok / r.rows / r.changes / r.lastInsertId */ });\n```\n\n## 🔴 op 只有 `run` 是被認出來的\n\n判據是「是不是字面量 `run`」, **不是「是不是合法的 op」**:\n\n| 你寫的 op | 走哪條路 | 傳回 |\n|---|---|---|\n| `run` | 寫入路 | `{ ok:true, changes, lastInsertId }` |\n| `query` / `insert` / `Run` / 漏傳 / 任何別的 | **讀取路** | `{ ok:true, rows:[...] }`, 最多 5000 行 |\n| 失敗 | —— | `{ ok:false, code, message }`, code 有 `db_failed` / `no_driver` / `missing_pkg` |\n\n要命的是讀取路執行的是 `db.all(sql, params)` —— 拿它跑一句 INSERT, **語句真的會執行**,\n只是把結果集當成空傳回。於是:\n\n| 你以為 | 實際 |\n|---|---|\n| op 寫錯了會報錯 | 不報錯, `ok:true` |\n| 沒有 lastInsertId = 沒寫成 | 寫成了, 只是這條路不帶回來 |\n| 那我重試一次 | **寫了第二遍** |\n\n## params 是唯一能帶陣列的欄位\n\n往命令裡傳的參數**除了 params 之外全部會被轉成字串**, 嵌套物件直接丟掉。\nparams 是特例(它是 prepared statement 的一等參數), 但也只放行**純量元素** ——\n陣列裡再套物件, 那個元素會變成 `[object Object]`。\n\n要存結構化的東西, 自己 `JSON.stringify` 成一個字串再放進去。\n\n## 建表要自己做\n\n沒有自動建表。介面起來時先跑一句冪等的建表語句, 再幹別的:\n\n```js\nbutlerUI.call('包id.db', { op:'run', sql:'CREATE TABLE IF NOT EXISTS t (id INTEGER PRIMARY KEY, name TEXT)' });\n```\n\n## 寫不進去時先看這裡\n\nSQL 沒報錯、`ok` 也是 true, 但庫裡就是沒有那一行 —— 十有八九是 params 的形狀不對,\n佔位符還在、值沒跟過去。沒有事務, 一串寫操作中間失敗會留下髒資料, 自己按順序兜。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_plugin_payload_is_one_json_and_capped"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_button_wakes_ai_by_default"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_state_is_capped_and_fails_quietly"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_ui_must_say_ready_within_four_seconds",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "写插件时 ready 和心跳不用你写, 插件坏了也没有日志, 只能靠屏幕上两个症状反推",
+      "claim": "写插件时不用写 ready(起来了的招呼)和心跳(还活着的信号), 沙箱自己发, 你也写不了(butlerUI 只有 onInit/onPush/call/setState/resize 五个方法)。它们给你两个诊断症状: ① 屏幕上出现「这个界面没能起来」= 装上 4 秒内沙箱没收到 ready, 说明你的 js 在页面加载完之前就抛错了, 或者被安全策略拦了 ② 界面先好好的然后突然消失 = 连丢 3 次心跳(每 2 秒一次), 说明你的 js 把浏览器卡死了(死循环或超大同步计算), 插件的 iframe 和主窗口共用一个事件循环。🔴 两种情况都没有堆栈、没有日志, 打包版连 stderr 都看不到, 只能靠这两个症状反推。",
+      "keywords": "界面 起不来 没能起来 白屏 打开是白的 一片白 白的 空白 空的 什么都没有 没内容 打不开 显示不出来 出不来 装不上 加载失败 ready 超时 4 秒 心跳 beat 卡死 死循环 卡住 被拆 销毁 报错在哪 看不到错误 没有日志 怎么调试 排查 诊断 插件 界面包",
+      "translations": {
+        "ja": {
+          "title": "プラグインを書くとき ready とハートビートは書かなくてよい。壊れてもログは出ず、画面上の二つの症状から逆算するしかない",
+          "claim": "プラグインを書くとき ready とハートビートは自分で書かない。サンドボックスが自動で送り、書く手段も無い(butlerUI には onInit/onPush/call/setState/resize の五つのみ)。この二つがくれるのは診断症状: ① 画面に「この画面を起動できませんでした」= 設置から 4 秒以内に ready が届かなかった。js がページ読み込み完了前に例外を投げたか、セキュリティポリシーに止められた ② 正常に出た画面が突然消える = ハートビートを 3 回連続で落とした(2 秒間隔)。js がブラウザを固めた(無限ループか巨大な同期計算)。iframe はメインウィンドウとイベントループを共有している。🔴 どちらもスタックもログも無く、パッケージ版では stderr すら見えない。この二症状から逆算するしかない。",
+          "keywords": "画面 起動しない 白い 真っ白 空白 中身なし 開けない 表示できない 出ない インストール失敗 ready timeout 4秒 heartbeat beat block 無限ループ フリーズ 削除 破棄 error どこに log ない debug 検査 plugin UI パッケージ プラグイン プラグインの画面"
+        },
+        "en": {
+          "title": "When writing a plugin you never write ready or the heartbeat; when it breaks there are no logs, only two on-screen symptoms to reason back from",
+          "claim": "When writing a plugin you do not write ready (the \"I came up\" greeting) or the heartbeat (the \"still alive\" signal) — the sandbox sends both, and you could not write them anyway (butlerUI has only onInit/onPush/call/setState/resize). What they give you is two diagnostic symptoms: (1) \"this screen could not start\" on screen = no ready reached the sandbox within 4 seconds of mounting, meaning your js threw before the page finished loading, or the security policy blocked it; (2) the screen appears fine and then suddenly vanishes = three heartbeats missed in a row (one every 2 seconds), meaning your js froze the browser (infinite loop or a huge synchronous computation) — a plugin iframe shares one event loop with the main window. 🔴 Neither case leaves a stack or a log, and the packaged build does not even show stderr, so these two symptoms are all you have to reason back from.",
+          "keywords": "UI won't start white screen blank screen the screen is white empty no content nothing renders nothing shows up not loading failed to load cannot open ready timeout four seconds heartbeat beat deadlock infinite loop frozen stuck crash disappeared torn down where is the error no logs how to debug diagnostics plugin interface"
+        },
+        "zh-TW": {
+          "title": "寫外掛時 ready 和心跳不用你寫, 外掛壞了也沒有日誌, 只能靠畫面上兩個症狀反推",
+          "claim": "寫外掛時不用寫 ready(起來了的招呼)和心跳(還活著的訊號), 沙箱自己發, 你也寫不了(butlerUI 只有 onInit/onPush/call/setState/resize 五個方法)。它們給你兩個診斷症狀: ① 畫面上出現「這個介面沒能起來」= 裝上 4 秒內沙箱沒收到 ready, 說明你的 js 在頁面載入完之前就拋錯了, 或者被安全政策擋了 ② 介面先好好的然後突然消失 = 連丟 3 次心跳(每 2 秒一次), 說明你的 js 把瀏覽器卡死了(無窮迴圈或超大同步計算), 外掛的 iframe 和主視窗共用一個事件迴圈。🔴 兩種情況都沒有堆疊、沒有日誌, 打包版連 stderr 都看不到, 只能靠這兩個症狀反推。",
+          "keywords": "界面 起不來 沒能起來 白屏 打開是白的 一片白 白的 空白 空的 什麼都沒有 沒內容 打不開 顯示不出來 出不來 裝不上 加載失敗 ready 超時 4 秒 心跳 beat 卡死 死迴圈 卡住 被拆 銷毀 報錯在哪 看不到錯誤 沒有日誌 怎麼調試 排查 診斷 外掛 外掛"
+        }
+      },
+      "body": "## 你不用做任何事\n\n`ready` 由沙箱桥在 `DOMContentLoaded` 时自己发, 心跳由宿主每 2 秒问一次、桥自己答。\n**别去找 `butlerUI.ready()` —— 没有这个方法。** 你只管把界面写对。\n\n## 这两个信号是用来排查的\n\n| 症状 | 含义 | 先查什么 |\n|---|---|---|\n| 「这个界面没能起来」 | 4 秒内桥没发出 ready | js 里有语法错 / 顶层就抛了; 或者动作被 CSP 拦了(出网、外链图片、eval) |\n| 界面本来好好的, 突然被拆掉 | 连丢 3 次心跳(2 秒一次) | js 把事件循环卡死了 —— 死循环、超大同步计算 |\n\n🔴 **没有堆栈、没有日志, 打包版连 stderr 都看不到。** js 里一个语法错、一个被 CSP 拦下的\n动作, 表现全是同一行字。所以别指望报错告诉你哪儿错了 —— 二分注释掉代码去夹, 比盯着看快。\n\n心跳那条为什么非拆不可: iframe 和主窗口共享同一个事件循环, 界面里一个死循环会把\n**整个窗口**卡死, 拆掉它是在救主窗口。所以要算很久的东西分片做, 记得让出事件循环。",
+      "body_i18n": {
+        "ja": "## 何もする必要はない\n\n`ready` はサンドボックスブリッジが `DOMContentLoaded` 時に自動的に送信し、ハートビートはホストが 2 秒ごとに問い合わせ、ブリッジが自動的に応答する。**`butlerUI.ready()` を探さないこと — そんなメソッドは存在しない。** UI を正しく書くだけで良い。\n\n## この二つの信号はトラブルシューティング用だ\n\n| 症状 | 意味 | 最初に確認すべきこと |\n|---|---|---|\n| 「このUI が起動しない」 | 4秒以内にブリッジが ready を送信しない | js に構文エラーがある / 最上位で例外が投げられている；あるいはアクションが CSP に遮られている（外部通信、外部画像、eval） |\n| UI は正常に動作していたが、突然削除された | ハートビートを連続 3 回失う（2秒ごと） | js がイベントループをハングさせている —— 無限ループ、超大型同期計算 |\n\n🔴 **スタックトレースがない、ログがない、パッケージ版では stderr も見られない。** js の構文エラー一つ、CSP に遮られたアクション一つ、すべて同じ一行で表現される。だからエラーメッセージが何が間違っているか教えてくれることは期待できない — コードをコメントアウトして二分法で探す方が早い。\n\nハートビート削除が避けられない理由: iframe と main window が同じイベントループを共有していて、UI 内の無限ループが **ウィンドウ全体** をハングさせ、削除がメインウィンドウを救う。だから長い処理が必要なら分割して実行し、イベントループに処理を譲る。",
+        "en": "## You don't need to do anything\n\n`ready` is sent by the sandbox bridge itself at `DOMContentLoaded`, and heartbeats are polled by the host every 2 seconds, with the bridge answering itself. **Don't look for `butlerUI.ready()` — this method doesn't exist.** Just write your UI correctly.\n\n## These two signals are for troubleshooting\n\n| Symptom | Meaning | Check first |\n|---|---|---|\n| \"This UI didn't start\" | Bridge doesn't send ready within 4 seconds | js has syntax error / throws at top level; or action is blocked by CSP (network, external images, eval) |\n| UI was working fine, suddenly torn down | Lose 3 heartbeats in a row (every 2 seconds) | js froze the event loop — infinite loop, huge sync computation |\n\n🔴 **No stack trace, no logs, package builds can't even see stderr.** One js syntax error, one action blocked by CSP, all look identical in output. So don't expect error messages to tell you what's wrong — binary search by commenting code is faster.\n\nWhy heartbeat deletion is unavoidable: iframe and main window share the same event loop, an infinite loop in the UI freezes the **entire window**, and deleting it saves the main window. So split long work into chunks and yield to the event loop.",
+        "zh-TW": "## 你不用做任何事\n\n`ready` 由沙箱橋在 `DOMContentLoaded` 時自己發，心跳由宿主每 2 秒問一次、橋自己答。**別去找 `butlerUI.ready()` —— 沒有這個方法。** 你只管把介面寫對。\n\n## 這兩個信號是用來排查的\n\n| 症狀 | 含義 | 先查什麼 |\n|---|---|---|\n| 「這個介面沒能起來」 | 4 秒內橋沒發出 ready | js 裡有語法錯 / 頂層就拋了；或者動作被 CSP 攔了（出網、外連圖片、eval） |\n| 介面本來好好的，突然被拆掉 | 連丟 3 次心跳（2 秒一次） | js 把事件迴圈卡死了 —— 死迴圈、超大同步計算 |\n\n🔴 **沒有堆疊、沒有日誌，打包版連 stderr 都看不到。** js 裡一個語法錯、一個被 CSP 攔下的動作，表現全是同一行字。所以別指望報錯告訴你哪兒錯了 —— 二分註解掉程式碼去夾，比盯著看快。\n\n心跳那條為什麼非拆不可：iframe 和主視窗共享同一個事件迴圈，介面裡一個死迴圈會把**整個視窗**卡死，拆掉它是在救主視窗。所以要算很久的東西分片做，記得讓出事件迴圈。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_plugin_payload_is_one_json_and_capped"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_sandbox_has_no_network_at_all"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_sandbox_has_no_network_at_all",
+      "seed_use_count": 3,
+      "type": "reference",
+      "importance": "high",
+      "title": "插件要联网就声明 web 命令, 由宿主按包里的 net 名单去取",
+      "claim": "插件界面自己连不了网(沙箱 CSP 是 default-src none, fetch / XMLHttpRequest / 外部图片字体都出不去); 要拉接口, 在包顶层写 `net` 名单(如 `[\"api.example.com\", \"*.example.com\", \"192.168.1.20:8080\"]`), 再声明命令 `{\"primitive\":\"web\",\"http\":{\"method\":\"GET\",\"url\":\"https://api.example.com/v1/{city}\"}}`, 界面用 `butlerUI.call(\"包id.命令名\", {city:\"tokyo\", query:{lang:\"zh\"}})` 调, 结果在返回值的 `data.body` 里。",
+      "keywords": "插件 能不能 做得到吗 联网 网络 请求 接口 api 调接口 拉数据 fetch ajax 爬 在线 天气 cdn 引入库 jquery 外部 图片 加载不了 eval 动态代码 localStorage 存本地 读文件 沙箱 限制 封死 做不到 上限 边界 web net 名单 白名单 域名 IP secret 密钥 API key token 联网命令 宿主代发",
+      "translations": {
+        "ja": {
+          "title": "プラグインがネットを使うには web コマンドを宣言し、ホストがパッケージの net 名簿どおりに取りに行く",
+          "claim": "プラグインの画面は自分ではネットに出られない(サンドボックスの CSP は default-src none で、fetch / XMLHttpRequest / 外部画像・フォントはすべて出られない)。API を呼ぶには、パッケージ最上位に `net` 名簿(例 `[\"api.example.com\", \"*.example.com\", \"192.168.1.20:8080\"]`)を書き、コマンド `{\"primitive\":\"web\",\"http\":{\"method\":\"GET\",\"url\":\"https://api.example.com/v1/{city}\"}}` を宣言し、画面から `butlerUI.call(\"パッケージid.コマンド名\", {city:\"tokyo\", query:{lang:\"ja\"}})` で呼ぶ。結果は戻り値の `data.body` に入る。",
+          "keywords": "プラグイン できる? やれる? ネットワーク 通信 リクエスト インタフェース api を呼ぶ データ取得 fetch ajax クローリング オンライン 天気 cdn ライブラリを読み込む jquery 外部 画像 読み込めない eval 動的コード localStorage ローカル保存 ファイル読み込み サンドボックス 制限 密閉 できない 上限 境界 ネットに繋がる 繋がる 繋がりますか web net 名簿 ホワイトリスト ドメイン IP secret 鍵 API キー トークン ネット接続コマンド ホスト代行"
+        },
+        "en": {
+          "title": "To reach the network a plugin declares a web command, and the host fetches from the package's net list",
+          "claim": "A plugin screen cannot reach the network by itself (the sandbox CSP is default-src none; fetch / XMLHttpRequest / external images and fonts all stay inside). To call an API, put a top-level `net` list in the package (e.g. `[\"api.example.com\", \"*.example.com\", \"192.168.1.20:8080\"]`), declare a command `{\"primitive\":\"web\",\"http\":{\"method\":\"GET\",\"url\":\"https://api.example.com/v1/{city}\"}}`, and call it from the screen with `butlerUI.call(\"pkgid.command\", {city:\"tokyo\", query:{lang:\"en\"}})`; the result is in the return value's `data.body`.",
+          "keywords": "plugin network no internet access offline cannot reach the internet call an API hit an endpoint outbound request fetch ajax http external service scrape weather cdn load a remote library jquery remote image cannot load eval dynamic code localStorage filesystem sandbox restriction blocked not allowed impossible limit boundary web net allowlist whitelist domain IP secret API key token network command host fetches"
+        },
+        "zh-TW": {
+          "title": "外掛要連網就宣告 web 命令, 由宿主按包裡的 net 名單去取",
+          "claim": "外掛畫面自己連不了網(沙箱 CSP 是 default-src none, fetch / XMLHttpRequest / 外部圖片字型都出不去); 要拉介面, 在包頂層寫 `net` 名單(如 `[\"api.example.com\", \"*.example.com\", \"192.168.1.20:8080\"]`), 再宣告命令 `{\"primitive\":\"web\",\"http\":{\"method\":\"GET\",\"url\":\"https://api.example.com/v1/{city}\"}}`, 畫面用 `butlerUI.call(\"包id.命令名\", {city:\"tokyo\", query:{lang:\"zh-TW\"}})` 呼叫, 結果在回傳值的 `data.body` 裡。",
+          "keywords": "外掛 能不能 能不能連網 做得到嗎 連網 聯網 上網 網路 對外請求 請求 呼叫接口 接口 呼叫介面 介面 呼叫 API api 調介面 拉資料 fetch ajax 爬 線上 在線 天氣 cdn 引入庫 jquery 外部 圖片 載入不了 加載不了 eval 動態程式碼 localStorage 存本地 讀檔案 沙箱 限制 封死 做不到 上限 邊界 web net 名單 白名單 網域 IP secret 金鑰 API key token 連網命令 宿主代發"
+        }
+      },
+      "body": "## 联网的形状\n\n```json\n{\n  \"type\": \"ui\", \"id\": \"weather\", \"version\": \"1.0.0\",\n  \"net\": [\"api.example.com\"],\n  \"commands\": {\n    \"today\":  { \"primitive\": \"web\", \"http\": { \"method\": \"GET\", \"url\": \"https://api.example.com/v1/{city}\", \"secret\": { \"name\": \"key\" } } },\n    \"setkey\": { \"primitive\": \"secret\", \"op\": \"set\" },\n    \"haskey\": { \"primitive\": \"secret\", \"op\": \"status\" }\n  }\n}\n```\n\n- `net` 每项是域名(精确匹配)、`*.域名`(只认子域)或 IP, 可带 `:端口`; 不写端口只认 80 / 443。\n- `http.url` 的协议和主机必须写死, `{}` 只能放在路径和 query 里, 填进去的值会被转义。主机不在 `net` 里, 这条命令装载时就被拒。\n- 界面能传的只有 `{}` 的值、`query`(对象)和 `body`(对象按 JSON 发, 字符串原样发)。\n- 返回 `{ ok, data: { status, ok, content_type, body } }`; JSON 已经解析好。\n- 跳转只跟名单内的; 15 秒超时; 返回超过 2MB 不收。\n- 要 API key: 面板里让用户输入后调 `setkey`(`{name:\"key\", value:\"...\"}`), web 命令写 `secret:{name:\"key\", header?, format?}`(默认 `Authorization: Bearer {}`), 宿主发请求时才塞进去。🔴 secret 没有读出原文的 op, 只有 status / set / clear。\n\n## 沙箱里仍然没有的东西\n\n| 想干的事 | 结果 | 该怎么办 |\n|---|---|---|\n| 界面里直接 `fetch` / `XMLHttpRequest` | 被 CSP 拦 | 改成声明 web 命令 |\n| `<img src=\"http://...\">` / 外部字体 | 加载不出来 | 用 `data:` 内联 |\n| 引 CDN 上的库 | 引不进来 | 代码内联进包的 js |\n| `eval` / `new Function` | 没有 | —— |\n| `localStorage` / 读写文件 | 没有 | 用 `state` 或 `db` 原语 |\n| 摸宿主页面、看用户是谁 | 摸不到 | 需要什么由你在 init 里给它 |\n\nweb 命令默认不唤醒你(结果是给界面画的); 要你判断的内容, 界面拿到后再用 `message` 命令交给你。",
+      "body_i18n": {
+        "ja": "## ネット接続の形\n\n```json\n{\n  \"type\": \"ui\", \"id\": \"weather\", \"version\": \"1.0.0\",\n  \"net\": [\"api.example.com\"],\n  \"commands\": {\n    \"today\":  { \"primitive\": \"web\", \"http\": { \"method\": \"GET\", \"url\": \"https://api.example.com/v1/{city}\", \"secret\": { \"name\": \"key\" } } },\n    \"setkey\": { \"primitive\": \"secret\", \"op\": \"set\" },\n    \"haskey\": { \"primitive\": \"secret\", \"op\": \"status\" }\n  }\n}\n```\n\n- `net` の各項目はドメイン(完全一致)、`*.ドメイン`(サブドメインのみ)、または IP で、`:ポート` を付けられる。ポートを書かない場合は 80 / 443 のみが対象。\n- `http.url` のプロトコルとホストは固定で書く必要があり、`{}` はパスと query にしか置けない。埋め込んだ値はエスケープされる。ホストが `net` に含まれていなければ、そのコマンドはロード時に拒否される。\n- 画面側から渡せるのは `{}` の値、`query`(オブジェクト)、`body`(オブジェクトは JSON として送信、文字列はそのまま送信)だけ。\n- 戻り値は `{ ok, data: { status, ok, content_type, body } }`; JSON は既に解析済み。\n- リダイレクトはホワイトリスト内のものだけ追従する; タイムアウトは 15 秒; レスポンスが 2MB を超えると受け付けない。\n- API key が必要な場合: パネルでユーザーに入力させた後に `setkey`(`{name:\"key\", value:\"...\"}`)を呼ぶ。web コマンドには `secret:{name:\"key\", header?, format?}`(デフォルトは `Authorization: Bearer {}`)を書いておき、ホストがリクエストを送る時に差し込まれる。🔴 secret には元の値を読み出す op はなく、status / set / clear しかない。\n\n## サンドボックスに依然ないもの\n\n| やりたいこと | 結果 | どうすればいいか |\n|---|---|---|\n| 画面内で直接 `fetch` / `XMLHttpRequest` | CSP にブロックされる | web コマンドを宣言する形に変える |\n| `<img src=\"http://...\">` / 外部フォント | 読み込めない | `data:` でインライン化する |\n| CDN 上のライブラリを読み込む | 読み込めない | コードをパッケージ内の js にインライン化する |\n| `eval` / `new Function` | 使えない | —— |\n| `localStorage` / ファイルの読み書き | 使えない | `state` または `db` プリミティブを使う |\n| ホスト側のページに触れる、ユーザーが誰か見る | 触れない | 必要なものは init で渡しておく |\n\nweb コマンドはデフォルトではあなたを呼び起こさない(結果は画面に描画される); あなたの判断が必要な内容は、画面がそれを受け取った後に `message` コマンドで渡される。",
+        "en": "## Shape of a networked plugin\n\n```json\n{\n  \"type\": \"ui\", \"id\": \"weather\", \"version\": \"1.0.0\",\n  \"net\": [\"api.example.com\"],\n  \"commands\": {\n    \"today\":  { \"primitive\": \"web\", \"http\": { \"method\": \"GET\", \"url\": \"https://api.example.com/v1/{city}\", \"secret\": { \"name\": \"key\" } } },\n    \"setkey\": { \"primitive\": \"secret\", \"op\": \"set\" },\n    \"haskey\": { \"primitive\": \"secret\", \"op\": \"status\" }\n  }\n}\n```\n\n- Each `net` entry is a domain (exact match), `*.domain` (subdomains only) or an IP, optionally with `:port`; without a port only 80 / 443 match.\n- The scheme and host of `http.url` must be literal; `{}` holes may appear only in the path and query, and filled values are escaped. A host outside `net` gets the command rejected at load time.\n- The screen can pass only the `{}` values, `query` (object) and `body` (object sent as JSON, string sent as is).\n- Returns `{ ok, data: { status, ok, content_type, body } }`; JSON is already parsed.\n- Redirects are followed only inside the list; 15 s timeout; responses over 2 MB are refused.\n- API keys: have the user type it in the panel and call `setkey` (`{name:\"key\", value:\"...\"}`); the web command says `secret:{name:\"key\", header?, format?}` (default `Authorization: Bearer {}`) and the host inserts it when sending. 🔴 secret has no op that reads the value back — only status / set / clear.\n\n## Still absent from the sandbox\n\n| You want to | Result | Do this |\n|---|---|---|\n| `fetch` / `XMLHttpRequest` from the screen | Blocked by CSP | Declare a web command |\n| `<img src=\"http://...\">` / external fonts | Won't load | Inline with `data:` |\n| Load a CDN library | Can't | Inline the code into the package js |\n| `eval` / `new Function` | Absent | —— |\n| `localStorage` / files | Absent | Use the `state` or `db` primitive |\n| Touch the host page / see who the user is | Can't | Pass what it needs in init |\n\nA web command does not wake you by default (the result is for the screen to draw); if you need to judge something, have the screen hand it to you with a `message` command.",
+        "zh-TW": "## 連網的形狀\n\n```json\n{\n  \"type\": \"ui\", \"id\": \"weather\", \"version\": \"1.0.0\",\n  \"net\": [\"api.example.com\"],\n  \"commands\": {\n    \"today\":  { \"primitive\": \"web\", \"http\": { \"method\": \"GET\", \"url\": \"https://api.example.com/v1/{city}\", \"secret\": { \"name\": \"key\" } } },\n    \"setkey\": { \"primitive\": \"secret\", \"op\": \"set\" },\n    \"haskey\": { \"primitive\": \"secret\", \"op\": \"status\" }\n  }\n}\n```\n\n- `net` 每項是網域(精確比對)、`*.網域`(只認子網域)或 IP, 可帶 `:埠號`; 不寫埠號只認 80 / 443。\n- `http.url` 的協定和主機必須寫死, `{}` 只能放在路徑和 query 裡, 填進去的值會被轉義。主機不在 `net` 裡, 這條命令載入時就會被拒絕。\n- 介面能傳的只有 `{}` 的值、`query`(物件)和 `body`(物件按 JSON 發送, 字串原樣發送)。\n- 回傳 `{ ok, data: { status, ok, content_type, body } }`; JSON 已經解析好。\n- 跳轉只跟名單內的; 15 秒逾時; 回應超過 2MB 不收。\n- 要 API 金鑰: 面板裡讓使用者輸入後呼叫 `setkey`(`{name:\"key\", value:\"...\"}`), web 命令寫 `secret:{name:\"key\", header?, format?}`(預設 `Authorization: Bearer {}`), 宿主發送請求時才塞進去。🔴 secret 沒有讀出原文的 op, 只有 status / set / clear。\n\n## 沙箱裡仍然沒有的東西\n\n| 想做的事 | 結果 | 該怎麼辦 |\n|---|---|---|\n| 介面裡直接 `fetch` / `XMLHttpRequest` | 被 CSP 擋下 | 改成宣告 web 命令 |\n| `<img src=\"http://...\">` / 外部字型 | 載入不出來 | 用 `data:` 內嵌 |\n| 引用 CDN 上的函式庫 | 引不進來 | 程式碼內嵌進套件的 js |\n| `eval` / `new Function` | 沒有 | —— |\n| `localStorage` / 讀寫檔案 | 沒有 | 用 `state` 或 `db` 原語 |\n| 摸宿主頁面、看使用者是誰 | 摸不到 | 需要什麼由你在 init 裡給它 |\n\nweb 命令預設不會喚醒你(結果是畫給介面的); 需要你判斷的內容, 介面拿到後再用 `message` 命令交給你。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_plugin_payload_is_one_json_and_capped"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_you_can_write_your_own_plugin"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_record_and_pronunciation_scoring",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "插件要录音、评发音就用 record 和 pron 两种命令, 由宿主代录代评",
+      "claim": "插件沙箱里没有麦克风, 录音由宿主代录: 声明 `{\"primitive\":\"record\",\"op\":\"warm\"}`(界面一显示就调, 提前开麦) · `{\"primitive\":\"record\",\"op\":\"start\",\"max_sec\":120}` · `{\"primitive\":\"record\",\"op\":\"stop\"}`(回 `data.id` / `data.path` / `data.duration_sec`) · `{\"primitive\":\"record\",\"op\":\"play\",\"params\":{\"id\":{\"required\":true}}}`; 界面 pointerdown 调 start、pointerup 调 stop 就是按住说话。评发音声明 `{\"primitive\":\"pron\",\"op\":\"assess\",\"params\":{\"id\":{\"required\":true},\"text\":{},\"lang\":{}}}`, 传录音 id、原文(不传就是自由回答)和语言(如 en-GB / ja-JP), 回总分、准确、流利、完整、韵律和逐词分; Azure key 用 op key_set / status 在插件界面里存。现成的完整例子是插件 pron-check。",
+      "keywords": "插件 录音 麦克风 按住说话 回放 口语 跟读 朗读 发音 评分 打分 口语评测 雅思 日语 发音练习 Azure 微软 key record pron 能不能录音 做得到吗",
+      "translations": {
+        "ja": {
+          "title": "プラグインで録音・発音評価をするには record と pron のコマンドを使い、ホストが代わりに録音・評価する",
+          "claim": "プラグインのサンドボックスにはマイクがないので、録音はホストが代行する: `{\"primitive\":\"record\",\"op\":\"warm\"}`(画面表示時に呼び、先にマイクを開く)· `{\"primitive\":\"record\",\"op\":\"start\",\"max_sec\":120}` · `{\"primitive\":\"record\",\"op\":\"stop\"}`(`data.id` / `data.path` / `data.duration_sec` が返る)· `{\"primitive\":\"record\",\"op\":\"play\",\"params\":{\"id\":{\"required\":true}}}` を宣言する。画面で pointerdown に start、pointerup に stop を当てれば押して話す方式になる。発音評価は `{\"primitive\":\"pron\",\"op\":\"assess\",\"params\":{\"id\":{\"required\":true},\"text\":{},\"lang\":{}}}` を宣言し、録音 id・原文(省くと自由回答)・言語(en-GB / ja-JP など)を渡すと、総合・正確さ・流暢さ・完全性・韻律と単語ごとの点が返る。Azure キーは op key_set / status でプラグイン画面から保存する。完成例はプラグイン pron-check。",
+          "keywords": "プラグイン 録音 マイク 押して話す 再生 スピーキング 音読 発音 採点 評価 IELTS 日本語 発音練習 Azure キー record pron 録音できる?"
+        },
+        "en": {
+          "title": "Plugins record audio and score pronunciation with record and pron commands; the host does both",
+          "claim": "The plugin sandbox has no microphone, so the host records for it: declare `{\"primitive\":\"record\",\"op\":\"warm\"}` (call it as soon as the screen shows, to open the mic early) · `{\"primitive\":\"record\",\"op\":\"start\",\"max_sec\":120}` · `{\"primitive\":\"record\",\"op\":\"stop\"}` (returns `data.id` / `data.path` / `data.duration_sec`) · `{\"primitive\":\"record\",\"op\":\"play\",\"params\":{\"id\":{\"required\":true}}}`; wire start to pointerdown and stop to pointerup for hold-to-talk. To score pronunciation declare `{\"primitive\":\"pron\",\"op\":\"assess\",\"params\":{\"id\":{\"required\":true},\"text\":{},\"lang\":{}}}` and pass the recording id, the reference text (omit it for a free answer) and the language (e.g. en-GB / ja-JP); it returns overall, accuracy, fluency, completeness and prosody plus a score per word. The Azure key is stored from the plugin screen with op key_set / status. The full working example is the pron-check plugin.",
+          "keywords": "plugin record recording microphone mic hold to talk playback speaking read aloud pronunciation score assessment ielts japanese practice azure key record pron can it record"
+        },
+        "zh-TW": {
+          "title": "外掛要錄音、評發音就用 record 和 pron 兩種命令, 由宿主代錄代評",
+          "claim": "外掛沙箱裡沒有麥克風, 錄音由宿主代錄: 宣告 `{\"primitive\":\"record\",\"op\":\"warm\"}`(介面一顯示就呼叫, 提前開麥) · `{\"primitive\":\"record\",\"op\":\"start\",\"max_sec\":120}` · `{\"primitive\":\"record\",\"op\":\"stop\"}`(回 `data.id` / `data.path` / `data.duration_sec`) · `{\"primitive\":\"record\",\"op\":\"play\",\"params\":{\"id\":{\"required\":true}}}`; 介面 pointerdown 呼叫 start、pointerup 呼叫 stop 就是按住說話。評發音宣告 `{\"primitive\":\"pron\",\"op\":\"assess\",\"params\":{\"id\":{\"required\":true},\"text\":{},\"lang\":{}}}`, 傳錄音 id、原文(不傳就是自由回答)和語言(如 en-GB / ja-JP), 回總分、準確、流利、完整、韻律和逐詞分; Azure key 用 op key_set / status 在外掛介面裡存。現成的完整例子是外掛 pron-check。",
+          "keywords": "外掛 錄音 麥克風 按住說話 回放 口說 跟讀 朗讀 發音 評分 打分 口說評測 雅思 日語 發音練習 Azure 微軟 key record pron 能不能錄音"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_plugin_payload_is_one_json_and_capped"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_state_is_capped_and_fails_quietly",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "界面自己存的那点数据上限 64KB, 会一直变长的东西改用数据库",
+      "claim": "setState 存的是这个界面自己的小抽屉, 转成 JSON 之后上限 64KB; 会一直变长的东西(累积的列表、历史记录、base64 图片)改用 db 那个动作写数据库。用 setState 就自己截断, 并接住 onPush 把错误显示出来 —— 超限时不抛异常、代码照跑, 只是那一次没存上。",
+      "keywords": "setState state 状态 存 保存 记住 数据没了 丢了 回滚 上次的没了 重开就没了 64K 上限 太大 超了 存不下 onPush 静默 不报错 没提示 抽屉 持久化 插件 界面",
+      "translations": {
+        "ja": {
+          "title": "state 上限 64KB、増え続けるものは db へ",
+          "claim": "setState が持つのはこのUIだけの小さな引き出しで、JSON化後の上限は 64KB。積み上がるリスト・履歴・base64 画像は db プリミティブに移す。state を使う場合は自分で切り詰め、onPush でエラーを受け取って表示する ―― 超過しても例外は出ず、コードはそのまま動き、そのひと回分だけ保存されない。",
+          "keywords": "setState state ステート 保存 記憶 データ消えた 消えた ロールバック 前回ない 再開時消えた 64K 上限 大きすぎ 超 保存不可 onPush 静か エラーなし 無通知 引き出し 永続化 UI"
+        },
+        "en": {
+          "title": "state is capped at 64KB — use db for anything that keeps growing",
+          "claim": "setState is a small per-UI drawer; the JSON-serialized limit is 64KB. Move accumulating data — growing lists, history, base64 images — to the db primitive instead. If you use state, truncate it yourself and catch onPush to surface the error: exceeding the cap throws no exception, the code keeps running, and only that one write is silently dropped.",
+          "keywords": "setState state storage save data lost rollback 64K limit onPush silent error ui persistent"
+        },
+        "zh-TW": {
+          "title": "state 上限 64KB，會一直變長的東西改用 db",
+          "claim": "setState 存的是這個介面自己的小抽屜，JSON 化後上限 64KB；會一直變長的資料（累積的清單、歷史記錄、base64 圖片）改用 db 原語。用 state 就自己截斷，並接住 onPush 把錯誤顯示出來 —— 超限時不拋例外、程式碼照跑，只是那一次沒存上。",
+          "keywords": "setState state 狀態 存 保存 記住 資料沒了 丟了 回滾 上次的沒了 重開就沒了 64K 上限 太大 超了 存不下 onPush 靜默 不報錯 沒提示 抽屜 持久化 外掛 介面"
+        }
+      },
+      "body": "## 静默在哪\n\n```js\nbutlerUI.setState({ 一大坨: ... });   // 不会抛, 不会返回失败\nbutlerUI.onPush(d => { if (d.error) 显示(d.error); });  // 🔴 不接这个就永远不知道\n```\n\n失败的样子是**下次打开时数据回到了更早的版本**, 而不是当场报错 —— 隔了一次开窗,\n很难联想到是存的时候超限了。\n\n## state 还是 db\n\n| 存什么 | 用哪个 |\n|---|---|\n| 界面当前长什么样(选中项、折叠状态、当前页) | `state` |\n| 一条条累积、要查要筛、会越来越多的 | `db` |\n\n判据是**会不会增长**: 大小封顶的用 state, 只增不减的一律 db。",
+      "body_i18n": {
+        "ja": "## サイレント失敗の場所\n\n```js\nbutlerUI.setState({ 大量データ: ... });   // スロー(throw)しない、失敗を返さない\nbutlerUI.onPush(d => { if (d.error) 表示(d.error); });  // 🔴 これを処理しないと永遠に気づかない\n```\n\n失敗の症状は**次にウィンドウを開いたときにデータが以前のバージョンに戻っている**ということで、その場でエラーが出るのではない —— 次の開窓を挟むため、\n保存時に上限に達したことと関連付けるのが難しい。\n\n## state か db か\n\n| 何を保存するか | どちらを使うか |\n|---|---|\n| 現在 UI がどう見えるか(選択項目、折りたたみ状態、現在ページ) | `state` |\n| 1 件ずつ蓄積し、検索・フィルタリング対象、増え続ける | `db` |\n\n判定基準は**増加するかどうか**: サイズ上限がある場合は state、増加し続ける場合は全て db。",
+        "en": "## Where the silent failure is\n\n```js\nbutlerUI.setState({ large_object: ... });   // doesn't throw, doesn't return failure\nbutlerUI.onPush(d => { if (d.error) display(d.error); });  // 🔴 if you don't handle this you never find out\n```\n\nFailure looks like **data reverts to an earlier version the next time you open the window**, not an immediate error —— with a window open in between,\nit's hard to connect it to exceeding the limit when saving.\n\n## state or db\n\n| What to store | Which to use |\n|---|---|\n| Current UI appearance (selected items, collapsed states, current page) | `state` |\n| Accumulated one-by-one, searchable/filterable, grows indefinitely | `db` |\n\nCriterion is **will it grow**: size-capped use state, only-grows-never-shrinks use db universally.",
+        "zh-TW": "## 靜默在哪\n\n```js\nbutlerUI.setState({ 一大坨: ... });   // 不會拋, 不會返回失敗\nbutlerUI.onPush(d => { if (d.error) 顯示(d.error); });  // 🔴 不接這個就永遠不知道\n```\n\n失敗的樣子是**下次打開時資料回到了更早的版本**, 而不是當場報錯 —— 隔了一次開窗,\n很難聯想到是存的時候超限了。\n\n## state 還是 db\n\n| 存什麼 | 用哪個 |\n|---|---|\n| 介面當前長什麼樣(選中項、折疊狀態、當前頁) | `state` |\n| 一條條累積、要查要篩、會越來越多的 | `db` |\n\n判據是**會不會增長**: 大小封頂的用 state, 只增不減的一律 db。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_plugin_db_call_shape_params_must_be_scalars"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_payload_is_one_json_and_capped"
+        }
+      ]
+    },
+    {
+      "slug": "reference_how_to_write_a_workflow_package",
+      "seed_use_count": 3,
+      "type": "reference",
+      "importance": "high",
+      "title": "写一个多步插件就是写一串 steps, 一步写坏整包都不装",
+      "claim": "多步插件是插件的另一种形态: 不是一块屏幕, 而是一串按顺序翻的屏幕。type 写 workflow, 内容是 steps 数组, 每一步只有 id 和 md 两样(md 可以写成 {\"zh-CN\": \"...\", \"ja\": \"...\"} 这样的多语言对象)。步骤 id 只收字母数字开头、64 字以内的 [A-Za-z0-9_-]。任何一步的 id 不合法、id 和别的步骤重复、或者 md 是空的 —— **整个包都不装**, 宁可一屏都翻不了, 也不留一个能翻两屏的残废。翻页按钮不用自己写, 引擎会生成。",
+      "keywords": " workflow 流程 向导 一步步 分几步 多页 多屏 教程 引导 怎么写 自己做一个 steps 步骤 id md 多语言 装不上 整包 被拒 不生效 没装上 翻页 下一步 wf_go",
+      "translations": {
+        "ja": {
+          "title": "マルチ画面ハンドブックを書くというのは steps 列を書く、一步が壊れると全パッケージが不装",
+          "claim": "マルチ画面ハンドブックは UI パッケージに並行する別の種類のパッケージだ: type に workflow と書き、内容は steps 配列で、各步は id と md だけ(md は {\"zh-CN\": \"...\", \"ja\": \"...\"} こういう多言語オブジェクトで書ける)。步 id は文字数字開始、64 字以下の [A-Za-z0-9_-] だけ。どの步の id でも不正、別の步と id 重複、または md が空 —— **全パッケージは装されない**, 一画面も翻せないより、一個の残欠ハンドブックが翻ることはない。翻ページボタンは自分で書く必要はない、エンジンが生成する。",
+          "keywords": "ハンドブック 手順 workflow フロー ウィザード 一步ずつ 何步 マルチ画面 マルチページ チュートリアル 案内 どう書く 自分で作る steps ステップ id md 多言語 装されない 全パッケージ 却下 効かず 装されず 翻ページ 次のステップ wf_go"
+        },
+        "en": {
+          "title": "Writing a workflow package is writing steps array, one bad step rejects entire package",
+          "claim": "Workflow packages are parallel to UI packages: set type to workflow, content is steps array where each step has only id and md (md can be a multi-language object like {\"zh-CN\": \"...\", \"ja\": \"...\"} ). Step id must start with letter/digit, max 64 chars, only [A-Za-z0-9_-]. If any step has invalid id, duplicate id across steps, or empty md —— **entire package is rejected**, better show nothing than one broken step that half-flips. Pagination buttons are auto-generated, no need to write them.",
+          "keywords": "procedure handbook workflow flow wizard step by step how many steps multi-screen multi-page tutorial guide how to write create steps step id md multi-language not installing package rejected failed install not working pagination next step wf_go"
+        },
+        "zh-TW": {
+          "title": "寫一個多頁流程就是寫一串 steps, 一步寫壞整包都不裝",
+          "claim": "多頁流程是和外掛平行的另一種包: type 寫 workflow, 內容是 steps 陣列, 每一步只有 id 和 md 兩樣(md 可以寫成 {\"zh-CN\": \"...\", \"ja\": \"...\"} 這樣的多語言物件)。步驟 id 只收字母數字開頭、64 字以內的 [A-Za-z0-9_-]。任何一步的 id 不合法、id 和別的步驟重複、或者 md 是空的 —— **整個包都不裝**, 寧可一屏都翻不了, 也不留一個能翻兩屏的殘廢流程。翻頁按鈕不用自己寫, 引擎會生成。",
+          "keywords": " 步驟說明 workflow 流程 嚮導 一步步 分幾步 多頁 多屏 教程 引導 怎麼寫 自己做一個 steps 步驟 id md 多語言 裝不上 整包 被拒 不生效 沒裝上 翻頁 下一步 wf_go"
+        }
+      },
+      "body": "## 包长什么样\n\n```json\n{\n  \"type\": \"workflow\",\n  \"id\": \"line_setup\",\n  \"version\": \"1\",\n  \"title\": \"新机上手流程\",\n  \"steps\": [\n    { \"id\": \"open_console\", \"md\": \"# 第一步\\n打开控制台…\" },\n    { \"id\": \"get_token\",    \"md\": { \"zh-CN\": \"# 第二步…\", \"ja\": \"# ステップ2…\" } }\n  ]\n}\n```\n\n和插件(`type: \"ui\"` + html/css/js)是**平行的两条线**, 不混用: 流程里没有 js,\n内容就是 md; 插件里没有步骤概念。\n\n## 一步写坏 = 整包不装\n\n| 写坏的地方 | 结果 |\n|---|---|\n| step id 不合法(空格、中文、开头是符号) | 整包拒装 |\n| 两步 id 重复 | 整包拒装 |\n| 某步 md 是空的 | 整包拒装 |\n\n而且 md 是**每种语言各查一遍**的 —— 只在中文下填了内容, 日文那份是空的, 照样拒装\n(否则用户切一次语言才发现某一步是白的)。\n\n失败的样子是「装了但清单里找不到这个流程」, 不是某一屏出错。\n\n## 翻页按钮别自己写\n\n你只写第一屏的入口按钮, 后面的翻页按钮由引擎生成 —— 手写的不带进度印。",
+      "body_i18n": {
+        "ja": "## パッケージの外観\n\n```json\n{\n  \"type\": \"workflow\",\n  \"id\": \"line_setup\",\n  \"version\": \"1\",\n  \"title\": \"初期セットアップ手順\",\n  \"steps\": [\n    { \"id\": \"open_console\", \"md\": \"# ステップ1\\nコンソールを開く…\" },\n    { \"id\": \"get_token\",    \"md\": { \"zh-CN\": \"# ステップ2…\", \"ja\": \"# ステップ2…\" } }\n  ]\n}\n```\n\nUI パッケージ(`type: \"ui\"` + html/css/js)と**並行する2つの流れ**であり、混在しない: 手順に js はなく、内容は md; UI パッケージにはステップの概念がない。\n\n## 1 ステップが壊れた = パッケージ全体がインストール不可\n\n| 壊れた場所 | 結果 |\n|---|---|\n| step id が不正(スペース、日本語、記号で開始) | パッケージ全体が拒否 |\n| 2 つの step id が重複 | パッケージ全体が拒否 |\n| あるステップの md が空 | パッケージ全体が拒否 |\n\nそして md は**各言語ごとに 1 度チェックされる** —— 中国語だけで内容を埋めて、日本語部分が空なら、同じく拒否される(さもなければユーザーが言語を切り替えてから、あるステップが空白なのに気づく)。\n\n失敗は「インストールされたがリストに見つからない」という形であり、スクリーンエラーではない。\n\n## ページネーションボタンは自分で書くな\n\n最初の画面のエントリボタンだけを書け、その後のページネーションボタンはエンジンが生成する —— 手書きのものは進捗インジケーターを持たない。",
+        "en": "## What the package looks like\n\n```json\n{\n  \"type\": \"workflow\",\n  \"id\": \"line_setup\",\n  \"version\": \"1\",\n  \"title\": \"Initial Setup Steps\",\n  \"steps\": [\n    { \"id\": \"open_console\", \"md\": \"# Step 1\\nOpen the console…\" },\n    { \"id\": \"get_token\",    \"md\": { \"zh-CN\": \"# Step 2…\", \"ja\": \"# Step 2…\" } }\n  ]\n}\n```\n\nUI packages (`type: \"ui\"` + html/css/js) are **two parallel tracks**, not mixed: workflow steps have no js, content is md; UI packages have no step concept.\n\n## One bad step = whole package won't install\n\n| What went wrong | Result |\n|---|---|\n| step id is invalid (spaces, non-ASCII, starts with symbol) | package rejected |\n| two step ids duplicate | package rejected |\n| some step's md is empty | package rejected |\n\nAnd md is **checked per language** —— only fill Chinese content, leave Japanese blank, still rejected (otherwise user switches language and discovers a step is blank).\n\nFailure looks like \"installed but not in the list\", not a screen error.\n\n## Don't write pagination buttons yourself\n\nWrite only the entry button for the first screen; pagination buttons after that are generated by the engine —— hand-written ones don't carry progress indicators.",
+        "zh-TW": "## 包長什麼樣\n\n```json\n{\n  \"type\": \"workflow\",\n  \"id\": \"line_setup\",\n  \"version\": \"1\",\n  \"title\": \"新機上手流程\",\n  \"steps\": [\n    { \"id\": \"open_console\", \"md\": \"# 第一步\\n打開控制台…\" },\n    { \"id\": \"get_token\",    \"md\": { \"zh-CN\": \"# 第二步…\", \"ja\": \"# ステップ2…\" } }\n  ]\n}\n```\n\n和介面包(`type: \"ui\"` + html/css/js)是**平行的兩條線**, 不混用: 流程裡沒有 js, 內容就是 md; 介面包裡沒有步驟概念。\n\n## 一步寫壞 = 整包不裝\n\n| 寫壞的地方 | 結果 |\n|---|---|\n| step id 不合法(空格、中文、開頭是符號) | 整包拒裝 |\n| 兩步 id 重複 | 整包拒裝 |\n| 某步 md 是空的 | 整包拒裝 |\n\n而且 md 是**每種語言各查一遍**的 —— 只在中文下填了內容, 日文那份是空的, 照樣拒裝(否則用戶切一次語言才發現某一步是白的)。\n\n失敗的樣子是「裝了但清單裡找不到這個流程」, 不是某一屏出錯。\n\n## 翻頁按鈕別自己寫\n\n你只寫第一屏的入口按鈕, 後面的翻頁按鈕由引擎生成 —— 手寫的不帶進度印。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_workflow_entry_button_lands_where_progress_says"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_you_can_write_your_own_plugin"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_uninstalled_workflow_does_not_exist"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_declaration_fields_are_a_whitelist",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "包声明里不认识的字段会被悄悄丢掉, 内置命令名也抢不过源码",
+      "claim": "命令声明里**只有 summary / params / label_default / notify_ai / primitive 这五样会被采纳**, 写别的字段(channel、handler 之类)不报错、直接丢掉。命令名一律由宿主加上包 id 前缀 —— 声明里写 flip, 实际叫 geo.flip, 界面里也得按全名调。跟内置命令(wf_go 这些)重名也抢不过源码, 内置永远优先: 否则一个包就能把翻页按钮的字改成「保存草稿」, 那是钓鱼界面的形状。这几件事全是**悄悄发生**的: 写了不生效, 而且不会有任何提示。",
+      "keywords": "命令 command 声明 字段 不生效 没反应 写了没用 静默 丢掉 白名单 channel handler 覆盖 重名 同名 内置 wf_go 优先 包 id 前缀 全名 调不到 unknown_command 找不到命令 插件",
+      "translations": {
+        "ja": {
+          "title": "パッケージ宣言内の未知フィールドは黙って捨てられ、内置コマンド名は上書きできない",
+          "claim": "コマンド宣言内で**summary / params / label_default / notify_ai / primitive この五つだけが採用される**、他のフィールド(channel、handler など)を書いてもエラーがなく、直接捨てられる。コマンド名は常にホストがパッケージ id 接頭辞を付ける—宣言に flip と書いても、実は geo.flip と呼ばれ、UI でも全名で呼び出す必要がある。内置コマンド(wf_go など)と同じ名前でも上書きできず、内置は常に優先される: さもなくば一個のパッケージが翻ページボタンのテキストを「草稿を保存」に変えられ、それはフィッシング UI の形だ。これらすべてのことは**黙っている**: 書いても有効にならず、警告さえない。",
+          "keywords": "コマンド command 宣言 フィールド 無効 反応がない 書いたのに無駄 黙っている 捨てられる ホワイトリスト channel handler 上書き 同じ名前 内置 wf_go 優先 パッケージ id 接頭辞 全名 呼び出せない unknown_command 見つからない プラグイン"
+        },
+        "en": {
+          "title": "Package declaration fields are a whitelist; builtins can't be overridden",
+          "claim": "In a command declaration, **only summary / params / label_default / notify_ai / primitive are accepted**. Write any other field (channel, handler, etc.) and it silently disappears—no error, just discarded. Command names are always prefixed by the host with package id—write flip in the declaration but it's actually geo.flip, and the UI must call the full name. Can't override builtins (wf_go, etc.)—builtins always win or one package could retitle the next-page button to 'save draft', making a phishing-ready interface. All of this is **silent**: no error, no hint.",
+          "keywords": "command declaration fields inactive no_response written_not_used silent dropped whitelist channel handler override same_name builtin wf_go priority package id prefix full_name unreachable unknown_command not_found plugin"
+        },
+        "zh-TW": {
+          "title": "包聲明裡不認識的欄位被靜默丟掉，內置命令名也搶不過源碼",
+          "claim": "命令聲明裡**只有 summary / params / label_default / notify_ai / primitive 這五樣會被採納**，寫別的欄位(channel、handler 之類)不報錯、直接丟掉。命令名一律由宿主加上包 id 前綴——聲明裡寫 flip，實際叫 geo.flip，界面裡也得按全名調。跟內置命令(wf_go 這些)重名也搶不過源碼，內置永遠優先: 否則一個包就能把翻頁按鈕的字改成「保存草稿」，那是釣魚界面的形狀。這幾件事全是**靜默**的: 寫了不生效，而且不會有任何提示。",
+          "keywords": "命令 command 聲明 欄位 不生效 沒反應 寫了沒用 靜默 丟掉 白名單 channel handler 覆蓋 重名 同名 內置 wf_go 優先 包 id 前綴 全名 調不到 unknown_command 找不到命令 外掛"
+        }
+      },
+      "body": "## 会被采纳的只有五样\n\n```json\n\"commands\": {\n  \"flip\": {\n    \"primitive\": \"message\",      // 必填, 只能是五原语之一\n    \"summary\": \"翻一页\",\n    \"params\": { \"n\": { \"type\": \"int\", \"required\": true } },\n    \"label_default\": \"下一页\",\n    \"notify_ai\": false\n  }\n}\n```\n\n这五个之外的字段一律丢弃。用白名单而不是黑名单是故意的 —— 以后加了新字段忘了更新,\n结果只是它不生效, 而不是它偷偷生效。\n\n## 名字不由你定\n\n声明里写 `flip`, 装进目录变成 `包id.flip`。界面里必须按全名调:\n\n```js\nbutlerUI.call('geo.flip', { n: 2 })   // ✅\nbutlerUI.call('flip', { n: 2 })       // ❌ unknown_command\n```\n\n多包并存必然撞名, 撞了之后谁盖谁是没法自诊断的, 所以前缀是强制的。\n\n## 原语挑不出新的\n\n`primitive` 只能填源码里已有的那几个。填一个不存在的名字, 这条命令直接被拒收 ——\n**包能把宿主已有的能力开放出来, 变不出新能力**, 这是能力的天然封顶。",
+      "body_i18n": {
+        "ja": "## 採用されるのは五つだけ\n\n```json\n\"commands\": {\n  \"flip\": {\n    \"primitive\": \"message\",      // 必須、五原語のいずれかのみ\n    \"summary\": \"ページをめくる\",\n    \"params\": { \"n\": { \"type\": \"int\", \"required\": true } },\n    \"label_default\": \"次ページ\",\n    \"notify_ai\": false\n  }\n}\n```\n\nこの五つ以外のフィールドは全て破棄される。ブラックリストではなくホワイトリストを使うのは意図的だ。後から新しいフィールドを追加して更新を忘れても、単に機能しないだけで、黙って機能することはない。\n\n## 名前は自分で決められない\n\n宣言で `flip` と書けば、ディレクトリに入った時点で `パッケージID.flip` になる。UI から呼び出す時は完全な名前を使わなければならない:\n\n```js\nbutlerUI.call('geo.flip', { n: 2 })   // ✅\nbutlerUI.call('flip', { n: 2 })       // ❌ unknown_command\n```\n\n複数のパッケージが共存すれば必ず名前が重なり、重なった時にどちらが上書きするかは自己診断できない。だからプレフィックスは強制される。\n\n## 原語を新たに作り出すことはできない\n\n`primitive` には、ソースコードに既にある原語のみ指定できる。存在しない名前を指定すれば、このコマンドは直接拒否される。**パッケージはホストにある既存の機能を公開できるだけで、新しい機能を作り出すことはできない**。これが機能の自然な上限だ。",
+        "en": "## Only five fields are adopted\n\n```json\n\"commands\": {\n  \"flip\": {\n    \"primitive\": \"message\",      // Required, must be one of the five primitives\n    \"summary\": \"Flip a page\",\n    \"params\": { \"n\": { \"type\": \"int\", \"required\": true } },\n    \"label_default\": \"Next page\",\n    \"notify_ai\": false\n  }\n}\n```\n\nFields outside these five are discarded. Using a whitelist instead of a blacklist is intentional — if you forget to update when adding new fields later, they simply won't work instead of silently taking effect.\n\n## Names are not yours to choose\n\nIf you write `flip` in the declaration, it becomes `package_id.flip` when loaded into the directory. You must call it by its full name from the UI:\n\n```js\nbutlerUI.call('geo.flip', { n: 2 })   // ✅\nbutlerUI.call('flip', { n: 2 })       // ❌ unknown_command\n```\n\nWhen multiple packages coexist, name collisions are inevitable. Once they collide, there's no way to self-diagnose which overwrites which, so the prefix is mandatory.\n\n## You can't invent new primitives\n\n`primitive` can only be set to primitives that already exist in the source code. If you specify a name that doesn't exist, this command is rejected outright — **a package can only expose existing capabilities of the host, it cannot create new ones**. This is the natural ceiling on capabilities.",
+        "zh-TW": "## 會被採納的只有五樣\n\n```json\n\"commands\": {\n  \"flip\": {\n    \"primitive\": \"message\",      // 必填，只能是五原語之一\n    \"summary\": \"翻一頁\",\n    \"params\": { \"n\": { \"type\": \"int\", \"required\": true } },\n    \"label_default\": \"下一頁\",\n    \"notify_ai\": false\n  }\n}\n```\n\n這五個之外的欄位一律丟棄。用白名單而不是黑名單是故意的 —— 以後加了新欄位忘了更新，結果只是它不生效，而不是它偷偷生效。\n\n## 名字不由你定\n\n聲明裡寫 `flip`，裝進目錄變成 `套件ID.flip`。介面裡必須按全名呼叫:\n\n```js\nbutlerUI.call('geo.flip', { n: 2 })   // ✅\nbutlerUI.call('flip', { n: 2 })       // ❌ unknown_command\n```\n\n多套件並存必然撞名，撞了之後誰蓋誰是沒法自診斷的，所以前綴是強制的。\n\n## 原語挑不出新的\n\n`primitive` 只能填源碼裡已有的那幾個。填一個不存在的名字，這條命令直接被拒收 —— **套件能把宿主已有的能力開放出來，變不出新能力**，這是能力的天然封頂。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_plugin_payload_is_one_json_and_capped"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_button_wakes_ai_by_default"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_minimal_working_example",
+      "seed_use_count": 3,
+      "type": "reference",
+      "importance": "high",
+      "title": "一个能直接跑的最小插件, 照着改别从零拼",
+      "claim": "要写插件不用从零拼 —— 出厂带了一份完整可跑的最小插件(计数器), 整份拷走改 id/title/html/css/js 就是你自己的。它专门把四个最容易错的地方做对了: 不调 ready(butlerUI 上没这个方法)、用 onInit 取回 state、接 onPush 才看得见 setState 的静默失败、调命令要写带包 id 前缀的全名。🔴 连它的 CSS 一起照抄: 全用 `var(--panel)/var(--text)/var(--line)` 且背景与文字色成对给 —— 那就是配色该有的样子, 自己另编色值就会白底白字。",
+      "keywords": "插件 例子 样例 样板 模板 范例 demo 照着写 从哪开始 怎么起步 抄一个 现成的 最小 骨架 脚手架 计数器 hello 完整例子 可以跑的",
+      "translations": {
+        "ja": {
+          "title": "そのまま動く最小プラグインの例を参考に、ゼロから組むな",
+          "claim": "プラグインを書く時はゼロから組む必要はない —— 出荷時にそのまま動く完全な最小UI包(カウンタ)が附属してる。全部コピーして id/title/html/css/js を変える、それがお前のもの。四つの最も間違いやすい所が対応済み: ready() を呼ばない(butlerUI にはない)、onInit で state を取得、onPush を受けて setState のサイレント失敗を見る、コマンドは包 id 接頭辞付きのフルネーム。🔴 CSS もそのまま写す: 全部 `var(--panel)/var(--text)/var(--line)` で背景と文字色はセット —— それが正しい配色、自分で色値を作ると白地に白字。",
+          "keywords": "プラグイン 例 サンプル テンプレート ボイラープレート デモ 参考にして書く 開始点は何 どうやって始める 参考 既製品 最小 骨組み スキャッフォルド カウンタ hello 完全な例 動く"
+        },
+        "en": {
+          "title": "Copy the working minimal plugin example; don't build from scratch",
+          "claim": "Don't build plugins from zero — ship comes with a complete, runnable minimal UI package (counter). Copy it whole, change id/title/html/css/js and it's yours. It gets four common mistakes right: don't call ready (butlerUI has no such method), use onInit to retrieve state, register onPush to see setState's silent failures, and call commands by their fully-qualified name with the package-id prefix. 🔴 Copy its CSS too: it is all `var(--panel)/var(--text)/var(--line)` with background and text color always set together — that is what correct color looks like; inventing your own values gives you white on white.",
+          "keywords": "plugin example template boilerplate sample minimal working code counter hello scaffold"
+        },
+        "zh-TW": {
+          "title": "一個能直接跑的最小外掛, 照著改別從零拼",
+          "claim": "要寫外掛不用從零拼 —— 出廠帶了一份完整可跑的最小外掛(計數器), 整份拷走改 id/title/html/css/js 就是你自己的。它專門把四個最容易錯的地方做對了: 不調 ready(butlerUI 上沒這個方法)、用 onInit 取回 state、接 onPush 才看得見 setState 的靜默失敗、調命令要寫帶包 id 前綴的全名。🔴 連它的 CSS 一起照抄: 全用 `var(--panel)/var(--text)/var(--line)` 且背景與文字色成對給 —— 那就是配色該有的樣子, 自己另編色值就會白底白字。",
+          "keywords": "外掛 例子 樣例 樣板 模板 範例 demo 照著寫 從哪開始 怎麼起步 抄一個 現成的 最小 骨架 腳手架 計數器 hello 完整例子 可以跑的"
+        }
+      },
+      "body": "这是一个**完整可用**的插件。整份拷走, 改 id / title / html / css / js 就是你自己的包 —— 别从零开始拼, 从这个改。\n\n放到 `../../packages.local/hello_counter.json`(路径就是你 cwd 往上两级), 落盘几秒后自动装上。\n\n```json\n{\n  \"type\": \"ui\",\n  \"id\": \"hello_counter\",\n  \"version\": \"1\",\n  \"title\": \"点一下加一(最小例子)\",\n  \"commands\": {\n    \"say\": {\n      \"primitive\": \"speak\",\n      \"summary\": \"把当前的数字念出来\",\n      \"params\": {\n        \"text\": {\n          \"type\": \"text\",\n          \"required\": true\n        }\n      }\n    }\n  },\n  \"html\": \"<div class=\\\"box\\\">\\n  <div class=\\\"n\\\" id=\\\"n\\\">0</div>\\n  <button id=\\\"add\\\">点我 +1</button>\\n  <button id=\\\"say\\\">念出来</button>\\n  <div class=\\\"err\\\" id=\\\"err\\\"></div>\\n</div>\",\n  \"css\": \".box{padding:16px;text-align:center;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:var(--radius)}\\n.n{font-size:40px;font-weight:700;margin-bottom:12px;color:var(--text)}\\nbutton{font:inherit;padding:6px 14px;margin:0 4px;cursor:pointer}\\n.err{color:var(--danger);margin-top:10px;min-height:1em}\",\n  \"js\": \"// 沙箱里没有 require / fetch / eval / localStorage, 也够不到宿主页面。\\n// 对外只有 butlerUI 这一个对象: onInit / onPush / call / setState / resize。\\n// 🔴 不用喊 ready —— 那是沙箱桥自己发的, butlerUI 上根本没有这个方法。\\nvar n = 0;\\nvar nEl = document.getElementById('n');\\nvar errEl = document.getElementById('err');\\n\\n// 开窗时宿主把上次存的东西带回来\\nbutlerUI.onInit(function (d) {\\n  n = (d && d.state && d.state.n) || 0;\\n  paint();\\n});\\n\\n// 🔴 setState 失败是静默的, 错误只从 onPush 回来。不接这个就永远不知道存没存上。\\nbutlerUI.onPush(function (d) {\\n  if (d && d.error) errEl.textContent = String(d.error);\\n});\\n\\nfunction paint() {\\n  nEl.textContent = n;\\n  butlerUI.resize(document.body.scrollHeight);\\n}\\n\\ndocument.getElementById('add').addEventListener('click', function () {\\n  n += 1;\\n  paint();\\n  butlerUI.setState({ n: n });\\n});\\n\\ndocument.getElementById('say').addEventListener('click', function () {\\n  // 命令名一律带包 id 前缀: 声明里写 say, 调用时是 hello_counter.say\\n  butlerUI.call('hello_counter.say', { text: '现在是 ' + n });\\n});\\n\"\n}\n```\n\n## 这个例子专门示范了四件最容易做错的事\n\n| 做对的地方 | 做错会怎样 |\n|---|---|\n| 颜色**全走 `var(--…)`**, 底色文字色成对给 | 自己编十六进制 → 深底深字/白底白字, 不报错只有肉眼看得见 |\n| **没有** 调 ready | 去找 `butlerUI.ready()` 会发现根本没这个方法 —— 它是沙箱桥自己发的 |\n| 用 `onInit` 拿回上次的 state | 在顶层直接读 DOM 也行, 但拿不到宿主带回来的 state |\n| 接了 `onPush` 显示 error | setState 超 64K 是**静默**失败, 不接就永远看不见 |\n| 调用写全名 `hello_counter.say` | 声明里写 `say`, 但宿主一律加包 id 前缀, 写短名调不到 |\n\n另外: `resize` 每次内容变了都喊一声, 不然框子是死高度。",
+      "body_i18n": {
+        "ja": "これは**完全に動作する**UI パッケージだ。全体をコピーして、id / title / html / css / js を変えるだけでお前自身のパッケージになる —— ゼロから組むな、これをベースに修正しろ。\n\n`../../packages.local/hello_counter.json` に置く(パスは cwd から上 2 階層)。ディスクに落ちた数秒後に自動で装荷される。\n\n```json\n{\n  \"type\": \"ui\",\n  \"id\": \"hello_counter\",\n  \"version\": \"1\",\n  \"title\": \"クリックで +1(最小例)\",\n  \"commands\": {\n    \"say\": {\n      \"primitive\": \"speak\",\n      \"summary\": \"今の数字を読み上げる\",\n      \"params\": {\n        \"text\": {\n          \"type\": \"text\",\n          \"required\": true\n        }\n      }\n    }\n  },\n  \"html\": \"<div class=\\\"box\\\">\\n  <div class=\\\"n\\\" id=\\\"n\\\">0</div>\\n  <button id=\\\"add\\\">押して +1</button>\\n  <button id=\\\"say\\\">読み上げ</button>\\n  <div class=\\\"err\\\" id=\\\"err\\\"></div>\\n</div>\",\n  \"css\": \".box{padding:16px;text-align:center;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:var(--radius)}\\n.n{font-size:40px;font-weight:700;margin-bottom:12px;color:var(--text)}\\nbutton{font:inherit;padding:6px 14px;margin:0 4px;cursor:pointer}\\n.err{color:var(--danger);margin-top:10px;min-height:1em}\",\n  \"js\": \"// サンドボックスには require / fetch / eval / localStorage がなく、ホストページにも届かない。\\n// 外から触れるのは butlerUI ただ一つ: onInit / onPush / call / setState / resize。\\n// 🔴 ready を呼ぶ必要はない —— あれはサンドボックスブリッジが自分で送るもので、butlerUI にそんなメソッドは無い。\\nvar n = 0;\\nvar nEl = document.getElementById('n');\\nvar errEl = document.getElementById('err');\\n\\n// 開いた時にホストが前回保存した物を返してくる\\nbutlerUI.onInit(function (d) {\\n  n = (d && d.state && d.state.n) || 0;\\n  paint();\\n});\\n\\n// 🔴 setState の失敗は無言。エラーは onPush からしか返らない。受け取らないと保存できたか永遠に分からない。\\nbutlerUI.onPush(function (d) {\\n  if (d && d.error) errEl.textContent = String(d.error);\\n});\\n\\nfunction paint() {\\n  nEl.textContent = n;\\n  butlerUI.resize(document.body.scrollHeight);\\n}\\n\\ndocument.getElementById('add').addEventListener('click', function () {\\n  n += 1;\\n  paint();\\n  butlerUI.setState({ n: n });\\n});\\n\\ndocument.getElementById('say').addEventListener('click', function () {\\n  // コマンド名には必ずパッケージ id の接頭辞が付く: 宣言では say、呼ぶ時は hello_counter.say\\n  butlerUI.call('hello_counter.say', { text: '今は ' + n });\\n});\\n\"\n}\n```\n\n## この例は最もよくやる間違い 4 つを示している\n\n| 正しいやり方 | 間違うとどうなるか |\n|---|---|\n| 色は全部 `var(--…)` で、背景文字色をペアで指定 | 16 進数を自分で編む → 暗い背景に暗い字/白背景に白字、エラーなしで目に見えるだけ |\n| **`ready` を呼ばない** | `butlerUI.ready()` を探すと、実はメソッドがない —— 沙箱ブリッジが自分で送るやつだ |\n| `onInit` で前回の state をもらう | トップレベルで直に DOM を読んでもいいが、ホストが持ってきた state がとれない |\n| `onPush` を受け取ってエラーを表示 | setState が 64K を超えるのは**静か**に失敗し、受け取らないと永遠に見えない |\n| 完全な名前 `hello_counter.say` で呼ぶ | 宣言では `say` だが、ホストは必ずパッケージ id を先頭に付ける。短い名前では呼べない |\n\nそれと: `resize` は内容が変わるたびに叫べ、さもないと枠の高さは固定だ。",
+        "en": "This is a **fully working** UI package. Copy the whole thing and change id / title / html / css / js to make it yours —— don't start from scratch, modify this.\n\nDrop it into `../../packages.local/hello_counter.json` (path is two levels up from cwd). After it hits disk, it auto-loads in a few seconds.\n\n```json\n{\n  \"type\": \"ui\",\n  \"id\": \"hello_counter\",\n  \"version\": \"1\",\n  \"title\": \"点一下加一(最小例子)\",\n  \"commands\": {\n    \"say\": {\n      \"primitive\": \"speak\",\n      \"summary\": \"把当前的数字念出来\",\n      \"params\": {\n        \"text\": {\n          \"type\": \"text\",\n          \"required\": true\n        }\n      }\n    }\n  },\n  \"html\": \"<div class=\\\"box\\\">\\n  <div class=\\\"n\\\" id=\\\"n\\\">0</div>\\n  <button id=\\\"add\\\">点我 +1</button>\\n  <button id=\\\"say\\\">念出来</button>\\n  <div class=\\\"err\\\" id=\\\"err\\\"></div>\\n</div>\",\n  \"css\": \".box{padding:16px;text-align:center;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:var(--radius)}\\n.n{font-size:40px;font-weight:700;margin-bottom:12px;color:var(--text)}\\nbutton{font:inherit;padding:6px 14px;margin:0 4px;cursor:pointer}\\n.err{color:var(--danger);margin-top:10px;min-height:1em}\",\n  \"js\": \"// 沙箱里没有 require / fetch / eval / localStorage, 也够不到宿主页面。\\n// 对外只有 butlerUI 这一个对象: onInit / onPush / call / setState / resize。\\n// 🔴 不用喊 ready —— 那是沙箱桥自己发的, butlerUI 上根本没有这个方法。\\nvar n = 0;\\nvar nEl = document.getElementById('n');\\nvar errEl = document.getElementById('err');\\n\\n// 开窗时宿主把上次存的东西带回来\\nbutlerUI.onInit(function (d) {\\n  n = (d && d.state && d.state.n) || 0;\\n  paint();\\n});\\n\\n// 🔴 setState 失败是静默的, 错误只从 onPush 回来。不接这个就永远不知道存没存上。\\nbutlerUI.onPush(function (d) {\\n  if (d && d.error) errEl.textContent = String(d.error);\\n});\\n\\nfunction paint() {\\n  nEl.textContent = n;\\n  butlerUI.resize(document.body.scrollHeight);\\n}\\n\\ndocument.getElementById('add').addEventListener('click', function () {\\n  n += 1;\\n  paint();\\n  butlerUI.setState({ n: n });\\n});\\n\\ndocument.getElementById('say').addEventListener('click', function () {\\n  // 命令名一律带包 id 前缀: 声明里写 say, 调用时是 hello_counter.say\\n  butlerUI.call('hello_counter.say', { text: '现在是 ' + n });\\n});\\n\"\n}\n```\n\n## This example specifically shows four things people always get wrong\n\n| Done right | What happens if you screw up |\n|---|---|\n| Colors all use `var(--…)`, background and text paired | Hand-code hex → dark text on dark background / white on white, no error just invisible |\n| **No call to `ready`** | Looking for `butlerUI.ready()` finds nothing —— the sandbox bridge sends that itself |\n| Use `onInit` to get last session's state | Reading DOM at top level works too, but doesn't get state the host brought back |\n| Handle `onPush` to show errors | setState over 64K **silently fails**, if you don't listen you never see it |\n| Call with full name `hello_counter.say` | Declaration says `say`, but host always prefixes the package id. Short name won't resolve |\n\nAlso: call `resize` every time content changes, otherwise frame height is locked.",
+        "zh-TW": "這是一個**完全可用**的插件。整份拷走、改 id / title / html / css / js 就是你自己的包 —— 別從零開始拼、從這個改。\n\n放到 `../../packages.local/hello_counter.json`(路徑就是你 cwd 往上兩級)、落盤幾秒後自動裝上。\n\n```json\n{\n  \"type\": \"ui\",\n  \"id\": \"hello_counter\",\n  \"version\": \"1\",\n  \"title\": \"点一下加一(最小例子)\",\n  \"commands\": {\n    \"say\": {\n      \"primitive\": \"speak\",\n      \"summary\": \"把当前的数字念出来\",\n      \"params\": {\n        \"text\": {\n          \"type\": \"text\",\n          \"required\": true\n        }\n      }\n    }\n  },\n  \"html\": \"<div class=\\\"box\\\">\\n  <div class=\\\"n\\\" id=\\\"n\\\">0</div>\\n  <button id=\\\"add\\\">点我 +1</button>\\n  <button id=\\\"say\\\">念出来</button>\\n  <div class=\\\"err\\\" id=\\\"err\\\"></div>\\n</div>\",\n  \"css\": \".box{padding:16px;text-align:center;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:var(--radius)}\\n.n{font-size:40px;font-weight:700;margin-bottom:12px;color:var(--text)}\\nbutton{font:inherit;padding:6px 14px;margin:0 4px;cursor:pointer}\\n.err{color:var(--danger);margin-top:10px;min-height:1em}\",\n  \"js\": \"// 沙箱里没有 require / fetch / eval / localStorage, 也够不到宿主页面。\\n// 对外只有 butlerUI 这一个对象: onInit / onPush / call / setState / resize。\\n// 🔴 不用喊 ready —— 那是沙箱桥自己发的, butlerUI 上根本没有这个方法。\\nvar n = 0;\\nvar nEl = document.getElementById('n');\\nvar errEl = document.getElementById('err');\\n\\n// 开窗时宿主把上次存的东西带回来\\nbutlerUI.onInit(function (d) {\\n  n = (d && d.state && d.state.n) || 0;\\n  paint();\\n});\\n\\n// 🔴 setState 失败是静默的, 错误只从 onPush 回来。不接这个就永远不知道存没存上。\\nbutlerUI.onPush(function (d) {\\n  if (d && d.error) errEl.textContent = String(d.error);\\n});\\n\\nfunction paint() {\\n  nEl.textContent = n;\\n  butlerUI.resize(document.body.scrollHeight);\\n}\\n\\ndocument.getElementById('add').addEventListener('click', function () {\\n  n += 1;\\n  paint();\\n  butlerUI.setState({ n: n });\\n});\\n\\ndocument.getElementById('say').addEventListener('click', function () {\\n  // 命令名一律带包 id 前缀: 声明里写 say, 调用时是 hello_counter.say\\n  butlerUI.call('hello_counter.say', { text: '现在是 ' + n });\\n});\\n\"\n}\n```\n\n## 這個例子專門示範了四件最容易做錯的事\n\n| 做對的地方 | 做錯會怎樣 |\n|---|---|\n| 顏色**全走 `var(--…)`**、底色文字色成對給 | 自己編十六進位 → 深底深字/白底白字、不報錯只有肉眼看得見 |\n| **沒有**調 ready | 去找 `butlerUI.ready()` 會發現根本沒這個方法 —— 它是沙箱橋自己發的 |\n| 用 `onInit` 拿回上次的 state | 在頂層直接讀 DOM 也行、但拿不到宿主帶回來的 state |\n| 接了 `onPush` 顯示 error | setState 超 64K 是**靜默**失敗、不接就永遠看不見 |\n| 呼叫寫全名 `hello_counter.say` | 聲明裡寫 `say`、但宿主一律加包 id 前綴、寫短名叫不到 |\n\n另外：`resize` 每次內容變了都喊一聲、不然框子是死高度。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_you_can_write_your_own_plugin"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_payload_is_one_json_and_capped"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_ui_must_say_ready_within_four_seconds"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_state_is_capped_and_fails_quietly"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_state_is_empty_on_first_open",
+      "seed_use_count": 3,
+      "type": "reference",
+      "importance": "high",
+      "title": "写插件时 onInit 收到的是一个信封, 上次存的数据要从它的 state 里取",
+      "claim": "写插件时, 界面起来那一下 `butlerUI.onInit(fn)` 会调你的 fn, 但**传给它的不是数据本身, 是一个信封** `{id, version, locale, state, commands}` —— 上次存的数据要写 `d.state` 才取得到。**首次打开时 `d.state` 是 `null`**, 自己兜一个默认值。⚠️ 沙箱里没有 console, 这里取错了一行提示都看不到, 表现就是界面一片空白。",
+      "keywords": "插件 onInit 参数 信封 data state 取不到 读不出来 空 第一次 null 默认值 兜底 undefined not a function 白屏 沙箱 没有日志 看不到报错 console setState 存不住",
+      "translations": {
+        "ja": {
+          "title": "プラグインを書くとき onInit が受け取るのは封筒で、前回保存したデータはその state から取る",
+          "claim": "プラグインを書くとき、画面が立ち上がった瞬間に `butlerUI.onInit(fn)` が fn を呼ぶが、**渡されるのはデータそのものではなく封筒** `{id, version, locale, state, commands}` —— 前回保存したデータは `d.state` と書いて初めて取れる。**初回に開いたときの `d.state` は `null`** なので、自分で既定値を用意する。⚠️ サンドボックスに console は無く、ここを取り違えても一行も出ない。症状は画面が真っ白になるだけ。",
+          "keywords": "プラグイン onInit 引数 封筒 data state 取れない 読めない 空 初回 null 既定値 フォールバック undefined not a function 白画面 サンドボックス ログ無し エラーが見えない console setState 保存できない"
+        },
+        "en": {
+          "title": "When writing a plugin, onInit receives an envelope — your saved data lives in its state field",
+          "claim": "When writing a plugin, `butlerUI.onInit(fn)` calls your fn as the screen comes up, but **what it hands you is not the data itself — it is an envelope** `{id, version, locale, state, commands}`, and previously saved data only comes out of `d.state`. **On the very first open `d.state` is `null`**, so supply your own default. ⚠️ There is no console in the sandbox, so getting this wrong prints nothing at all — the symptom is simply a blank screen.",
+          "keywords": "plugin onInit argument envelope data state cannot read unreadable empty first-open null default fallback undefined not a function blank screen sandbox no log cannot see errors console setState not persisting"
+        },
+        "zh-TW": {
+          "title": "寫外掛時 onInit 收到的是一個信封, 上次存的資料要從它的 state 裡取",
+          "claim": "寫外掛時, 畫面起來那一下 `butlerUI.onInit(fn)` 會呼叫你的 fn, 但**傳給它的不是資料本身, 是一個信封** `{id, version, locale, state, commands}` —— 上次存的資料要寫 `d.state` 才取得到。**首次打開時 `d.state` 是 `null`**, 自己兜一個預設值。⚠️ 沙箱裡沒有 console, 這裡取錯了一行提示都看不到, 表現就是畫面一片空白。",
+          "keywords": "外掛 onInit 參數 信封 data state 取不到 讀不出來 空 第一次 null 預設值 兜底 undefined not a function 白屏 沙箱 沒有日誌 看不到報錯 console setState 存不住"
+        }
+      },
+      "body": "## 正确写法(照出厂计数器例子)\n\n```js\nbutlerUI.onInit(function (d) {\n  var s = d && d.state;             // unwrap the envelope first\n  var list = (s && s.list) || [];   // null on first open — always default\n  render(list);\n});\n```\n\n## 两个坑叠在一起, 所以特别难查\n\n① **参数是信封不是内容**: 它长这样 `{id, version, locale, state, commands}`。写成 `function(state){ state.list }` 时那个 `state` 其实是信封, `state.list` 恒为 undefined —— **不报错, 只是你存的数据永远读不出来**。\n② **首次是 null**: `d.state` 第一次打开时是 `null`(不是 `{}`), 直接 `.list` 会抛 TypeError。\n\n两个坑的症状都是「界面空白 / 数据没了」, 而沙箱里**没有 console** —— 你写的 `console.log` 自己看不到, 抛的异常也看不到。**加了兜底之后不崩了、但数据还是读不出来, 那就是踩了坑①**, 别再往兜底上加东西。\n\n## 血泪\n\n2026-08-30 实测: 一个心情记录插件连抛 41 次 `history.map is not a function`, 写它的人格一次都没看见, 改到第 6 版, 最后**放弃了整个 butlerUI**, 退化成一张关掉就没的静态页 —— 能力是静默没的, 界面看着还在。\n\n## 所以\n\n- 参数就命名成 `d` 或 `data`, **别叫 `state`** —— 名字叫对了就不会记错。\n- 取出 `d.state` 之后再兜底: `|| []` / `|| {}` / `|| 0`。\n- 界面起不来或数据丢了, **第一个怀疑这里**。\n- 🔴 不要因为不会用就绕开 butlerUI —— 绕开等于同时放弃「数据存得住」和「按钮能送到 AI」这两件事。\n- 拿不准就整份拷出厂的计数器例子改, 它这几处都是对的。",
+      "body_i18n": {
+        "en": "## The correct shape (copied from the factory counter example)\n\n```js\nbutlerUI.onInit(function (d) {\n  var s = d && d.state;             // unwrap the envelope first\n  var list = (s && s.list) || [];   // null on first open — always default\n  render(list);\n});\n```\n\n## Two traps stacked on each other — that is why it is so hard to diagnose\n\n① **The argument is an envelope, not the contents**: it looks like `{id, version, locale, state, commands}`. If you write `function(state){ state.list }`, that `state` is the envelope, so `state.list` is forever undefined — **no error is thrown, your saved data is simply never readable**.\n② **First open is null**: `d.state` is `null` (not `{}`) the first time, so reading `.list` off it throws a TypeError.\n\nBoth traps look identical from outside — blank panel, data gone — and the sandbox has **no console**: you cannot see your own `console.log`, nor any thrown exception. **If adding a default stopped the crash but the data still will not load, you are in trap ①** — stop piling more defaults on it.\n\n## What it cost\n\nMeasured 2026-08-30: a mood-log plugin threw `history.map is not a function` 41 times in a row; the persona that wrote it never saw a single one, revised it through six versions, and finally **abandoned butlerUI entirely**, degrading it into a static page that loses everything on close — the capability disappeared silently while the UI still looked fine.\n\n## So\n\n- Name the argument `d` or `data`, **never `state`** — get the name right and you will not misremember the shape.\n- Pull out `d.state` first, then apply the default: `|| []` / `|| {}` / `|| 0`.\n- When the UI will not start or the data vanished, **suspect this first**.\n- 🔴 Do not route around butlerUI just because it is not working — that gives up both \"data survives\" and \"a button can reach the AI\".\n- When unsure, copy the factory counter example wholesale and edit it; it gets all of these right.",
+        "ja": "## 正しい書き方(出荷時のカウンター例のとおり)\n\n```js\nbutlerUI.onInit(function (d) {\n  var s = d && d.state;             // unwrap the envelope first\n  var list = (s && s.list) || [];   // null on first open — always default\n  render(list);\n});\n```\n\n## 二つの罠が重なっているから見つけにくい\n\n① **引数は封筒であって中身ではない**: 実体は `{id, version, locale, state, commands}`。`function(state){ state.list }` と書くとその `state` は封筒なので `state.list` は永遠に undefined —— **エラーは出ず、保存したデータが読めないだけ**。\n② **初回は null**: `d.state` は初回 `null`(`{}` ではない)なので、そのまま `.list` を読むと TypeError が飛ぶ。\n\nどちらの罠も外からは同じに見える(白い画面 / データが消えた)。しかもサンドボックスには **console が無い**: 自分の `console.log` も、投げられた例外も見えない。**既定値を足したら落ちなくなったのにデータが出てこないなら、それは罠①だ** —— これ以上既定値を積むな。\n\n## 代償\n\n2026-08-30 実測: 気分記録プラグインが `history.map is not a function` を 41 回連続で投げた。書いた人格は一度も目にせず、第 6 版まで書き直し、最後には **butlerUI ごと放棄**して閉じたら消える静的ページに退化させた —— 画面は見た目そのままで、能力だけが静かに消えた。\n\n## だから\n\n- 引数の名前は `d` か `data` にしろ。**`state` と名付けるな** —— 名前を正せば形を取り違えない。\n- まず `d.state` を取り出し、それから既定値: `|| []` / `|| {}` / `|| 0`。\n- 画面が立ち上がらない、データが消えた —— **まずここを疑え**。\n- 🔴 うまく動かないからといって butlerUI を迂回するな。「データが残る」と「ボタンが AI に届く」を同時に捨てることになる。\n- 迷ったら出荷時のカウンター例を丸ごとコピーして直せ。そこは全部正しく書いてある。",
+        "zh-TW": "## 正確寫法(照出廠計數器例子)\n\n```js\nbutlerUI.onInit(function (d) {\n  var s = d && d.state;             // unwrap the envelope first\n  var list = (s && s.list) || [];   // null on first open — always default\n  render(list);\n});\n```\n\n## 兩個坑疊在一起，所以特別難查\n\n① **參數是信封不是內容**: 它長這樣 `{id, version, locale, state, commands}`。寫成 `function(state){ state.list }` 時那個 `state` 其實是信封，`state.list` 恆為 undefined——**不報錯，只是你存的資料永遠讀不出來**。\n② **首次是 null**: `d.state` 第一次打開時是 `null`(不是 `{}`)，直接 `.list` 會拋 TypeError。\n\n兩個坑的症狀都是「介面空白 / 資料沒了」，而沙箱裡**沒有 console**——你寫的 `console.log` 自己看不到，拋的例外也看不到。**加了兜底之後不崩了、但資料還是讀不出來，那就是踩了坑①**，別再往兜底上加東西。\n\n## 血淚\n\n2026-08-30 實測: 一個心情記錄外掛連拋 41 次 `history.map is not a function`，寫它的人格一次都沒看見，改到第 6 版，最後**放棄了整個 butlerUI**，退化成一張關掉就沒的靜態頁——能力是靜默沒的，介面看著還在。\n\n## 所以\n\n- 參數就命名成 `d` 或 `data`，**別叫 `state`**——名字叫對了就不會記錯。\n- 取出 `d.state` 之後再兜底: `|| []` / `|| {}` / `|| 0`。\n- 介面起不來或資料丟了，**第一個懷疑這裡**。\n- 🔴 不要因為不會用就繞開 butlerUI——繞開等於同時放棄「資料存得住」和「按鈕能送到 AI」這兩件事。\n- 拿不準就整份拷出廠的計數器例子改，它這幾處都是對的。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_plugin_ui_must_say_ready_within_four_seconds"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_minimal_working_example"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_you_can_write_your_own_plugin"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_call_args_are_flattened_to_strings",
+      "seed_use_count": 3,
+      "type": "reference",
+      "importance": "high",
+      "title": "写插件时界面调命令, 单个值会变成字符串, 对象和数组照原样带过去",
+      "claim": "写插件时, 界面里 `butlerUI.call(name, args)` 的 args 里单个的值一律 `String()` 化(数字 5 到那边是字符串 \"5\"), 对象和数组按 JSON 誊写一份照原样带过去(web 命令的 `query` / `body` 就靠这个); 超过 16KB 或有循环引用的那一项会被悄悄丢掉, 命令那边只会表现成「少了个参数」。",
+      "keywords": "插件 call 参数 args 传不过去 丢了 对象 嵌套 数组 字符串 String 数字 变字符串 missing_param 没反应 命令 原语 params 静默",
+      "translations": {
+        "ja": {
+          "title": "プラグインの画面からコマンドを呼ぶとき、単一の値は文字列になり、オブジェクトと配列はそのまま届く",
+          "claim": "プラグインを書くとき、画面の `butlerUI.call(name, args)` の args のうち単一の値はすべて `String()` 化される(数値 5 は向こうでは文字列 \"5\")。オブジェクトと配列は JSON で写し取ってそのまま届く(web コマンドの `query` / `body` はこれに頼る)。16KB を超える項目や循環参照のある項目は黙って捨てられ、コマンド側では「引数が足りない」ようにしか見えない。",
+          "keywords": "プラグイン call 引数 args 渡らない 消える オブジェクト ネスト 配列 文字列 String 数値 missing_param 反応しない コマンド 原語 params 黙って"
+        },
+        "en": {
+          "title": "When a plugin screen calls a command, single values become strings and objects or arrays arrive as they are",
+          "claim": "When writing a plugin, single values in the args of `butlerUI.call(name, args)` are all `String()`-ified (the number 5 arrives as the string \"5\"), while objects and arrays are copied through JSON and arrive intact (the `query` / `body` of a web command rely on this); an entry over 16 KB or with a circular reference is dropped silently and the command side just sees a missing argument.",
+          "keywords": "plugin call args parameters not passed dropped object nested array string String number becomes string missing_param no response command primitive params silent"
+        },
+        "zh-TW": {
+          "title": "寫外掛時畫面呼叫命令, 單個值會變成字串, 物件和陣列照原樣帶過去",
+          "claim": "寫外掛時, 畫面裡 `butlerUI.call(name, args)` 的 args 裡單個的值一律 `String()` 化(數字 5 到那邊是字串 \"5\"), 物件和陣列按 JSON 謄寫一份照原樣帶過去(web 命令的 `query` / `body` 就靠這個); 超過 16KB 或有循環引用的那一項會被悄悄丟掉, 命令那邊只會表現成「少了個參數」。",
+          "keywords": "外掛 call 參數 args 傳不過去 丟了 物件 巢狀 陣列 字串 String 數字 變字串 missing_param 沒反應 命令 原語 params 靜默"
+        }
+      },
+      "body": "## 会发生什么\n\n```js\nbutlerUI.call('mypkg.save', {\n  title: 'x',            // 到了, 是字符串\n  count: 5,              // 到那边是 '5', 不是数字 5\n  query: { lang: 'zh' }, // 照原样到(JSON 誊写的一份)\n  tags: ['a', 'b'],      // 照原样到\n  huge: bigObject,       // 超过 16KB → 整项丢掉, 不报错\n});\n```\n\n## 所以\n\n- 数字和布尔到了那边**都是字符串**, 别在命令里用 `typeof x === 'number'` 判。\n- 结构值只是一份拷贝, 不是引用; 函数、Date 之类过 JSON 会变形或消失。\n- 命令报「缺参数」而界面明明传了, 先查那一项是不是超了 16KB。",
+      "body_i18n": {
+        "en": "## What actually happens\n\n```js\nbutlerUI.call('mypkg.save', {\n  title: 'x',            // arrives, as a string\n  count: 5,              // arrives as '5', not the number 5\n  query: { lang: 'en' }, // arrives intact (a JSON copy)\n  tags: ['a', 'b'],      // arrives intact\n  huge: bigObject,       // over 16 KB → the whole entry is dropped, no error\n});\n```\n\n## So\n\n- Numbers and booleans arrive **as strings**; never test `typeof x === 'number'` in the command.\n- A structured value is a copy, not a reference; functions, Dates and the like are mangled or lost through JSON.\n- If a command reports a missing argument the screen did pass, check whether that entry exceeded 16 KB.",
+        "ja": "## 何が起きるか\n\n```js\nbutlerUI.call('mypkg.save', {\n  title: 'x',            // 届く、文字列になる\n  count: 5,              // 向こう側では '5' になる、数値の 5 ではない\n  query: { lang: 'zh' }, // そのまま届く(JSON で書き写した一部)\n  tags: ['a', 'b'],      // そのまま届く\n  huge: bigObject,       // 16KB を超えると → その項目全体が捨てられる、エラーは出ない\n});\n```\n\n## つまり\n\n- 数値と真偽値はあちら側では**すべて文字列**になる。コマンド側で `typeof x === 'number'` と判定してはいけない。\n- 構造化された値は単なるコピーであって参照ではない; 関数や Date などは JSON を経由すると変形したり消えたりする。\n- コマンドが「パラメータ不足」と言うのに画面側は確かに渡している場合, まずその項目が 16KB を超えていないか確認する。",
+        "zh-TW": "## 會發生什麼\n\n```js\nbutlerUI.call('mypkg.save', {\n  title: 'x',            // 到了, 是字串\n  count: 5,              // 到那邊是 '5', 不是數字 5\n  query: { lang: 'zh' }, // 照原樣到(JSON 謄寫的一份)\n  tags: ['a', 'b'],      // 照原樣到\n  huge: bigObject,       // 超過 16KB → 整項丟掉, 不報錯\n});\n```\n\n## 所以\n\n- 數字和布林到了那邊**都是字串**, 別在命令裡用 `typeof x === 'number'` 判斷。\n- 結構值只是一份拷貝, 不是參照; 函式、Date 之類經過 JSON 會變形或消失。\n- 命令回報「缺參數」而介面明明傳了, 先查那一項是不是超了 16KB。"
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_plugin_payload_is_one_json_and_capped"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_state_is_empty_on_first_open"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_plugin_button_wakes_ai_by_default"
+        }
+      ]
+    },
+    {
+      "slug": "reference_tool_send_tg",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "工具 send_tg —— 给外面的真人发一条 Telegram 消息",
+      "claim": "给**外面的真人**发消息用 send_tg(chat_id, text, plain?, reply_to?, attach?): chat_id 是发给哪个聊天(必填), text 是正文(必填)。用户从 Telegram 来找你, 回话就用它。要发图片或文件就把本机绝对路径填进 attach, 这时 text 变成图注。⚠️ 收件人是外面的真人 —— 同实例的人格走 talk_peer, 别处的 agent 走 bus_admin, 三条路别走串。",
+      "keywords": "send_tg 工具 用法 参数 细则 怎么用 坑 Telegram TG 发消息 回消息 chat_id attach 发图 发文件 reply_to plain Markdown bot_token",
+      "body": "## 四种失败各是什么意思\n\n| 回执 | 什么意思 | 怎么办 |\n|---|---|---|\n| `⚠️ send_tg 不可用: 该人格未配 tg bot_token` | 这个人格没接过 Telegram | 这条路走不通, 换别的方式联系 |\n| `⚠️ attach 文件不存在: …` | 路径写错了 | 确认文件真在那儿, 用绝对路径 |\n| `⚠️ TG API 拒: …` | Telegram 那边拒了 | 多半是 chat_id 不对, 或者正文里的 Markdown 写坏了 —— 后者加 `plain:true` 再发一次 |\n| `⚠️ send_tg 3 次重试全失败: …` | 网络确实不通 | **它已经自己重试过了**, 再立刻重发没有意义, 隔一会儿再说 |\n\n网络抖动、对方限流这类问题它会自己重试几次, 所以**看到失败就是真失败**, 不必再手动重发一轮。\n\n## 会踩的地方\n\n- **正文里带特殊符号就加 `plain:true`** —— 不加的话一个落单的星号或下划线就能让整条消息被拒\n- **Telegram 上永远不朗读**, 正文里的语音标签会被自动去掉, 不用特意处理\n",
+      "edges": [
+        {
+          "rel": "refines",
+          "to": "feedback_read_the_tool_spec_before_calling_it"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_channel_tools_exist_only_when_configured"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_three_kinds_of_recipients_three_routes"
+        }
+      ],
+      "translations": {
+        "ja": {
+          "title": "ツール send_tg —— 外にいる生身の人の Telegram にメッセージを送る",
+          "claim": "**外にいる生身の人**に送るには send_tg(chat_id, text, plain?, reply_to?, attach?): chat_id はどのチャットへ送るか(必須)、text は本文(必須)。ユーザーが Telegram から来たなら返信はこれを使う。画像やファイルはローカルの絶対パスを attach に入れる。そのとき text はキャプションになる。⚠️ 宛先は外の生身の人 —— 同じインスタンスの人格は talk_peer、他所の agent は bus_admin。三つの経路を取り違えない。",
+          "keywords": "send_tg ツール 使い方 引数 細則 落とし穴 Telegram TG メッセージ送信 返信 chat_id attach 画像送信 ファイル送信 reply_to plain Markdown bot_token"
+        },
+        "en": {
+          "title": "Tool send_tg — send a Telegram message to a real person outside",
+          "claim": "To reach **a real person outside**, use send_tg(chat_id, text, plain?, reply_to?, attach?): chat_id says which chat (required) and text is the body (required). If the user came in from Telegram, reply with this. For an image or file, put the local absolute path in attach — then text becomes the caption. ⚠️ The recipient here is a real person: personas in this instance go through talk_peer and agents elsewhere through bus_admin. Do not cross the three routes.",
+          "keywords": "send_tg tool usage parameters details how-to pitfalls Telegram TG send reply chat_id attach photo file reply_to plain Markdown bot_token"
+        },
+        "zh-TW": {
+          "title": "工具 send_tg —— 給外面的真人發一條 Telegram 訊息",
+          "claim": "給**外面的真人**發訊息用 send_tg(chat_id, text, plain?, reply_to?, attach?): chat_id 是發給哪個聊天(必填), text 是正文(必填)。使用者從 Telegram 來找你, 回話就用它。要發圖片或檔案就把本機絕對路徑填進 attach, 這時 text 變成圖說。⚠️ 收件人是外面的真人 —— 同實例的人格走 talk_peer, 別處的 agent 走 bus_admin, 三條路別走串。",
+          "keywords": "send_tg 工具 用法 參數 細則 怎麼用 坑 Telegram TG 發訊息 回訊息 chat_id attach 發圖 發檔案 reply_to plain Markdown bot_token"
+        }
+      },
+      "body_i18n": {
+        "ja": "**いつ思い出すか** —— ユーザーが Telegram から来たなら、返事はこの口を使う。Telegram Bot API を直接叩くので、bus は通らない。\n\n**引数** —— `chat_id`(必須。個人チャットは相手のユーザー id、グループは負数のグループ id) · `text`(必須) · `plain`(任意。true なら Markdown 解析をせず、本文の特殊文字がそのまま届く。既定 false は Markdown 解析) · `reply_to`(任意。相手のその一通の message_id を渡すと引用返信になる) · `attach`(任意。**ローカルファイルの絶対パス**。この時 text はキャプションになる。jpg/png/gif/webp は画像として送られ相手がそのまま見られる。それ以外はファイルとして送る)。\n\n**何が得られるか** —— メッセージが相手の Telegram にその場で届く。ネットワーク系の失敗(DNS/TLS の揺らぎ · TG 5xx · 429 レート制限)は 3 回自動再試行(即時 / 500ms 後 / 1500ms 後)。4xx は恒久的な誤りなので即座に返り、再試行しない。\n\n**落とし穴** —— `bot_token` は渡さないし渡せない。人格 registry から注入される。tg を設定していない人格にはこの道具自体が生えず、無理に叩けば「該人格未配 tg bot_token」が返る。本文の SSML タグは出口で無条件に剥がされる(TG は決して読み上げない)ので、Telegram で声を出そうとしないこと。",
+        "en": "**When to reach for it** — the user came in through Telegram, so reply through this. It calls the Telegram Bot API directly and does not go through the bus.\n\n**Params** — `chat_id` (required; a user id for a private chat, a negative group id for a group) · `text` (required) · `plain` (optional; true disables Markdown parsing so special characters arrive verbatim; default false parses Markdown) · `reply_to` (optional; pass the message_id of their message and it becomes a quoted reply) · `attach` (optional; **an absolute path to a local file**, and then text becomes the caption. jpg/png/gif/webp are sent as images the recipient can see inline; anything else is sent as a file).\n\n**What you get** — the message lands in their Telegram right away. Network-class failures (DNS/TLS flakiness, TG 5xx, 429 rate limits) are retried 3 times automatically (immediately / after 500ms / after 1500ms); a 4xx is permanent and returns at once without retrying.\n\n**Pitfall** — you neither pass nor can pass `bot_token`; it is injected from the persona registry. A persona with no tg configured does not get this tool at all, and forcing it returns 「该人格未配 tg bot_token」. SSML tags in the text are stripped unconditionally on the way out (Telegram never speaks), so don't try to produce voice there.",
+        "zh-TW": "**什麼時候想起它** —— 使用者從 Telegram 來找我, 回話就走這個口。它直打 Telegram Bot API, 不經過 bus。\n\n**參數** —— `chat_id`(必填; 私聊傳對方使用者 id, 群組傳負數的群組 id) · `text`(必填) · `plain`(可選; true = 不按 Markdown 解析, 正文裡的特殊字元原樣送達; 預設 false 走 Markdown) · `reply_to`(可選; 傳對方那條的 message_id, 發出去就是引用回覆) · `attach`(可選; **本地檔案的絕對路徑**, 這時 text 當圖說用。jpg/png/gif/webp 按圖片發, 對方直接看得見; 其餘一律按檔案發)。\n\n**用了換來什麼** —— 訊息當場投到對方的 Telegram。網路類失敗(DNS/TLS 抖動 · TG 5xx · 429 限流)自動重試 3 次(立刻 / 500ms / 1500ms 後), 4xx 屬於永久性錯誤立刻返回不重試。\n\n**坑** —— `bot_token` 不用傳也傳不了, 它從人格 registry 注入; 沒配過 tg 的人格手上壓根不會有這個工具, 硬叫會得到「該人格未配 tg bot_token」。正文裡的 SSML 標籤在出口被無條件剝掉(TG 永遠不朗讀), 所以別指望在 Telegram 上出聲。"
+      }
+    },
+    {
+      "slug": "reference_tool_talk_peer",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "工具 talk_peer —— 给同一个实例里的另一个人格捎一句话",
+      "claim": "跟**同一个 butler 实例里**的另一个人格说话用 talk_peer(target, message): target 是对方的名字(id 或目录也认), message 是要说的那句话, 就这两个参数。任意两个人格之间都能直连, 不用谁批准、也不必经谁中转。⚠️ 别的机器或别的 butler 实例上的 agent 不走这条路, 那是 bus_admin。",
+      "keywords": "talk_peer 工具 用法 参数 细则 怎么用 坑 人格 之间 发消息 直连 单向 异步 target message ask_persona 前缀 唤醒 投递",
+      "body": "## 🔴 它不会把对方的回答带回来\n\n投递成功之后, 你这一轮就到此为止了。对方的回话是他那边**另起一次投递**送回来的, 不在这个回执里, 也不会在这一轮里等到。\n\n所以:\n\n- **别在回执之后干等回音** —— 这一轮没有回音可等\n- **该说的一次说完**。对方看不见你这边的对话, 要他做什么、为什么找他、判断需要的前提, 一封讲清。来回追问一轮的代价远比多写两句大\n\n## 🔴 发出去不等于他立刻看到\n\n对方多久醒来, 由 message **开头的前缀**决定 —— 真急的事必须自己写成对应的前缀开头, 不写就可能被压上一阵子。\n\n三档前缀分别是什么后果, 按「前缀 唤醒 分档」查一次那条记忆, 别凭印象写。\n\n## 会踩的地方\n\n- **名字写错了会投递失败**, 拿不准先用 `persona_admin(op='list')` 看一眼名单\n- **投递本身有时限**。对方那边卡住了, 也只是这一次投递失败, 不会把你这边拖住\n",
+      "edges": [
+        {
+          "rel": "refines",
+          "to": "feedback_read_the_tool_spec_before_calling_it"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_personas_connect_point_to_point"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_peer_message_wakes_on_a_grade_prefix_decides"
+        }
+      ],
+      "translations": {
+        "ja": {
+          "title": "ツール talk_peer —— 同じインスタンス内の別の人格に一言伝える",
+          "claim": "**同じ butler インスタンス内**の別の人格に話しかけるには talk_peer(target, message): target は相手の名前(id やディレクトリも可)、message は伝えたい一言。引数はこの二つだけ。どの人格どうしも直接つながり、誰の承認も中継も要らない。⚠️ 別のマシンや別の butler インスタンス上の agent はこの経路ではなく bus_admin。",
+          "keywords": "talk_peer ツール 使い方 引数 細則 落とし穴 人格同士 メッセージ 直結 一方向 非同期 target message ask_persona 接頭辞 起こす 投函"
+        },
+        "en": {
+          "title": "Tool talk_peer — pass a message to another persona in the same instance",
+          "claim": "To speak to another persona **inside the same butler instance**, use talk_peer(target, message): target is their name (id or directory also work) and message is what you want to say — just those two arguments. Any two personas connect directly, with no approval and no relaying. ⚠️ An agent on another machine or another butler instance does not go this way; that is bus_admin.",
+          "keywords": "talk_peer tool usage parameters details how-to pitfalls persona to persona message direct one-way async target message ask_persona prefix wake delivery"
+        },
+        "zh-TW": {
+          "title": "工具 talk_peer —— 給同一個實例裡的另一個人格捎一句話",
+          "claim": "跟**同一個 butler 實例裡**的另一個人格說話用 talk_peer(target, message): target 是對方的名字(id 或目錄也認), message 是要說的那句話, 就這兩個參數。任意兩個人格之間都能直連, 不用誰批准、也不必經誰中轉。⚠️ 別的機器或別的 butler 實例上的 agent 不走這條路, 那是 bus_admin。",
+          "keywords": "talk_peer 工具 用法 參數 細則 怎麼用 坑 人格 之間 發訊息 直連 單向 非同步 target message ask_persona 前綴 喚醒 投遞"
+        }
+      },
+      "body_i18n": {
+        "ja": "**いつ思い出すか** —— システム内の別の人格に話しかけたい時に使う。どの二人の間でも点対点で直接繋がる。誰の承認も要らず、誰かを経由する必要もない。\n\n**引数** —— `target`(必須。相手の人格名 / id / ディレクトリ、三つとも受け付ける) · `message`(必須。伝えたい一言)。この二つだけで、他は無い。\n\n**何が得られるか** —— 一度の**一方向・非同期**の投函。成功すると `Delivered to \"<相手>\" · one-way async` が返る。問答ではない: こちらのこの一巡はここで終わり、相手の返事は相手側から改めて投函されて届くので、この戻り値の中には無い。\n\n**落とし穴** —— 投函自体は 60 秒でタイムアウトし、相手が固まってもこちらは巻き込まれない。🔴 **相手がいつ気付くかは message 冒頭の接頭辞が決める**。送った＝即座に起きる、ではない(三段階の接頭辞については別の一条にある)。`ask_persona` は 2026-09-08 に削除済み。これと意味は同じなので、その名前をもう探さないこと。",
+        "en": "**When to reach for it** — use it to speak to another persona in the system. Any two personas can connect point to point; nobody has to approve it and nothing has to relay it.\n\n**Params** — `target` (required; the other persona's name, id, or directory — all three are accepted) · `message` (required; what you want to say). Those two, nothing else.\n\n**What you get** — a single **one-way, asynchronous** delivery. On success it returns `Delivered to \"<them>\" · one-way async`. It is not a question-and-answer: your turn ends here, and their reply comes back as a separate delivery from their side, not inside this return value.\n\n**Pitfall** — the delivery itself times out at 60 seconds, so a stuck peer does not drag you down with it. 🔴 **How soon they see it is decided by the prefix at the start of message** — sending is not the same as waking them (a separate node covers the three prefix grades). `ask_persona` was deleted on 2026-09-08; it meant the same thing as this, so stop looking for that name.",
+        "zh-TW": "**什麼時候想起它** —— 要跟系統裡另一個人格說話就用它。任意兩個人格之間都能點對點直連, 不需要誰批准, 也不必經誰中轉。\n\n**參數** —— `target`(必填; 對方的人格名 / id / 目錄, 三種都認) · `message`(必填; 要說的那句話)。就這兩個, 沒有別的。\n\n**用了換來什麼** —— 一次**單向非同步**投遞, 成功回 `Delivered to \"<對方>\" · one-way async`。它不是問答: 我這一輪到此結束, 對方的回話是他那邊另起一次投遞送回來的, 不會在這個返回值裡。\n\n**坑** —— 投遞本身 60 秒逾時, 對方卡死不會連坐我這邊。🔴 **對方多久看到, 由 message 開頭的前綴決定**, 發了不等於他立刻醒(細則另有一條講三檔前綴)。`ask_persona` 已於 2026-09-08 刪除, 它和這個語義等價, 別再去找那個名字。"
+      }
+    },
+    {
+      "slug": "reference_todo_board_holds_long_running_items",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "high",
+      "title": "待办簿 —— 以后要做的事、等他拍板的事记在这里, 不进 task",
+      "claim": "对方说「记一下」「回头要做」「这个等我想想再定」这类不在手上这件活里的事, 用 plugin_call(id='todo', command='add', title=…, note=…, who=你的名字) 记进待办簿; 查用 command='list', 做完用 command='done', id=…。待办簿钉在常驻板上一条一行, 他自己也能点完成、删除, 或点「处理」把一条交给你。",
+      "keywords": "待办 记一下 记到待办 帮我记 回头 以后要做 改天 等我想想 等我定 备忘 清单 待办簿 todo plugin_call 还有什么没做 有哪些待办",
+      "body": "## 三样东西各管各的\n\n| 是什么 | 放哪 |\n|---|---|\n| 手上这件活拆出的步骤 | task |\n| 以后要做的事、等他拍板的事 | 待办簿 plugin_call(id='todo', …) |\n| 到某个时间要告诉他的事 | reminder |\n\n## 参数\n\n- `add`: title 一句话写清要做什么(必填) · note 补充 · who 写你自己的名字, 板上会标出是谁记的\n- `list`: 不用参数, 回没做完的条目(id · title · note · who · created)\n- `done`: id 用 list 回来的那个\n\n删除只有他自己能在板上点。",
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_multistep_work_lives_on_the_task_list"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_tool_reminder"
+        }
+      ],
+      "translations": {
+        "ja": {
+          "title": "やること帳 —— 後でやる事・相手の判断待ちの事はここに記し、task には入れない",
+          "claim": "相手が「メモしておいて」「あとでやる」「少し考えてから決める」のように今の仕事に属さない事を言ったら plugin_call(id='todo', command='add', title=…, note=…, who=自分の名前) でやること帳に記す。確認は command='list'、済んだら command='done', id=…。やること帳は常駐ボードに一件一行で載り、相手も自分で完了・削除できるほか、「対応」を押してその一件をあなたに渡せる。",
+          "keywords": "やること メモ メモしておいて 覚えておいて あとで 後でやる そのうち 考えてから 決めてから 備忘 リスト やること帳 todo plugin_call 残っている事"
+        },
+        "en": {
+          "title": "To-do board — things for later and things awaiting their decision go here, not in task",
+          "claim": "When the person says \"note this down\", \"I'll do it later\", \"let me think before deciding\" — anything outside the job in hand — add it with plugin_call(id='todo', command='add', title=…, note=…, who=your name); see them with command='list', mark one done with command='done', id=…. The to-do board sits pinned on the always-on board, one line per item; they can tick or delete items themselves, or press Handle to pass one to you.",
+          "keywords": "to-do todo note this down remember later someday think about it decide later reminder list backlog to-do board plugin_call what's left open items"
+        },
+        "zh-TW": {
+          "title": "待辦簿 —— 以後要做的事、等他拍板的事記在這裡，不進 task",
+          "claim": "對方說「記一下」「回頭要做」「這個等我想想再定」這類不在手上這件活裡的事，用 plugin_call(id='todo', command='add', title=…, note=…, who=你的名字) 記進待辦簿；查用 command='list'，做完用 command='done', id=…。待辦簿釘在常駐板上一條一行，他自己也能點完成、刪除，或點「處理」把一條交給你。",
+          "keywords": "待辦 記一下 記到待辦 幫我記 回頭 以後要做 改天 等我想想 等我定 備忘 清單 待辦簿 todo plugin_call 還有什麼沒做 有哪些待辦"
+        }
+      },
+      "body_i18n": {
+        "ja": "## 三つはそれぞれ別のもの\n\n| 何か | どこへ |\n|---|---|\n| 今の仕事を分けた手順 | task |\n| 後でやる事・相手の判断待ちの事 | やること帳 plugin_call(id='todo', …) |\n| ある時刻に相手へ知らせる事 | reminder |\n\n## 引数\n\n- `add`: title にやる事を一文で(必須) · note 補足 · who に自分の名前(ボードに誰が記したか出る)\n- `list`: 引数なし。未完の項目(id · title · note · who · created)が返る\n- `done`: id は list で返ったもの\n\n削除は相手本人がボードで押す時だけ。",
+        "en": "## Three things, each with its own place\n\n| What | Where |\n|---|---|\n| Steps of the job in hand | task |\n| Things for later, things awaiting their decision | to-do board plugin_call(id='todo', …) |\n| Something to tell them at a set time | reminder |\n\n## Parameters\n\n- `add`: title = one line on what to do (required) · note = detail · who = your own name, shown on the board\n- `list`: no parameters; returns the open items (id · title · note · who · created)\n- `done`: id as returned by list\n\nOnly the person deletes, from the board.",
+        "zh-TW": "## 三樣東西各管各的\n\n| 是什麼 | 放哪 |\n|---|---|\n| 手上這件活拆出的步驟 | task |\n| 以後要做的事、等他拍板的事 | 待辦簿 plugin_call(id='todo', …) |\n| 到某個時間要告訴他的事 | reminder |\n\n## 參數\n\n- `add`: title 一句話寫清要做什麼(必填) · note 補充 · who 寫你自己的名字，板上會標出是誰記的\n- `list`: 不用參數，回沒做完的條目(id · title · note · who · created)\n- `done`: id 用 list 回來的那個\n\n刪除只有他自己能在板上點。"
+      }
+    },
+    {
+      "slug": "reference_in_type_area_multiline",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "多行输入框 —— {{in:key|type=area}}",
+      "claim": "要对方填一段话(备注、需求、地址、留言)时用多行输入框 `{{in:key|type=area|rows=4|placeholder=…}}`: 占满一行宽, `rows` 定高度(2-12, 默认 3), 换行原样送回给你; 同样要在结尾配一个 `{{btn:文字}}` 才能提交。短的值(数字、日期、名字)照旧用单行框。",
+      "keywords": "多行 文本框 textarea 备注 留言 长文本 一段话 area rows",
+      "translations": {
+        "ja": {
+          "title": "複数行の入力欄 —— {{in:key|type=area}}",
+          "claim": "相手に文章(備考・要望・住所・メッセージ)を書いてもらうときは複数行の入力欄 `{{in:key|type=area|rows=4|placeholder=…}}` を使う: 横幅いっぱい、`rows` で高さ(2-12、既定 3)、改行はそのまま届く。送信には末尾に `{{btn:文字}}` が要るのは同じ。短い値(数字・日付・名前)は従来の一行欄。",
+          "keywords": "複数行 テキストエリア 備考 メッセージ 長文 area rows"
+        },
+        "en": {
+          "title": "Multi-line input —— {{in:key|type=area}}",
+          "claim": "When you need a passage from them (notes, requirements, an address, a message), use the multi-line box `{{in:key|type=area|rows=4|placeholder=…}}`: full width, `rows` sets the height (2-12, default 3), line breaks come back to you as typed; it still needs a `{{btn:label}}` at the end to submit. Short values (numbers, dates, names) stay in the one-line box.",
+          "keywords": "multiline textarea notes message long text paragraph area rows"
+        },
+        "zh-TW": {
+          "title": "多行輸入框 —— {{in:key|type=area}}",
+          "claim": "要對方填一段話(備註、需求、地址、留言)時用多行輸入框 `{{in:key|type=area|rows=4|placeholder=…}}`: 佔滿一行寬, `rows` 定高度(2-12, 預設 3), 換行原樣送回給你; 同樣要在結尾配一個 `{{btn:文字}}` 才能送出。短的值(數字、日期、名字)照舊用單行框。",
+          "keywords": "多行 文字框 textarea 備註 留言 長文字 area rows"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_in_type_eight_values_others_fall_back_to_text"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_widgets_only_work_as_dsl_never_raw_html"
+        }
+      ]
+    }
+  ]
+}

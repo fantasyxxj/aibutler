@@ -1,0 +1,4 @@
+{
+  "_note": "记忆写法辅导要不要递给人格: memory_upsert 回执末尾的 📌 提示, 以及红线里针对 memory_* 工具的 warn 级提醒(只记账, 不附给它)。block 级硬拦不受影响。个人版人格面对的是开发者, 辅导有用 → 开; 行业版在 industry/config/main/ 覆盖成关 —— 2026-10-11 实测店小二(haiku)把这些辅导当成店主的话, 当场对店主说 memory_upsert/base_hash, 加「只给你看」的抬头也挡不住。",
+  "enabled": true
+}

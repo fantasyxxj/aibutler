@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1022"/><stop offset="1" stop-color="#151d3b"/></linearGradient>
+    <linearGradient id="gR" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c8cff"/><stop offset="1" stop-color="#4f5bd5"/></linearGradient>
+    <linearGradient id="gM" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#38d3e8"/><stop offset="1" stop-color="#1f8fb8"/></linearGradient>
+    <linearGradient id="gC" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f5b84b"/><stop offset="1" stop-color="#f472b6"/></linearGradient>
+  </defs>
+  <rect width="1200" height="400" rx="20" fill="url(#bg)"/>
+  <text x="600" y="58" text-anchor="middle" font-size="30" font-weight="700" fill="#e6ebff">Reasoning <tspan fill="#8c97c2">+</tspan> Memory <tspan fill="#8c97c2">=</tspan> <tspan fill="#f5b84b">A Complete Mind</tspan></text>
+
+  <g transform="translate(60,100)">
+    <rect width="320" height="250" rx="16" fill="#161f3d" stroke="url(#gR)" stroke-width="2"/>
+    <rect width="320" height="6" rx="3" fill="url(#gR)"/>
+    <text x="28" y="52" font-size="26" font-weight="700" fill="#e6ebff">Reasoning</text>
+    <text x="28" y="80" font-size="15" fill="#7c8cff">The large language model</text>
+    <g font-size="15" fill="#c3cbef">
+      <circle cx="34" cy="122" r="4" fill="#7c8cff"/><text x="48" y="127">Parametric, frozen at training</text>
+      <circle cx="34" cy="160" r="4" fill="#7c8cff"/><text x="48" y="165">Infers, plans, writes, decides</text>
+      <circle cx="34" cy="198" r="4" fill="#7c8cff"/><text x="48" y="203">The same for everyone</text>
+    </g>
+  </g>
+  <text x="410" y="238" text-anchor="middle" font-size="44" font-weight="300" fill="#8c97c2">+</text>
+
+  <g transform="translate(440,100)">
+    <rect width="320" height="250" rx="16" fill="#161f3d" stroke="url(#gM)" stroke-width="2"/>
+    <rect width="320" height="6" rx="3" fill="url(#gM)"/>
+    <text x="28" y="52" font-size="26" font-weight="700" fill="#e6ebff">Memory</text>
+    <text x="28" y="80" font-size="15" fill="#38d3e8">aibutler</text>
+    <g font-size="15" fill="#c3cbef">
+      <circle cx="34" cy="122" r="4" fill="#38d3e8"/><text x="48" y="127">Non-parametric, grows daily</text>
+      <circle cx="34" cy="160" r="4" fill="#38d3e8"/><text x="48" y="165">Who, what, why, what went wrong</text>
+      <circle cx="34" cy="198" r="4" fill="#38d3e8"/><text x="48" y="203">Yours, on your own machine</text>
+    </g>
+  </g>
+  <text x="790" y="238" text-anchor="middle" font-size="44" font-weight="300" fill="#8c97c2">=</text>
+
+  <g transform="translate(820,100)">
+    <rect width="320" height="250" rx="16" fill="#1c2244" stroke="url(#gC)" stroke-width="2.5"/>
+    <rect width="320" height="6" rx="3" fill="url(#gC)"/>
+    <text x="28" y="52" font-size="26" font-weight="700" fill="#e6ebff">A Complete Mind</text>
+    <text x="28" y="80" font-size="15" fill="#f5b84b">A stateful AI persona</text>
+    <g font-size="15" fill="#c3cbef">
+      <circle cx="34" cy="122" r="4" fill="#f5b84b"/><text x="48" y="127">Knows you and your work</text>
+      <circle cx="34" cy="160" r="4" fill="#f5b84b"/><text x="48" y="165">Learns from every mistake</text>
+      <circle cx="34" cy="198" r="4" fill="#f5b84b"/><text x="48" y="203">Survives every restart</text>
+    </g>
+  </g>
+</svg>

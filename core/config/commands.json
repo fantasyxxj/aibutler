@@ -1,0 +1,28 @@
+{
+  "_note": "行内命令目录。AI 只能从这里【挑】—— 发明不出新命令, 也指定不了去处(语法里根本没有『地址』这个字段)。目录里没有的名字会在屏幕上红字显示, 不会被静默吞掉。写法: {{cmd:name|k=v|label=按钮文字}}",
+  "_channel_note": "channel 是去处。个人版只有 local —— 什么都不出这台机器。行业版才有 business/admin 那两条通往平台的路, 别照抄过来: 个人版压根没有『我们的服务端』这一侧。",
+  "_notify_note": "notify_ai=false 的命令执行完不通知 AI(默认 true)。18 步的手顺每按一次『下一步』都叫一次 AI, 就是 18 次计费 —— 只是翻屏的操作必须在本机了结。真让外面世界动起来的操作才该是 true。",
+  "commands": {
+    "wf_go": {
+      "channel": "local",
+      "notify_ai": false,
+      "summary": "Advance the workflow one screen. Tapping it switches to the next screen immediately — does not call AI, so it costs nothing no matter how many times you tap, and tapping the same spot always produces the same screen.",
+      "params": {
+        "wf": { "type": "text", "required": true, "note": "workflow id" },
+        "to": { "type": "text", "required": false, "note": "id of the step to navigate to. Omit it on an entry button: the engine lands on the first step not yet done. Do not look the progress up and pass it back — the engine already holds it." },
+        "from": { "type": "text", "required": false, "note": "id of the step currently displayed (only needed when printing)" },
+        "mark": { "type": "text", "required": false, "note": "mark to stamp on `from`: done or skipped. **Do not stamp when navigating backwards** — glancing back should not rewrite the record." }
+      },
+      "label_default": "下一步"
+    },
+    "wf_finish": {
+      "channel": "local",
+      "summary": "Final screen of the workflow. The personal edition has no platform to report to, so this is the end — stamp the mark first, same as the business edition.",
+      "params": {
+        "wf": { "type": "text", "required": true, "note": "workflow id" },
+        "from": { "type": "text", "required": false, "note": "id of the final step (stamps it as done)" }
+      },
+      "label_default": "全部完成"
+    }
+  }
+}

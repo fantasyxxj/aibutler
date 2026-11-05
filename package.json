@@ -1,23 +1,35 @@
 {
   "name": "butler",
-  "version": "0.0.15",
-  "description": "全能管家 — 独立聊天窗口 (Electron + Claude Agent SDK), 复用订阅认证, 真 usage 上下文条 + 自主压缩",
-  "main": "main.js",
+  "version": "1.0.9",
+  "description": "全能管家",
+  "main": "personal/main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder",
-    "dist:mac": "electron-builder --mac",
-    "dist:win": "node -e \"require('fs').accessSync('build/bin/win/x64/claude.exe')\" && electron-builder --win --x64"
+    "dist:mac": "node scripts/dist.js --mac",
+    "dist:win": "node scripts/dist.js --win",
+    "dist:mac:locked": "node scripts/dist.js --mac --locked",
+    "dist:win:locked": "node scripts/dist.js --win --locked",
+    "prepack": "node scripts/vendor-embed.js",
+    "build:agent-sdk": "npm --prefix agent-sdk install --no-audit --no-fund && npm --prefix agent-sdk run build",
+    "test:semantic": "node personal/test-memory-semantic.js"
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.3.201",
+    "@anthropic-ai/claude-agent-sdk": "^0.3.281",
+    "@butler/agent-sdk": "file:agent-sdk",
+    "@modelcontextprotocol/sdk": "^1.32.2",
     "katex": "^0.17.0",
     "mermaid": "^11.16.0",
+    "microsoft-cognitiveservices-speech-sdk": "^1.53.0",
+    "node-sqlite3-wasm": "^0.8.60",
+    "qrcode-generator": "^2.0.4",
+    "undici": "^7.29.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@huggingface/transformers": "^4.2.0",
     "electron": "^33.2.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "jsdom": "^29.1.1"
   },
   "build": {
     "appId": "com.fantasyxxj.butler",
@@ -29,20 +41,36 @@
     "files": [
       "**/*",
       "!**/*.md",
-      "!test-*.js",
+      "personal/config/**/*.md",
+      "core/config/**/*.md",
+      "!personal/test-*.js",
+      "!industry/**",
+      "!education/**",
+      "!.devdata-bak-*/**",
+      "!.zshrc",
+      "!verify/**",
       "!scripts/**",
+      "!.codemap-unowned",
       "!build/**",
       "!release/**",
+      "!dist/**",
       "!logs/**",
+      "!personas/**",
+      "!app/**",
       "!personas.json",
       "!personas.json.bak",
       "!.opentabs.json",
       "!.session.json.migrated",
       "!.claude/**",
+      "!personal/.claude/**",
       "!memory/**",
       "!workspace/**",
       "!docs/**",
-      "!**/.DS_Store"
+      "!**/.DS_Store",
+      "!models/**",
+      "!whisper/**",
+      "!**/@anthropic-ai/claude-agent-sdk/**",
+      "!**/@anthropic-ai/claude-agent-sdk-*/**"
     ],
     "mac": {
       "target": [
@@ -50,30 +78,38 @@
       ],
       "icon": "build/icon.png",
       "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "全能管家需要访问麦克风以支持语音输入(与人格语音对话/听写)。",
+        "NSCameraUsageDescription": "全能管家可能需要访问摄像头用于视频输入(可选功能)。"
+      },
       "extraResources": [
         {
-          "from": "build/bin/mac/${arch}/claude",
-          "to": "bin/claude"
+          "from": "build/bin/mac/whisper/whisper-cli",
+          "to": "whisper/bin/darwin/whisper-cli"
         }
       ]
     },
     "win": {
       "target": [
-        "nsis",
-        "portable"
+        "nsis"
       ],
-      "icon": "build/icon.png",
-      "extraResources": [
-        {
-          "from": "build/bin/win/${arch}/claude.exe",
-          "to": "bin/claude.exe"
-        }
-      ]
+      "icon": "build/icon.png"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "perMachine": false
-    }
+    },
+    "asarUnpack": [
+      "personal/renderer/vendor/**"
+    ],
+    "copyright": "Copyright © 2026 fantasyxxj"
+  },
+  "author": {
+    "name": "fantasyxxj",
+    "url": "https://github.com/fantasyxxj"
   }
 }

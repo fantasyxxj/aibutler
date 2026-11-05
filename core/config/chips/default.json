@@ -1,0 +1,209 @@
+{
+  "_comment": "出厂 prompt chip 池 — 新人格首次开窗铺这些。定位是【能力橱窗】: 让第一次用的人一眼看见 butler 能干什么, 每个按钮点下去都当场做成一件事。这是【安装时下发的模板】, 不是一次性脚手架: 点过【不消失】, 只记次数(2026-08-17 作者统一个人版/行业版口径)。退休只有两条路 —— 用户说清掉, 或 AI 用 get_chip_usage 发现长期没人点后【提醒用户】; 程序不自动删。改这个文件只影响还没退休的 chip。🔴 label/prompt 可以是字符串, 也可以是 {ja,en,zh-CN,zh-TW} —— 出厂 chip 一律用后者(它是用户直接看得见的字符串, 跟界面文案同档), core/registry.js 的 resolveChips 按显示语言挑一份; 人格自己写的 chip 传字符串, 原样透传。",
+  "chips": [
+    {
+      "id": "howto",
+      "icon": "🧭",
+      "kind": "main",
+      "label": {
+        "zh-CN": "教我怎么用你",
+        "ja": "使い方を教えて",
+        "en": "Teach me how",
+        "zh-TW": "教我怎麼用你"
+      },
+      "prompt": {
+        "zh-CN": "我第一次用你，你带我走一遍，分三步：第一步，你用一句话说清你是谁、能帮我干什么；第二步，你问我一个问题，摸清我最想让你帮上忙的地方，等我答；第三步，你当场帮我做成一件小事。一步一步来，每步等我回话再往下走。",
+        "ja": "初めてあなたを使うから、3つのステップで教えてください。第一ステップ、あなたが誰で何ができるか一文で説明してください。第二ステップ、私が最も手伝ってもらいたいことを理解するための質問をして、私の答えを待ってください。第三ステップ、その場で小さなことを実現させてください。一ステップずつ、毎回私の返答を待ってから次に進んでください。",
+        "en": "I'm using you for the first time, so walk me through it step by step. First, explain in one sentence who you are and what you can do for me. Second, ask me one question to understand what I most want your help with, then wait for my answer. Third, help me get something small done on the spot. Take it one step at a time, waiting for my reply before moving ahead.",
+        "zh-TW": "我第一次用你，你帶我走一遍，分三步：第一步，你用一句話說清你是誰、能幫我幹什麼；第二步，你問我一個問題，摸清我最想讓你幫上忙的地方，等我答；第三步，你當場幫我做成一件小事。一步一步來，每步等我回話再往下走。"
+      }
+    },
+    {
+      "id": "aboutme",
+      "icon": "👤",
+      "kind": "main",
+      "label": {
+        "zh-CN": "先说下我的情况",
+        "ja": "私のことを聞いて",
+        "en": "Get to know me",
+        "zh-TW": "先說下我的情況"
+      },
+      "prompt": {
+        "zh-CN": "我想让你先了解我。你来问，一次只问一个问题，把我是谁、我要你帮什么、我的偏好摸清楚。问完用 memory_upsert 存成一个关于我的记忆节点，再把你记下的念给我核对。",
+        "ja": "私のことを先に理解してほしいです。あなたが質問してください。毎回一つの質問だけで、私が誰で、何をしてほしいのか、好みは何かを理解してください。質問が終わったら memory_upsert で私に関する記憶ノードを保存して、記録した内容を確認するために読み上げてください。",
+        "en": "I'd like you to get to know me first. You ask the questions—one at a time—to understand who I am, what I need help with, and what I prefer. Once you're done, save it as a memory node using memory_upsert and read back what you've recorded so I can verify it.",
+        "zh-TW": "我想讓你先了解我。你來問，一次只問一個問題，把我是誰、我要你幫什麼、我的偏好摸清楚。問完用 memory_upsert 存成一個關於我的記憶節點，再把你記下的念給我核對。"
+      }
+    },
+    {
+      "id": "draw",
+      "icon": "🎨",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "给我画张图",
+        "ja": "図を描いて",
+        "en": "Draw me a diagram",
+        "zh-TW": "給我畫張圖"
+      },
+      "prompt": {
+        "zh-CN": "画张图给我看。先问我想讲清楚的是什么（流程、结构、时序还是关系），再挑合适的画法直接嵌在回复里画出来——SVG 和 mermaid 流程图 butler 前端都会渲染。画完问我哪里要改，改到我满意。",
+        "ja": "図を描いて見せてください。まず、流れ図か、構造図か、時系列図か、関係図か、何を説明したいのか教えてください。次に、適切な描き方を選んで、返答の中に直接描きます。SVG と mermaid フローチャートは butler フロントエンドで表示できます。描いたら、何を変えたいか教えてください。満足するまで変更します。",
+        "en": "Draw a diagram for me. First, tell me what you want to visualize—a process, structure, timeline, or relationship. Then I'll pick the right format and render it directly in my response using SVG or mermaid diagrams, which butler's frontend supports. Once it's done, let me know what needs to change.",
+        "zh-TW": "畫張圖給我看。先問我想講清楚的是什麼（流程、結構、時序還是關係），再挑合適的畫法直接嵌在回覆裡畫出來——SVG 和 mermaid 流程圖 butler 前端都會渲染。畫完問我哪裡要改，改到我滿意。"
+      }
+    },
+    {
+      "id": "animate",
+      "icon": "▶️",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "画个会动的",
+        "ja": "アニメを作って",
+        "en": "Make it move",
+        "zh-TW": "畫個會動的"
+      },
+      "prompt": {
+        "zh-CN": "画一张真的会动的图给我看，不要静态图。用 SVG 动画标签写（这里的 JS 不执行，动画得靠 animate / animateTransform 这类标签）。先问我想看什么动起来，画完再问我要不要加个按钮，点一下才开始跑。",
+        "ja": "本当に動く図を描いて見せてください。静止画ではなく。SVG アニメーションタグを使って書きます。ここでは JS は実行されないので、animate や animateTransform などのタグで動きを作ります。まず、何を動かしたいか教えてください。描いたら、ボタンを付けて、クリックしてから実行を開始するようにするか聞きます。",
+        "en": "Draw me something that actually moves—not a static image. I'll use SVG animation tags (JS doesn't run here, so the animation relies on tags like animate and animateTransform). First tell me what you want to see move, then I'll ask if you want a button that starts the animation when clicked.",
+        "zh-TW": "畫一張真的會動的圖給我看，不要靜態圖。用 SVG 動畫標籤寫（這裡的 JS 不執行，動畫得靠 animate / animateTransform 這類標籤）。先問我想看什麼動起來，畫完再問我要不要加個按鈕，點一下才開始跑。"
+      }
+    },
+    {
+      "id": "form",
+      "icon": "📝",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "给我做个表单",
+        "ja": "フォームを作って",
+        "en": "Make a form",
+        "zh-TW": "給我做個表單"
+      },
+      "prompt": {
+        "zh-CN": "帮我做个小表单，让我用点的、不用打字。先问我要填的是什么，然后在回复里直接放输入框、下拉、拉杆和按钮让我填。我填完提交给你，你把结果整理成结论给我。",
+        "ja": "小さなフォームを作ってください。入力や選択肢をクリックするだけで、タイピングは不要です。まず何を入力したいのか教えてください。その後、返答の中に入力ボックス、ドロップダウン、スライダー、ボタンを直接配置します。入力が完了して送信したら、結果を結論にまとめます。",
+        "en": "Make a simple form for me—click to fill, no typing required. First tell me what data you want, then I'll put input fields, dropdowns, sliders, and a button right in my response. You fill it out and submit, and I'll compile the results into a summary.",
+        "zh-TW": "幫我做個小表單，讓我用點的、不用打字。先問我要填的是什麼，然後在回覆裡直接放輸入框、下拉、拉桿和按鈕讓我填。我填完提交給你，你把結果整理成結論給我。"
+      }
+    },
+    {
+      "id": "plugin",
+      "icon": "🧩",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "给我做个插件",
+        "ja": "プラグインを作って",
+        "en": "Build a plugin",
+        "zh-TW": "給我做個插件"
+      },
+      "prompt": {
+        "zh-CN": "给我做个小插件，装进 butler 里长期用，不是聊完就没了的那种。先问我想要个什么小工具（比如计数器、记账板、抽签、倒计时），然后你自己把插件写出来装上，装好告诉我在哪儿点开、怎么用。",
+        "ja": "小さなプラグインを作ってください。butler に長期的にインストールすることができます。チャットが終わったら消えるものではありません。まず、どのような小ツール（例：カウンター、支出記録、くじ引き、カウントダウン）が欲しいか教えてください。その後、プラグインを書いてインストールします。インストールが完了したら、どこをクリックするか、どう使うかを教えます。",
+        "en": "Build me a small plugin to install in butler for long-term use—not something that disappears after we chat. First tell me what kind of tool you want (like a counter, expense tracker, lottery, countdown timer), then I'll write and install the plugin. Once it's installed, I'll show you where to find it and how to use it.",
+        "zh-TW": "給我做個小插件，裝進 butler 裡長期用，不是聊完就沒了的那種。先問我想要個什麼小工具（比如計數器、記帳板、抽籤、倒計時），然後你自己把插件寫出來裝上，裝好告訴我在哪兒點開、怎麼用。"
+      }
+    },
+    {
+      "id": "tts",
+      "icon": "🔊",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "读给我听",
+        "ja": "話して聞かせて",
+        "en": "Read it to me",
+        "zh-TW": "讀給我聽"
+      },
+      "prompt": {
+        "zh-CN": "我想听你说话。你先看看语音功能是不是开着，没开就手把手带我打开（一步一步说，我照做）；开好之后立刻挑一段读给我听，让我听听你的声音。",
+        "ja": "あなたが話すのを聞きたいです。まず音声機能が有効になっているか確認してください。有効でなければ、手順を一つずつ説明して、有効にするのを手伝います。有効になったら、そこからすぐに何か読んで聞かせます。あなたの声を聞かせてください。",
+        "en": "I want to hear you speak. First check if voice features are enabled—if not, I'll walk you through turning it on step by step. Once it's on, I'll immediately read something to let you hear my voice.",
+        "zh-TW": "我想聽你說話。你先看看語音功能是不是開著，沒開就手把手帶我打開（一步一步說，我照做）；開好之後立刻挑一段讀給我聽，讓我聽聽你的聲音。"
+      }
+    },
+    {
+      "id": "search",
+      "icon": "🔍",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "帮我搜个东西",
+        "ja": "検索してほしい",
+        "en": "Search the web",
+        "zh-TW": "幫我搜個東西"
+      },
+      "prompt": {
+        "zh-CN": "帮我上网查点东西。先问我想查什么，然后去搜，搜完给我结论 + 你参考的来源链接，别只给一堆链接让我自己读。",
+        "ja": "ネットで何か調べてください。まず何を探したいのか教えてください。その後、検索します。完了したら、結論と参考にしたソースリンクをください。単にリンクのリストだけではなく。",
+        "en": "Search the web for me. First tell me what you want to look up, then I'll search and give you a conclusion plus the source links I used—not just a pile of links for you to sort through.",
+        "zh-TW": "幫我上網查點東西。先問我想查什麼，然後去搜，搜完給我結論 + 你參考的來源鏈接，別只給一堆鏈接讓我自己讀。"
+      }
+    },
+    {
+      "id": "remember",
+      "icon": "🧠",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "记住我说的事",
+        "ja": "これを覚えて",
+        "en": "Remember this",
+        "zh-TW": "記住我說的事"
+      },
+      "prompt": {
+        "zh-CN": "我要你记住一件事，长期记住。我说完你用 memory_upsert 存下来，然后告诉我你存成了什么、以后什么场合会自己想起来用。我现在说：",
+        "ja": "何かを長期的に覚えてほしいです。あなたが言ったら、memory_upsert で保存します。その後、何として保存されたか、今後どんな場面でこれを自分で思い出すかを教えます。今から言います：",
+        "en": "I want you to remember something long-term. Once you tell me, I'll save it with memory_upsert and explain what I stored and when I'll bring it up on my own. Here's what I want to remember:",
+        "zh-TW": "我要你記住一件事，長期記住。我說完你用 memory_upsert 存下來，然後告訴我你存成了什麼、以後什麼場合會自己想起來用。我現在說："
+      }
+    },
+    {
+      "id": "html",
+      "icon": "📄",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "给我做个文档",
+        "ja": "文書を作成",
+        "en": "Create a document",
+        "zh-TW": "給我做個文檔"
+      },
+      "prompt": {
+        "zh-CN": "帮我做一份文档。你先问我两件事：做什么内容、给谁看；再问我要哪种格式——HTML、PDF、Word 还是 PPT，我选一个。然后按我选的做出来，做完把文件的绝对路径贴给我，让我点开就能看。",
+        "ja": "文書を作成してください。まず二つのことを質問します：何の内容にするか、誰に見せるか。次に、どのフォーマットが欲しいか質問します——HTML、PDF、Word、それとも PPT、一つ選んでください。その後、選んだフォーマットで作成します。完了したら、ファイルの絶対パスを貼り付けるので、クリックして見ることができます。",
+        "en": "Create a document for you. First I'll ask two things: what the content should be about and who it's for. Then I'll ask which format you want—HTML, PDF, Word, or PPT. I'll create it in your chosen format and give you the absolute file path so you can open it.",
+        "zh-TW": "幫我做一份文檔。你先問我兩件事：做什麼內容、給誰看；再問我要哪種格式——HTML、PDF、Word 還是 PPT，我選一個。然後按我選的做出來，做完把文件的絕對路徑貼給我，讓我點開就能看。"
+      }
+    },
+    {
+      "id": "makechip",
+      "icon": "➕",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "给我加个快捷按钮",
+        "ja": "ボタンを追加",
+        "en": "Add a quick button",
+        "zh-TW": "給我加個快捷按鈕"
+      },
+      "prompt": {
+        "zh-CN": "我想把常干的一件事做成输入框上方的快捷按钮。先问我想一键让你干什么，然后用 update_prompt_chips 加上去，加完告诉我按钮长什么样、点了会发生什么。以后我随时能让你加新的或者换掉旧的。",
+        "ja": "よく行うことを入力ボックスの上のクイックボタンにしたいです。まず、何をワンクリックでさせたいか教えてください。その後、update_prompt_chips で追加します。追加完了したら、ボタンがどのように見えるか、クリックするとどうなるかを教えます。今後いつでも新しいものを追加したり、古いものを交換したりできます。",
+        "en": "I want to turn something I do often into a quick button above the input box. First tell me what you should do with one click, then I'll add it using update_prompt_chips. Once it's added, I'll show you what the button looks like and what happens when you click it. Anytime you want to add new ones or swap old ones, just ask.",
+        "zh-TW": "我想把常幹的一件事做成輸入框上方的快捷按鈕。先問我想一鍵讓你幹什麼，然後用 update_prompt_chips 加上去，加完告訴我按鈕長什麼樣、點了會發生什麼。以後我隨時能讓你加新的或者換掉舊的。"
+      }
+    },
+    {
+      "id": "newpersona",
+      "icon": "✨",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "创建专业人格",
+        "ja": "ペルソナを作成",
+        "en": "Create a persona",
+        "zh-TW": "創建專業人格"
+      },
+      "prompt": {
+        "zh-CN": "我想要一个专门管某件事的人格。你先问清三件事：它管什么领域、叫什么名字、放在哪个目录；问全了直接建出来，建完告诉我怎么切过去、它跟你怎么配合。",
+        "ja": "何か専門的に管理する人格が欲しいです。まず三つのことを明確にしてください：どの分野を管理するか、何という名前にするか、どのディレクトリに置くか。聞き終わったら、その場で作成します。作成完了したら、どのように切り替えるか、あなたとどのように連携するかを教えます。",
+        "en": "I want a persona dedicated to handling something specific. I'll ask three things: what domain it manages, what its name is, and which directory to put it in. Once I have the details, I'll create it on the spot and show you how to switch to it and how it works with you.",
+        "zh-TW": "我想要一個專門管某件事的人格。你先問清三件事：它管什麼領域、叫什麼名字、放在哪個目錄；問全了直接建出來，建完告訴我怎麼切過去、它跟你怎麼配合。"
+      }
+    }
+  ]
+}

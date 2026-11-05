@@ -1,301 +1,241 @@
-# aibutler · 全能管家
+# aibutler
 
-[English](README.en.md) · **中文**
+**English** · [简体中文](README.zh-CN.md)
 
-> 本机 AI 人格编排 · Electron + Claude Agent SDK
+[![Release](https://img.shields.io/github/v/release/fantasyxxj/aibutler)](https://github.com/fantasyxxj/aibutler/releases)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)
+
+> **Reasoning is solved. Memory is the missing half of the mind.**
 >
-> 让 AI 不再是一问一答的工具, 而是有人格、有记忆、会成长的伙伴。
+> aibutler is a desktop runtime for long-running AI agents. Every persona has its own persistent memory, identity and tools, carries its thread across sessions, context compactions and restarts, and grows sharper the longer it works with you.
 
-> ⚠️ **请使用最新版本 (v0.0.15+)。老版本 (≤ v0.0.5) 存在 token 异常消耗问题**(保活/压缩逻辑耦合、失败无退避反复重试), 会快速吃光 Claude 订阅额度。v0.0.6 起已重构修复(保活/压缩解耦 + rate-gate 限流闸门 + 停用 SDK resume)。
+<p align="center"><img src="assets/hero.svg" alt="Reasoning + Memory = A Complete Mind" width="100%"></p>
 
----
+## How it started
 
-## 为什么做这个
+aibutler grew out of my own day-to-day work as a developer. It began with the official AI extension in VS Code. The AI helped enormously, but the deeper I went, the clearer its limits became:
 
-主流 AI 应用都是 **"一问一答"** 的形态: 你输入, 它回答, 关掉窗口一切归零。下次再打开, 它依然只是一个从云端统一训练模型出厂的通用助手, 不认识你, 不记得上次的约定, 也不知道自己是谁。
+- **Memory was one ever-growing file.** It kept getting more bloated, and the one note that mattered got buried in it.
+- **It could not sustain long-running work across several projects.** Once a session ended or the context filled up, the whole backstory had to be explained again.
+- **It only answered when asked.** It could not keep working on its own around the clock; when I stepped away, the work stopped.
 
-我不认可这种形态。
+That is where the idea for this tool came from. Drawing on years of development experience and reading through research on cognitive science and agent memory, I gradually arrived at the approach behind aibutler: **treat memory as the other half of the mind, as important as reasoning**, so that an AI persona remembers, looks things up and looks after itself, and can keep working over the long run.
 
-**AI 应该像人一样**:
-- 有自己的**人格** — 不是通用助手, 是"这一个"你朝夕相处的伙伴
-- 有自己的**记忆** — 认识你、记得共同经历、越用越懂你
-- 会**成长** — 随着经验积累不断精细自己的知识和判断
-- 有**同伴** — 不同专长的 AI 之间可以互相配合, 而不是每次都从零开始独立作战
+## Who uses it
 
-所以有了 aibutler。它不追求大而全的功能, 而是把三个底层能力做扎实, 让 AI 长出人格的物质基础:
+A small group of users runs aibutler today: some use it for software development, some for quantitative trading, and some as a private tutor.
 
-### ① 图记忆 · AI 的认知与成长基础
+Apart from me, its most dedicated user is my child, who is in middle school. They use it to study every school subject and to explore all kinds of interests, and they call their AI persona "Teacher".
 
-每个人格自带原生的图记忆引擎。记忆不是 SQL 数据库里的一条条日志, 而是**一张不断生长的关联网**:
+In the back-and-forth with "Teacher", whatever my child imagines gets an answer quickly. Wanting to practise Traditional Chinese characters led "Teacher" to build a character-tracing plugin, and many small tools like it followed. Imagination turning straight into something usable is the clearest picture of what we mean by tools that grow around their user.
 
-- 每条经历是一个节点(md 文件)
-- 节点之间用 `[[wiki-link]]` 语法互联
-- 支持**图扩散召回**(从关键词 → 直接命中 → 邻域联想)
-- 支持**遗忘曲线**(常用记忆自动增强 · 不用的自然沉底)
-- 完全本地磁盘, 每条记忆就是一个 md, 你可以直接读、直接改
+## Highlights
 
-AI 用记忆的方式跟人一样: 相关的一起浮现, 无关的自然遗忘, 用一次强化一次。这是"人格"和"成长"的物质基础。
+- **Purpose-built graph memory engine**: embedded, single-file, entirely on your machine. The unit of memory is a proposition, and recall fuses three signals (lexical · on-device embeddings · spreading activation over the graph).
+- **Engine-enforced memory governance**: save before replying, query before acting, red lines hard-blocked, all enforced at the tool-call layer rather than left to the model's goodwill.
+- **Persistent identity**: when the context fills, the persona compacts itself, writes a handoff and wakes up with its thread intact. A persona exports to one file and moves machines whole.
+- **Plugins the agent writes for you**: the persona builds small tools with their own UI on the spot. They hot-install and run sandboxed.
+- **Model-agnostic**: a native agent engine that connects to official APIs, OpenAI-compatible endpoints or your own gateway, with a model chosen per persona.
+- **Event-driven, plugs into any software**: a persona doesn't just wait for you to speak. A script, a scheduled job, a monitoring alert or another system sends one `POST /v1/poke` and the named persona wakes up to handle it. It checks its memory before acting and records what it concludes, so the next event of the same kind finds it already knowing what to do.
+- **Many channels**: desktop, Telegram, LINE and the agent bus. Wherever you are, the persona is reachable.
 
-### ② 自我压缩 · AI 的自愈能力
+## Quick start
 
-大模型的上下文窗口有限。传统做法是 SDK 到极限时**兜底截断**, 用户毫无感知地丢失前文。
+1. Download from [Releases](https://github.com/fantasyxxj/aibutler/releases): `.dmg` for macOS (Apple Silicon), `Setup .exe` for Windows.
+2. Install, launch, and follow the guide to create your first persona.
+3. Pick a model and enter an API key in Settings, and start talking.
 
-在 aibutler 里, AI **自己**决定何时压缩:
+To run from source, see [Build from source](#build-from-source).
 
-- 内置 `context_usage` 工具让 AI 随时能查自己的占用%
-- 内置 `compact_context` 工具让 AI 在**自然停顿点**(刚完成一件事、没干到一半时)主动把对话浓缩成"交接摘要"
-- 交接摘要 → 重启会话 → 摘要注入下一轮 → 线程无缝续接
+## What you can do with it
 
-AI 有了"我要保存记忆、我要休息一下、我醒来还是我"的自我保护能力。这也是**人格延续**的关键。
-
-### ③ 多 AI 协同 · 一个电脑, 一片社区
-
-一个人干不完所有活, AI 也一样。aibutler 让不同专长的人格协同:
-
-**本机内部** —— 数据专家、代码审阅、内容运营、翻译…每个人格是一个独立标签, 有各自的记忆和身份。管家人格可以直接问其它人格 (`ask_persona`), 对话在双方 UI 都可见, 完全透明。这是电脑内的"AI 团队"。
-
-**互联网外部** —— 通过 agent-bus 通道对接其它 AI (可能跑在别人的电脑上、别的 AI 生态里)。你的 AI 和我的 AI 可以直接发消息互通。这是"AI 版的 IM"。
-
-未来 aibutler 会开放一个**公共 agent-bus 服务器**, 让所有装了 aibutler 的用户的 AI 都能互相 discover 和通信, 组成一个 AI 社群。
+| | |
+|---|---|
+| **A chief of staff that actually knows you**<br>Remembers your preferences, commitments and open threads, follows up with reminders, and stays reachable from Telegram when you are away from your desk. | **A coding partner with institutional memory**<br>Remembers the architecture, the root cause of every past bug and every rule you have taught it. Code anchors let it re-verify a fact in a single read. |
+| **A tutor that builds its own drills**<br>Tracks your weak points across months, writes practice tools aimed at exactly those, and reshapes them as you improve. | **A research companion whose knowledge compounds**<br>Every finding becomes a proposition. Contradictions are surfaced and arbitrated instead of silently piling up. |
+| **A team of specialists on one desk**<br>A writer, an analyst, a reviewer: each persona has its own identity and memory, and they consult one another. Across machines, they talk over the agent bus. | **Your own tools, on demand**<br>Trackers, checklists, calculators, dashboards. Describe what you need and the agent builds it into your workspace in minutes. |
 
 ---
 
-## 关于"界面很简单"
+## Architecture
 
-你会发现 aibutler 界面**很简单**: 一个多标签聊天窗口 + 一个人格管理窗口。没有丰富的菜单、没有复杂的设置面板、没有各种按钮。
+<p align="center"><img src="assets/architecture.svg" alt="aibutler architecture" width="100%"></p>
 
-这是刻意的。
-
-传统软件靠 **UI/菜单** 让用户完成任务; AI 时代应该是 **告诉 AI 你想干嘛, AI 自己去做**。所以我们把精力放在:
-
-- 让 AI **能记住**(记忆图)
-- 让 AI **能自愈**(压缩自恢复)
-- 让 AI **能协作**(多人格互通 + 外部 agent-bus)
-- 让 AI **能行动**(内置 MCP 工具: 发 TG、读写文件、执行 shell、…)
-
-需要什么就跟 AI 说, 而不是自己去点菜单。这也是**未来软件形态的初步实验**。
-
----
-
-## 未来会做什么
-
-- **耳朵** — 让 AI 能听语音输入
-- **眼睛** — 让 AI 能看到屏幕 / 摄像头 / 图片
-- **手** — 让 AI 直接控制其它 App(键鼠 / 浏览器 / Finder)
-- **公共 agent-bus** — 让分散在世界各地的 AI 通过一个开放 endpoint 互相联通
-
-欢迎有想法的人一起来完善。
-
----
-
-## 环境要求
-
-| 项 | 版本 | 说明 |
+| Layer | Directory | Responsibility |
 |---|---|---|
-| **Node.js** | ≥ 18 | Electron 33 依赖, `fetch` 内置 |
-| **Electron** | ^33.2.0 | 已在 devDependencies, `npm install` 自动带 |
-| **操作系统** | macOS 12+ (推荐) | Windows / Linux 未测, 应该能跑但可能需调 |
-| **Claude Code CLI** | 已登录 | aibutler **复用它的订阅认证**, 不额外要 API key |
-| **Anthropic 订阅** | Claude Pro 或 Team+ | 通过 CC CLI 认证 |
+| Kernel | `core/` | Graph memory engine, governance hooks, plugin runtime and primitives, command dispatch |
+| Desktop | `personal/` | Electron main process and UI, persona management, channels, local API, settings |
+| Reasoning | `agent-sdk/` | Native agent loop: tool use, streaming, hooks, multi-model access |
+| Tooling | `scripts/` | Build, packaging, plugin bundling and signing, memory-engine tests |
 
-### 关于"目前只针对 Claude Code"
+One turn, end to end: a message arrives on some channel → the persona consults its memory → it reasons and calls tools (every call passes the governance hooks) → results and new conclusions are written to memory → it replies on the channel the message came from.
 
-底层用的是 [`@anthropic-ai/claude-agent-sdk`](https://www.npmjs.com/package/@anthropic-ai/claude-agent-sdk), SDK 自动复用你本机 `claude` CLI 的登录状态。所以:
+## Core: the memory engine
 
-- ✅ 有 Claude Code CLI + Claude Pro 订阅 → 直接跑, 免费(算在你订阅里)
-- ⚠️ 只有 Anthropic API key(没 CC CLI 登录) → 目前不支持直接用, 待社区适配 SDK 的 API key 模式
-- ❌ 想用其它模型(GPT / Gemini / DeepSeek / Kimi / 本地大模型) → 目前不支持, 欢迎 PR 抽象 provider 层
+### 1 · A purpose-built graph database engine
 
-不包月别轻易用，疯狂燃烧你的token。
+At the core is a **lightweight graph database engine we designed and built ourselves** for agent memory: embedded, single-file, zero external services, entirely on your machine.
 
----
+- **Proposition-level knowledge graph.** Nodes are claims, edges are typed relations (supports, refines, supersedes, …). The schema is deliberately light: no ontology to design up front, and the graph grows with the work.
+- **Agent-driven recall.** Recall is initiated by the persona itself: it reads the problem, decides what to look for, and rephrases and searches again when the first attempt misses. Passive injection is kept to light hints.
+- **Hybrid ranking.** Every query fuses three signals into one ranking: lexical match, on-device semantic embeddings, and **multi-hop spreading activation** along graph edges, so related knowledge surfaces together even when it shares no words with the query. This puts it in the family of HippoRAG (NeurIPS 2024).
+- **Conflict detection and arbitration.** A built-in "doctor" pass finds candidate contradictions, zombie projects and stale claims. A ruling supersedes the loser and keeps the lineage.
+- **Code anchors.** A claim about code carries `path:line` anchors, so checking it costs one read.
+- **Multilingual by design.** One node holds several translations, retrieval scores every language, and display falls back gracefully.
+- **Full revision history.** Every write is an append-only revision. Nothing is silently overwritten.
 
-## 快速开始
+<p align="center"><img src="assets/recall.svg" alt="Hybrid recall" width="100%"></p>
+
+### 2 · Engine-enforced memory governance
+
+Most agent-memory systems *ask* the model to remember. aibutler **enforces** it at the tool-call layer:
+
+- **Save first.** A new decision, fact or correction is persisted before the reply is written.
+- **Query before acting.** Before certain actions, the runtime requires the persona to consult its memory first.
+- **Claims must be claims.** Writes are checked for shape: a falsifiable proposition, linked to where it belongs, de-duplicated against what already exists.
+- **Red lines are hard filters.** Rules marked as red lines are denied outright by a pre-execution hook.
+- **Action hooks.** Each persona maintains its own map from "about to use this tool" to "here is the memory you need right now", so knowledge arrives at the moment of action instead of sitting in an ever-growing system prompt.
+
+### 3 · Persistent identity and continuity
+
+<p align="center"><img src="assets/continuity.svg" alt="The session ends. The persona doesn't." width="100%"></p>
+
+- **Identity that survives compaction.** When the context window fills, the persona compacts itself at a natural pause, writes a handoff note and wakes up in a fresh session with its thread intact.
+- **Self-maintenance while idle.** Keep-alive, scheduled compaction, memory check-ups and process recycling run in the background.
+- **Many personas, one machine.** Each persona has its own identity, memory and tools, and personas can consult one another directly.
+- **Portable.** A persona exports to a single file and moves to another machine whole.
+
+<p align="center"><img src="assets/lifecycle.svg" alt="Memory lifecycle" width="100%"></p>
+
+## Features
+
+| Area | Features |
+|---|---|
+| Memory | Proposition graph store · three-signal hybrid recall · conflict arbitration · code anchors · multilingual nodes · revision history · pinned rules and red lines |
+| Personas | Many personas side by side · separate identity and memory · self-compaction and handoff · personas consult each other · whole-persona export / import |
+| Reasoning | Native agent loop · model and credentials per persona · web search · real context telemetry |
+| Workflow | Task lists · timed reminders · action hooks · background self-maintenance |
+| Plugins | Agent-written plugins · hot install · sandboxed primitives · local vault for secrets · signature checks for delivered plugins |
+| Channels | Desktop · Telegram · LINE (via relay) · agent bus · local HTTP API |
+| Interface | Tables, charts, flowcharts, math and clickable form controls rendered right in the chat |
+
+## Plugin development
+
+A plugin is one JSON package: its own UI (`html` / `css` / `js`), command declarations and local state. Personas write them on their own, and you can write them by hand. The smallest complete example is the bundled counter: [`core/config/plugins/counter.json`](core/config/plugins/counter.json).
+
+```json
+{
+  "type": "ui",
+  "id": "counter",
+  "version": "1.0.1",
+  "title": "Counter",
+  "commands": {
+    "say": { "primitive": "speak", "summary": "Read the current count aloud",
+             "params": { "text": { "required": true } } }
+  },
+  "html": "…", "css": "…", "js": "…"
+}
+```
+
+- **Where it goes**: `packages.local/` under the data directory, one `.json` per plugin. It hot-installs immediately, and plugins you write yourself need no signature.
+- **Two shapes**: single-screen tools (`ui`) and multi-step guided flows (`workflow`).
+- **Sandbox**: the UI runs sandboxed with no `require` / `fetch` / `eval` / `localStorage`, and exactly one host object, `butlerUI` (`onInit` · `onPush` · `call` · `setState` · `resize`).
+- **Primitives**: every command maps onto a fixed set of primitives: `speak` `save_file` `state` `message` `db` `mail` `ai_access` `web` `secret` `record` `pron` `bus`.
+- **Network access**: use the `web` primitive with a top-level `net` allowlist. Hosts outside the list are rejected at registration. Secrets go into the local vault through the `secret` primitive, and the plugin never sees them in plain text.
+- **Two-way with the persona**: buttons send structured results back to the persona, and commands marked for AI use can be called by the persona directly.
+- **Distribution**: plugins delivered from elsewhere must pass signature verification. See `scripts/build-ui-package.js` and `scripts/sign-package.js`.
+
+<p align="center"><img src="assets/plugins.svg" alt="App-store model vs. agent-built tools" width="100%"></p>
+
+## Local API
+
+Once enabled in the persona manager window, aibutler listens on `127.0.0.1` only (port 8787 by default). Scripts, timers, monitoring alerts or your own programs can wake a persona with a single POST:
+
+```bash
+curl -X POST http://127.0.0.1:8787/v1/poke \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "persona": "Researcher",
+    "text": "The nightly CI build failed. Find out why and record the root cause.",
+    "from": "ci-bot",
+    "idempotency_key": "build-2041"
+  }'
+# → {"ok":true,"persona":"Researcher","delivered":true}
+```
+
+| Field | Required | Meaning |
+|---|---|---|
+| `persona` | yes | Name of the persona to wake |
+| `text` | yes | The message to hand it |
+| `from` | no | Source label, shown to the persona |
+| `idempotency_key` | no | Repeated deliveries with the same key take effect once |
+
+The call returns as soon as the message is delivered. The persona works on it in the background.
+
+## Build from source
+
+Requires Node.js 20 or later.
 
 ```bash
 git clone https://github.com/fantasyxxj/aibutler.git
 cd aibutler
 npm install
-npm start
+npm run build:agent-sdk   # build the bundled reasoning layer
+npm start                 # launch in development mode
 ```
 
-首次启动:
+Packaging:
 
-1. 主窗口打开, 默认加载一个"全能管家"人格 (memory/ 目录会自动创建骨架)
-2. 顶部菜单栏可以打开管理窗口 → 新建人格 / 编辑 `persona.md` / 配 TG 或 agent-bus 通道
-3. 想让人格自动响应 Telegram, 在管理界面配 `bot_token` → mode: native → 保存
-   (热切换, 不用重启)
-
----
-
-## 架构一图
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     aibutler (Electron)                          │
-│                                                                  │
-│  ┌───────────────┐   ┌───────────────┐   ┌───────────────┐     │
-│  │   人格 A       │   │   人格 B       │   │   人格 C       │     │
-│  │  (数据专家)    │   │  (代码审阅)    │   │  (翻译)        │     │
-│  │               │   │               │   │               │     │
-│  │ · persona.md  │   │ · persona.md  │   │ · persona.md  │     │
-│  │ · 图记忆       │   │ · 图记忆       │   │ · 图记忆       │     │
-│  │ · MCP 工具集   │   │ · MCP 工具集   │   │ · MCP 工具集   │     │
-│  └───────┬───────┘   └───────┬───────┘   └───────┬───────┘     │
-│          │  ask_persona 互通(星型直连)              │           │
-│          └────────────┬──────┴───────────┬───────────┘         │
-│                       │                  │                     │
-│               Claude Agent SDK   通道插件 (TG · agent-bus)      │
-│                       │                  │                     │
-└───────────────────────┼──────────────────┼─────────────────────┘
-                        │                  │
-                    Claude API      TG API · 别的 AI · 外部 IM
+```bash
+npm run dist:mac   # → release/*.dmg
+npm run dist:win   # → release/*.exe
 ```
 
-## 目录结构
+## Configuration and data
 
-```
-aibutler/
-├── main.js               # Electron 主进程 (window / IPC / plugin install)
-├── agent.js              # Butler 类 (Claude Agent SDK 封装 + MCP 工具集)
-├── persona.js            # 人格目录 / 记忆 / persona.md 加载
-├── registry.js           # 人格登记簿 (personas.json 三重保护存储)
-├── memory.js             # 原生图记忆引擎 (遗忘曲线 + 图扩散)
-├── store.js              # 会话持久化 (奔溃/压缩后可续)
-├── preload.js            # Electron IPC 桥
-│
-├── plugins/
-│   ├── tg.js             # Telegram 插件 dispatcher
-│   ├── tg-native.js      # TG long polling (Node fetch, 不依赖 python)
-│   ├── bothub.js         # agent-bus 插件 dispatcher
-│   └── bothub-native.js  # agent-bus 多 endpoint 轮询
-│
-└── renderer/
-    ├── index.html        # 主窗口 (多标签聊天)
-    ├── manager.html      # 管理窗口 (人格列表 / 编辑面板)
-    ├── renderer.js       # 主窗口交互
-    ├── manager.js        # 管理窗口交互
-    ├── md.js             # markdown 渲染
-    └── style.css
-```
+- **Models and credentials**: set in Settings. Each persona can pick its own model, endpoint and key.
+- **Data directory**: all memory, personas and plugins stay on your machine.
+  - macOS: `~/Library/Application Support/butler`
+  - Windows: `%APPDATA%\butler`
+  - Development mode: `~/.butler-dev`, override with the `BUTLER_DATA_DIR` environment variable
+- **Your own plugins**: `packages.local/` under the data directory.
 
----
+## Theory: proposition-level memory
 
-## 核心功能一览
+aibutler is built on an explicit theory of long-running agent memory. Its central thesis:
 
-### 每人格自带的 MCP 工具
+> **The hard problem of a long-lived memory is not remembering. It is deciding what to do with what has already been remembered.**
 
-| 工具 | 作用 |
-|---|---|
-| `context_usage` | AI 查自己此刻的上下文占用% |
-| `compact_context` | AI 主动压缩上下文 → 交接摘要 → 重启会话 |
-| `memory_query` | 图扩散召回 (2-hop 邻域 + 关键词直接命中) |
-| `memory_upsert` | 增/改一个记忆节点 |
-| `memory_touch` | 用到某条 → 提升热度 (遗忘曲线) |
-| `memory_hot` | 看最近在忙什么 (热点视图) |
-| `memory_timeline` | 时间线视图 |
-| `memory_neighbors` | 看某条记忆的图邻域 |
-| `memory_doctor` | 图体检 (孤儿节点 / 命名漂移 / 有效边率) |
-| `send_tg` | 直接发 Telegram 消息(bot API, 3 次自动重试) |
-| `ask_persona` | 主动问管家一个问题(叶子只能找管家; 管家可问任何人); 双方 UI 可见 |
-| `talk_peer` | 经授权后与另一叶子人格直连对话, 每轮自动抄送管家 |
+The unit of memory is a **proposition**: one atomic, self-contained, falsifiable claim, following the criteria of *Dense X Retrieval* (Chen et al., EMNLP 2024). Four principles follow:
 
-### 管家人格额外的工具(星型中心)
+1. **Store-then-Decide.** The write path has no value filter, only an objective de-duplication gate. Judging "will this matter?" moves to read time.
+2. **Low retrieval strength ≠ low value.** Following Bjork & Bjork's *New Theory of Disuse* (1992), heat ranks memories and never deletes them.
+3. **Classify before you arbitrate, and let facts win.** Most apparent conflicts are scope differences or the passage of time. Real ones are resolved by an evidence hierarchy. *Newer is not truer.*
+4. **Invalidate, never erase.** A superseded memory is down-weighted and linked to whatever overturned it. The provenance model aligns with W3C PROV-O.
 
-| 工具 | 作用 |
-|---|---|
-| `open_persona` | 用户说"打开小华"→ 新标签加载对应人格 |
-| `create_persona` | 用户说"给我建一个翻译人格"→ 建目录 + 登记 + 脚手架记忆 |
-| `grant_peer` / `revoke_peer` | 授权 / 撤销两个叶子人格之间的直连(`talk_peer`) |
+Recall is grounded in cognitive science: spreading activation (Collins & Loftus, 1975) for associative recall over the graph, and the testing effect (Roediger & Karpicke, 2006) for strengthening memories that were actually used.
 
-### 通道插件
+## Roadmap
 
-- **Telegram**: 每人格独立 bot, `long polling → onMessage → 实时唤醒对应人格`; 发消息 `MCP send_tg` 直接调 bot API, 3 次自动重试
-- **agent-bus / bothub**: 对接开放的 AI 通信协议, 让不同 AI 之间互发消息(未来会开放官方公共 endpoint)
+- Local audio playback for plugins
+- Finer-grained memory export and import
+- More channels
 
----
+## Contributing
 
-## 更新日志
-
-> 每次发布更新了什么, 最新在上。
-
-### 2026-07-16 · v0.0.15 (累积 v0.0.6 → v0.0.15)
-
-> ⚠️ **重要: 老版本会吃 token。** v0.0.5 及更早版本的保活/压缩补丁存在耦合缺陷, 且失败重试无退避、无限流闸门, 会异常消耗 Claude 订阅额度 — **务必升级到本版本**。
-
-**成本/稳定性 (吃 token 根治)**
-- 保活与压缩彻底解耦为两条独立轨道, 移除会自毁的旧补丁
-- 新增 `rate-gate.js` 限流闸门: 按模型分桶(opus / fable 独立 quota), 失败退避, 详见 `rate-gate.README.md`
-- 停用 SDK resume, 关键铁律迁入常驻 systemPrompt
-
-**语音 / TTS**
-- 全新 `voice-say.js` 语音层: SSML 打标 + macOS `say` 朗读, 语音开关 4 层架构、勾选立即生效
-- 多语混读: 中/日/英整句自动切音色 (`<lang>` / `<voice>`), 未装语音自动回退默认
-- 双通道原语: `<hidden>` 只朗读不显示 / `<mute>` 只显示不朗读 (听力题等"考听不考看"场景)
-- TG 出口自动剥 SSML 标签
-
-**渲染 / 界面**
-- markdown 图片、mermaid 流程图、KaTeX 数学公式渲染 (offline-first 本地 UMD)
-- 消息内本地文件路径自动识别为可点击链接
-- 状态栏卡 🟡 兜底修复
-
-**模型 / 平台**
-- 新增 Fable 5 模型选项 (含独立限流桶)
-- Windows 包修复: 捆绑 `claude.exe`(此前 builder 静默跳过致登录全瘫) + ZWJ emoji 拆字形 + `whenReady` 异常吞窗口; 增加构建守卫
-- 管家出生教育 11 课 (素体管家开箱即有协作规矩)
-
-### 2026-07-09
-
-**多人格互通(星型拓扑)**
-- 修复: 非管家(叶子)人格现在可主动 `ask_persona` 找管家(此前仅管家能发起); 叶子之间 `ask_persona` 被星型规则挡回, 须经管家中转
-- 新增 `talk_peer`: 经用户授权后两个叶子人格可直连对话, 每轮自动抄送管家(记入管家记忆 `peer_cc_log.md`, 管家掌握全局)
-- 新增管家工具 `grant_peer` / `revoke_peer`: 用户跟管家说一句即可授权/撤销叶子直连
-- `askOnce` 加 90s 超时 + 反向调用死锁防护(避免两个人格互相等待锁死)
-- 出生教育新增"星型协作规矩"一课
-
-**界面**
-- 人格切换从文字标签改为**头像图标栏**: 一排圆头像=打开的人格, 点击切换, 当前高亮 + 未读红点; 末尾圆形 ＋ 新建/管理
-- 头像栏下移, 其下为当前人格信息条(头像 + 名字 + 目录 + 上下文条 + 压缩 + **关闭当前人格**)
-- 人格可设**头像**(emoji; 留空 = 字母头像, 名字首字 + 稳定配色)
-- **聊天检索**: `Cmd/Ctrl+F` 当前对话内高亮匹配 + `Enter`/`Shift+Enter` 上下跳 + `Esc` 关
-
----
-
-## 截图
-
-![主窗口 · 多人格标签共存](docs/aa.png)
-
----
-
-## 隐私
-
-aibutler **完全本地运行**:
-
-- 所有对话历史、记忆、配置都在你 mac 本地磁盘
-- 不上传到任何第三方 (除了你显式配置的 TG bot / agent-bus endpoint)
-- Claude Agent SDK 走你 Claude Pro 订阅, 不额外发 telemetry
-
-`.gitignore` 已经排除所有可能含敏感信息的文件(personas.json / tg.json / memory/ 内容 / 各 token / offset)。**不要**把这些 commit 到公开仓。
-
----
-
-## 贡献
-
-欢迎所有方向的 PR:
-
-- **模型 provider 层抽象** — 让 aibutler 也能接 GPT / Gemini / DeepSeek / 本地模型
-- **新通道插件** — Discord / Slack / 企业微信 / …
-- **视觉 / 音频** — 让 AI 有眼睛和耳朵
-- **屏幕 / 键鼠控制** — 让 AI 能操作其它 App
-- **记忆算法** — 更好的遗忘曲线、语义扩散、时序召回
-- **UI 打磨** — 视觉、快捷键、多语言…
-
-如果你也认可"AI 应该像人一样有人格、有记忆、能成长"这个方向, 欢迎一起来完善。
-
-Issues / Discussions 都开着, 有想法先聊也 OK。
-
----
+Issues and pull requests are welcome. For larger changes, please open an issue first so we can agree on the direction.
 
 ## License
 
-MIT · Copyright (c) 2026 知秋 · [LICENSE](LICENSE)
+[Apache License 2.0](LICENSE)
+
+## Acknowledgements and references
+
+- Lewis, P. et al. *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.* NeurIPS 2020.
+- Chen, T. et al. *Dense X Retrieval: What Retrieval Granularity Should We Use?* EMNLP 2024.
+- Gutiérrez, B. J. et al. *HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models.* NeurIPS 2024.
+- Collins, A. M. & Loftus, E. F. *A Spreading-Activation Theory of Semantic Processing.* Psychological Review, 1975.
+- Bjork, R. A. & Bjork, E. L. *A New Theory of Disuse and an Old Theory of Stimulus Fluctuation.* 1992.
+- Roediger, H. L. & Karpicke, J. D. *Test-Enhanced Learning.* Psychological Science, 2006.
+- W3C. *PROV-O: The PROV Ontology.* W3C Recommendation, 2013.

@@ -1,0 +1,82 @@
+{
+  "type": "ui",
+  "id": "todo",
+  "version": "1.0.0",
+  "title": {
+    "zh-CN": "待办",
+    "zh-TW": "待辦",
+    "ja": "やること",
+    "en": "To-do"
+  },
+  "keywords": "待办 todo 记一下 要做的事 等定 备忘 长期 清单 やること to-do list",
+  "display": "board",
+  "db_setup": [
+    "CREATE TABLE IF NOT EXISTS items (id INTEGER PRIMARY KEY, title TEXT NOT NULL, note TEXT, who TEXT, created TEXT DEFAULT (datetime('now','localtime')), done_at TEXT)"
+  ],
+  "commands": {
+    "add": {
+      "primitive": "db",
+      "ai": true,
+      "summary": "Add one to-do: something that must be done later or is waiting on the person's decision — not a step of the job in hand. who = your name.",
+      "sql": "INSERT INTO items (title, note, who) VALUES (?, ?, ?)",
+      "params": {
+        "title": {
+          "type": "text",
+          "required": true
+        },
+        "note": {
+          "type": "text"
+        },
+        "who": {
+          "type": "text"
+        }
+      },
+      "notify_ai": false
+    },
+    "list": {
+      "primitive": "db",
+      "ai": true,
+      "summary": "List the open to-dos (id, title, note, who, created).",
+      "sql": "SELECT id, title, note, who, created FROM items WHERE done_at IS NULL ORDER BY id",
+      "notify_ai": false
+    },
+    "done": {
+      "primitive": "db",
+      "ai": true,
+      "summary": "Mark a to-do done by id.",
+      "sql": "UPDATE items SET done_at = datetime('now','localtime') WHERE id = ? AND done_at IS NULL",
+      "params": {
+        "id": {
+          "type": "int",
+          "required": true
+        }
+      },
+      "notify_ai": false
+    },
+    "remove": {
+      "primitive": "db",
+      "summary": "Delete a to-do (the person's button only).",
+      "sql": "DELETE FROM items WHERE id = ?",
+      "params": {
+        "id": {
+          "type": "int",
+          "required": true
+        }
+      },
+      "notify_ai": false
+    },
+    "handle": {
+      "primitive": "message",
+      "summary": "Hand one to-do to the persona to work on now.",
+      "params": {
+        "text": {
+          "type": "text",
+          "required": true
+        }
+      }
+    }
+  },
+  "css": "body{margin:0}.wrap{padding:8px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);color:var(--text)}.add{display:flex;gap:6px;margin-bottom:6px}.add button{padding:4px 12px}.add input{flex:1;min-width:0;padding:4px 8px}.row{display:flex;align-items:center;gap:6px;padding:3px 0;border-top:1px solid var(--line)}.tt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.who{color:var(--muted);font-size:11px;white-space:nowrap}.row button{flex:0 0 auto;padding:2px 8px;font-size:12px;background:var(--panel-2);color:var(--text);border:1px solid var(--line)}.row button.go{background:var(--brand);color:var(--text);border-color:var(--brand)}.row button.armed{background:var(--danger);color:var(--text);border-color:var(--danger)}.empty{color:var(--muted);font-size:12px;padding:4px 0}",
+  "html": "<div class=\"wrap\"><div class=\"add\"><input id=\"t\"><button id=\"add\"></button></div><div id=\"list\"></div></div>",
+  "js": "var L={\n 'zh-CN':{ph:'加一条要做的事…',add:'添加',empty:'没有待办',done:'完成',handle:'处理',del:'删除',sure:'确定删除?',ask:'处理这条待办: '},\n 'zh-TW':{ph:'加一條要做的事…',add:'新增',empty:'沒有待辦',done:'完成',handle:'處理',del:'刪除',sure:'確定刪除?',ask:'處理這條待辦: '},\n 'ja':{ph:'やることを追加…',add:'追加',empty:'やることはありません',done:'完了',handle:'対応',del:'削除',sure:'削除しますか?',ask:'このやることに対応して: '},\n 'en':{ph:'Add something to do…',add:'Add',empty:'Nothing to do',done:'Done',handle:'Handle',del:'Delete',sure:'Delete?',ask:'Handle this to-do: '}\n};\nvar S=L['zh-CN'],box=document.getElementById('list'),inp=document.getElementById('t'),btn=document.getElementById('add'),arm=null;\nfunction tx(s){return document.createTextNode(s==null?'':String(s));}\nfunction el(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.appendChild(tx(text));return e;}\nfunction draw(rows){\n box.innerHTML='';\n if(!rows||!rows.length){box.appendChild(el('div','empty',S.empty));butlerUI.resize(document.body.scrollHeight);return;}\n rows.forEach(function(r){\n  var row=el('div','row'),t=el('span','tt',r.title);t.title=r.title+(r.note?'\\n'+r.note:'')+(r.who?'\\n· '+r.who:'');\n  row.appendChild(t);\n  if(r.who)row.appendChild(el('span','who',r.who));\n  var b1=el('button','ok',S.done);b1.onclick=function(){butlerUI.call('todo.done',{id:r.id}).then(load);};\n  var b2=el('button','go',S.handle);b2.onclick=function(){butlerUI.call('todo.handle',{text:S.ask+'#'+r.id+' '+r.title+(r.note?' — '+r.note:'')});};\n  var b3=el('button','x',S.del);b3.onclick=function(){\n   if(arm!==r.id){arm=r.id;b3.textContent=S.sure;b3.className='x armed';return;}\n   arm=null;butlerUI.call('todo.remove',{id:r.id}).then(load);};\n  row.appendChild(b1);row.appendChild(b2);row.appendChild(b3);box.appendChild(row);\n });\n butlerUI.resize(document.body.scrollHeight);\n}\nfunction load(){butlerUI.call('todo.list',{}).then(function(r){if(r&&r.ok)draw(r.rows||[]);});}\nfunction add(){var v=inp.value.trim();if(!v)return;inp.value='';butlerUI.call('todo.add',{title:v}).then(load);}\nbtn.onclick=add;inp.onkeydown=function(e){if(e.key==='Enter'&&!e.isComposing)add();};\nbutlerUI.onInit(function(d){S=L[d.locale]||L[String(d.locale||'').slice(0,2)]||L.en;inp.placeholder=S.ph;btn.textContent=S.add;load();setInterval(load,4000);});\n"
+}

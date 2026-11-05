@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!-- 启动提示小窗。独立于主窗口, 主进程跑迁移/开人格那段同步阻塞时给用户一个交代 ——
+     否则老用户首次升级点开图标是"没反应, 等半天窗口才出来"。
+     🔴 必须自包含: 主进程在它显示之后就被同步代码占住了, 这时任何 IPC 都送不进来,
+     所以文案只能在 loadFile 时用 query string 一次性带进来, 动效只能是纯 CSS。 -->
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<title>正在启动</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: transparent; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    -webkit-user-select: none; user-select: none; -webkit-app-region: drag;
+  }
+  .card {
+    box-sizing: border-box; width: 100%; height: 100%;
+    display: flex; align-items: center; gap: 14px;
+    padding: 18px 22px;
+    background: #23262d; border: 1px solid #3a3d45; border-radius: 12px;
+    box-shadow: 0 12px 40px #0009;
+  }
+  .spinner {
+    flex: none; width: 22px; height: 22px; border-radius: 50%;
+    border: 2.5px solid #3a3d45; border-top-color: #6ea8fe;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .text { min-width: 0; }
+  .title { font-size: 14px; font-weight: 600; color: #e6e6e6; }
+  .sub { font-size: 12px; color: #a0a4ac; margin-top: 5px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="spinner"></div>
+    <div class="text">
+      <div class="title" id="title">正在启动全能管家…</div>
+      <div class="sub" id="sub">正在唤醒人格，请稍候</div>
+    </div>
+  </div>
+<script>
+  // 文案由 main 通过 query string 带进来(见本文件顶部注释: 此后 IPC 已不可达)
+  const q = new URLSearchParams(location.search);
+  if (q.get('title')) document.getElementById('title').textContent = q.get('title');
+  if (q.get('sub')) document.getElementById('sub').textContent = q.get('sub');
+</script>
+</body>
+</html>

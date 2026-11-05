@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1022"/><stop offset="1" stop-color="#151d3b"/></linearGradient>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8c97c2"/></marker>
+  </defs>
+  <rect width="1200" height="800" rx="20" fill="url(#bg)"/>
+  <text x="40" y="52" font-size="26" font-weight="700" fill="#e6ebff">aibutler architecture</text>
+  <text x="1160" y="52" text-anchor="end" font-size="14" fill="#8c97c2">everything runs locally on your machine</text>
+
+  <!-- Channels -->
+  <rect x="40" y="80" width="1120" height="76" rx="14" fill="#161f3d" stroke="#f472b6" stroke-opacity=".7"/>
+  <text x="62" y="124" font-size="16" font-weight="700" fill="#f472b6">Channels</text>
+  <g font-size="14" fill="#e6ebff" text-anchor="middle">
+    <rect x="200" y="98" width="170" height="40" rx="20" fill="#24204a"/><text x="285" y="123">Desktop chat</text>
+    <rect x="390" y="98" width="170" height="40" rx="20" fill="#24204a"/><text x="475" y="123">Telegram</text>
+    <rect x="580" y="98" width="170" height="40" rx="20" fill="#24204a"/><text x="665" y="123">LINE</text>
+    <rect x="770" y="98" width="170" height="40" rx="20" fill="#24204a"/><text x="855" y="123">Agent bus</text>
+    <rect x="960" y="98" width="180" height="40" rx="20" fill="#24204a"/><text x="1050" y="123">Local HTTP API</text>
+  </g>
+  <line x1="600" y1="158" x2="600" y2="186" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)" marker-start="url(#ar)"/>
+
+  <!-- Persona runtime -->
+  <rect x="40" y="190" width="1120" height="128" rx="14" fill="#161f3d" stroke="#f5b84b" stroke-opacity=".7"/>
+  <text x="62" y="222" font-size="16" font-weight="700" fill="#f5b84b">Persona runtime</text>
+  <text x="200" y="222" font-size="13" fill="#8c97c2">one identity per persona · many personas per machine</text>
+  <g font-size="14" fill="#e6ebff" text-anchor="middle">
+    <rect x="62"  y="242" width="168" height="56" rx="10" fill="#2a2a3f"/><text x="146" y="275">Identity &amp; persona</text>
+    <rect x="244" y="242" width="168" height="56" rx="10" fill="#2a2a3f"/><text x="328" y="275">Wake &amp; handoff</text>
+    <rect x="426" y="242" width="168" height="56" rx="10" fill="#2a2a3f"/><text x="510" y="275">Self-compaction</text>
+    <rect x="608" y="242" width="168" height="56" rx="10" fill="#2a2a3f"/><text x="692" y="275">Idle self-maintenance</text>
+    <rect x="790" y="242" width="168" height="56" rx="10" fill="#2a2a3f"/><text x="874" y="275">Tasks &amp; reminders</text>
+    <rect x="972" y="242" width="168" height="56" rx="10" fill="#2a2a3f"/><text x="1056" y="275">Persona-to-persona</text>
+  </g>
+  <line x1="600" y1="320" x2="600" y2="348" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)" marker-start="url(#ar)"/>
+
+  <!-- Middle row -->
+  <g>
+    <rect x="40" y="352" width="340" height="190" rx="14" fill="#161f3d" stroke="#4ade80" stroke-opacity=".7"/>
+    <text x="62" y="386" font-size="16" font-weight="700" fill="#4ade80">Self-extending plugins</text>
+    <g font-size="14" fill="#c3cbef">
+      <text x="62" y="420">• Written by the agent, for you</text>
+      <text x="62" y="448">• Hot-installed, no restart</text>
+      <text x="62" y="476">• Sandboxed host primitives</text>
+      <text x="62" y="504">• Signed when shared</text>
+    </g>
+  </g>
+  <g>
+    <rect x="430" y="352" width="340" height="190" rx="14" fill="#1a2350" stroke="#7c8cff" stroke-width="2"/>
+    <text x="452" y="386" font-size="16" font-weight="700" fill="#7c8cff">Reasoning engine</text>
+    <g font-size="14" fill="#c3cbef">
+      <text x="452" y="420">• Agent loop with tool use</text>
+      <text x="452" y="448">• Any model, per persona</text>
+      <text x="452" y="476">• Live web search</text>
+      <text x="452" y="504">• Real context telemetry</text>
+    </g>
+  </g>
+  <g>
+    <rect x="820" y="352" width="340" height="190" rx="14" fill="#161f3d" stroke="#f472b6" stroke-opacity=".7"/>
+    <text x="842" y="386" font-size="16" font-weight="700" fill="#f472b6">Governance layer</text>
+    <g font-size="14" fill="#c3cbef">
+      <text x="842" y="420">• Save first, query before acting</text>
+      <text x="842" y="448">• Claim shape &amp; de-dup checks</text>
+      <text x="842" y="476">• Red-line hard filters</text>
+      <text x="842" y="504">• Per-persona action hooks</text>
+    </g>
+  </g>
+  <line x1="382" y1="447" x2="428" y2="447" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)" marker-start="url(#ar)"/>
+  <line x1="772" y1="447" x2="818" y2="447" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="795" y="436" text-anchor="middle" font-size="11" fill="#8c97c2">tool calls</text>
+  <line x1="990" y1="544" x2="990" y2="576" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)" marker-start="url(#ar)"/>
+  <text x="1000" y="565" font-size="11" fill="#8c97c2">enforced read / write</text>
+
+  <!-- Memory engine -->
+  <rect x="40" y="580" width="1120" height="190" rx="14" fill="#10283a" stroke="#38d3e8" stroke-width="2"/>
+  <text x="62" y="614" font-size="18" font-weight="700" fill="#38d3e8">Memory engine</text>
+  <text x="210" y="614" font-size="14" fill="#8c97c2">a self-built, lightweight graph database · embedded · single file · zero services</text>
+  <g font-size="14" fill="#e6ebff" text-anchor="middle">
+    <rect x="62"  y="636" width="345" height="52" rx="10" fill="#173a4f"/><text x="234" y="667">Proposition-level knowledge graph</text>
+    <rect x="427" y="636" width="345" height="52" rx="10" fill="#173a4f"/><text x="599" y="667">Agent-driven recall · spreading activation</text>
+    <rect x="792" y="636" width="345" height="52" rx="10" fill="#173a4f"/><text x="964" y="667">Doctor · conflict arbitration</text>
+    <rect x="62"  y="700" width="345" height="52" rx="10" fill="#173a4f"/><text x="234" y="731">Append-only revision history</text>
+    <rect x="427" y="700" width="345" height="52" rx="10" fill="#173a4f"/><text x="599" y="731">On-device semantic embeddings</text>
+    <rect x="792" y="700" width="345" height="52" rx="10" fill="#173a4f"/><text x="964" y="731">Multilingual nodes · code anchors</text>
+  </g>
+</svg>

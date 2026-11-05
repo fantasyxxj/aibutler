@@ -1,0 +1,21 @@
+{
+  "type": "ui",
+  "id": "counter",
+  "version": "1.0.1",
+  "title": "计数器",
+  "commands": {
+    "say": {
+      "primitive": "speak",
+      "summary": "把当前计数念出来",
+      "params": {
+        "text": {
+          "required": true
+        }
+      },
+      "notify_ai": false
+    }
+  },
+  "css": ".box{padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);color:var(--text)}.n{font-size:40px;font-weight:600;text-align:center;margin:2px 0 12px;color:var(--text);font-variant-numeric:tabular-nums}.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.row button{flex:0 0 auto}.row button.ghost{background:var(--panel-2);color:var(--text);border:1px solid var(--line)}.row button.ghost:hover{background:var(--line)}.note{text-align:center;color:var(--muted);font-size:12px;min-height:16px;margin-top:9px}",
+  "html": "<div class=\"box\"><div class=\"n\" id=\"n\">0</div><div class=\"row\"><button class=\"ghost\" id=\"dec\">− 1</button><button id=\"inc\">+ 1</button><button class=\"ghost\" id=\"zero\">清零</button><button class=\"ghost\" id=\"say\">念出来</button></div><div class=\"note\" id=\"note\"></div></div>",
+  "js": "var n=0,el=document.getElementById('n'),note=document.getElementById('note');function paint(){el.textContent=n;}function put(v){n=v;paint();butlerUI.setState({n:n});}butlerUI.onInit(function(d){var s=d&&d.state;n=(s&&typeof s.n==='number')?s.n:0;paint();});butlerUI.onPush(function(d){if(d&&d.error)note.textContent='存不下: '+d.error;});document.getElementById('inc').onclick=function(){put(n+1);};document.getElementById('dec').onclick=function(){put(n-1);};document.getElementById('zero').onclick=function(){put(0);};document.getElementById('say').onclick=function(){note.textContent='...';butlerUI.call('counter.say',{text:'现在是 '+n}).then(function(r){note.textContent=(r&&r.ok)?'念完了':('念不了: '+((r&&r.message)||'未知'));});};"
+}

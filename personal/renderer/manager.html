@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <title>人格管理</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="manager-body">
+  <h1 data-i18n="mgr_heading">🧑‍🤝‍🧑 人格管理</h1>
+  <div id="list"></div>
+
+  <div class="m-form">
+    <label data-i18n="mgr_new_persona">新建人格</label><div></div>
+    <label data-i18n="mgr_name">名字</label><input id="f-name" data-i18n-ph="mgr_name_ph" placeholder="如: 小画" />
+    <label data-i18n="mgr_avatar">头像</label>
+    <div id="f-avatar-wrap">
+      <div class="avatar-picker">
+        <div class="ap-preview"></div>
+        <div class="ap-body">
+          <div class="ap-tabs">
+            <button type="button" class="ap-tab active" data-tab="emoji">Emoji</button>
+            <button type="button" class="ap-tab" data-tab="photo" data-i18n="mgr_photo">照片</button>
+          </div>
+          <div class="ap-pane ap-pane-emoji">
+            <div class="ap-grid"></div>
+            <input class="ap-emoji-input" data-i18n-ph="mgr_emoji_ph" placeholder="或粘贴一个 emoji" maxlength="8" />
+          </div>
+          <div class="ap-pane ap-pane-photo" hidden>
+            <button type="button" class="m-btn ap-photo-btn" data-i18n="mgr_choose_photo">选择照片…</button>
+            <input type="file" accept="image/*" class="ap-photo-file" hidden />
+            <button type="button" class="m-btn ap-clear" data-i18n="mgr_clear">清除</button>
+            <div class="ap-photo-hint" data-i18n="mgr_photo_hint">自动裁成 128px 小方图</div>
+          </div>
+        </div>
+        <input type="hidden" class="e-avatar-val" id="f-avatar-val" value="" />
+      </div>
+    </div>
+    <label data-i18n="mgr_dir">目录</label>
+    <div style="display:flex;gap:6px;">
+      <input id="f-dir" data-i18n-ph="mgr_dir_ph" placeholder="留空 = butler/personas/&lt;名字&gt;" style="flex:1"/>
+      <button id="f-choose" class="m-btn" data-i18n="mgr_choose">选…</button>
+    </div>
+    <label data-i18n="mgr_wake">唤醒语</label><textarea id="f-wake" data-i18n-ph="mgr_wake_ph" placeholder="留空 = 起床啦&lt;名字&gt;, 载入记忆续线程"></textarea>
+    <!-- 接入方式和模型要在【建之前】选, 不能建完去编辑面板改: 两者都在会话启动那刻定死, 而新人格
+         一建出来就立刻上一整套出生教育 —— 建完再改, 那一课已经上在别的模型上了。 -->
+    <label data-i18n="mgr_access">接入方式</label>
+    <div>
+      <label style="font-weight:normal"><input type="radio" name="f-acc" id="f-acc-sub" checked/> <span data-i18n="mgr_access_sub">用订阅账号</span></label>
+      <label style="font-weight:normal;margin-left:12px"><input type="radio" name="f-acc" id="f-acc-api"/> <span data-i18n="mgr_access_api">用系统设置里存的 key</span></label>
+      <select id="f-cred" style="margin-left:8px;display:none"></select>
+      <select id="f-sdk" style="margin-left:8px;display:none"></select>
+      <div class="e-dir-note" data-i18n="mgr_access_hint">这个人格的 AI 从哪儿来</div>
+    </div>
+    <label data-i18n="mgr_model">模型</label>
+    <div>
+      <select id="f-model-sel" style="width:100%"></select>
+      <div id="f-model-manual" hidden>
+        <input id="f-model-custom" data-i18n-ph="mgr_model_ph_custom" placeholder="手输模型名(走第三方网关时用)"/>
+        <button type="button" class="m-btn" id="f-model-back" data-i18n="mgr_model_back">⤺ 回清单</button>
+      </div>
+      <div class="e-dir-note" id="f-model-src"></div>
+    </div>
+    <div></div><div class="m-checkline"><input type="checkbox" id="f-butler"/><label for="f-butler" data-i18n="mgr_set_butler_label">设为管家(星型中心, 有开/建人格能力; 全局唯一, 会顶替当前管家)</label></div>
+    <div></div><div class="m-actions">
+      <button id="f-create" class="m-btn primary" data-i18n="mgr_create">创建并打开</button>
+      <!-- 导入不属于"新建"表单, 但它也是"多出一个人格"的入口, 放一起才找得到 -->
+      <button id="f-import" class="m-btn" data-i18n="mgr_import">从文件导入…</button>
+    </div>
+  </div>
+
+  <!-- 本机 API 和网络代理原先在这里。它俩跟"当前是谁"无关(存 settings.json / 登记簿顶层),
+       2026-08-17 挪进主界面右上角的「系统设置」窗口 —— 这里只留因人而异的东西。 -->
+  <p class="sys-lede" data-i18n="mgr_sys_moved">网络代理、本机 API 这些对所有人格生效的设置, 已挪到主界面右上角的 ⚙ 系统设置。</p>
+
+  <div id="toast" class="m-toast"></div>
+
+  <script src="hub-panel.js"></script>
+  <script src="manager.js"></script>
+</body>
+</html>

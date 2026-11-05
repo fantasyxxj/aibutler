@@ -1,0 +1,47 @@
+{
+  "_": "升级气泡与更新说明 HTML 里的零碎文案。🔴 这些【用户在窗口里看得见】, 所以四语齐全、跟界面语言走 —— 与喂给模型而用户看不见的那些英文单份文本不是一回事(口径见记忆 feedback_system_to_ai_text_is_always_english)。取值走 lang.localize(), 变量用 {{}} 占位。",
+
+  "versions_line": {
+    "zh-CN": "v{{cur}}（从 {{seen}} 升上来）",
+    "zh-TW": "v{{cur}}（從 {{seen}} 升上來）",
+    "ja": "v{{cur}}（{{seen}} からのアップグレード）",
+    "en": "v{{cur}} (up from {{seen}})"
+  },
+  "versions_line_first": {
+    "zh-CN": "v{{cur}}",
+    "zh-TW": "v{{cur}}",
+    "ja": "v{{cur}}",
+    "en": "v{{cur}}"
+  },
+  "chores_note": {
+    "zh-CN": "\n升级后{{name}}还要给自己做 {{n}} 件调整（整理记忆、收拾常用清单这类），它醒来就会自己动手，期间照常干活，你不用管。\n",
+    "zh-TW": "\n升級後{{name}}還要給自己做 {{n}} 件調整（整理記憶、收拾常用清單這類），它醒來就會自己動手，期間照常做事，你不用管。\n",
+    "ja": "\nアップグレード後、{{name}}は自分で {{n}} 件の調整（記憶の整理、よく使うリストの片付けなど）をやる。目が覚めたら自分で手をつけるし、その間も普通に働くので、あなたは何もしなくていい。\n",
+    "en": "\nAfter the upgrade {{name}} still has {{n}} adjustment(s) to make on itself (tidying its memory, sorting its shortlist, that sort of thing). It gets to them on its own once it wakes up and keeps working as usual meanwhile — nothing for you to do.\n"
+  },
+  "no_file": {
+    "zh-CN": "（这次没写成文件）",
+    "zh-TW": "（這次沒寫成檔案）",
+    "ja": "（今回はファイルに書けなかった）",
+    "en": "(no file was written this time)"
+  },
+
+  "html_title": {
+    "zh-CN": "{{name}} · 更新说明 {{version}}",
+    "zh-TW": "{{name}} · 更新說明 {{version}}",
+    "ja": "{{name}} · 更新内容 {{version}}",
+    "en": "{{name}} · Release notes {{version}}"
+  },
+  "html_h1": {
+    "zh-CN": "{{name}} 的更新说明",
+    "zh-TW": "{{name}} 的更新說明",
+    "ja": "{{name}} の更新内容",
+    "en": "What's new in {{name}}"
+  },
+  "html_footer": {
+    "zh-CN": "新版本已经生效，不用做任何设置。<br>{{name}}这些年攒下来的东西一样没丢，你照常使唤就行。",
+    "zh-TW": "新版本已經生效，不用做任何設定。<br>{{name}}這些年攢下來的東西一樣沒丟，你照常使喚就行。",
+    "ja": "新しいバージョンはもう有効になっている。設定は何もいらない。<br>{{name}}がこれまでに溜めてきたものは一つも失われていない、これまで通り使ってくれ。",
+    "en": "The new version is already live — nothing for you to configure.<br>Everything {{name}} has built up over time is still there; carry on as usual."
+  }
+}

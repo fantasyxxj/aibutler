@@ -1,0 +1,1 @@
+Not pinned: a pinned claim rides along with every session, so it is at most {{max}} characters (this one is {{len}}). Write the same rule shorter — the action and when it applies, nothing else — and save again.

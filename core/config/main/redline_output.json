@@ -1,0 +1,10 @@
+{
+  "_note": "红线双通路的输出侧: 本轮完整 assistant 文本过一遍铁律表, 命中就【不 emit onResult】、追一条指令让 AI 重说。判定与注入在 agent.js result 分支, 复用 empty-turn / force_sediment 那条补提通道。动作侧(PreToolUse 硬拦)在 redline-guard.js, 不走这个配置。",
+  "_why": "动作类红线能在工具执行前拦住, 但另一半根本不经过工具 —— 自称 Claude、给文件不给绝对路径、默认包 speak、阻塞项没先说。这些只能过输出。打回而不是程序自动改: 自动改会消灭学习信号, AI 永远不知道自己漏了, 下次照漏。",
+  "_risk": "⚠️ 与 force_sediment 同类, 是【上线即生效、天天影响交互】的行为类改动 —— 一条正则写宽了就会天天卡对话。所以 enabled 可一键关, 且每条红线的匹配写坏了要去修那条, 别让它一直误报变成狼来了。命中的这一轮文字已经流式显示给用户了(输出侧的固有代价), 用户会看到「错的 + 改对的」两段。",
+
+  "enabled": true,
+  "max_retry_per_turn": 1,
+
+  "template": "(System · redline rejection) {reason}"
+}

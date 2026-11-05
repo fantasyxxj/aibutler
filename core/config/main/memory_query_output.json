@@ -1,0 +1,15 @@
+{
+  "_说明": "memory_query 返回值里的【引导语】。摆出来的条目本身由代码渲染, 这里只管'查到这样该怎么办'那几句 —— 那才是要反复调的部分。{{}} 是占位符, 别改名。",
+
+  "empty": "(Nothing in the store: {{query}})\nHint: the query wording may not match how it was originally saved — try rephrasing or using more specific terms and search again.",
+
+  "no_solid": "(No solid memories found: {{query}} — but there are fallbacks below, don't treat this as an empty store)",
+
+  "suspects_head": "\n\n⚠️ Suspected conflict (mechanical filter, not yet adjudicated):\n",
+
+  "suspects_tail": "\n   Most are pseudo-conflicts with different scope (add scope and keep both); use memory_admin(op='arbitrate') only when exactly one can survive.",
+
+  "weak_head": "\n\n⚪ Fallback {{count}} item(s) (engine is not confident — presented for your judgment, not as evidence):\n",
+
+  "weak_tail": "\n   ├ Scan the claims and judge whether to use them; entries marked \"语义·x.xxx\" are textually dissimilar but vector-close — hold them to a higher standard.\n   └ None match → treat these claims as clues and search again with different words; don't conclude \"nothing in the store\"."
+}

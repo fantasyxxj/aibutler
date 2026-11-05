@@ -1,0 +1,11 @@
+{
+  "_note": "强制沉淀(回合不放行): 本回合从外部拿到了新知识(WebSearch/WebFetch)却一个 memory_* 都没调 → 这一轮不结束, 追一条指令让 AI 先补沉, 补完才放行。判定与注入都在 agent.js result 分支, 复用 empty-turn 的补提通道。",
+  "_why": "现有 nudge 本质只是提醒 —— 延迟一轮、只是文字、AI 可以不理。Belief-R 基准(EMNLP 2024, 约 30 个模型)实证: LLM 面对新证据普遍不会自发修正旧结论, '靠人格自己想起来'这条路被证否, 所以要引擎硬控。",
+  "_risk": "⚠️ 这是本次升级里唯一【上线即生效、天天影响交互】的行为类改动, 判错一次就硬卡一轮对话。所以 enabled 可一键关。其余能力都是数据驱动的(数据不够自然不触发), 只有这条不是。",
+
+  "enabled": true,
+  "max_retry_per_turn": 1,
+
+  "template": "(System · forced save) You retrieved new knowledge from external sources ({hits}) this turn, but **called zero memory_* tools**.\n\nPer hard rule 2: the only criterion is — was this something you didn't know before? Yes → save it now, don't weigh whether it's \"important enough.\" A missed save is a permanent loss, and you will never know what you lost.\n\nDo it now: run memory_query to dedupe first, then memory_upsert to create. **To add content to an existing node, use section-level write** (read the section first to get the hash, then replace the whole section); don't upsert over the full body. Once saved, continue and finish the reply you were giving.",
+  "_tool_name_note": "🔴 模板里刻意【不写死具体工具名】。v1 是 memory_append, v2 换成了 memory_section + memory_write —— 写死哪一个, 另一版就会被指去调一个不存在的工具。只说意图, 具体叫什么由工具描述自己交代。"
+}

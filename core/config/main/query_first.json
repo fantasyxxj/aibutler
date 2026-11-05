@@ -1,0 +1,6 @@
+{
+  "_note": "先查后办闸(core/query-first-guard.js): 真人回合里还没 memory_query/memory_section 过, 第一个命中 tool_pattern 的工具调用打回一次, 让人格先用自己的话(事情的类别)查记忆。每回合最多打回一次。2026-10-11 起只拦行业版办事类工具; 个人版那批工具名不在 pattern 里, 不受影响。",
+  "enabled": true,
+  "tool_pattern": "^mcp__butler__(biz_|plugin_open)",
+  "reason": "(Butler · not from the person you are talking to) Before acting, check memory once: memory_query in your own words — the kind of task this is (changing a setting, moving a booking, a price change), not their exact wording. Rules you were taught are filed that way. Then make this same call again; it will go through."
+}

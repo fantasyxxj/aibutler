@@ -1,0 +1,11 @@
+{
+  "_": "出生教育课程表 v2 (2026-08-13 改版)。老做法是 17 课串行喂 = 17 次模型调用, 且'学没学会'只能靠课末'回我一声'的钩子, 不可验。新做法两段: ①知识直接灌进记忆图(零模型调用) ②一轮上手体验, 引擎按记忆图的实际状态校验, 没留下痕迹就补提一次。加知识改 knowledge/*.json, 加动作改 experience*.md。",
+
+  "knowledge": ["leaf_core", "personal_common"],
+  "knowledge_butler": ["butler_extra"],
+
+  "experience": "experience",
+  "experience_tail_leaf": "experience_leaf_tail",
+  "experience_tail_butler": "experience_butler_tail",
+  "experience_retry": "experience_retry"
+}

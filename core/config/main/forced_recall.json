@@ -1,0 +1,22 @@
+{
+  "_note": "每轮拿用户原话查一次图记忆。够得上高档(confidence >= tier_hi)的把【主键 + 命题行】拼进上下文, 够不上的只写 recall_log 不注入一个字。为什么这么设计见 agent/wake.js 的 _auditRecall。",
+  "enabled": true,
+  "semantic": false,
+  "_semantic_note": "接不接语义(向量)通道。🔴 默认关, 原因**不是延迟而是没有分辨力**: dev 实测「拿不定主意，给我列几个选项」语义把 6 条全推进高档, 其中排第 2 的是语音打标 SSML(0.905)、排第 5 的是技术执行自主(0.925), 都比真正对的那条(0.719)高 —— 原始余弦挤在 0.855~0.888 这 0.03 带宽里, 真相关与完全无关只差 0.003, 调阈值救不了。延迟反而不是问题: 实测每轮 78ms(真推理 20ms), 首次含模型加载 1203ms 只付一次。开它之前必须先解决值域压缩(自适应显著度, 见 embedding 分数那条记忆), 否则接上就是拿噪音换召回。跨语言字面零命中这个洞仍然存在, 但注入噪音比不注入更坏。",
+  "k": 5,
+  "budget_tokens": 400,
+  "min_query_len": 4,
+  "_budget_note": "k 和 budget_tokens 只决定流水的形状(命中几条)。尺子要能跨时间比较, 这两个值不该随手改。",
+  "_min_len_note": "太短的输入(「好」「继续」「嗯」)捞出来必然是噪音, 直接不查。",
+
+  "_inject_note": "注入的松紧值(条数上限 / token 上限)在 memory-tuning.json 的 recall_inject_max / recall_inject_budget, 不在这里 —— 那份才是标定值的唯一真源, 而且装机版能被用户目录覆盖。分档线刻意【不新造参数】: 直接用 tier_hi, 它的注释逐字写着「≥此值 = 高档, 当事实直接注入」。",
+
+  "_heading_note": "🔴 抬头必须极短。实测真实原话 120 条: 64% 的轮次会注入, 平均 219 token, 而【怎么读这个块】的解释文字占掉 47 token = 21%, 每注入一次全价付一次。这段动态块**吃不到 prompt cache**(每轮内容都变), 而常驻提示词是命中缓存的 —— 所以解释只在 prompts/memory_engine.md 里讲一次, 这里只留一个能认出来的标记。加长这一行之前先算算它要乘以 0.64 × 每天轮数。",
+  "inject_heading": "[Memory · may or may not be relevant]\n",
+
+  "_hint_note": "中档(recall_hint_floor ≤ 把握度 < tier_hi)只点名不给命题行, 条数与分数线在 memory-tuning.json 的 recall_hint_max / recall_hint_floor。为什么: 2026-10-11 调教测试, 教过的规则换个说法重启后命中 0.30~0.50 落在中档, 一个字都没送进去, 而人格又几乎不主动 memory_query —— 常驻的「先查」每轮都在它照样不查, 带具体条目名的提示才咬得住。{slugs} 是占位, 别删。",
+  "hint_line": "Possibly related, not shown — memory_section these before answering: {slugs}",
+
+  "_miss_note": "原话一条都没对上(或只对上低于点名线的)时给的那一句。不是常驻套话: 它陈述的是【这一轮】的事实 —— 拿对方原话查过了, 没有。教过的规则按事情类别存, 店主每次换说法, 只有人格自己换成类别词查才撞得上。",
+  "miss_line": "Their exact words matched nothing in memory. If they want something done, memory_query it in your own words first — the kind of task (changing a setting, moving a booking, a price) — taught rules are filed that way."
+}

@@ -1,0 +1,922 @@
+{
+  "_": "用户侧发版说明。这里写的是【用户自己能感觉到的变化】—— 引擎内部怎么改的、AI 多学了哪几条出厂命题, 一律不写(那些对用户是噪音, AI 那一路走出厂知识包, 不需要用户转告)。升级时引擎取 (用户上次见过的版本, 当前版本] 区间里的所有条目, 拼成聊天卡片 + 落盘 HTML。某个版本没条目 = 那版对用户没有可感知变化, 不打扰用户。发版时在这里加一段, 别回去改 js。",
+  "__format": "\"<版本号>\": [ { \"title\": \"一句话说清用户能感觉到什么\", \"detail\": \"展开一两句: 什么场景下会碰到、怎么用\" } ]",
+  "0.0.53": [
+    {
+      "title": {
+        "zh-CN": "管家能在回复里直接画输入框、下拉和按钮",
+        "zh-TW": "管家能在回復裡直接畫輸入框、下拉和按鈕",
+        "ja": "butler が返信内に直接入力欄、ドロップダウン、ボタンを描画できる",
+        "en": "butler can draw input fields, dropdowns, and buttons directly in replies"
+      },
+      "detail": {
+        "zh-CN": "要你填个数字、选个日期、二选一的时候，它会直接把控件放进话里，你点一下或填一下就行，不用自己打字回复。",
+        "zh-TW": "要你填個數字、選個日期、二選一的時候，它會直接把控件放進話裡，你點一下或填一下就行，不用自己打字回復。",
+        "ja": "数字の入力や日付の選択、二者択一の選択が必要な場合、butler がコントロールを返信内に直接配置するので、クリックや入力するだけで返信のため打ち込む必要がありません。",
+        "en": "When you need to enter a number, select a date, or make a choice, butler places the control directly in the message for you to click or fill in without typing a reply."
+      }
+    }
+  ],
+  "0.0.54": [
+    {
+      "title": {
+        "zh-CN": "语音和网络卡住会自己缓过来",
+        "zh-TW": "語音和網路卡住會自己緩過來",
+        "ja": "音声やネットワークが止まると自分で回復します",
+        "en": "voice and network freezes recover on their own"
+      },
+      "detail": {
+        "zh-CN": "以前偶尔要重启才恢复，现在它自己会退回去重试。",
+        "zh-TW": "以前偶爾要重啟才恢復，現在它自己會退回去重試。",
+        "ja": "以前は稀に再起動が必要でしたが、今は自動的に戻ってリトライします。",
+        "en": "Previously, you occasionally needed to restart to recover. Now it automatically retries."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "后台凭据过期会自动换新",
+        "zh-TW": "後台憑據過期會自動換新",
+        "ja": "バックエンドの認証情報が期限切れになると自動的に更新されます",
+        "en": "expired backend credentials are automatically renewed"
+      },
+      "detail": {
+        "zh-CN": "不用你去后台重新复制一遍 token。",
+        "zh-TW": "不用你去後台重新複製一遍 token。",
+        "ja": "バックエンドに戻って token を再度コピーする必要がありません。",
+        "en": "No need to manually copy the token again from the backend."
+      }
+    }
+  ],
+  "0.0.57": [
+    {
+      "title": {
+        "zh-CN": "管家的记性搬进了数据库，中文也搜得到",
+        "zh-TW": "管家的記性搬進了資料庫，中文也搜得到",
+        "ja": "butler の記憶がデータベースに移り、中文でも検索できるようになりました",
+        "en": "butler's memory moved to database, searchable in Chinese too"
+      },
+      "detail": {
+        "zh-CN": "以前记的东西多了以后翻起来会漏，现在按关键词查得准得多，中文词也能命中。你越用它，它越知道你这边的规矩。",
+        "zh-TW": "以前記的東西多了以後翻起來會漏，現在按關鍵詞查得準得多，中文詞也能命中。你越用它，它越知道你這邊的規矩。",
+        "ja": "以前は記録が多くなると検索に漏れがありましたが、今はキーワード検索がより正確で、中文の用語も検索できます。使えば使うほど、butler はあなたのやり方をもっと理解します。",
+        "en": "Previously, searching through many memories had gaps. Now keyword searches are more accurate and Chinese terms work too. The more you use it, the better it understands your habits."
+      }
+    }
+  ],
+  "0.0.58": [
+    {
+      "title": {
+        "zh-CN": "升级之后管家会自己收拾一遍记忆",
+        "zh-TW": "升級之後管家會自己收拾一遍記憶",
+        "ja": "アップグレード後、butler は自動で記憶を整理します",
+        "en": "butler automatically organizes memory after upgrading"
+      },
+      "detail": {
+        "zh-CN": "换新版本时，它会花点时间整理自己的记忆库、把最常查的东西重新排一遍。这段时间它照常干活，收拾完就不提了，你不用管。",
+        "zh-TW": "換新版本時，它會花點時間整理自己的記憶庫、把最常查的東西重新排一遍。這段時間它照常幹活，收拾完就不提了，你不用管。",
+        "ja": "新しいバージョンに切り替わるときは、butler が記憶ライブラリを整理し、最頻繁にアクセスされるもののランクを付け直すのに少し時間がかかります。この間、butler は通常通り動作し、完了後に報告はなく、何もする必要はありません。",
+        "en": "When upgrading to a new version, butler takes time to organize its memory library and re-rank the most frequently accessed items. It works normally during this time, and once done, no notification appears—no action needed."
+      }
+    }
+  ],
+  "0.1.2": [
+    {
+      "title": {
+        "zh-CN": "说完话立刻就能看到排好版的内容",
+        "zh-TW": "說完話立刻就能看到排好版的內容",
+        "ja": "メッセージが送信されたら、すぐにフォーマットされたコンテンツが表示されます",
+        "en": "formatted content displays immediately after butler finishes speaking"
+      },
+      "detail": {
+        "zh-CN": "以前管家写完一段话之后, 如果它还要接着想事情或者去查资料, 那段话会一直是没排版的样子, 要等它整轮忙完才变整齐。现在写完就排好, 不用干等。",
+        "zh-TW": "以前管家寫完一段話之後, 如果它還要接著想事情或者去查資料, 那段話會一直是沒排版的樣子, 要等它整輪忙完才變整齊。現在寫完就排好, 不用幹等。",
+        "ja": "以前は butler がメッセージを書き終わった後、さらに考えたり資料を検索したりする場合、そのメッセージはずっと未フォーマットの状態でした。全ての処理が終了してから整形されました。今はメッセージが書き終わったら即座にフォーマットされるので、待つ必要がありません。",
+        "en": "Previously, after butler finished writing, if it needed to think or research further, the message stayed unformatted until all work was done. Now it formats immediately—no waiting."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "打开的时候会告诉你它在忙什么",
+        "zh-TW": "打開的時候會告訴你它在忙什麼",
+        "ja": "起動時に butler が何をしているかを教えてくれます",
+        "en": "butler tells you what it's doing when you open it"
+      },
+      "detail": {
+        "zh-CN": "从旧版本升上来的第一次打开, 要先把记忆搬个家, 这会花一点时间。以前这段时间什么都不显示, 像是没点开。现在会有一个小窗口告诉你正在升级。",
+        "zh-TW": "從舊版本升上來的第一次打開, 要先把記憶搬個家, 這會花一點時間。以前這段時間什麼都不顯示, 像是沒點開。現在會有一個小窗口告訴你正在升級。",
+        "ja": "旧バージョンからアップグレードして最初に開く場合、記憶を移行する必要があり、これには時間がかかります。以前はこの間、何も表示されず、開かれていないかのように見えました。今は小さなウィンドウが表示され、アップグレード中であることが告げられます。",
+        "en": "When upgrading from an old version, the first launch migrates your memories—this takes time. Previously, nothing displayed during this period. Now a small window shows you the upgrade is in progress."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "图里的按钮能点了",
+        "zh-TW": "圖裡的按鈕能點了",
+        "ja": "画像内のボタンがクリック可能になりました",
+        "en": "buttons in images are now clickable"
+      },
+      "detail": {
+        "zh-CN": "管家画的会动的图, 有时候按钮点下去没反应 —— 其实是按钮上的文字挡住了。现在修好了。",
+        "zh-TW": "管家畫的會動的圖, 有時候按鈕點下去沒反應 —— 其實是按鈕上的文字擋住了。現在修好了。",
+        "ja": "butler が描画する動的な画像で、ボタンがクリックに反応しないことがありました。実は、ボタン上のテキストが邪魔をしていました。今は修正されました。",
+        "en": "Interactive images butler creates sometimes didn't respond to clicks—text on the button was blocking it. Now fixed."
+      }
+    }
+  ],
+  "0.1.3": [
+    {
+      "title": {
+        "zh-CN": "打开时的那个提示小窗, 这次是真的会出现",
+        "zh-TW": "打開時的那個提示小窗, 這次是真的會出現",
+        "ja": "起動時のステータスウィンドウが今回は本当に表示されます",
+        "en": "the status window on launch actually appears this time"
+      },
+      "detail": {
+        "zh-CN": "上一版说过打开慢的时候会有小窗告诉你在忙什么, 但它其实一次都没显示出来 —— 窗口刚要画上屏, 后面的活就把它挤没了。现在打开管家等待的那段时间, 屏幕中间会有它。",
+        "zh-TW": "上一版說過打開慢的時候會有小窗告訴你在忙什麼, 但它其實一次都沒顯示出來 —— 窗口剛要畫上屏, 後面的活就把它擠沒了。現在打開管家等待的那段時間, 屏幕中間會有它。",
+        "ja": "前のバージョンでは、起動が遅い場合にステータスウィンドウが表示されるはずでした。しかし、実際には一度も表示されませんでした——ウィンドウが画面に描画される際に、他の処理がそれを押しつぶしてしまいました。今は butler の起動を待つ間、画面中央にそれが表示されます。",
+        "en": "The previous version promised a status window during slow launches, but it never actually appeared—other processes pushed it away before drawing. Now it displays in the center of the screen while butler launches."
+      }
+    }
+  ],
+  "0.1.4": [
+    {
+      "title": {
+        "zh-CN": "Windows 上打开管家, 主窗口终于会出来了",
+        "zh-TW": "Windows 上打開管家, 主窗口終於會出來了",
+        "ja": "Windows で butler を開くと、メインウィンドウが最後に表示されます",
+        "en": "main window finally appears when opening butler on Windows"
+      },
+      "detail": {
+        "zh-CN": "上一版在 Windows 上点开图标, 中间那个提示小窗转完就没了下文, 主窗口再也不出现, 也不报错 —— 小窗关掉的那一刻, 系统认为管家的窗户全关了, 就把它整个退掉了, 而主窗口还没来得及打开。这一版把这段空档补上了。这个问题只在 Windows 上有, Mac 不受影响。",
+        "zh-TW": "上一版在 Windows 上點開圖標, 中間那個提示小窗轉完就沒了下文, 主窗口再也不出現, 也不報錯 —— 小窗關掉的那一刻, 系統認為管家的窗戶全關了, 就把它整個退掉了, 而主窗口還沒來得及打開。這一版把這段空檔補上了。這個問題只在 Windows 上有, Mac 不受影響。",
+        "ja": "前のバージョンでは、Windows 上でアイコンをクリックするとステータスウィンドウが完了した後、何も起こりませんでした。メインウィンドウは表示されず、エラーも報告されませんでした——小さなウィンドウが閉じた時点で、システムは butler のすべてのウィンドウが閉じたと認識し、butler 全体を終了させてしまい、メインウィンドウはまだ開く余裕がありませんでした。このバージョンはこのギャップを埋めました。この問題は Windows だけに存在し、Mac は影響を受けません。",
+        "en": "Previous version on Windows: clicking the icon showed a status window, then nothing. Main window never appeared, no error shown—when the small window closed, the system thought butler was done and quit it entirely before the main window could open. This version fixes that gap. Windows only; Mac is unaffected."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "安装包文件的属性说明改对了",
+        "zh-TW": "安裝包檔案的屬性說明改對了",
+        "ja": "インストーラーファイルのプロパティの説明が修正されました",
+        "en": "installer file properties description is now correct"
+      },
+      "detail": {
+        "zh-CN": "鼠标停在 exe 文件上弹出的那行说明, 一直还写着很旧版本的更新内容。现在换成一句正经的产品说明, 不再拿它当更新日志用。",
+        "zh-TW": "鼠標停在 exe 檔案上彈出的那行說明, 一直還寫著很舊版本的更新內容。現在換成一句正經的產品說明, 不再拿它當更新日誌用。",
+        "ja": "exe ファイルにマウスを置くと表示される説明行は、ずっと古いバージョンの更新内容が書かれていました。今は正式な製品説明に変わり、更新ログとして使用されなくなりました。",
+        "en": "The tooltip when hovering over the exe file always showed outdated version notes. Now it displays a proper product description instead of release logs."
+      }
+    }
+  ],
+  "0.1.17": [
+    {
+      "title": {
+        "zh-CN": "管家在做多步骤的活时, 会把待办清单摆在输入框上方",
+        "zh-TW": "管家在做多步驟的活時, 會把待辦清單擺在輸入框上方",
+        "ja": "butler が複数ステップのタスクをする時、チェックリストが入力欄の上に表示されます",
+        "en": "butler displays a checklist above the input field when working on multi-step tasks"
+      },
+      "detail": {
+        "zh-CN": "它自己列的步骤、做到第几步、还剩几件, 现在你一眼就能看到, 不用问「你做到哪了」。做完的会划掉, 正在做的那条高亮。",
+        "zh-TW": "它自己列的步驟、做到第幾步、還剩幾件, 現在你一眼就能看到, 不用問「你做到哪了」。做完的會劃掉, 正在做的那條高亮。",
+        "ja": "butler が作成したステップのリスト、進行状況、残りのアイテム数が一目で表示されるので、「どこまで進んだ？」と尋ねる必要がありません。完了したアイテムは削除され、現在のアイテムはハイライトされます。",
+        "en": "The steps butler creates, progress made, and remaining items are visible at a glance—no need to ask \"how far along?\" Completed items get crossed off, current ones are highlighted."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "活没干完不会停下来等你催",
+        "zh-TW": "活沒幹完不會停下來等你催",
+        "ja": "タスクが完了していないと停止して催促を待つことはありません",
+        "en": "butler won't stop and wait for you to say continue"
+      },
+      "detail": {
+        "zh-CN": "以前它常常做完一步、汇报一下就不动了, 要你说一句「继续」才接着做。现在只要待办清单里还有没做完的, 它会自己接着往下做; 只有真的卡住需要你拿主意时才停。不想要这个行为可以在设置里关掉。",
+        "zh-TW": "以前它常常做完一步、彙報一下就不動了, 要你說一句「繼續」才接著做。現在只要待辦清單裡還有沒做完的, 它會自己接著往下做; 只有真的卡住需要你拿主意時才停。不想要這個行為可以在設置裡關掉。",
+        "ja": "以前は butler が 1 ステップを完了して報告した後、動かなくなり、「続行」と言う必要がありました。今は、チェックリストに未完了のアイテムがある限り、自動的に続行します。本当に行き詰まって判断が必要な時だけ停止します。この動作は設定で無効にできます。",
+        "en": "Previously, butler would stop after each step, requiring you to say \"continue\" to proceed. Now it automatically keeps going as long as there are incomplete items in the list. It only stops when truly stuck and needs your decision. You can disable this in settings if preferred."
+      }
+    }
+  ],
+  "0.1.5": [
+    {
+      "title": {
+        "zh-CN": "登录终于能走完了",
+        "zh-TW": "登錄終於能走完了",
+        "ja": "ログインプロセスが最後まで完了するようになりました",
+        "en": "login process finally completes"
+      },
+      "detail": {
+        "zh-CN": "点了「连接 Claude」、在浏览器里授权完, 却一直卡着连不上 —— 原因是管家这边判断「登录好了没有」的方式不对, 你还在浏览器里点的时候它就以为成功了, 顺手把正在等你授权的那个程序关掉了, 于是授权完跳回来已经没人接。现在改成跟凭证真正更新为准。",
+        "zh-TW": "點了「連接 Claude」、在瀏覽器裡授權完, 卻一直卡著連不上 —— 原因是管家這邊判斷「登錄好了沒有」的方式不對, 你還在瀏覽器裡點的時候它就以為成功了, 順手把正在等你授權的那個程序關掉了, 於是授權完跳回來已經沒人接。現在改成跟憑據真正更新為準。",
+        "ja": "「Connect Claude」をクリックしてブラウザで認可を完了しても、接続が続かない——原因は butler がログイン判定のロジックが正しくなかったからです。ブラウザでクリックしている間に butler は成功だと思い込み、認可を待つプログラムを終了させ、認可完了後に戻ってきても誰も受け取りませんでした。今は認証情報が実際に更新されたかで判定するようにしました。",
+        "en": "Clicked 'Connect Claude,' authorized in browser, but stayed stuck—butler was checking login status wrong. It assumed success while you were still clicking, closed the waiting process, so when you returned from auth, nobody was listening. Now it checks if credentials actually updated."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "明明登录着却被要求重新登录",
+        "zh-TW": "明明登錄著卻被要求重新登錄",
+        "ja": "ログインしているのに再度ログインを求められることがありました",
+        "en": "being asked to log in again even when already logged in"
+      },
+      "detail": {
+        "zh-CN": "开机检查登录状态时, 只要这个检查本身卡住或出错(Windows 上尤其容易), 就一律当成没登录, 拿一个登录框把本来能用的管家挡在外面。现在检查不出结果时会去看凭证还有没有效, 有效就直接进去。",
+        "zh-TW": "開機檢查登錄狀態時, 只要這個檢查本身卡住或出錯(Windows 上尤其容易), 就一律當成沒登錄, 拿一個登錄框把本來能用的管家擋在外面。現在檢查不出結果時會去看憑據還有沒有效, 有效就直接進去。",
+        "ja": "起動時にログイン状態を確認する際、確認プロセス自体がハングまたはエラーになるたびに(特に Windows で頻繁)、ログインしていないと判定され、ログインダイアログで使用可能な butler がブロックされました。今は確認で結果が出ない場合は、認証情報がまだ有効かチェックし、有効なら直接起動します。",
+        "en": "At startup, checking login status: if the check itself hung or errored (very common on Windows), butler assumed you weren't logged in and locked you out. Now if the check fails, it verifies credentials directly—if valid, you go straight in."
+      }
+    }
+  ],
+  "0.1.21": [
+    {
+      "title": {
+        "zh-CN": "界面多了繁体中文，出生教育也跟着界面语言走了",
+        "zh-TW": "介面多了繁體中文，出生教育也跟著介面語言走了",
+        "ja": "表示言語に繁体字中国語が加わり、初期セットアップも表示言語に従うようになりました",
+        "en": "Traditional Chinese joins the UI languages, and the onboarding lesson now follows your UI language too"
+      },
+      "detail": {
+        "zh-CN": "以前不管你把界面设成哪种语言，新人格刚醒来读到的那份开场都是简体中文。现在四种语言各有一份，选什么语言就读到什么语言。繁体是新加的，简体、日文、英文照旧。",
+        "zh-TW": "以前不管你把介面設成哪種語言，新人格剛醒來讀到的那份開場都是簡體中文。現在四種語言各有一份，選什麼語言就讀到什麼語言。繁體是新加的，簡體、日文、英文照舊。",
+        "ja": "これまでは表示言語を何にしていても、生まれたばかりの人格が最初に読む案内は中国語でした。今は4言語それぞれ用意され、選んだ言語で読めます。繁体字中国語が新たに加わりました。",
+        "en": "Until now a newly created persona always read its opening lesson in Chinese, whatever UI language you had set. Each of the four languages now has its own copy, and you get the one you picked. Traditional Chinese is the new addition."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "新人格的第一条消息不再是一堵墙",
+        "zh-TW": "新人格的第一條訊息不再是一堵牆",
+        "ja": "新しい人格の最初のメッセージが読める長さになりました",
+        "en": "A new persona's first message is no longer a wall of text"
+      },
+      "detail": {
+        "zh-CN": "造一个新人格时，它开口第一条曾经有近一万字符——两条系统消息撞在一起被并成了一条，真正要它做的事被埋在最后。现在只剩一千五百字符左右，它该做的事一件没少。",
+        "zh-TW": "造一個新人格時，它開口第一條曾經有近一萬字元——兩條系統訊息撞在一起被併成了一條，真正要它做的事被埋在最後。現在只剩一千五百字元左右，它該做的事一件沒少。",
+        "ja": "新しい人格を作ったとき、最初のメッセージが1万文字近くありました。2つのシステムメッセージが重なって1つにまとめられ、本当にやってほしいことが末尾に埋もれていたためです。今は約1500文字になり、やるべきことは何も減っていません。",
+        "en": "When you created a persona, its very first message ran to nearly 10,000 characters: two system messages collided and got merged, burying the part that actually asked it to do something. It is now about 1,500 characters, with nothing dropped."
+      }
+    }
+  ],
+  "0.1.38": [
+    {
+      "title": {
+        "zh-CN": "API 凭据可以存多条，每条起个名字，人格各自挑一条用",
+        "zh-TW": "API 憑據可以存多條，每條取個名字，人格各自挑一條用",
+        "ja": "API 認証情報を複数保存できるようになりました。名前を付けて、人格ごとに選べます",
+        "en": "Store several API credentials, name each one, and let each persona pick which to use"
+      },
+      "detail": {
+        "zh-CN": "系统设置里现在是一张可增删的表，一行就是「名字 + 地址 + key」，可以多放几条备用的。哪个人格用哪条，在人格管理里那个人格的「接入方式」旁边选。原来存的那把会自动变成一条叫「默认」的，不用重填。换了凭据要重开那个人格才生效。",
+        "zh-TW": "系統設定裡現在是一張可增刪的表，一行就是「名字 + 地址 + key」，可以多放幾條備用的。哪個人格用哪條，在人格管理裡那個人格的「接入方式」旁邊選。原來存的那把會自動變成一條叫「預設」的，不用重填。換了憑據要重開那個人格才生效。",
+        "ja": "システム設定が追加・削除できる一覧になりました。1 行が「名前 + 接続先 + key」です。予備を何本でも置けます。どの人格がどれを使うかは、人格管理のその人格の「接続方法」の横で選びます。今まで保存していたものは自動的に「既定」という 1 件に移行するので、入れ直す必要はありません。変更後はその人格を開き直すと反映されます。",
+        "en": "System settings now shows an editable list: each row is a name, an endpoint and a key, so you can keep spares. Pick which one a persona uses next to its Access setting. Your existing key is migrated automatically into an entry named Default - nothing to re-enter. Reopen a persona for a credential change to take effect."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "AI 查记忆的时候界面不再卡住",
+        "zh-TW": "AI 查記憶的時候介面不再卡住",
+        "ja": "AI が記憶を検索している間、画面が固まらなくなりました",
+        "en": "The window no longer freezes while the AI searches its memory"
+      },
+      "detail": {
+        "zh-CN": "记忆库长大之后，每次查询都会顺带把整个库两两比一遍找矛盾，几千条记忆就是上百万次比较，界面会冻住好几秒、打字打不进去。现在只比跟这次查询相关的那几条，全库排查挪到了空闲时段后台慢慢做。",
+        "zh-TW": "記憶庫長大之後，每次查詢都會順帶把整個庫兩兩比一遍找矛盾，幾千條記憶就是上百萬次比較，介面會凍住好幾秒、打字打不進去。現在只比跟這次查詢相關的那幾條，全庫排查挪到了空閒時段後台慢慢做。",
+        "ja": "記憶が増えると、検索のたびに全体を総当たりで突き合わせて矛盾を探していたため、数千件で百万回規模の比較になり、画面が数秒固まって文字が打てませんでした。今回から突き合わせるのは今回の検索に関係する数件だけになり、全体の点検は待機中にバックグラウンドで少しずつ行います。",
+        "en": "As the memory library grew, every lookup also compared the entire library pair by pair looking for contradictions - a few thousand notes meant over a million comparisons, freezing the window for seconds so you could not type. It now compares only the handful relevant to that lookup; the full sweep moved to a background pass while you are idle."
+      }
+    }
+  ],
+  "0.1.45": [
+    {
+      "title": {
+        "zh-CN": "关窗口时那句「没存下来」不会再误报了",
+        "zh-TW": "關視窗時那句「沒存下來」不會再誤報了",
+        "ja": "ウィンドウを閉じるときの「保存できませんでした」が誤って出なくなりました",
+        "en": "Closing the window no longer falsely claims your work was not saved"
+      },
+      "detail": {
+        "zh-CN": "关窗口前，各个人格会把手头的活存进记忆再退出。以前模型要是那一刻反应慢，光等第一个字就可能耗掉一两分钟，留给真正写记忆的时间被吃光，于是明明还在写也被判成失败，弹出「没存下来」。现在等第一个字和真正写记忆分开算时间，开着好几个人格时也改成一个一个来、不再互相抢，关闭更快也更稳。",
+        "zh-TW": "關視窗前，各個人格會把手頭的工作存進記憶再退出。以前模型要是那一刻反應慢，光等第一個字就可能耗掉一兩分鐘，留給真正寫記憶的時間被吃光，於是明明還在寫也被判成失敗，跳出「沒存下來」。現在等第一個字和真正寫記憶分開算時間，開著好幾個人格時也改成一個一個來、不再互相搶，關閉更快也更穩。",
+        "ja": "ウィンドウを閉じる前に、各人格は手元の作業を記憶に保存してから終了します。これまではモデルの反応が遅いと、最初の一文字を待つだけで一、二分かかることがあり、実際に書き込む時間が足りなくなって、まだ書いている最中でも失敗と判定され「保存できませんでした」と出ていました。今は最初の一文字を待つ時間と実際に書き込む時間を分けて計り、複数の人格を開いている場合も一つずつ順番に処理するようにしたので、終了が速く確実になりました。",
+        "en": "Before the window closes, each persona saves what it is working on into memory. If the model was slow to respond, just waiting for the first token could eat a minute or two, leaving no time for the actual writing - so a persona still hard at work was ruled a failure and you got \"not saved\". Waiting for the first token and doing the writing are now timed separately, and with several personas open they take turns instead of competing. Closing is faster and more reliable."
+      }
+    }
+  ],
+  "0.1.46": [
+    {
+      "title": {
+        "zh-CN": "选项现在直接摆在眼前, 不用先点开下拉再挑",
+        "zh-TW": "選項現在直接攤在眼前, 不用先點開下拉再挑",
+        "ja": "選択肢がその場に並ぶようになり、プルダウンを開いてから選ぶ必要がなくなりました",
+        "en": "Options are now laid out in front of you instead of hidden behind a dropdown"
+      },
+      "detail": {
+        "zh-CN": "以前要你从几样里挑一个, 只能给你一个下拉框, 得先点开才看得见里面有什么。现在选项会直接一排摆出来, 一眼看全、点一下就选上; 可以同时选好几样的场合也能一次勾完, 不用分几轮问你。",
+        "zh-TW": "以前要你從幾樣裡挑一個, 只能給你一個下拉選單, 得先點開才看得見裡面有什麼。現在選項會直接一排攤出來, 一眼看全、點一下就選上; 可以同時選好幾樣的場合也能一次勾完, 不用分幾輪問你。",
+        "ja": "これまでは幾つかの中から一つ選んでもらう時、プルダウンしか出せず、開かないと中身が見えませんでした。これからは選択肢がそのまま横に並び、一目で全部見えて、一度押すだけで選べます。複数を同時に選べる場面も一度にまとめてチェックでき、何度も聞き直しません。",
+        "en": "When you had to pick one of several things, all we could offer was a dropdown that hid its contents until you opened it. Now the options are laid out in a row, visible at a glance and selected with a single tap. Where several can apply at once, you can tick them all in one go instead of being asked round after round."
+      }
+    }
+  ],
+  "0.1.48": [
+    {
+      "title": {
+        "zh-CN": "登录失效后不再空转一整夜, 那个「重新登录」按钮现在真的点得到了",
+        "zh-TW": "登入失效後不再空轉一整夜, 那個「重新登入」按鈕現在真的點得到了",
+        "ja": "認証が切れたあとに一晩中空回りしなくなり、「再ログイン」ボタンが本当に押せるようになりました",
+        "en": "No more spinning all night after auth expires — the Re-login button is actually clickable now"
+      },
+      "detail": {
+        "zh-CN": "以前认证一失效, 它会每隔三秒半自己重试一次、没完没了, 而那个「重新登录」的提示条冒出来一毫秒就被自己的重试掐掉了 —— 于是你只看得到人格在不停重试, 却永远点不到那个按钮, 最后只能关掉重开。现在认证一失效就直接把提示条挂住不动, 你点一下就能登回来; 登完也不必再关掉重开了。挂着的这段时间它会彻底停手, 不再偷偷跑保活和提醒白烧额度。",
+        "zh-TW": "以前認證一失效, 它會每隔三秒半自己重試一次、沒完沒了, 而那個「重新登入」的提示條冒出來一毫秒就被自己的重試掐掉了 —— 於是你只看得到人格在不停重試, 卻永遠點不到那個按鈕, 最後只能關掉重開。現在認證一失效就直接把提示條掛住不動, 你點一下就能登回來; 登完也不必再關掉重開了。掛著的這段時間它會徹底停手, 不再偷偷跑保活和提醒白燒額度。",
+        "ja": "これまでは認証が切れると3.5秒ごとに延々と自動リトライし、「再ログイン」のバーは出た瞬間(1ミリ秒)に自分のリトライで消されていました。つまりリトライし続ける様子だけが見えてボタンには永遠に届かず、最後はアプリを再起動するしかありませんでした。今は認証が切れた時点でバーをそのまま出したままにします。押せばそのまま復帰でき、復帰後に再起動する必要もありません。止まっている間は完全に手を止めるので、保活や催促で無駄に消費することもなくなりました。",
+        "en": "Auth used to fail and then retry itself every 3.5 seconds forever, while the \"Re-login\" bar that appeared got killed one millisecond later by that same retry. So you'd watch it retry endlessly and never manage to click the button — the only way out was quitting and reopening. Now the bar stays put the moment auth fails, one click gets you back, and you no longer have to restart afterwards. While it's down it stops completely, instead of quietly burning quota on keep-alives and reminders."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "设置里多了一张「一年期的登录」, 配上就不用每隔几天被踢下线",
+        "zh-TW": "設定裡多了一張「一年期的登入」, 配上就不用每隔幾天被踢下線",
+        "ja": "設定に「1年有効のログイン」が増えました。設定しておけば数日おきに切られることがなくなります",
+        "en": "Settings now offers a one-year login — set it once and stop getting kicked out every few days"
+      },
+      "detail": {
+        "zh-CN": "订阅认证每隔几天会自己续不上, 于是常常半夜突然全体罢工, 只能等你起来手动重登。系统设置里新增了「订阅长效 token」: 点一下按钮, 在弹出的浏览器里授权一次, 剩下的自动办好, 一年才需要再来一次。拿到后会先真发一次请求验过才存, 验不过就当没拿到, 绝不会把一张用不了的凭证塞进去。整个过程不碰你现有的登录 —— 就算失败了, 你原来那份也原样还在。",
+        "zh-TW": "訂閱認證每隔幾天會自己續不上, 於是常常半夜突然全體罷工, 只能等你起來手動重新登入。系統設定裡新增了「訂閱長效 token」: 點一下按鈕, 在彈出的瀏覽器裡授權一次, 剩下的自動辦好, 一年才需要再來一次。拿到後會先真發一次請求驗過才存, 驗不過就當沒拿到, 絕不會把一張用不了的憑證塞進去。整個過程不碰你現有的登入 —— 就算失敗了, 你原來那份也原樣還在。",
+        "ja": "サブスク認証は数日に一度うまく更新できず、深夜に突然すべて止まってしまい、あなたが起きて手動でログインし直すまで戻りませんでした。システム設定に「サブスク長期トークン」を追加しました。ボタンを押してブラウザで一度承認するだけで、あとは自動で設定され、次に必要なのは1年後です。取得したトークンは実際にリクエストを一度投げて確認できたものだけを保存するので、使えない認証情報が入り込むことはありません。この操作は今のログインには一切触れません。失敗しても元のログインはそのまま残ります。",
+        "en": "Subscription auth quietly fails to renew every few days, so everything tends to die in the middle of the night and stays dead until you wake up and log in again. System Settings now has a \"long-lived subscription token\": click once, approve in the browser that opens, and the rest is handled — you won't need to do it again for a year. The token is verified with a real request before being saved, so an unusable one never gets stored. None of this touches your existing login: even if it fails, what you had is still there, untouched."
+      }
+    }
+  ],
+  "0.1.49": [
+    {
+      "title": {
+        "zh-CN": "选项里带逗号的写法不会再被拦腰切断",
+        "zh-TW": "選項裡帶逗號的寫法不會再被攔腰切斷",
+        "ja": "選択肢の中のカンマで項目が真っ二つに切れることがなくなりました",
+        "en": "Options containing commas no longer get chopped in half"
+      },
+      "detail": {
+        "zh-CN": "让你从几样里挑一个的时候, 如果某个选项本身带逗号 —— 比如坐标「A (3,2)」、区间「(1,5]」—— 那个逗号会被当成选项之间的分隔符, 于是一个选项被切成两半, 屏幕上出现「A (3」和「2)」这种半截货。现在括号里的逗号不再算分隔符, 坐标、区间、带停顿的句子都能原样当成一个选项摆出来。你预先选好的、以及你勾完回传的值, 也跟着一起修好了。",
+        "zh-TW": "讓你從幾樣裡挑一個的時候, 如果某個選項本身帶逗號 —— 比如座標「A (3,2)」、區間「(1,5]」—— 那個逗號會被當成選項之間的分隔符, 於是一個選項被切成兩半, 螢幕上出現「A (3」和「2)」這種半截貨。現在括號裡的逗號不再算分隔符, 座標、區間、帶停頓的句子都能原樣當成一個選項擺出來。你預先選好的、以及你勾完回傳的值, 也跟著一起修好了。",
+        "ja": "幾つかの中から一つ選んでもらう時、選択肢自体にカンマが入っていると — 座標「A (3,2)」や区間「(1,5]」など — そのカンマが項目の区切りとして扱われ、一つの選択肢が真っ二つになって「A (3」「2)」のような半端なものが並んでいました。これからは括弧の中のカンマは区切りとみなさないので、座標も区間も読点の入った文もそのまま一つの選択肢として出せます。あらかじめ選んでおいた値や、チェックして返ってくる値も合わせて直りました。",
+        "en": "When you were asked to pick from a few things, an option that contained a comma of its own — a coordinate like \"A (3,2)\", a range like \"(1,5]\" — had that comma read as the separator between options. One option got split in two, and you'd see fragments like \"A (3\" and \"2)\" on screen. Commas inside brackets are no longer treated as separators, so coordinates, ranges and sentences with pauses can all be listed as a single option. Preselected values and the values sent back when you tick something were fixed along with it."
+      }
+    }
+  ],
+  "0.1.54": [
+    {
+      "title": {
+        "zh-CN": "下不了记忆模型和语音引擎的地方, 现在会自动换条路",
+        "zh-TW": "下載不了記憶模型和語音引擎的地方, 現在會自動換條路",
+        "ja": "記憶モデルと音声エンジンを取得できない環境で、自動的に別経路を試すようになりました",
+        "en": "Where the memory model and voice engine could not be downloaded, it now tries another route"
+      },
+      "detail": {
+        "zh-CN": "按意思找记忆要用到一个模型, 语音输入要用到一个引擎, 两样都得先下载。它们原本各自只有一个下载地址, 在有些网络环境下根本连不上 —— 而且失败是没有声音的: 模型没下来, 找记忆就悄悄退回成只按字面匹配, 界面上什么都看不出来, 你只会觉得管家想不起事情。现在两样都备了备用地址, 主地址连不上会自动换一条继续下, 不用你去设置里填代理(实测有些机器填了代理也一样连不上)。",
+        "zh-TW": "按意思找記憶要用到一個模型, 語音輸入要用到一個引擎, 兩樣都得先下載。它們原本各自只有一個下載網址, 在有些網路環境下根本連不上 —— 而且失敗是沒有聲音的: 模型沒下來, 找記憶就悄悄退回成只按字面比對, 介面上什麼都看不出來, 你只會覺得管家想不起事情。現在兩樣都備了備用網址, 主網址連不上會自動換一條繼續下載, 不用你去設定裡填代理(實測有些機器填了代理也一樣連不上)。",
+        "ja": "意味で記憶を探すにはモデルが、音声入力にはエンジンが必要で、どちらも最初に取得します。これまでは取得先がそれぞれ一つしかなく、ネットワーク環境によっては全く繋がりませんでした。しかも失敗は無言です。モデルが無いと記憶の検索はこっそり文字どおりの一致だけに戻り、画面上は何も見えず、ただ「執事が何も覚えていない」と感じるだけでした。今はどちらにも予備の取得先があり、繋がらなければ自動で別経路に切り替えて続けます。設定でプロキシを入れる必要はありません(プロキシを入れても繋がらない端末が実際にありました)。",
+        "en": "Searching your memory by meaning needs a model, and voice input needs an engine; both are downloaded on first use. Each had exactly one source, which some networks simply cannot reach — and the failure is silent: with no model, memory search quietly falls back to literal matching, nothing looks wrong on screen, and you just experience a butler that cannot remember anything. Both downloads now have a backup source and switch to it automatically when the first one is unreachable. No need to configure a proxy — on some machines, a configured proxy did not help either."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "指向已有人格的目录, 不会再被当成新人重来一遍",
+        "zh-TW": "指向已有人格的目錄, 不會再被當成新人重來一遍",
+        "ja": "既に人格が住んでいるフォルダを、新規として作り直さなくなりました",
+        "en": "A folder that already holds a persona is no longer treated as a fresh start"
+      },
+      "detail": {
+        "zh-CN": "换机器、或者把人格资料夹搬到别处之后重新指过去, 管家判断「这里有没有住过人」只看两个说明文件。可这两个文件本来就是缺了会自动补的, 于是只剩记忆数据库的目录会被当成空目录, 按新人格重新走一遍开场 —— 它已经存下来的身份记忆会被开场那份覆盖掉。现在记忆数据库和会话记录也算数, 只要还在, 就是接着用原来那个人格, 一个字都不会重写。",
+        "zh-TW": "換機器、或者把人格資料夾搬到別處之後重新指過去, 管家判斷「這裡有沒有住過人」只看兩個說明檔案。可這兩個檔案本來就是缺了會自動補的, 於是只剩記憶資料庫的目錄會被當成空目錄, 按新人格重新走一遍開場 —— 它已經存下來的身分記憶會被開場那份覆蓋掉。現在記憶資料庫和對話記錄也算數, 只要還在, 就是接著用原來那個人格, 一個字都不會重寫。",
+        "ja": "機種を変えたり、人格のフォルダを別の場所に移してから指定し直したとき、そこに人格が住んでいるかどうかを説明ファイル二つだけで判断していました。ところがこの二つは無ければ自動的に作り直されるものなので、記憶データベースしか残っていないフォルダは空と見なされ、新しい人格として初回の導入をやり直してしまいます。その結果、既に蓄えていた自己認識が初回分で上書きされていました。今は記憶データベースと会話記録も判断材料になり、それらが残っていれば元の人格をそのまま引き継ぎます。一文字も書き換えません。",
+        "en": "When you move to a new machine, or point the butler back at a persona folder you relocated, it decided whether anyone lived there by looking at two description files. But those two are exactly the files it recreates when they are missing — so a folder holding nothing but its memory database read as empty and got taken through first-time setup as a brand-new persona, overwriting the sense of self it had already built up. The memory database and the conversation record now count too: as long as they are there, the original persona is carried on untouched."
+      }
+    }
+  ],
+  "0.1.53": [
+    {
+      "title": {
+        "zh-CN": "服务器繁忙不会再被说成「额度用完」",
+        "zh-TW": "伺服器繁忙不會再被說成「額度用完」",
+        "ja": "サーバー混雑を「利用枠切れ」と言い間違えなくなりました",
+        "en": "A busy server is no longer reported as \"you're out of quota\""
+      },
+      "detail": {
+        "zh-CN": "对方服务器临时繁忙的时候, 管家会把它当成你的额度用完了, 于是把人格挂起、让你去充值或者等窗口重置 —— 而实际上过一会儿就好了, 充值也没有用。现在繁忙和额度分得开了: 服务器那边的临时故障只是这一轮没答上来, 人格照常活着, 下一句还能接着说。真的额度用完或者被限流, 仍然会照旧提醒你。",
+        "zh-TW": "對方伺服器暫時繁忙的時候, 管家會把它當成你的額度用完了, 於是把人格掛起、讓你去儲值或者等視窗重置 —— 而實際上過一會兒就好了, 儲值也沒有用。現在繁忙和額度分得開了: 伺服器那邊的暫時故障只是這一輪沒答上來, 人格照常活著, 下一句還能接著說。真的額度用完或者被限流, 仍然會照舊提醒你。",
+        "ja": "相手のサーバーが一時的に混んでいるだけなのに、執事はそれを「利用枠を使い切った」と受け取り、人格を停止させて課金や枠のリセット待ちを促していました。実際はしばらく待てば直るもので、課金しても意味がありません。混雑と利用枠切れを区別するようにしたので、サーバー側の一時的な不調はその一回答えられなかっただけになり、人格はそのまま生きていて次の一言から続けられます。本当に枠を使い切った時や制限に掛かった時は、これまで通りお知らせします。",
+        "en": "When the far end was just temporarily busy, your butler read it as your quota being used up: it suspended the persona and pointed you at topping up or waiting for the window to reset — neither of which helps, since the condition clears on its own. Busy and out-of-quota are now told apart. A temporary fault on the server side just means that one turn went unanswered; the persona stays alive and picks up from your next message. Genuinely running out of quota, or hitting a rate limit, still tells you so."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "装在 C 盘以外的 Windows, 记忆检索恢复正常",
+        "zh-TW": "裝在 C 槽以外的 Windows, 記憶檢索恢復正常",
+        "ja": "Cドライブ以外に入れた Windows でも記憶の検索が本来の精度に戻りました",
+        "en": "On Windows installs outside the system drive, memory search works properly again"
+      },
+      "detail": {
+        "zh-CN": "如果你把管家装在 D 盘、E 盘这种地方, 按意思找记忆的那套一直是坏的 —— 而且坏得没有声音: 它会悄悄退回成只按字面匹配, 界面上看不出任何异常, 只是换个说法就找不到本来存过的东西。原因是盘符被误读成了网址里的协议名。现在修好了, 装在哪个盘都一样。",
+        "zh-TW": "如果你把管家裝在 D 槽、E 槽這種地方, 按意思找記憶的那套一直是壞的 —— 而且壞得沒有聲音: 它會悄悄退回成只按字面匹配, 介面上看不出任何異常, 只是換個說法就找不到本來存過的東西。原因是磁碟機代號被誤讀成了網址裡的協定名。現在修好了, 裝在哪個磁碟機都一樣。",
+        "ja": "DドライブやEドライブなどに執事を入れていると、意味で記憶を探す仕組みがずっと動いていませんでした。しかも無言で壊れていて、こっそり文字どおりの一致だけに戻るため画面上は何も異常が見えず、言い方を変えると保存したはずのものが出てこないという形で現れます。原因はドライブレターが URL の protocol 名と読み違えられていたことでした。どのドライブに入れても同じように動きます。",
+        "en": "If you installed the butler somewhere like the D: or E: drive, searching your memory by meaning had never actually worked — and it failed silently, quietly falling back to literal matching with nothing visibly wrong. You'd only notice that rephrasing a question stopped finding things you know you saved. The drive letter was being misread as a protocol name in a URL. It now behaves the same on any drive."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "连接申请的凭证被领走了, 会直接说出来",
+        "zh-TW": "連線申請的憑證被領走了, 會直接說出來",
+        "ja": "接続申請の認証情報が取得済みの場合、そう伝えるようになりました",
+        "en": "If a connection request's credential was already collected, it now says so"
+      },
+      "detail": {
+        "zh-CN": "申请连接之后去点「检查」, 只要结果不是「批准」或「拒绝」, 一律显示成「还没批准」—— 包括凭证其实已经被领走、再点多少次都不会变的那种情况。于是你会一直点下去等一个永远不来的结果。现在这种情况会直说凭证已经领走了, 请重新申请一次。",
+        "zh-TW": "申請連線之後去點「檢查」, 只要結果不是「批准」或「拒絕」, 一律顯示成「還沒批准」—— 包括憑證其實已經被領走、再點多少次都不會變的那種情況。於是你會一直點下去等一個永遠不來的結果。現在這種情況會直說憑證已經領走了, 請重新申請一次。",
+        "ja": "接続を申請したあとに「確認」を押すと、結果が「承認」か「却下」でない限りすべて「まだ承認されていません」と表示されていました。認証情報が既に取得済みで、何度押しても変わらない場合も同じ表示です。そのため来ることのない結果をひたすら待つことになっていました。今はその場合、認証情報は取得済みなので申請からやり直してほしい、とはっきり伝えます。",
+        "en": "After requesting a connection, pressing Check showed \"not approved yet\" for every outcome other than granted or rejected — including the case where the credential had in fact already been collected and no amount of pressing would ever change that. You'd keep pressing, waiting for a result that was never coming. That case now says plainly that the credential has been collected and asks you to request access again."
+      }
+    }
+  ],
+  "0.1.55": [
+    {
+      "title": {
+        "zh-CN": "模型列表会自己更新, 官方当天发的新模型当天就能选",
+        "zh-TW": "模型列表會自己更新, 官方當天發的新模型當天就能選",
+        "ja": "モデル一覧が自動で更新され、公式が出したばかりの新モデルをその日のうちに選べます",
+        "en": "The model list updates itself — new models are selectable the day they ship"
+      },
+      "detail": {
+        "zh-CN": "以前下拉里只有打包时写死的那几个, 官方出了新模型得等管家更新一版才用得上。现在每次打开设置都现问一遍, 你登录的账号能用哪些就列哪些 —— 包括刚发布的 Opus 5.5。问不到的时候才退回内置清单, 不会因此选不了模型。",
+        "zh-TW": "以前下拉裡只有打包時寫死的那幾個, 官方出了新模型得等管家更新一版才用得上。現在每次打開設定都現問一遍, 你登入的帳號能用哪些就列哪些 —— 包括剛發布的 Opus 5.5。問不到的時候才退回內建清單, 不會因此選不了模型。",
+        "ja": "以前はビルド時に書き込まれたモデルしか一覧になく、公式が新モデルを出しても執事のアップデートを待つ必要がありました。今は設定を開くたびに問い合わせ、ログイン中のアカウントで使えるものをそのまま並べます — 公開されたばかりの Opus 5.5 も含みます。問い合わせに失敗したときだけ内蔵の一覧に戻るので、選べなくなることはありません。",
+        "en": "The dropdown used to show only the models hard-coded at build time, so a newly released model meant waiting for the next butler update. Now it asks every time you open settings and lists whatever your account can actually use — including the just-released Opus 5.5. It falls back to the built-in list only if that lookup fails, so you're never left without options."
+      }
+    }
+  ],
+  "0.1.56": [
+    {
+      "title": {
+        "zh-CN": "管家能翻出你以前说过的原话了",
+        "zh-TW": "管家能翻出你以前說過的原話了",
+        "ja": "執事が、以前あなたが言った言葉をそのまま探し出せるようになりました",
+        "en": "The butler can now dig up your own earlier words, verbatim"
+      },
+      "detail": {
+        "zh-CN": "以前聊得久了, 早先那些话就只剩管家沉淀下来的结论, 原话本身找不回来。现在它可以按关键字翻自己的聊天记录, 把你当时说的那一句原封不动找出来 —— 重启过、对话压缩过, 一样翻得到。你问「我上次是怎么说的」, 它不必再靠印象回答。",
+        "zh-TW": "以前聊得久了, 早先那些話就只剩管家沉澱下來的結論, 原話本身找不回來。現在它可以按關鍵字翻自己的聊天記錄, 把你當時說的那一句原封不動找出來 —— 重啟過、對話壓縮過, 一樣翻得到。你問「我上次是怎麼說的」, 它不必再靠印象回答。",
+        "ja": "会話が長くなると、以前の話は執事が記憶に残した結論しか辿れず、実際の言葉そのものは戻せませんでした。今はキーワードから自分のチャット履歴を辿り、あなたがその時に言った一言をそのまま取り出せます —— 再起動した後も、会話が圧縮された後も同じです。「前はどう言ったっけ」と聞かれて、記憶頼りに答える必要はなくなりました。",
+        "en": "In a long conversation, everything from earlier used to survive only as the conclusions the butler had chosen to keep — the actual words were gone. It can now keyword-search its own chat log and pull up exactly what you said at the time, including across restarts and after the conversation has been compacted. Asked \"what did I say last time?\", it no longer has to answer from impression."
+      }
+    }
+  ],
+  "0.1.57": [
+    {
+      "title": {
+        "zh-CN": "管家不会再把同一句话连说八遍了",
+        "zh-TW": "管家不會再把同一句話連說八遍了",
+        "ja": "執事が同じ返事を何度も繰り返さなくなりました",
+        "en": "The butler no longer repeats the same reply eight times over"
+      },
+      "detail": {
+        "zh-CN": "手上还有没做完的事时, 管家会自己催自己接着做。但只要它卡在你身上 —— 等你拍板、等你重启、等一个密码 —— 催也没用, 它只能把「我在等你」原样再说一遍, 一连说上八遍。现在它会把那件事标成「在等人」, 讲清楚到底在等你什么, 然后安静下来, 你答了才接着做; 就算真要催自己, 间隔也从一分钟起逐次拉长, 不再连珠炮。顺带一件: 它手上那张待办清单现在存在盘上了 —— 关掉重开、对话被压缩过, 它仍然答得出还剩哪几件事没做完、分别卡在哪儿。",
+        "zh-TW": "手上還有沒做完的事時, 管家會自己催自己接著做。但只要它卡在你身上 —— 等你拍板、等你重啟、等一個密碼 —— 催也沒用, 它只能把「我在等你」原樣再說一遍, 一連說上八遍。現在它會把那件事標成「在等人」, 講清楚到底在等你什麼, 然後安靜下來, 你答了才接著做; 就算真要催自己, 間隔也從一分鐘起逐次拉長, 不再連珠炮。順帶一件: 它手上那張待辦清單現在存在盤上了 —— 關掉重開、對話被壓縮過, 它仍然答得出還剩哪幾件事沒做完、分別卡在哪兒。",
+        "ja": "やり残しがあるとき、執事は自分で自分に続きを促します。ただ、あなた待ちで止まっているとき —— 判断待ち、再起動待ち、パスワード待ち —— は促しても意味がなく、「お待ちしています」という同じ一言を八回続けて言うしかありませんでした。今はその件を「人待ち」として記録し、あなたに何を待っているのかをはっきり伝えたうえで静かになります。答えが来てから続きにかかります。自分で自分を促す場合も、間隔は一分から順に伸びていくので、立て続けになりません。もう一つ: 手元のやることリストがディスクに残るようになりました —— 閉じて開き直しても、会話が圧縮されても、まだ何が残っていて、それぞれどこで止まっているかを答えられます。",
+        "en": "When something is unfinished, the butler nudges itself to keep going. But when it is stuck on you — waiting for your call, your restart, a password — nudging accomplishes nothing, and all it could do was repeat \"I am waiting on you\" verbatim, eight times running. Now it marks that item as waiting on a person, tells you exactly what it needs from you, and goes quiet until you answer. Even when it does nudge itself, the gap now starts at a minute and stretches out each time instead of firing in bursts. One more thing: its to-do list is now written to disk — close and reopen the app, or let the conversation be compacted, and it can still tell you what is left and where each item is stuck."
+      }
+    }
+  ],
+  "0.1.59": [
+    {
+      "title": {
+        "zh-CN": "管家不会再突然哑掉、把界面一起锁死",
+        "zh-TW": "管家不會再突然啞掉、把介面一起鎖死",
+        "ja": "執事が急に黙り込んで、画面ごと固まってしまうことがなくなりました",
+        "en": "The butler no longer goes quiet and takes the window down with it"
+      },
+      "detail": {
+        "zh-CN": "管家有时会一个字都不出、圈一直转, 而「整理记忆」和上面那排快捷按钮同时变灰 —— 你连重来一次的入口都没有, 只能关掉重开。根子在它做内务活的时候(整理记忆前的沉淀、保持连线的心跳)会把界面消息暂时静音, 而「这一轮说完了」这个信号也在被静音的那一批里, 于是界面一直以为它还在说话。现在那个信号单独走一条不会被静音的路: 静音的那一轮结束, 界面自己就放开了。另外, 这种静音以前是「谁先开口谁认领」, 你恰好在那一瞬间按下回车就会被连带静音, 你那一整轮得不到任何回应 —— 现在它只静它自己那一轮, 碰不到你。顺带修掉一处: 很长的对话里, 上面的旧消息会比该有的时候更早被挤掉。",
+        "zh-TW": "管家有時會一個字都不出、圈一直轉, 而「整理記憶」和上面那排快捷按鈕同時變灰 —— 你連重來一次的入口都沒有, 只能關掉重開。根子在它做內務活的時候(整理記憶前的沉澱、保持連線的心跳)會把介面訊息暫時靜音, 而「這一輪說完了」這個訊號也在被靜音的那一批裡, 於是介面一直以為它還在說話。現在那個訊號單獨走一條不會被靜音的路: 靜音的那一輪結束, 介面自己就放開了。另外, 這種靜音以前是「誰先開口誰認領」, 你恰好在那一瞬間按下 Enter 就會被連帶靜音, 你那一整輪得不到任何回應 —— 現在它只靜它自己那一輪, 碰不到你。順帶修掉一處: 很長的對話裡, 上面的舊訊息會比該有的時候更早被擠掉。",
+        "ja": "執事が一言も返さずに輪だけ回り続け、「記憶の整理」と上のクイックボタンが同時に灰色になる —— やり直す入口さえなく、閉じて開き直すしかない、という状態がありました。原因は、内務作業(記憶を整理する前の沈殿、接続を保つ心拍)のあいだ画面向けの通知を一時的に消音するしくみで、「この一巡が終わった」という合図までその中に入っていたことです。画面はいつまでも喋っている最中だと思い込んでいました。今はその合図だけが消音されない別の道を通ります。消音された一巡が終われば、画面は自分で解けます。もう一つ: この消音は以前「先に口を開いたほうが自分のものにする」方式だったため、ちょうどその瞬間にあなたが Enter を押すと巻き込まれ、あなたの一巡がまるごと無応答になっていました。今は自分の一巡だけを消音し、あなたには触れません。ついでに、長い会話で上の古いメッセージが本来より早く押し出されてしまう点も直しました。",
+        "en": "Sometimes the butler would say nothing at all, spin forever, and grey out 'tidy up memory' together with the quick buttons above -- leaving you no way to start over except closing the app. The cause: during its own housekeeping (the sediment pass before tidying memory, the keepalive ping) it mutes the messages meant for the window, and the signal saying 'this turn is over' was inside that muted batch, so the window went on believing it was still talking. That signal now travels a route that is never muted, and the window releases itself as soon as the muted turn ends. One more thing: the mute used to be claimed by whoever spoke first, so pressing enter at exactly that moment got your own turn muted along with it and left it unanswered -- it now mutes only its own turn and never touches yours. Also fixed: in a long conversation, older messages above were pushed out earlier than they should have been."
+      }
+    }
+  ],
+  "0.1.60": [
+    {
+      "title": {
+        "zh-CN": "你说的话它一定回 —— 不会再整轮吞掉回答",
+        "zh-TW": "你說的話它一定回 —— 不會再整輪吞掉回答",
+        "ja": "話しかけた分は必ず返ってきます —— 返事がまるごと消えることはもうありません",
+        "en": "Whatever you say now gets an answer — no more turns swallowed whole"
+      },
+      "detail": {
+        "zh-CN": "你连着发了几句, 又刚好赶上它做内务(整理记忆前的沉淀、保持连线的心跳), 接下来你说的话会一个字都得不到回应 —— 不是它没答, 是它答了、字没送到屏幕上。上一版修掉了「圈一直转」那一半, 但吞字是同一处的另一半, 当时没看出来。根子在它数「说了几轮」和数「答完几轮」用的是两个数, 而你连着发的几句会被合成一轮处理, 两个数从此对不上, 内务活挂上的静音就再也解不开了。现在两道保险: 你一开口, 它立刻把还挂着的静音撤掉 —— 宁可让你多看见一句它的自言自语, 也不能让你对着黑屏说话; 另外静音本身有了硬上限, 不管内部怎么错位, 最多两轮就自动放开。",
+        "zh-TW": "你連著發了幾句, 又剛好趕上它做內務(整理記憶前的沉澱、保持連線的心跳), 接下來你說的話會一個字都得不到回應 —— 不是它沒答, 是它答了、字沒送到螢幕上。上一版修掉了「圈一直轉」那一半, 但吞字是同一處的另一半, 當時沒看出來。根子在它數「說了幾輪」和數「答完幾輪」用的是兩個數, 而你連著發的幾句會被合成一輪處理, 兩個數從此對不上, 內務活掛上的靜音就再也解不開了。現在兩道保險: 你一開口, 它立刻把還掛著的靜音撤掉 —— 寧可讓你多看見一句它的自言自語, 也不能讓你對著黑螢幕說話; 另外靜音本身有了硬上限, 不管內部怎麼錯位, 最多兩輪就自動放開。",
+        "ja": "続けて何度か話しかけ、ちょうどそのとき執事が内務作業(記憶を整理する前の沈殿、接続を保つ心拍)をしていると、その後にあなたが話しかけても一言も返ってこないことがありました。答えていないのではなく、答えたのに文字が画面まで届いていなかったのです。前の版では「輪だけ回り続ける」ほうは直しましたが、返事が消えるほうは同じ箇所のもう半分で、そのときは見抜けていませんでした。原因は「何巡話したか」と「何巡答え終えたか」を別々の数で数えていたことです。続けて送られた数通はまとめて一巡として処理されるため、二つの数が食い違ったままになり、内務作業がかけた消音が解けなくなっていました。今は二重の保険があります: あなたが口を開いた時点で、残っている消音をその場で外します —— 執事の独り言が一つ多く見えてしまうほうがまだよく、あなたを暗い画面に向かって話させるわけにはいきません。加えて消音そのものに上限を設けたので、内部で数がどれだけずれても最大二巡で自動的に解けます。",
+        "en": "If you sent a few messages in a row and happened to catch the butler mid-housekeeping (the sediment pass before tidying memory, the keepalive ping), whatever you said next would get no response at all -- not because it had nothing to say, but because it answered and the words never reached your screen. The previous version fixed the half where the spinner never stopped; the swallowed reply was the other half of the same spot, and we missed it. The cause: it counted 'turns spoken' and 'turns finished' with two separate numbers, and messages you send back to back get handled as a single turn, so the two numbers drift apart for good and the mute that housekeeping puts on can never be lifted. There are now two safeguards: the moment you speak, any mute still in place is torn down -- better that you see one extra line of the butler talking to itself than that you talk to a dark screen; and the mute itself has a hard ceiling, so however far the internal counts drift, it releases on its own after at most two turns."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "管家的保活和定期体检不会再悄悄停掉",
+        "zh-TW": "管家的保活與定期體檢不會再悄悄停掉",
+        "ja": "執事の接続維持と定期点検が、黙って止まってしまうことがなくなりました",
+        "en": "The butler's keepalive and routine checkup no longer stop without a word"
+      },
+      "detail": {
+        "zh-CN": "管家在你不在的时候会做两件事: 隔一会儿轻轻碰一下连接, 让下次回你的第一句话来得快、也便宜; 以及定期给自己做一次体检。这两件事都靠同一个「我正在悄悄干活」的标记来避免打扰你, 而那个标记的复位信号恰好挂在会被静音掐掉的那一路上 —— 于是第一次碰完连接之后, 标记就再也放不下来: 保活从此一次都没真发出去, 体检和「整理记忆」的自愈也被它一并挡住, 而且全程一行日志都没有。现在复位挂在「这一轮结束了」这个必到的信号上, 另外碰连接失败也会留一行记录, 不会再无声无息。",
+        "zh-TW": "管家在你不在的時候會做兩件事: 隔一會兒輕輕碰一下連線, 讓下次回你的第一句話來得快、也便宜; 以及定期給自己做一次體檢。這兩件事都靠同一個「我正在悄悄幹活」的標記來避免打擾你, 而那個標記的復位訊號恰好掛在會被靜音掐掉的那一路上 —— 於是第一次碰完連線之後, 標記就再也放不下來: 保活從此一次都沒真發出去, 體檢和「整理記憶」的自癒也被它一併擋住, 而且全程一行日誌都沒有。現在復位掛在「這一輪結束了」這個必到的訊號上, 另外碰連線失敗也會留一行記錄, 不會再無聲無息。",
+        "ja": "あなたが席を外しているあいだ、執事は二つのことをしています。ときどき接続を軽く叩いて、次にあなたへ返す最初の一言が速く、そして安く済むようにすること。そして定期的に自分の点検をすること。どちらも「いま静かに作業中」という同じ目印であなたの邪魔をしないようにしていますが、その目印を下ろす合図が、消音で消されてしまう経路にぶら下がっていました。そのため一度接続を叩いたあとは目印が下りなくなり、接続維持は以後一度も実際に送られず、点検と「記憶の整理」の自己修復もまとめて止まり、しかもログには一行も残りませんでした。今は「この一巡が終わった」という必ず届く合図で目印を下ろします。送れなかった場合も一行記録を残すので、黙って止まることはありません。",
+        "en": "While you are away the butler does two things: it taps the connection now and then so its first words back to you arrive fast and cheap, and it runs a routine checkup on itself. Both rely on the same 'quietly working' marker to stay out of your way, and the signal that clears that marker happened to hang off the very path the mute cuts off. So after the first tap on the connection the marker never came down again: the keepalive was never actually sent once more, the checkup and the self-repair behind 'tidy up memory' were blocked along with it, and not a single line was written to the log about any of it. Clearing now hangs off the 'this turn is over' signal, which always arrives, and a failed tap leaves a log line instead of vanishing."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "管家自己重说一遍失败时, 不会再把你的界面一起挂住",
+        "zh-TW": "管家自己重說一遍失敗時, 不會再把你的介面一起掛住",
+        "ja": "執事が言い直しに失敗しても、画面まで止まってしまうことがなくなりました",
+        "en": "When the butler's own do-over fails, it no longer takes your window with it"
+      },
+      "detail": {
+        "zh-CN": "有几种情况管家会把刚说完的话先扣住、自己重来一遍: 只顾着想却一个字没说、拿到新东西忘了记下来、话里踩了自己的规矩、或者一次工具调用其实没发出去。扣住的那一轮要靠「重来的那一轮」替它收尾, 而重来这一步有时压根发不出去 —— 比如账号正卡在登录或额度问题上, 那时候所有自动发起的轮次都会被挡掉。一挡掉, 被扣住的那段话就永远没人收尾: 圈一直转, 而屏幕上一个字都没有, 只能关掉重开。现在管家会检查重来那一轮到底有没有真发出去, 没发出去就把扣住的话原样放回来、把界面放开。",
+        "zh-TW": "有幾種情況管家會把剛說完的話先扣住、自己重來一遍: 只顧著想卻一個字沒說、拿到新東西忘了記下來、話裡踩了自己的規矩, 或者一次工具呼叫其實沒發出去。扣住的那一輪要靠「重來的那一輪」替它收尾, 而重來這一步有時壓根發不出去 —— 例如帳號正卡在登入或額度問題上, 那時候所有自動發起的輪次都會被擋掉。一擋掉, 被扣住的那段話就永遠沒人收尾: 圈一直轉, 而螢幕上一個字都沒有, 只能關掉重開。現在管家會檢查重來那一輪到底有沒有真發出去, 沒發出去就把扣住的話原樣放回來、把介面放開。",
+        "ja": "執事がいま言ったことをいったん保留して、自分で言い直す場面がいくつかあります。考えるだけで一言も出さなかったとき、新しいことを受け取ったのに書き留めなかったとき、自分に課した決まりを踏んだとき、そして道具の呼び出しが実は出ていなかったとき。保留された一巡は「言い直しの一巡」が代わりに締めてくれる前提でしたが、その言い直しがそもそも送り出せない場合があります。たとえばログインや利用量の問題で止まっているときは、自動で始まる一巡はすべて止められます。止められると保留された分は誰にも締められず、輪だけが回り続けて画面には一文字も出ず、閉じて開き直すしかありませんでした。今は言い直しが本当に送り出せたかを確かめ、送れていなければ保留した分をそのまま返し、画面を解放します。",
+        "en": "There are a few situations where the butler holds back what it just said and does it over: when it only thought and said nothing, when it took in something new and forgot to write it down, when its own words crossed a rule it set for itself, or when a tool call never actually went out. The held-back turn relies on the do-over turn to close it -- and sometimes the do-over cannot be sent at all, for instance while the account is stuck on a sign-in or usage limit, when every automatically started turn is refused. Refused meant nothing ever closed the held-back turn: the spinner kept going, the screen stayed empty, and closing the app was the only way out. The butler now checks whether the do-over really went out, and if it did not, hands the held-back words back and releases the window."
+      }
+    }
+  ],
+  "0.1.61": [
+    {
+      "title": {
+        "zh-CN": "任务清单上划不掉的那些条目, 现在划得掉了",
+        "zh-TW": "任務清單上劃不掉的那些條目, 現在劃得掉了",
+        "ja": "タスクリストから消えなかった項目が、消えるようになりました",
+        "en": "Task-list items that refused to go away now go away"
+      },
+      "detail": {
+        "zh-CN": "它替你记着的那份任务清单, 以前会出一种怪事: 它说这件做完了, 面板上那一条却还杵着; 你让它删, 它回一句「找不到这个任务」。根子是这份清单同时有两个地方在发号 —— 它自己记一套号, 底层工具记另一套, 会话一重开两套就错开, 于是它拿着 3 号去改, 改到的是另一个 3 号。现在发号的地方只剩一个, 它记的和你屏幕上看到的是同一份。顺带两件: 推不动的任务可以挂起并写明在等什么, 挂起期间不再被反复催; 催的节奏也从每两秒一次改成逐次拉长, 一分钟起、最长半小时。",
+        "zh-TW": "它替你記著的那份任務清單, 以前會出一種怪事: 它說這件做完了, 面板上那一條卻還杵著; 你讓它刪, 它回一句「找不到這個任務」。根子是這份清單同時有兩個地方在發號 —— 它自己記一套號, 底層工具記另一套, 對話一重開兩套就錯開, 於是它拿著 3 號去改, 改到的是另一個 3 號。現在發號的地方只剩一個, 它記的和你螢幕上看到的是同一份。順帶兩件: 推不動的任務可以掛起並寫明在等什麼, 掛起期間不再被反覆催; 催的節奏也從每兩秒一次改成逐次拉長, 一分鐘起、最長半小時。",
+        "ja": "あなたの代わりに覚えているタスクリストに、こんな妙なことが起きていました: 「これは終わりました」と言うのに、画面の項目は消えない。消してと頼むと「そのタスクは見つかりません」と返ってくる。原因は、このリストに番号を振る場所が二つあったことです —— 本人が振る番号と、土台のツールが振る番号。会話を開き直すと 二つの番号がずれ、3 番を直したつもりが別の 3 番を直していました。いまは番号を振る場所が一つだけになり、本人が覚えている内容と画面に出ている内容は同じものです。ついでに二点: 進められないタスクは「何を待っているか」を書いて保留でき、保留中は催促されません。催促の間隔も 2 秒ごとから、1 分・最長 30 分へと順に伸びるようになりました。",
+        "en": "The task list it keeps for you used to do something strange: it would say an item was done while that item still sat on the panel, and asking it to delete the item got you \"task not found\". The cause was that two different places were handing out numbers for the same list — one set it kept itself, another kept by the underlying tool. Reopen a session and the two sets drift apart, so it would reach for item 3 and change a different item 3. Now only one place hands out numbers, and what it remembers is the same list you see. Two smaller things came with it: an item you cannot move forward can be parked with a note about what it is waiting on, and parked items stop being chased; the chasing itself also backs off now — one minute, then longer, up to half an hour — instead of every two seconds."
+      }
+    }
+  ],
+  "0.1.62": [
+    {
+      "title": {
+        "zh-CN": "英文界面下, 出生教育和更新说明不会再冒出中文",
+        "zh-TW": "英文介面下, 出生教育與更新說明不會再冒出中文",
+        "ja": "英語表示のとき、出生教育と更新のお知らせに中国語が混ざらなくなりました",
+        "en": "In English, the birth briefing and the update notes no longer come out in Chinese"
+      },
+      "detail": {
+        "zh-CN": "把界面语言设成英文时, 新管家醒来读到的那份出生教育、以及每次升级弹出的更新说明, 都会退回中文 —— 明明四种语言的文案都写好了, 英文那一份就是取不到。原因是取文案的时候, 英文那一格只认一种文件名, 而这几份文案用的是另一种命名, 于是它找不到就往下一格走, 下一格正好是中文。现在两种命名都认得, 英文界面拿到的就是英文。中文、繁体、日文三种界面不受影响, 原来是什么样还是什么样。",
+        "zh-TW": "把介面語言設成英文時, 新管家醒來讀到的那份出生教育、以及每次升級跳出的更新說明, 都會退回中文 —— 明明四種語言的文案都寫好了, 英文那一份就是取不到。原因是取文案的時候, 英文那一格只認一種檔名, 而這幾份文案用的是另一種命名, 於是它找不到就往下一格走, 下一格正好是中文。現在兩種命名都認得, 英文介面拿到的就是英文。中文、繁體、日文三種介面不受影響, 原來是什麼樣還是什麼樣。",
+        "ja": "表示言語を英語にすると、新しい管家が目覚めて最初に読む出生教育も、アップデートのたびに出てくる更新のお知らせも、中国語に戻ってしまっていました。四言語ぶんの文章は用意してあるのに、英語のぶんだけ取り出せない状態です。原因は、文章を取り出すときに英語の枠がひとつのファイル名しか見ておらず、これらの文章は別の名前の付け方をしていたため。見つからないので次の枠に進み、その次がちょうど中国語でした。いまは両方の名前を見るようになり、英語表示なら英語が出ます。中国語・繁体字・日本語の表示は従来どおりで、影響はありません。",
+        "en": "With the interface language set to English, the briefing a new butler reads when it wakes up — and the update notes that pop up after every upgrade — would fall back to Chinese. All four languages were written; the English one simply could not be found. The reason: when looking up a piece of text, the English slot recognised only one filename convention, while these particular texts used another. Finding nothing, it moved on to the next language in line, which happened to be Chinese. Both conventions are now recognised, so English gets English. The Chinese, Traditional Chinese and Japanese interfaces are untouched."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "改完一件任务, 它回给你的话会说清楚改的是什么",
+        "zh-TW": "改完一件任務, 它回給你的話會說清楚改的是什麼",
+        "ja": "タスクを直したあと、何をどう直したかが返事に出るようになりました",
+        "en": "When it changes a task, the reply now says what actually changed"
+      },
+      "detail": {
+        "zh-CN": "以前它改完一条任务, 回给你的还是改之前那句话 —— 你把标题改了, 它复述的是旧标题; 你把它挂起并写明在等什么, 回执里一个字都看不出来。现在改完当场回的就是新的那一份: 标题换了念新标题, 挂起了直接标出来并带上在等什么。",
+        "zh-TW": "以前它改完一條任務, 回給你的還是改之前那句話 —— 你把標題改了, 它複述的是舊標題; 你把它掛起並寫明在等什麼, 回執裡一個字都看不出來。現在改完當場回的就是新的那一份: 標題換了唸新標題, 掛起了直接標出來並帶上在等什麼。",
+        "ja": "これまでは、タスクを直したあとの返事が直す前の内容のままでした —— タイトルを変えても読み上げるのは古いタイトル、保留にして待ち先を書いても返事からは一切わかりません。いまは直した直後にその新しい内容が返ります。タイトルを変えれば新しいタイトル、保留にすれば保留と表示され、何を待っているかも一緒に出ます。",
+        "en": "It used to echo back the task as it was *before* your change — rename a task and it read out the old name; park it with a note about what it was waiting on and the reply showed none of that. Now the reply is the updated item: a renamed task reads out its new name, and a parked one is marked as parked, together with what it is waiting on."
+      }
+    }
+  ],
+  "0.1.64": [
+    {
+      "title": {
+        "zh-CN": "关掉一个人格时, 不会再无故报「沉淀失败」",
+        "zh-TW": "關掉一個人格時, 不會再無故報「沉澱失敗」",
+        "ja": "人格を閉じるとき、理由もなく「記憶の保存に失敗」と出なくなりました",
+        "en": "Closing a persona no longer claims that saving to memory failed"
+      },
+      "detail": {
+        "zh-CN": "关闭某个人格的标签时, 它会先把手头的事存进记忆再关。以前这一步之后还要「检查」一遍: 记忆条数没变多、交接便条也没变, 就判定它没存成, 弹出「沉淀失败」, 还不让它正常整理。可人格常常早在对话里就把事记下了, 关的时候只是更新已有的那条 —— 条数本来就不会变多, 于是好好的也被说成失败。现在不再做这个检查: 只要它把这一轮跑完就照常关闭; 只有真的卡住、超时时才会提示你, 并且提示不会挡住界面, 它在后台写完会自己消失。退出整个程序时本来就是这样, 这次关单个人格也一样了。",
+        "zh-TW": "關閉某個人格的分頁時, 它會先把手頭的事存進記憶再關。以前這一步之後還要「檢查」一遍: 記憶條數沒變多、交接便條也沒變, 就判定它沒存成, 跳出「沉澱失敗」, 還不讓它正常整理。可人格常常早在對話裡就把事記下了, 關的時候只是更新已有的那條 —— 條數本來就不會變多, 於是好好的也被說成失敗。現在不再做這個檢查: 只要它把這一輪跑完就照常關閉; 只有真的卡住、逾時時才會提示你, 而且提示不會擋住介面, 它在背景寫完會自己消失。退出整個程式時本來就是這樣, 這次關單個人格也一樣了。",
+        "ja": "人格のタブを閉じるとき、手元の作業を記憶に保存してから閉じます。以前はそのあとに「確認」があり、記憶の件数が増えず引き継ぎメモも変わっていなければ保存できなかったと判断して「保存に失敗」と表示し、通常の整理もさせませんでした。けれど人格は会話の中ですでに記録していることが多く、閉じるときは既存の記録を更新するだけ —— 件数は増えないので、問題がなくても失敗扱いになっていました。いまはこの確認をやめ、その回を最後まで終えれば通常どおり閉じます。本当に止まった・時間切れのときだけお知らせし、そのお知らせも画面をふさがず、裏で書き終えれば自然に消えます。プログラム全体を終了するときはもともとこうなっていて、今回、人格をひとつ閉じるときも同じになりました。",
+        "en": "When you close a persona's tab, it first saves what it was working on to memory. It used to be checked afterwards: if the number of memories hadn't grown and the handoff note hadn't changed, it was declared a failure — \"saving failed\" popped up and the normal tidy-up was skipped. But a persona has often recorded things during the conversation already, so at closing time it only updates an existing memory and the count doesn't grow; perfectly good saves were being called failures. That check is gone. As long as it finishes that round, the tab closes normally. You only hear about it if it really gets stuck or times out, and even then the notice doesn't block the window and disappears on its own once it finishes in the background. Quitting the whole app already worked this way; closing a single persona now does too."
+      }
+    }
+  ],
+  "0.1.65": [
+    {
+      "title": {
+        "zh-CN": "心跳之后的那句回复不会再凭空消失, 说好的「整理记忆」也会真的执行",
+        "zh-TW": "心跳之後的那句回覆不會再憑空消失, 說好的「整理記憶」也會真的執行",
+        "ja": "定期チェックの直後の返信が消えることがなくなり、予定された「記憶の整理」もきちんと実行されます",
+        "en": "Replies right after a background check-in no longer vanish, and a scheduled memory cleanup actually runs"
+      },
+      "detail": {
+        "zh-CN": "人格会定时在后台自查一次(心跳), 这一轮不上屏。以前判断「哪一轮该静音」靠数轮次, 数错一位就会把紧跟在心跳后面的那一轮也一起静音掉: 它明明回了话、干了活, 屏幕上却什么都没有, 它在那一轮里登记的「整理记忆」也跟着丢了, 上下文越攒越满。现在改成逐条对账, 只有心跳那一轮本身不上屏, 其余照常显示, 整理记忆也一定会执行。",
+        "zh-TW": "人格會定時在背景自查一次(心跳), 這一輪不上螢幕。以前判斷「哪一輪該靜音」靠數輪次, 數錯一位就會把緊跟在心跳後面的那一輪也一起靜音: 它明明回了話、做了事, 螢幕上卻什麼都沒有, 它在那一輪裡登記的「整理記憶」也跟著丟了, 上下文越積越滿。現在改成逐條對帳, 只有心跳那一輪本身不上螢幕, 其餘照常顯示, 整理記憶也一定會執行。",
+        "ja": "人格は定期的にバックグラウンドで自己チェック(ハートビート)を行い、その回は画面に出しません。以前は「どの回を非表示にするか」を回数で数えて判断していたため、数え間違うとハートビート直後の回まで非表示になり、返事や作業をしていても画面には何も出ず、その回で予約した「記憶の整理」も失われて文脈が溜まり続けていました。今は一件ずつ照合するようになり、ハートビートの回だけが非表示になり、それ以外は通常どおり表示され、記憶の整理も必ず実行されます。",
+        "en": "Personas periodically run a background self-check (a heartbeat) that stays off screen. Deciding which turn to hide used to rely on counting turns, and when the count slipped by one the turn right after the heartbeat was hidden too: the persona replied and did the work, but nothing showed up, and any memory cleanup it scheduled in that turn was lost, so its context kept filling up. Each message is now matched individually, so only the heartbeat itself stays hidden, everything else shows as usual, and memory cleanup always runs."
+      }
+    }
+  ],
+  "0.1.66": [
+    {
+      "title": {
+        "zh-CN": "申请连 hub 时要填上你自己的名字, 之后别人按名字就能找到你",
+        "zh-TW": "申請連 hub 時要填上你自己的名字, 之後別人按名字就能找到你",
+        "ja": "hub への接続を申請するときに自分の名前を入力するようになり、相手は名前であなたを探せます",
+        "en": "Applying to join the hub now asks for your own name, so others can find you by it"
+      },
+      "detail": {
+        "zh-CN": "以前申请只填人格名, 大家填的几乎都是「管家」, 批的人分不清谁是谁。现在申请框里多了一栏「你的名字」, 必填。之后你的管家想给谁发消息, 直接说对方的名字或他的人格名就行, 它会自己去 hub 上查出对方的号, 不用再记 agent-xxxx 这种编号。",
+        "zh-TW": "以前申請只填人格名, 大家填的幾乎都是「管家」, 批的人分不清誰是誰。現在申請框裡多了一欄「你的名字」, 必填。之後你的管家想給誰發訊息, 直接說對方的名字或他的人格名就行, 它會自己去 hub 上查出對方的號, 不用再記 agent-xxxx 這種編號。",
+        "ja": "以前は人格名だけで申請していたため、ほとんどの人が「管家」と入力し、承認する側が誰なのか区別できませんでした。申請画面に「あなたの名前」欄が加わり、入力が必須になりました。今後は相手の名前か人格名を伝えるだけで、管家が hub 上で相手の番号を調べてくれるので、agent-xxxx のような番号を覚える必要はありません。",
+        "en": "Applications used to carry only a persona name, and nearly everyone typed \"管家\" (butler), so whoever approved them couldn't tell people apart. The application form now has a required \"Your name\" field. Afterwards, to message someone just give your butler their name or their persona's name, and it looks up their hub ID itself, so you no longer need to remember IDs like agent-xxxx."
+      }
+    }
+  ],
+  "0.1.67": [
+    {
+      "title": {
+        "zh-CN": "闲着不用时，不会再每半小时冒一句「没有新的要存」",
+        "zh-TW": "閒著不用時，不會再每半小時冒一句「沒有新的要存」",
+        "ja": "使っていない間に、30分おきに「保存するものはありません」と出なくなりました",
+        "en": "No more \"nothing new to save\" message every half hour while you are away"
+      },
+      "detail": {
+        "zh-CN": "人格闲着的时候会定时被提醒存记忆，以前没东西可存时它也要回一句，还会让它一直不压缩、越攒越满。现在没东西就不出声，闲久了会照常整理上下文。",
+        "zh-TW": "人格閒著的時候會定時被提醒存記憶，以前沒東西可存時它也要回一句，還會讓它一直不壓縮、越攢越滿。現在沒東西就不出聲，閒久了會照常整理上下文。",
+        "ja": "アイドル中は定期的に記憶の保存を促されますが、以前は保存するものがなくても一言返し、そのせいでいつまでも圧縮されず文脈が溜まり続けていました。今は何もなければ黙り、長く放置すると通常どおり文脈を整理します。",
+        "en": "While idle, a persona is periodically reminded to save memories. Before, it replied even when there was nothing to save, which also kept it from ever compacting. Now it stays silent when there is nothing, and compacts as usual after a long idle stretch."
+      }
+    }
+  ],
+  "0.1.68": [
+    {
+      "title": {
+        "zh-CN": "可以让人格到点提醒你了",
+        "zh-TW": "可以讓人格到點提醒你了",
+        "ja": "決まった時刻に人格がお知らせしてくれるようになりました",
+        "en": "Your persona can now remind you at a set time"
+      },
+      "detail": {
+        "zh-CN": "说一句「15 号上午 9 点提醒我交房租」或「每周五下午 4 点提醒我写周报」，到点它就会来告诉你；应用关着时错过的一次性提醒，下次打开会补上。也可以让它列出、修改、暂停或删除提醒。",
+        "zh-TW": "說一句「15 號上午 9 點提醒我繳房租」或「每週五下午 4 點提醒我寫週報」，到點它就會來告訴你；應用程式關著時錯過的一次性提醒，下次打開會補上。也可以讓它列出、修改、暫停或刪除提醒。",
+        "ja": "「15日の朝9時に家賃を払うよう知らせて」「毎週金曜16時に週報を書くよう知らせて」と言えば、その時刻にお知らせします。アプリを閉じていて逃した1回限りのリマインドは、次に開いたときに届きます。一覧・変更・一時停止・削除も頼めます。",
+        "en": "Say \"remind me to pay rent on the 15th at 9am\" or \"every Friday at 4pm remind me to write the weekly report\" and it will tell you when the time comes; a one-off missed while the app was closed is delivered next time you open it. You can also ask it to list, change, pause or delete reminders."
+      }
+    }
+  ],
+  "0.1.69": [
+    {
+      "title": {
+        "zh-CN": "「下周三」「这周五」这类日期不再算错",
+        "zh-TW": "「下週三」「這週五」這類日期不再算錯",
+        "ja": "「来週の水曜」「今週の金曜」などの日付を間違えなくなりました",
+        "en": "Dates like \"next Wednesday\" or \"this Friday\" are now worked out correctly"
+      },
+      "detail": {
+        "zh-CN": "人格现在能看到往后两周每天的日期和星期，说「下周三开会」「这周五提醒我」时，它给出的日子和星期都对得上。",
+        "zh-TW": "人格現在能看到往後兩週每天的日期和星期，說「下週三開會」「這週五提醒我」時，它給出的日子和星期都對得上。",
+        "ja": "人格が今後2週間の日付と曜日を把握するようになり、「来週の水曜に会議」「今週の金曜に知らせて」と言ったときの日付と曜日が正しく合います。",
+        "en": "Your persona now sees the dates and weekdays for the next two weeks, so \"meeting next Wednesday\" or \"remind me this Friday\" lands on the right day."
+      }
+    }
+  ],
+  "0.1.70": [
+    {
+      "title": {
+        "zh-CN": "Mac 上语音输入不用再装 Homebrew",
+        "zh-TW": "Mac 上語音輸入不用再裝 Homebrew",
+        "ja": "Mac で音声入力に Homebrew が不要になりました",
+        "en": "Voice input on Mac no longer needs Homebrew"
+      },
+      "detail": {
+        "zh-CN": "语音识别引擎已经打进安装包，Intel 和 M 芯片的 Mac 都能直接用。第一次用语音时只需等它下载一次识别模型。",
+        "zh-TW": "語音辨識引擎已經打進安裝包，Intel 和 M 晶片的 Mac 都能直接用。第一次用語音時只需等它下載一次辨識模型。",
+        "ja": "音声認識エンジンをインストーラーに同梱しました。Intel・Apple シリコンどちらの Mac でもそのまま使えます。初回だけ認識モデルのダウンロードを待つ必要があります。",
+        "en": "The speech engine now ships inside the installer, so it works out of the box on both Intel and Apple-silicon Macs. The first time you use voice, it downloads the recognition model once."
+      }
+    }
+  ],
+  "0.1.71": [
+    {
+      "title": {
+        "zh-CN": "到点提醒改成窗口顶上的横幅",
+        "zh-TW": "到點提醒改成視窗頂端的橫幅",
+        "ja": "時間になったリマインダーはウィンドウ上部のバナーで表示されます",
+        "en": "Reminders now appear as a banner at the top of the window"
+      },
+      "detail": {
+        "zh-CN": "让管家提醒你的事到点会在窗口顶上挂一条横幅，人格没开着也照样出现。可以点「忽略」「稍后」（10 分钟 / 1 小时 / 明早 9 点）或「处理」——点「处理」才会打开那个人格把这件事交给它。",
+        "zh-TW": "讓管家提醒你的事到點會在視窗頂端掛一條橫幅，人格沒開著也照樣出現。可以點「忽略」「稍後」（10 分鐘 / 1 小時 / 明早 9 點）或「處理」——點「處理」才會打開那個人格把這件事交給它。",
+        "ja": "頼んでおいたリマインダーは時間になるとウィンドウ上部にバナーで出ます。そのペルソナを開いていなくても表示されます。「無視」「あとで」（10 分 / 1 時間 / 明朝 9 時）「対応」を選べ、「対応」を押したときだけそのペルソナが開いて引き継ぎます。",
+        "en": "When a reminder is due, a banner appears at the top of the window, even if that persona isn't open. Choose Ignore, Later (10 minutes / 1 hour / 9 am tomorrow) or Handle; only Handle opens the persona and passes the item to it."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "新增「待办簿」，长期要做的事集中放这里",
+        "zh-TW": "新增「待辦簿」，長期要做的事集中放這裡",
+        "ja": "「ToDo 帳」を追加。あとでやる事はここにまとめます",
+        "en": "New to-do board for things to do later"
+      },
+      "detail": {
+        "zh-CN": "以后要做的事、等你拍板的事，管家会记进待办簿。它就挂在常驻板上，你直接点「完成」「删除」或「处理」。",
+        "zh-TW": "以後要做的事、等你拍板的事，管家會記進待辦簿。它就掛在常駐板上，你直接點「完成」「刪除」或「處理」。",
+        "ja": "あとでやる事やあなたの判断待ちの事は、butler が ToDo 帳に書き込みます。ToDo 帳は常駐ボードに表示され、「完了」「削除」「対応」をそのまま押せます。",
+        "en": "Things to do later, or waiting on your decision, go onto the to-do board. It sits on your board, where you can tap Done, Delete or Handle right there."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "任务面板能看清每一步做到哪了",
+        "zh-TW": "任務面板能看清每一步做到哪了",
+        "ja": "タスクパネルで各手順の進み具合が分かります",
+        "en": "The task panel shows where each step stands"
+      },
+      "detail": {
+        "zh-CN": "管家把一件活拆成几步做时，面板上每一步会从 ○ 变成 ▶（在做）再变成 ✔（做完）；做完的步骤留着打勾，整件做完才一起清掉。卡在你这儿的步骤显示 ⏸，鼠标悬停能看到它在等什么。",
+        "zh-TW": "管家把一件活拆成幾步做時，面板上每一步會從 ○ 變成 ▶（在做）再變成 ✔（做完）；做完的步驟留著打勾，整件做完才一起清掉。卡在你這兒的步驟顯示 ⏸，滑鼠懸停能看到它在等什麼。",
+        "ja": "butler が仕事を手順に分けて進めるとき、パネルの各手順は ○ → ▶（作業中）→ ✔（完了）と変わります。終わった手順はチェックが付いたまま残り、全部終わったらまとめて消えます。あなた待ちの手順は ⏸ で、マウスを乗せると何を待っているか見えます。",
+        "en": "When butler splits a job into steps, each one goes ○ → ▶ (in progress) → ✔ (done) in the panel. Finished steps stay ticked until the whole job is done, then clear together. A step waiting on you shows ⏸; hover to see what it's waiting for."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "其他 AI 发来的消息不会再丢",
+        "zh-TW": "其他 AI 發來的消息不會再丟",
+        "ja": "ほかの AI から届いたメッセージが消えなくなりました",
+        "en": "Messages from other AIs are no longer lost"
+      },
+      "detail": {
+        "zh-CN": "通过 hub 收到的消息一到就先存在本机，人格忙着、关着或者你退出了 app 都不会丢，下次打开会补交给它。人格关着的时候，服务端也会帮你留 7 天。",
+        "zh-TW": "透過 hub 收到的消息一到就先存在本機，人格忙著、關著或者你退出了 app 都不會丟，下次打開會補交給它。人格關著的時候，服務端也會幫你留 7 天。",
+        "ja": "hub 経由で届いたメッセージは受け取った時点でこの Mac に保存され、ペルソナが作業中・閉じている・アプリを終了していても失われず、次に開いたときに渡されます。ペルソナを閉じている間もサーバー側で 7 日間保管されます。",
+        "en": "Messages arriving through the hub are saved on this computer the moment they come in, so nothing is lost while the persona is busy, closed, or the app is quit; they are handed over next time it opens. The server also keeps them for 7 days while the persona is closed."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "日期和星期由程序算，不再说错",
+        "zh-TW": "日期和星期由程式算，不再說錯",
+        "ja": "日付と曜日はプログラムが計算するので間違えません",
+        "en": "Dates and weekdays are computed, not guessed"
+      },
+      "detail": {
+        "zh-CN": "说「下周三」「15 号是星期几」这类话时，管家会用程序算出准确的日期和星期再回答。",
+        "zh-TW": "說「下週三」「15 號是星期幾」這類話時，管家會用程式算出準確的日期和星期再回答。",
+        "ja": "「来週の水曜」「15 日は何曜日」のような言い方には、butler がプログラムで正確な日付と曜日を計算してから答えます。",
+        "en": "For things like \"next Wednesday\" or \"what day is the 15th\", butler computes the exact date and weekday before answering."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "不再出现空白气泡，标签页只在真有新内容时亮",
+        "zh-TW": "不再出現空白氣泡，分頁只在真有新內容時亮",
+        "ja": "空の吹き出しが出なくなり、タブは本当に新しい内容があるときだけ光ります",
+        "en": "No more empty bubbles; tabs light up only for something new"
+      },
+      "detail": {
+        "zh-CN": "没有内容的回复不再画出一个空气泡；后台的例行动作也不会让标签页亮起未读。",
+        "zh-TW": "沒有內容的回覆不再畫出一個空氣泡；背景的例行動作也不會讓分頁亮起未讀。",
+        "ja": "中身のない返信で空の吹き出しが出ることはなくなり、裏側の定期処理でタブに未読が付くこともなくなりました。",
+        "en": "Replies with nothing to show no longer draw an empty bubble, and routine background work no longer marks a tab unread."
+      }
+    }
+  ],
+  "0.1.72": [
+    {
+      "title": {
+        "zh-CN": "插件可以联网了",
+        "zh-TW": "外掛可以連網了",
+        "ja": "プラグインがネットにつながるようになりました",
+        "en": "Plugins can now reach the internet"
+      },
+      "detail": {
+        "zh-CN": "让管家做插件时，可以让它去拉天气、汇率、GitHub 这类网上接口的数据。插件只能访问它自己声明过的网址；需要密钥的接口，密钥只存在你这台电脑上，插件读不到原文。",
+        "zh-TW": "讓管家做外掛時，可以讓它去拉天氣、匯率、GitHub 這類網上介面的資料。外掛只能存取它自己宣告過的網址；需要金鑰的介面，金鑰只存在你這台電腦上，外掛讀不到原文。",
+        "ja": "butler にプラグインを作ってもらうとき、天気・為替・GitHub などネット上の API からデータを取ってこられるようになりました。プラグインがアクセスできるのは自分で宣言したアドレスだけです。キーが必要な API でも、キーはこのパソコンにだけ保存され、プラグインが中身を読むことはできません。",
+        "en": "Plugins the butler builds for you can now pull data from web APIs such as weather, exchange rates or GitHub. A plugin can only reach the addresses it declares, and API keys stay on this computer where the plugin cannot read them."
+      }
+    }
+  ],
+  "0.1.73": [
+    {
+      "title": {
+        "zh-CN": "插件出错不再以你的名义刷屏",
+        "zh-TW": "外掛出錯不再以你的名義洗版",
+        "ja": "プラグインのエラーがあなたの発言として連投されなくなりました",
+        "en": "Plugin errors no longer flood the chat as your messages"
+      },
+      "detail": {
+        "zh-CN": "以前插件面板自动刷新时出错，会在聊天里冒出一串像是你发的「失败」消息，还会出现在别的人格那里。现在出错只显示一行插件提示，只告诉插件所在的那个人格，同一个错误只说一次。",
+        "zh-TW": "以前外掛面板自動重新整理時出錯，會在聊天裡冒出一串像是你發的「失敗」訊息，還會出現在別的人格那裡。現在出錯只顯示一行外掛提示，只告訴外掛所在的那個人格，同一個錯誤只說一次。",
+        "ja": "以前はプラグインのパネルが自動更新中にエラーになると、あなたが送ったような「失敗」メッセージがチャットに何度も流れ、ほかの人格の画面にも出ていました。今はプラグインからの通知が 1 行出るだけで、伝わるのはそのプラグインがある人格だけ、同じエラーは 1 回しか知らせません。",
+        "en": "Before, a plugin panel that failed while auto-refreshing posted a stream of \"Failed\" messages that looked like they came from you, in other personas' chats too. Now an error shows as a single plugin notice, goes only to the persona the plugin belongs to, and the same error is reported once."
+      }
+    }
+  ],
+  "0.2.0": [
+    {
+      "title": {
+        "zh-CN": "聊天里的图可以右键另存为文件",
+        "zh-TW": "聊天裡的圖片可以按右鍵另存為檔案",
+        "ja": "チャットの画像を右クリックでファイルに保存できます",
+        "en": "Right-click any chat image to save it as a file"
+      },
+      "detail": {
+        "zh-CN": "在 AI 画的图、流程图或聊天里的图片上点右键，选「另存为图片…」，挑好位置就存下来了。AI 画的图和流程图存成清晰的 PNG，也可以选「另存为 SVG…」保留矢量原图。",
+        "zh-TW": "在 AI 畫的圖、流程圖或聊天裡的圖片上按右鍵，選「另存圖片…」，挑好位置就存下來了。AI 畫的圖和流程圖存成清晰的 PNG，也可以選「另存為 SVG…」保留向量原圖。",
+        "ja": "AI が描いた図やフローチャート、チャット内の画像を右クリックして「画像を保存…」を選ぶと、好きな場所に保存できます。AI の図とフローチャートは高解像度の PNG で保存され、「SVG で保存…」を選べばベクター形式のまま残せます。",
+        "en": "Right-click a diagram the AI drew, a flowchart, or any image in the chat and choose \"Save image as…\" to save it wherever you like. Diagrams and flowcharts are saved as sharp PNGs, or pick \"Save as SVG…\" to keep the vector original."
+      }
+    }
+  ],
+  "0.2.1": [
+    {
+      "title": {
+        "zh-CN": "聊天里不再冒出空白的气泡",
+        "zh-TW": "聊天裡不再冒出空白的氣泡",
+        "ja": "チャットに空の吹き出しが出なくなった",
+        "en": "No more blank bubbles in the chat"
+      },
+      "detail": {
+        "zh-CN": "管家某一轮其实什么都没说时，以前偶尔会留下一个空气泡，现在不会再画出来。",
+        "zh-TW": "管家某一輪其實什麼都沒說時，以前偶爾會留下一個空氣泡，現在不會再畫出來。",
+        "ja": "butler が実際には何も言わなかったターンで、空の吹き出しが残ることがありましたが、表示されなくなりました。",
+        "en": "When butler said nothing in a turn, an empty bubble could be left behind; it is no longer drawn."
+      }
+    }
+  ],
+  "0.2.4": [
+    {
+      "title": {
+        "zh-CN": "插件能录音、能给发音打分了",
+        "zh-TW": "外掛能錄音、能給發音打分了",
+        "ja": "プラグインで録音と発音採点ができるようになった",
+        "en": "Plugins can now record audio and score pronunciation"
+      },
+      "detail": {
+        "zh-CN": "插件里可以按住说话录音、回放，并用你自己的微软 Azure key 给朗读或口语回答打分，逐词标出读得好与不好的地方。可配合「发音评测」插件练英语、日语口语。",
+        "zh-TW": "外掛裡可以按住說話錄音、回放，並用你自己的微軟 Azure key 給朗讀或口說回答打分，逐詞標出讀得好與不好的地方。可搭配「發音評測」外掛練英語、日語口說。",
+        "ja": "プラグインで押して話す録音と再生ができ、ご自身の Microsoft Azure キーで音読や口頭回答を採点して、単語ごとに良し悪しを示せます。「発音評価」プラグインと組み合わせて英語・日本語のスピーキング練習に使えます。",
+        "en": "Plugins can record with hold-to-talk, play it back, and score read-aloud or spoken answers with your own Microsoft Azure key, marking each word. Pair it with the pron-check plugin to practise spoken English or Japanese."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "外语朗读用回正确的声音",
+        "zh-TW": "外語朗讀用回正確的聲音",
+        "ja": "外国語の読み上げが正しい声に戻った",
+        "en": "Foreign-language read-aloud uses the right voice again"
+      },
+      "detail": {
+        "zh-CN": "新版 macOS 上，日语、英语、中文朗读可能被换成不合适的声音，现在会用回 Kyoko、Samantha、Daniel、Tingting 这些标准声音。",
+        "zh-TW": "新版 macOS 上，日語、英語、中文朗讀可能被換成不合適的聲音，現在會用回 Kyoko、Samantha、Daniel、Tingting 這些標準聲音。",
+        "ja": "新しい macOS で日本語・英語・中国語の読み上げが不適切な声に置き換わることがありましたが、Kyoko・Samantha・Daniel・Tingting などの標準の声を使うようになりました。",
+        "en": "On newer macOS, Japanese, English and Chinese read-aloud could fall back to an odd voice; it now uses the standard voices such as Kyoko, Samantha, Daniel and Tingting."
+      }
+    }
+  ],
+  "0.2.5": [
+    {
+      "title": {
+        "zh-CN": "助手能读懂插件自带的说明了",
+        "zh-TW": "助手能讀懂外掛自帶的說明了",
+        "ja": "アシスタントがプラグイン付属の説明を読めるようになった",
+        "en": "Assistants can now read the instructions that come with a plugin"
+      },
+      "detail": {
+        "zh-CN": "插件可以附上一句简介和完整用法，助手查插件时就能看到，打开时会照着把原文、语言、模式这些填好，不用你再口头交代。",
+        "zh-TW": "外掛可以附上一句簡介和完整用法，助手查外掛時就能看到，開啟時會照著把原文、語言、模式這些填好，不用你再口頭交代。",
+        "ja": "プラグインに一行の紹介と詳しい使い方を付けられるようになり、アシスタントはそれを見て、本文・言語・モードなどを埋めた状態で開きます。口頭で説明し直す必要はありません。",
+        "en": "Plugins can carry a one-line summary and full usage notes; assistants see them when looking a plugin up and open it with the text, language and mode already filled in, so you no longer have to explain it yourself."
+      }
+    }
+  ],
+  "0.2.6": [
+    {
+      "title": {
+        "zh-CN": "助手写中文、日文时不再反复被拦",
+        "zh-TW": "助手寫中文、日文時不再反覆被攔",
+        "ja": "日本語・中国語を含む操作でアシスタントが何度も止められなくなった",
+        "en": "Assistants no longer get stopped repeatedly when an action contains Chinese or Japanese"
+      },
+      "detail": {
+        "zh-CN": "建任务、设提醒、打开插件（比如带日文原文的跟读）时，助手偶尔会被系统打回重写，连着几次就办不成。现在这几类操作的写法改了，这种情况会少很多。",
+        "zh-TW": "建任務、設提醒、開啟外掛（例如帶日文原文的跟讀）時，助手偶爾會被系統退回重寫，連著幾次就辦不成。現在這幾類操作的寫法改了，這種情況會少很多。",
+        "ja": "タスク作成・リマインダー登録・プラグインを開く（日本語の原文付きの音読練習など）といった操作で、アシスタントが書き直しを求められ、続けて止められて完了できないことがありました。これらの操作の書き方を変えたため、ほとんど起きなくなります。",
+        "en": "Creating tasks, setting reminders or opening a plugin (such as a read-aloud drill with Japanese text) sometimes got sent back for rewriting, and a few in a row meant it never got done. These actions are now written differently, so this should rarely happen now."
+      }
+    }
+  ]
+}

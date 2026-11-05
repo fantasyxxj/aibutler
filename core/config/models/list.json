@@ -1,0 +1,34 @@
+{
+  "options": [
+    { "id": "",                          "label": "跟随默认" },
+    { "id": "claude-fable-5",            "label": "Fable 5 · 1M(新旗舰, 2026-06 发, $10/$50 贵)" },
+    { "id": "claude-opus-5-5",           "label": "Opus 5.5 · 1M(最新旗舰, 2026-09-22 发, $4/$20 · 缓存读 $0.20)" },
+    { "id": "claude-opus-5[1m]",         "label": "Opus 5 · 1M(上一代 opus 旗舰, 2026-07-24 发)" },
+    { "id": "claude-opus-4-7[1m]",       "label": "Opus 4.7 · 1M(稳定回退)" },
+    { "id": "claude-sonnet-4-6",         "label": "Sonnet 4.6(均衡, 日常)" },
+    { "id": "claude-haiku-4-5-20251001", "label": "Haiku 4.5(快省, 走量)" },
+    { "id": "opus",                      "label": "opus 别名(跟 Claude Code 定义走, 不锁版本)" },
+    { "id": "sonnet",                    "label": "sonnet 别名" },
+    { "id": "haiku",                     "label": "haiku 别名" }
+  ],
+  "defaultWindow": 1000000,
+  "windowRules": [
+    { "pattern": "1m|\\[1m\\]",                         "window": 1000000, "note": "显式带 [1m] 标记的" },
+    { "pattern": "opus-4-[78]|opus-5|sonnet-5|fable-5", "window": 1000000, "note": "默认 1M 窗口 (Opus 4.7/4.8/5/5.5, Sonnet 5, Fable 5; opus-5 这一段同时命中 claude-opus-5-5)。4.8 已从 options 移除但这里保留: ANTHROPIC_MODEL 环境变量可绕过 UI 直接指定, 窗口/归桶仍需算对" },
+    { "pattern": "haiku|sonnet-4",                      "window": 200000,  "note": "已知 200k: haiku 全系 + sonnet-4 全系(含 4.6)。原写法 sonnet-4[^-]|sonnet-4$ 匹配不到 claude-sonnet-4-6(它后面跟的是横杠), 于是掉进 defaultWindow=1M —— 分母比真实大 5 倍, 自动压缩永远够不着阈值, 一路撞真实上限。带 [1m] 的变体会被上面第一条先命中(首命中为准), 不会被误降到 200k" }
+  ],
+  "rateGateFamilies": {
+    "opus": {
+      "models": ["claude-opus-4-5", "claude-opus-4-6", "claude-opus-4-7", "claude-opus-4-8", "claude-opus-5", "claude-opus-5-5"],
+      "user_bucket": "opus_user",
+      "auto_bucket": "opus_auto",
+      "note": "官方组合桶: 加新 opus 版本主动加一行, 强迫思考归桶"
+    },
+    "fable": {
+      "models": ["claude-fable-5"],
+      "user_bucket": "fable_user",
+      "auto_bucket": "fable_auto",
+      "note": "独立配额"
+    }
+  }
+}

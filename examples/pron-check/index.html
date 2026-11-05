@@ -1,0 +1,43 @@
+<div class="box">
+  <div class="top">
+    <div class="tabs" id="tabs">
+      <button data-mode="read">朗读</button><button data-mode="free">自由回答</button><button data-mode="part2">Part 2</button>
+    </div>
+    <span class="sp"></span>
+    <select id="lang"></select>
+    <button id="gear" class="ghost" title="Azure key">⚙</button>
+  </div>
+
+  <div class="keybox hide" id="keybox">
+    <div>Azure 语音服务 key（只存在这台电脑上，界面读不出原文）</div>
+    <input id="key" type="password" placeholder="粘贴 key" autocomplete="off">
+    <div class="row"><select id="region"></select><button id="save">保存</button><button id="clear" class="ghost">清除</button></div>
+    <div class="note" id="keynote"></div>
+  </div>
+
+  <div id="qrow" class="qrow hide">
+    <div class="q" id="qtext"></div>
+    <button id="qsay" class="ghost icon" title="听题目">🔊</button>
+  </div>
+
+  <div id="readrow">
+    <div class="ref" id="ref"></div>
+    <div class="row small"><button id="edit" class="link">编辑原文</button><span class="muted">日语注音写法：｜漢字《かな》</span></div>
+    <textarea id="text" class="hide" placeholder="要读的文字"></textarea>
+  </div>
+  <textarea id="qedit" class="hide" placeholder="题目"></textarea>
+
+  <div id="prep" class="prep hide">
+    <div class="clock" id="clock">1:00</div>
+    <textarea id="notes" placeholder="准备时间可以在这里记笔记"></textarea>
+  </div>
+
+  <div class="row">
+    <button id="talk">按住说话</button>
+    <button id="play" class="ghost" disabled>回放</button>
+    <button id="again" class="ghost" disabled>重新评分</button>
+  </div>
+  <div class="note" id="note"></div>
+
+  <div id="result"></div>
+</div>

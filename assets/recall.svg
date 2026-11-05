@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" width="1200" height="480" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1022"/><stop offset="1" stop-color="#151d3b"/></linearGradient>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8c97c2"/></marker>
+    <radialGradient id="glow"><stop offset="0" stop-color="#f5b84b" stop-opacity=".55"/><stop offset="1" stop-color="#f5b84b" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="480" rx="20" fill="url(#bg)"/>
+  <text x="40" y="52" font-size="26" font-weight="700" fill="#e6ebff">Agent-driven hybrid recall</text>
+  <text x="1160" y="52" text-anchor="end" font-size="14" fill="#8c97c2">related knowledge surfaces together, even with no words in common</text>
+
+  <rect x="40" y="205" width="150" height="70" rx="12" fill="#1a2350" stroke="#7c8cff" stroke-width="2"/>
+  <text x="115" y="238" text-anchor="middle" font-size="18" font-weight="700" fill="#e6ebff">Query</text><text x="115" y="260" text-anchor="middle" font-size="12" fill="#8c97c2">issued by the agent</text>
+
+  <rect x="240" y="125" width="200" height="64" rx="12" fill="#161f3d" stroke="#7c8cff" stroke-opacity=".7"/>
+  <text x="340" y="153" text-anchor="middle" font-size="15" font-weight="700" fill="#e6ebff">Lexical match</text>
+  <text x="340" y="174" text-anchor="middle" font-size="12" fill="#8c97c2">keywords, all languages</text>
+  <rect x="240" y="291" width="200" height="64" rx="12" fill="#161f3d" stroke="#7c8cff" stroke-opacity=".7"/>
+  <text x="340" y="319" text-anchor="middle" font-size="15" font-weight="700" fill="#e6ebff">Semantic match</text>
+  <text x="340" y="340" text-anchor="middle" font-size="12" fill="#8c97c2">on-device embeddings</text>
+  <!-- graph panel -->
+  <rect x="490" y="85" width="380" height="330" rx="16" fill="#10283a" stroke="#38d3e8" stroke-opacity=".6"/>
+  <path d="M190,230 C215,230 215,157 236,157" fill="none" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M190,250 C215,250 215,323 236,323" fill="none" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M440,157 C470,157 480,205 518,212" fill="none" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M440,323 C470,323 480,300 548,312" fill="none" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)"/>
+  <text x="470" y="250" text-anchor="middle" font-size="12" fill="#f5b84b">seeds</text>
+
+  <text x="680" y="400" text-anchor="middle" font-size="14" font-weight="700" fill="#38d3e8">Spreading activation · multi-hop</text>
+  <g stroke="#38d3e8" stroke-opacity=".45" stroke-width="2">
+    <line x1="560" y1="215" x2="640" y2="150"/><line x1="560" y1="215" x2="680" y2="240"/><line x1="560" y1="215" x2="530" y2="150"/>
+    <line x1="600" y1="320" x2="680" y2="240"/><line x1="600" y1="320" x2="690" y2="345"/><line x1="600" y1="320" x2="530" y2="290"/>
+    <line x1="640" y1="150" x2="760" y2="125"/><line x1="680" y1="240" x2="790" y2="200"/><line x1="680" y1="240" x2="800" y2="295"/>
+    <line x1="690" y1="345" x2="790" y2="360"/><line x1="640" y1="150" x2="620" y2="110"/>
+  </g>
+  <circle cx="560" cy="215" r="34" fill="url(#glow)"/><circle cx="600" cy="320" r="34" fill="url(#glow)"/>
+  <g fill="#f5b84b"><circle cx="560" cy="215" r="13"/><circle cx="600" cy="320" r="13"/></g>
+  <g fill="#38d3e8"><circle cx="640" cy="150" r="10"/><circle cx="680" cy="240" r="11"/><circle cx="530" cy="150" r="9"/><circle cx="690" cy="345" r="10"/><circle cx="530" cy="290" r="9"/></g>
+  <g fill="#38d3e8" fill-opacity=".45"><circle cx="760" cy="125" r="8"/><circle cx="790" cy="200" r="8"/><circle cx="800" cy="295" r="8"/><circle cx="790" cy="360" r="7"/><circle cx="620" cy="110" r="7"/></g>
+  <g font-size="11" fill="#8c97c2"><text x="580" y="210">seed</text><text x="620" y="315">seed</text><text x="700" y="236">hop 1</text><text x="812" y="299">hop 2</text></g>
+
+  <path d="M872,250 L906,250" fill="none" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="910" y="150" width="250" height="110" rx="12" fill="#161f3d" stroke="#f472b6" stroke-opacity=".7"/>
+  <text x="1035" y="185" text-anchor="middle" font-size="16" font-weight="700" fill="#e6ebff">Fused ranking</text>
+  <text x="1035" y="212" text-anchor="middle" font-size="13" fill="#c3cbef">lexical · semantic · graph</text>
+  <text x="1035" y="234" text-anchor="middle" font-size="13" fill="#c3cbef">heat ranks, never deletes</text>
+  <path d="M1035,262 L1035,294" fill="none" stroke="#8c97c2" stroke-width="2" marker-end="url(#ar)"/>
+  <rect x="910" y="298" width="250" height="90" rx="12" fill="#1c2244" stroke="#f5b84b" stroke-width="2"/>
+  <text x="1035" y="333" text-anchor="middle" font-size="16" font-weight="700" fill="#f5b84b">Top-k propositions</text>
+  <text x="1035" y="360" text-anchor="middle" font-size="13" fill="#c3cbef">each one a self-contained claim</text>
+</svg>

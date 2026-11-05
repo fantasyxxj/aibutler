@@ -1,0 +1,22 @@
+{
+  "type": "ui",
+  "id": "pron-check",
+  "version": "0.2.4",
+  "title": "发音评测",
+  "summary": "口语练习: 朗读逐词评分(日语可注音)、自由回答、雅思 Part 2 计时; 学员评完结果自动发回打开它的人格。",
+  "usage": "打开时参数直接写在 id 后面, 内容都从这里传; 插件命令只给人按, 没有 plugin_call 可用。\n- 朗读: plugin_open(id='pron-check', text='原文', lang='ja-JP')\n- 自由回答: plugin_open(id='pron-check', question='题目', lang='en-GB')\n- 雅思 Part 2: plugin_open(id='pron-check', question='题卡全文', part='2', lang='en-GB') —— 先准备 1 分钟(可跳过), 再答 2 分钟, 到时自动停。\n- lang 可选 en-GB(默认)/en-US 等 8 种, 日语写 ja-JP; 学员打开后也能自己切模式、语言、改原文。\n日语注音用青空文库写法 ｜漢字《かな》, 也可省略｜(《》前连续的汉字自动当被注字)。参数值里半角 | 会被换成 /、换行压成空格, 所以用全角｜; 分段长文让学员打开后自己粘贴。\n回传: 学员每评完一次, 你收到一条以 [pron-check.report] 开头的消息, 逐行是 模式 / 语言 / 题目(自由回答与 Part 2) / 原文(朗读) / 听到的 / 分数(总分 · 准确 · 流利 · 完整(仅朗读) · 韵律) / 低于 60 分的词(日语按整词显示, 带读音与错误类型; 方括号注明问题在哪一截、し/す 是否可能只是元音清化) / 漏读字数与多读的词 / Part 2 不足 1 分钟时多一行「⚠ 时长不足」 / 时长 · 语速 · 超过 2 秒的长停顿 · 填充词 / 第几次作答 · 上一次总分 / 录音路径。\n注意: 第一次用要在插件里粘贴 Azure key(区域选自动), 只存一次。麦克风只在窗口在前台、面板在屏且 2 分钟内用过时开着。单次录音最长 135 秒。朗读模式「听到的」会照抄原文, 读得好不好看逐词分和漏读。自由回答没有「完整」分。只能在这台电脑的界面里用, TG/LINE 上用不了。",
+  "keywords": "发音 口语 朗读 跟读 评分 雅思 IELTS Part 2 日语 英语 pronunciation speaking 発音 音読",
+  "commands": {
+    "warm":      { "primitive": "record", "op": "warm",  "summary": "提前开麦" },
+    "start":     { "primitive": "record", "op": "start", "max_sec": 135, "summary": "开始录音" },
+    "stop":      { "primitive": "record", "op": "stop",  "summary": "停止录音" },
+    "cancel":    { "primitive": "record", "op": "cancel","summary": "放弃这段录音" },
+    "play":      { "primitive": "record", "op": "play",  "summary": "回放", "params": { "id": { "required": true } } },
+    "status":    { "primitive": "pron", "op": "status",    "summary": "key 设没设、在哪个区" },
+    "key_set":   { "primitive": "pron", "op": "key_set",   "summary": "保存 Azure key", "params": { "key": { "required": true }, "region": {} } },
+    "key_clear": { "primitive": "pron", "op": "key_clear", "summary": "清除 Azure key" },
+    "assess":    { "primitive": "pron", "op": "assess",    "summary": "评测一段录音", "params": { "id": { "required": true }, "text": {}, "lang": {} } },
+    "say":       { "primitive": "speak", "summary": "用这种语言的声音念出来", "params": { "text": { "required": true }, "lang": {} } },
+    "report":    { "primitive": "message", "summary": "把评测结果交给老师", "params": { "text": { "required": true } } }
+  }
+}

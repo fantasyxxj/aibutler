@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" width="1200" height="500" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1022"/><stop offset="1" stop-color="#151d3b"/></linearGradient>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8c97c2"/></marker>
+  </defs>
+  <rect width="1200" height="500" rx="20" fill="url(#bg)"/>
+  <text x="40" y="52" font-size="26" font-weight="700" fill="#e6ebff">Memory lifecycle</text>
+  <text x="1160" y="52" text-anchor="end" font-size="14" fill="#8c97c2">store first, decide later, invalidate but never erase</text>
+  <g font-family="inherit">
+    <g transform="translate(40,100)"><rect width="240" height="110" rx="14" fill="#161f3d" stroke="#7c8cff" stroke-opacity=".8"/><text x="20" y="38" font-size="13" fill="#7c8cff" font-weight="700">01</text><text x="20" y="64" font-size="18" font-weight="700" fill="#e6ebff">Capture</text><text x="20" y="90" font-size="13" fill="#8c97c2">save first, every turn</text></g>
+    <g transform="translate(330,100)"><rect width="240" height="110" rx="14" fill="#161f3d" stroke="#7c8cff" stroke-opacity=".8"/><text x="20" y="38" font-size="13" fill="#7c8cff" font-weight="700">02</text><text x="20" y="64" font-size="18" font-weight="700" fill="#e6ebff">De-dup gate</text><text x="20" y="90" font-size="13" fill="#8c97c2">objective, no value filter</text></g>
+    <g transform="translate(620,100)"><rect width="240" height="110" rx="14" fill="#161f3d" stroke="#38d3e8" stroke-opacity=".8"/><text x="20" y="38" font-size="13" fill="#38d3e8" font-weight="700">03</text><text x="20" y="64" font-size="18" font-weight="700" fill="#e6ebff">Link</text><text x="20" y="90" font-size="13" fill="#8c97c2">supports · refines · part of</text></g>
+    <g transform="translate(910,100)"><rect width="250" height="110" rx="14" fill="#161f3d" stroke="#38d3e8" stroke-opacity=".8"/><text x="20" y="38" font-size="13" fill="#38d3e8" font-weight="700">04</text><text x="20" y="64" font-size="18" font-weight="700" fill="#e6ebff">Recall</text><text x="20" y="90" font-size="13" fill="#8c97c2">hybrid, multi-hop</text></g>
+    <g transform="translate(910,300)"><rect width="250" height="110" rx="14" fill="#161f3d" stroke="#4ade80" stroke-opacity=".8"/><text x="20" y="38" font-size="13" fill="#4ade80" font-weight="700">05</text><text x="20" y="64" font-size="18" font-weight="700" fill="#e6ebff">Reinforce</text><text x="20" y="90" font-size="13" fill="#8c97c2">memories actually used grow stronger</text></g>
+    <g transform="translate(620,300)"><rect width="240" height="110" rx="14" fill="#161f3d" stroke="#f472b6" stroke-opacity=".8"/><text x="20" y="38" font-size="13" fill="#f472b6" font-weight="700">06</text><text x="20" y="64" font-size="18" font-weight="700" fill="#e6ebff">Check-up</text><text x="20" y="90" font-size="13" fill="#8c97c2">doctor finds conflicts, zombies</text></g>
+    <g transform="translate(330,300)"><rect width="240" height="110" rx="14" fill="#161f3d" stroke="#f472b6" stroke-opacity=".8"/><text x="20" y="38" font-size="13" fill="#f472b6" font-weight="700">07</text><text x="20" y="64" font-size="18" font-weight="700" fill="#e6ebff">Arbitrate</text><text x="20" y="90" font-size="13" fill="#8c97c2">fact &gt; authority &gt; soft signal</text></g>
+    <g transform="translate(40,300)"><rect width="240" height="110" rx="14" fill="#1c2244" stroke="#f5b84b" stroke-width="2"/><text x="20" y="38" font-size="13" fill="#f5b84b" font-weight="700">08</text><text x="20" y="64" font-size="18" font-weight="700" fill="#e6ebff">Supersede</text><text x="20" y="90" font-size="13" fill="#8c97c2">kept with lineage, reversible</text></g>
+  </g>
+  <g stroke="#8c97c2" stroke-width="2" fill="none" marker-end="url(#ar)">
+    <line x1="282" y1="155" x2="326" y2="155"/><line x1="572" y1="155" x2="616" y2="155"/><line x1="862" y1="155" x2="906" y2="155"/>
+    <line x1="1035" y1="212" x2="1035" y2="296"/>
+    <line x1="908" y1="355" x2="864" y2="355"/><line x1="618" y1="355" x2="574" y2="355"/><line x1="328" y1="355" x2="284" y2="355"/>
+  </g>
+  <path d="M160,298 L160,214" stroke="#f5b84b" stroke-width="2" stroke-dasharray="6 6" fill="none" marker-end="url(#ar)"/>
+  <text x="172" y="262" font-size="12" fill="#f5b84b">the graph keeps growing</text>
+  <text x="600" y="460" text-anchor="middle" font-size="14" fill="#8c97c2">Over-storing is observable and recoverable. Under-storing is invisible and permanent.</text>
+</svg>

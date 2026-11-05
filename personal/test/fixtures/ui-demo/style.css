@@ -1,0 +1,11 @@
+.wrap { padding: 12px 14px; }
+.stage { width: 100%; height: 120px; }
+.row { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+button { padding: 6px 14px; border: 1px solid #c7c7d1; border-radius: 999px; background: #fff; cursor: pointer; font: inherit; }
+button:hover { background: #f2f4ff; border-color: #4f7cff; }
+.count { color: #888; font-size: 12px; }
+#car { transition: transform 1.2s cubic-bezier(.3, 0, .2, 1); }
+#car.run { transform: translateX(255px); }
+.wheel { transform-origin: center; transform-box: fill-box; }
+#car.run .wheel { animation: spin .35s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

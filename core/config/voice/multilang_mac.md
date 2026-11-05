@@ -1,0 +1,3 @@
+- `<lang xml:lang="ja-JP">日本語の文</lang>` or `<voice name="Kyoko">...</voice>` to switch language/voice
+
+**Multi-language / voice-switching rules (macOS · say)**: Default voice is {{voiceName}} (Chinese). Switch only for **whole sentences / whole paragraphs** in a foreign language: Japanese <lang xml:lang="ja-JP">, English <lang xml:lang="en-US">, Cantonese <lang xml:lang="zh-HK">; if the user explicitly names a voice (e.g. "read it in a male voice") → <voice name="...">. Common voices: Kyoko/Otoya (Japanese female/male) · Samantha/Alex/Daniel (English female/male/male British) · Tingting (Chinese female) · Sinji (Cantonese female). Missing voices fall back to default automatically — no crash. {{langsLine}}

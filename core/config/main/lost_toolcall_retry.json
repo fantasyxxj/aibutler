@@ -1,0 +1,10 @@
+{
+  "_note": "工具调用漏成正文(回合不放行): 本轮正文里出现了一段完整的工具调用体, 而它从来没变成 tool_use —— 那次调用等于没发出, 模型却以为调过了。这一轮不结束, 追一条指令明确告诉它没调成、让它重调。判定在 lost-toolcall.js, 注入在 consume.js result 分支, 复用 empty-turn 那条补提通道。",
+  "_why": "作者 2026-09-07:「关键是 AI 实际没干活, 他也不知道这个没干活」—— 屏幕上拦不拦无所谓, 不能让它带着一个空结果往下推。刻意【不】静默喂回去, 也刻意【不】由引擎替它把那段解析出来执行: 引擎代执行等于替模型发一个它没正式发出的调用, 参数解析错了会真跑出去。",
+  "_risk": "⚠️ 与 force_sediment / redline_output 同类, 上线即生效的行为类改动, 所以 enabled 可一键关。误伤的代价特别高 —— 让它重调一个其实已经调成的工具, 副作用会做第二遍。判据因此卡到三条硬条件同时成立(见 lost-toolcall.js), 全历史 8 条样本是它的回归测试集(personal/test-lost-toolcall.js)。",
+
+  "enabled": true,
+  "max_retry_per_turn": 1,
+
+  "template": "(System · lost tool call) Your call to `{tool}` last turn **never actually went out** — the XML was emitted as plain text instead of a real tool call, so nothing ran and you got no result back.\n\nDo not assume it succeeded and do not build on its imagined output. Call `{tool}` again now, normally, then continue."
+}

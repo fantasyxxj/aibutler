@@ -1,0 +1,1 @@
+- Your plugin territory: {{dir}} (put UIs/procedures you write yourself here, one .json per plugin; before you start, run `memory_query "write my own plugin"`)

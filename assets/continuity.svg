@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 440" width="1200" height="440" font-family="-apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1022"/><stop offset="1" stop-color="#151d3b"/></linearGradient>
+    <linearGradient id="fill" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7c8cff" stop-opacity=".25"/><stop offset="1" stop-color="#7c8cff" stop-opacity=".95"/></linearGradient>
+    <linearGradient id="band" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1f8fb8"/><stop offset="1" stop-color="#38d3e8"/></linearGradient>
+    <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8c97c2"/></marker>
+  </defs>
+  <rect width="1200" height="440" rx="20" fill="url(#bg)"/>
+  <text x="40" y="52" font-size="26" font-weight="700" fill="#e6ebff">The session ends. The persona doesn't.</text>
+
+  <g font-size="15" font-weight="700" fill="#e6ebff">
+    <rect x="60" y="110" width="320" height="52" rx="12" fill="url(#fill)"/><text x="80" y="142">Session 1</text>
+    <rect x="440" y="110" width="320" height="52" rx="12" fill="url(#fill)"/><text x="460" y="142">Session 2</text>
+    <rect x="820" y="110" width="320" height="52" rx="12" fill="url(#fill)"/><text x="840" y="142">Session 3</text>
+  </g>
+  <g font-size="12" fill="#c3cbef" text-anchor="end"><text x="370" y="141">context 0% → 85%</text><text x="750" y="141">context 0% → 85%</text><text x="1130" y="141">…</text></g>
+  <g stroke="#f5b84b" stroke-width="2"><line x1="410" y1="96" x2="410" y2="178"/><line x1="790" y1="96" x2="790" y2="178"/></g>
+  <g font-size="12" fill="#f5b84b" text-anchor="middle"><text x="410" y="88">self-compaction at a natural pause</text><text x="790" y="88">app restart</text></g>
+
+  <g stroke="#8c97c2" stroke-width="2" fill="none" marker-end="url(#ar)">
+    <line x1="300" y1="166" x2="300" y2="286"/><line x1="680" y1="166" x2="680" y2="286"/>
+    <line x1="470" y1="286" x2="470" y2="166"/><line x1="850" y1="286" x2="850" y2="166"/>
+  </g>
+  <g font-size="12" fill="#8c97c2"><text x="310" y="232">write · handoff note</text><text x="690" y="232">write · handoff note</text><text x="480" y="252">wake · reload</text><text x="860" y="252">wake · reload</text></g>
+
+  <rect x="60" y="292" width="1080" height="84" rx="14" fill="url(#band)" fill-opacity=".9"/>
+  <text x="600" y="328" text-anchor="middle" font-size="19" font-weight="700" fill="#06202b">Persistent memory</text>
+  <text x="600" y="355" text-anchor="middle" font-size="14" fill="#06202b">memory graph · identity · handoff note · open tasks · reminders</text>
+  <text x="600" y="412" text-anchor="middle" font-size="13" fill="#8c97c2">idle time is maintenance time: keep-alive · scheduled compaction · memory check-ups · process recycling</text>
+</svg>

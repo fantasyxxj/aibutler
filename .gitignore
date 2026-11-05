@@ -10,37 +10,95 @@ build/seed/
 *.swp
 *.log
 
-# 内部设计稿 / 索引 (不开源)
-CODE_INDEX.md
-spec_*.md
+# 部署私有配置 (VPS 地址 / 本地路径, 绝不提交)
+config.local.json
 
-# 实验脚本 / wakeloop 尝试 (不开源)
-test-*.js
-wakeloop.js
+# ⚠️ 下面这批「开发模式数据」的规则, 自 0.1.10 起是兜底而不是主力: dev 数据目录已从仓库根
+# 挪到 ~/.butler-dev(paths.js devDataDir), 正常情况下这些东西根本不会在仓库里出现。留着是因为
+# 挪之前落下的残留、以及有人拿 BUTLER_DATA_DIR 指回仓库时, 还得有人挡一道。
 
 # 本地运行时状态 / 会话 (含对话内容, 绝不提交)
+.wakeloop-cursor.json
 .session.json
 .session.*
 *.migrated
 *.moved
 .opentabs.json
+# app/ 是开发模式下的数据目录, 整个忽略而不是逐个列文件名 —— 原先按文件名白名单挡, 结果
+# 后来新增的 app/secrets.json(凭据) 和 personas.json.premigtest 没人补规则, 差点进仓。
+# 🔴 必须带前导斜杠只锚仓根: 不带的话 industry/app/ 也一起被挡, 而那是行业版的源码主体
+# (合仓后新建的 industry/app/host-wiring.js 就这么静默地一直没进过版本库)。
+/app/
+# 换库/迁移前手工留的数据目录快照, 含真人格与真对话, 几十 MB。
+.devdata-bak-*/
+# 记忆的 SQLite 库, 含个人对话历史, 完全私有。
+# 前缀匹配而不是列 db/-wal/-shm 三行: 手工留的 memory.db.*-bak 同样是真记忆, 一样不能进仓。
+memory.db*
+# 落地的下发物(签名包) —— 那是运行时数据不是源码。
+# 包本身由 scripts/sign-package.js 现签, 要发布的是签好的产物不是这个目录。
+packages/
+# 自己写的未签名包。同样是运行时数据 —— 而且 AI 现在能自己往里写, 不挡住就会把它随手写的试验品推进仓库。
+packages.local/
+# v0.0.23: 关档前 N 轮对话原话快照 (memoryDir 内, 明文原话, 严禁推仓). memory/ 与 personas/ 已整目录忽略, 此处兜底防 override 记忆位置。
+**/ctx_last.json
 
 # 人格实例 & 记忆 (含个人对话历史, 完全私有; 首启会自动生成骨架)
-memory/
-personas/
+# 🔴 必须带前导斜杠只锚仓根 —— 不带的话 core/memory/ 也一起被挡, 而那是 v1 引擎与
+# core/memory/primitives.js(v2 的 8 个文件都 require 它) 的所在地: 仓库里少这 7 个文件,
+# clone 下来根本起不来。跟 /app/ 那次是同一个坑, 2026-08-25 才发现已经漏了很久。
+/memory/
+/personas/
 personas.json
 personas.json.bak
 
-# 人格私有配置 (含 bot_token / chat_ids / 唤醒指令)
+# Claude Code / SDK 的本地会话配置。工具自己生成的东西, 不是本项目的源码。
+# 这里**故意**不加前导斜杠: 仓根和 personal/ 下各有一个, 要的就是所有层级都挡。
+# (跟上面 /memory/ 那条相反 —— 那条必须锚仓根, 不然会误伤 core/memory/)
+**/.claude/
+
+# 人格私有配置 (含 bot_token / chat_ids)
 tg.json
 mcp.json
-wake.txt
 .env
 .env.*
 **/tg_inbox.jsonl
 **/.bothub_offset.json
 
+# 语音识别引擎/模型 (首次用语音时按需下载, 约 150MB)
+whisper/
+
+# 语义检索模型 (首次用时按需下载, 约 145MB) — 与 whisper 同理, 不进仓
+models/
+# …但这条按目录名匹配, 四个装 ORM 定义的业务代码目录也被扫了进去。里面的文件早就在
+# 版本控制里(规则是后加的), 所以症状只在新增/改动时冒出来: git add 报「path is ignored」,
+# 而 git check-ignore 对具体文件又说没被忽略 —— 很难往这条规则上想。
+!bus-server/app/models/
+# 出厂模型清单(窗口/限流/兜底选项)是代码要读的配置, 不是下载的模型
+!core/config/models/
+!industry/biz/backend/app/models/
+!industry/config/models/
+!industry/platform/app/models/
+
+# 语义检索的前端产物 (由 scripts/vendor-embed.js 从 node_modules 现拷, 12MB 二进制)
+# 可再生 = 不进仓; 打包脚本会先跑生成这一步, 门禁也会检查它齐不齐。
+core/embed/vendor/
+
 # 本地工作区 / 环境 (owner 私有, 不提交)
 workspace/
 .zshrc
 build/bin/
+logs/
+
+# 界面包的中间产物 (build-ui-package.js 从 index.html/style.css/app.js 现拼)。
+# 签好的 .pkg.json 要进仓 —— 门禁 test-sandbox [11] 拿它走真验签, 缺了会红。
+examples/*/payload.json
+
+# 改配置前的现场备份 (只在本机留底, 不进仓)
+*.config-backup-*/
+.data.local-backup-*/
+
+# 业务后端的私有上传落盘: app/bus/file_links.py 的 PRIVATE_PREFIX="files/" 按年月+UUID 往这里存
+# 客户真实传上来的收据/图片/PDF, app/main.py 的注释明写它「在静态公开之外」。运行时数据 + 别人的东西,
+# 一次 git add -A 就永久进仓库历史。🔴 写全路径而不是 files/ —— 不锚死会连带挡掉别处的同名源码目录。
+/industry/biz/backend/files/
+verify/backups/

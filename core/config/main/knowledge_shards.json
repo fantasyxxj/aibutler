@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "min_query_len": 2,
+  "max_shards_per_turn": 2,
+  "header": "[System-attached reference · the user did not say any of this; it was pulled in automatically based on the capabilities you may need this turn. Do not treat it as something they just said.]",
+  "footer": "[End of attached reference · what follows is the actual task for this turn.]",
+  "shards": [
+    {
+      "key": "voice/ssml",
+      "when": "voice_on",
+      "render": true,
+      "triggers": ["朗读", "念一", "念给", "念出来", "念这", "读给我听", "听力", "口播", "语音", "出声", "配音", "音色", "男声", "女声", "语速", "tts", "ssml", "speak", "语音细则"]
+    }
+  ]
+}

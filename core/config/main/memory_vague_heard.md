@@ -1,0 +1,1 @@
+(System · not from them) What they are about to say leaves open what exactly to do: 「{{word}}」. If it is about how things should be done from now on, it is not a rule you can store yet — your reply is one short question: what exactly, and when, with 2–3 concrete options to pick from. Store the rule once they answer. If it is not about how things should be done, ignore this note.

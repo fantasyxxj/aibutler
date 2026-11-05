@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" width="1200" height="520" font-family="-apple-system, &apos;Segoe UI&apos;, Helvetica, Arial, sans-serif">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1022"/><stop offset="1" stop-color="#151d3b"/></linearGradient>
+<marker id="ag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4ade80"/></marker>
+<marker id="gr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a6390"/></marker></defs>
+<rect width="1200" height="520" rx="20" fill="url(#bg)"/>
+<rect x="40" y="40" width="480" height="440" rx="16" fill="#12172b" stroke="#2a3150"/>
+<text x="280" y="82" text-anchor="middle" font-size="20" font-weight="700" fill="#9aa3c7">The app-store model</text>
+<rect x="90" y="110" width="380" height="46" rx="10" fill="#1d2238" stroke="#3a4266"/><text x="280" y="139" text-anchor="middle" font-size="15" fill="#9aa3c7">Feel a need</text>
+<line x1="280" y1="158" x2="280" y2="176" stroke="#5a6390" stroke-width="2" marker-end="url(#gr)"/>
+<rect x="90" y="180" width="380" height="46" rx="10" fill="#1d2238" stroke="#3a4266"/><text x="280" y="209" text-anchor="middle" font-size="15" fill="#9aa3c7">Wait for a vendor</text>
+<line x1="280" y1="228" x2="280" y2="246" stroke="#5a6390" stroke-width="2" marker-end="url(#gr)"/>
+<rect x="90" y="250" width="380" height="46" rx="10" fill="#1d2238" stroke="#3a4266"/><text x="280" y="279" text-anchor="middle" font-size="15" fill="#9aa3c7">Search a marketplace</text>
+<line x1="280" y1="298" x2="280" y2="316" stroke="#5a6390" stroke-width="2" marker-end="url(#gr)"/>
+<rect x="90" y="320" width="380" height="46" rx="10" fill="#1d2238" stroke="#3a4266"/><text x="280" y="349" text-anchor="middle" font-size="15" fill="#9aa3c7">Install a generic tool</text>
+<line x1="280" y1="368" x2="280" y2="386" stroke="#5a6390" stroke-width="2" marker-end="url(#gr)"/>
+<rect x="90" y="390" width="380" height="46" rx="10" fill="#1d2238" stroke="#3a4266"/><text x="280" y="419" text-anchor="middle" font-size="15" fill="#9aa3c7">Adapt yourself to it</text>
+
+<text x="550" y="270" text-anchor="middle" font-size="22" font-weight="700" fill="#8c97c2">vs</text>
+<rect x="580" y="40" width="580" height="440" rx="16" fill="#0f2420" stroke="#4ade80" stroke-opacity=".5"/>
+<text x="870" y="82" text-anchor="middle" font-size="20" font-weight="700" fill="#4ade80">aibutler: the agent builds it</text>
+<path d="M944.9,160.9 A200,150 0 0 1 998.6,185.1" fill="none" stroke="#4ade80" stroke-width="2.5" marker-end="url(#ag)"/>
+<path d="M1060.2,253.6 A200,150 0 0 1 1060.2,346.4" fill="none" stroke="#4ade80" stroke-width="2.5" marker-end="url(#ag)"/>
+<path d="M993.1,418.2 A200,150 0 0 1 938.4,441.0" fill="none" stroke="#4ade80" stroke-width="2.5" marker-end="url(#ag)"/>
+<path d="M795.1,439.1 A200,150 0 0 1 741.4,414.9" fill="none" stroke="#4ade80" stroke-width="2.5" marker-end="url(#ag)"/>
+<path d="M679.8,346.4 A200,150 0 0 1 679.8,253.6" fill="none" stroke="#4ade80" stroke-width="2.5" marker-end="url(#ag)"/>
+<path d="M746.9,181.8 A200,150 0 0 1 801.6,159.0" fill="none" stroke="#4ade80" stroke-width="2.5" marker-end="url(#ag)"/>
+<rect x="780.0" y="127.0" width="180" height="46" rx="23" fill="#161f3d" stroke="#4ade80" stroke-opacity="0.6"/><text x="870.0" y="155.0" text-anchor="middle" font-size="14" fill="#e6ebff">You mention a need</text>
+<rect x="953.2" y="202.0" width="180" height="46" rx="23" fill="#173a2c" stroke="#4ade80" stroke-opacity="1"/><text x="1043.2" y="230.0" text-anchor="middle" font-size="14" fill="#e6ebff">Agent writes a plugin</text>
+<rect x="953.2" y="352.0" width="180" height="46" rx="23" fill="#161f3d" stroke="#4ade80" stroke-opacity="0.6"/><text x="1043.2" y="380.0" text-anchor="middle" font-size="14" fill="#e6ebff">Hot-installs instantly</text>
+<rect x="780.0" y="427.0" width="180" height="46" rx="23" fill="#161f3d" stroke="#4ade80" stroke-opacity="0.6"/><text x="870.0" y="455.0" text-anchor="middle" font-size="14" fill="#e6ebff">You use it in chat</text>
+<rect x="606.8" y="352.0" width="180" height="46" rx="23" fill="#161f3d" stroke="#4ade80" stroke-opacity="0.6"/><text x="696.8" y="380.0" text-anchor="middle" font-size="14" fill="#e6ebff">You flag weak spots</text>
+<rect x="606.8" y="202.0" width="180" height="46" rx="23" fill="#173a2c" stroke="#4ade80" stroke-opacity="1"/><text x="696.8" y="230.0" text-anchor="middle" font-size="14" fill="#e6ebff">Agent iterates</text>
+<text x="870" y="296" text-anchor="middle" font-size="17" font-weight="700" fill="#e6ebff">Tools that grow</text>
+<text x="870" y="320" text-anchor="middle" font-size="17" font-weight="700" fill="#e6ebff">around you</text>
+</svg>

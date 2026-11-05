@@ -1,0 +1,10 @@
+{
+  "name": "@butler/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "共用大脑。个人版/行业版/教育版都引这一份。",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "node-sqlite3-wasm": "^0.8.60"
+  }
+}

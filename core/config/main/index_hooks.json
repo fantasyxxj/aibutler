@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "max_hits": 3,
+  "header": "💡 Before you start — your memory has a ready-made index that may save you the search you're about to do:",
+  "footer": "(Index may be stale. Take a look and judge for yourself; if you really need to dig into the raw source, go ahead — this doesn't stop you.)",
+  "_note": "Factory hooks only. This file is shared by every persona on the machine, so nothing domain-specific belongs here — a persona's own hooks go in <memoryDir>/hooks.json, where it writes and owns them. What stays here is the pair that teaches a persona how to edit itself, which is the one thing every persona needs.",
+  "hooks": [
+    {
+      "key": "edit_persona_md",
+      "trigger": "Edit,Write,MultiEdit:persona\\.md",
+      "query": "persona.md 身份档案 什么时候该改 怎么写 常驻",
+      "header": "🔴 You are about to edit your own identity profile — it is injected into the system prompt on EVERY turn, so what goes in is paid for over and over. The rules you stored for this:",
+      "footer": "(Not sure it belongs there? Then it doesn't — put it in memory instead. memory_upsert is free; a resident line is not.)"
+    },
+    {
+      "key": "edit_persona_hooks",
+      "trigger": "Edit,Write,MultiEdit:hooks\\.json",
+      "query": "动作钩子 hooks.json trigger 正则 怎么写",
+      "header": "🔴 You are about to edit your own action hooks. Get the trigger format wrong and the hook fails silently — no error, it simply never fires. The rules you stored for this:",
+      "footer": "(Format is `ToolName[,ToolName…]:regex`. Miss the colon and the whole entry is dead.)"
+    }
+  ]
+}

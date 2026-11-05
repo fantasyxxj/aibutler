@@ -1,0 +1,13 @@
+{
+  "_": "记忆库定期体检的阈值。判定代码在 checkup-gate.js, 指标源头是 memory-v2.js 的 doctor()(纯机械, 不烧 LLM)。阈值全是拍的、无实测依据 —— 跑一段时间看戳的频率再调。想整个关掉: checkupIntervalDays 设 0。",
+
+  "checkupIntervalDays": 7,
+  "checkupIdleMin": 8,
+  "checkupCtxMaxTok": 300000,
+
+  "_thresholds": "以下是各指标超过多少才算超标。没有任何一项超标就完全不戳 —— 每周雷打不动来一句'体检完毕一切正常'是纯噪音, 几次之后人格和用户都会开始无视它。pinned 超配额和悬空边不在这里: 前者超 0 就必须处理(名额满会挡新条目), 后者是存储层故障信号不是整理问题。",
+  "fatNodes": 5,
+  "isolatedNodes": 20,
+  "reviewDue": 3,
+  "noClaim": 10
+}

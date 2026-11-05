@@ -1,0 +1,21 @@
+{
+  "type": "ui",
+  "id": "demo",
+  "version": "1",
+  "title": "点一下跑起来",
+  "commands": {
+    "say": {
+      "primitive": "speak",
+      "summary": "把屏幕上那句话念出来",
+      "params": { "text": { "type": "text", "required": true } }
+    },
+    "remember": {
+      "primitive": "state",
+      "summary": "记一笔到这个包自己的抽屉里",
+      "params": {
+        "key": { "type": "text", "required": true },
+        "value": { "type": "text", "required": false }
+      }
+    }
+  }
+}

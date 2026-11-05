@@ -1,0 +1,35 @@
+{
+  "_note": "回合级动态记忆提醒: 上一轮用户话里命中 patterns(纠正/定案/事故/点名要记) 却零 memory_* 调用 → 下一轮真人消息前 prepend template。静态铁律会漂, 动态提醒带当下事实才咬得住。判定 agent.js _evalMemoryNudge, 注入 agent.js _takeMemoryNudge。",
+  "_multilingual": "patterns 必须覆盖四种语言(ja / en / zh-CN / zh-TW)。日本店主说「違う」永远不会命中一张纯中文的表, 台湾店主打「記住」也不会命中简体表 —— 对他们来说这个功能等于不存在。繁体只列与简体真正不同的那些, 一模一样的字串列进来只是白占。",
+  "patterns": [
+    "違う", "間違い", "そうじゃない", "もうやめて", "二度と", "何回言った", "また同じ", "取り消し", "やり直し",
+    "覚えて", "覚えといて", "忘れないで", "メモして", "記録して",
+    "決まり", "そうしよう", "今後は", "今日から", "ルール", "鉄則",
+    "落ちた", "壊れた", "障害", "事故", "消えた", "無駄になった",
+
+    "不对", "错了", "不是这样", "别再", "以后别", "不要再", "说了多少次", "又犯", "收回", "打回",
+    "记住", "记下", "别忘", "要记得",
+    "定了", "就这么办", "钦定", "拍板", "以后都", "从今天起", "规矩", "铁律",
+    "崩了", "挂了", "事故", "翻车", "丢了", "冲了", "白干",
+
+    "不對", "錯了", "不是這樣", "別再", "以後別", "說了多少次", "收回",
+    "記住", "記下", "別忘", "要記得",
+    "就這麼辦", "欽定", "以後都", "從今天起", "規矩", "鐵律",
+    "掛了", "翻車", "丟了", "白幹", "出包", "搞砸",
+
+    "that's wrong", "not like that", "stop doing", "never again", "how many times", "again with", "take that back",
+    "remember this", "don't forget", "make a note", "write that down",
+    "from now on", "going forward", "the rule is", "we decided",
+    "it broke", "outage", "incident", "we lost", "wasted"
+  ],
+  "template": "(System · memory nudge) The user's last message contained \"{hit}\" — corrections / decisions / incidents like this are required saves under hard rule 2, but you **called zero memory_* tools** that turn. Save it now with memory_upsert (run memory_query to dedupe first; to add content to an existing node use section-level write, don't upsert over the full body), then respond to the message below.",
+
+  "_streak_note": "第三格(2026-09-12 作者派单): 平静的技术讨论既撞不上上面那张情绪词表, 也够不着 force_sediment 的外部来源判据 —— 于是讨论了一整程、定了好几件事, 一条提醒都不会有。这里按【连续几个真人回合零 memory_*】补。计数在 agent.js `_turnsSinceMemoryOp`(跨回合累加, 调了 memory_* 才清零), 判定 wake.js `_evalMemoryNudge`, 注入 wake.js `_takeMemoryNudge`(送出去才清零, 否则每轮都发)。patterns 命中优先, 命中了就不再发这条。",
+  "_streak_why_unsettled": "🔴 模板必须把「没形成结论的更要存」说在前面。作者原话: 「形成结论了一定要存, 没形成更要存啊, 没形成的, 下次肯定要讨论的」—— 已定的结论还能从代码和产物里反推回来, 而讨论到一半的中间状态(排除了哪些选项 · 卡在哪 · 下一步打算怎么试)是清空之后唯一找不回的东西, 回来就得把已经做完的调研重做一遍。",
+  "streak_enabled": true,
+  "streak_threshold": 5,
+  "streak_template": "(System · memory nudge) {n} turns have passed without a single memory_* call. A stretch of discussion this long almost always produced something that must outlive this session.\n\n**What is settled** — a conclusion reached, an option ruled out, a root cause pinned down, a change shipped — `memory_upsert` it now.\n\n**What is not settled matters more, not less.** Store it with `provisional=2`: which options are still open, what is blocking, what you were about to try next, what you are waiting on from whom. A settled conclusion can often be reconstructed from the code and the artifacts; the unfinished middle of a discussion cannot — it vanishes with the context, nothing will feel missing afterwards, and the next session has to redo the research you already did before it can even resume the conversation.\n\nRun memory_query first to dedupe. If this stretch genuinely produced nothing worth keeping, say so in one line and carry on.",
+  "_tool_name_note": "🔴 同 force_sediment: 模板不写死工具名。v1 叫 memory_append, v2 是 memory_section + memory_write, 写死哪个另一版就会被指去调不存在的工具。",
+  "_unsaved_note": "第四格(10-14 作者「存被退回没补存却说已存」): memory_upsert 被闸退回(回包以 ⚠️ 开头)、本轮之后再没存成 → 下一条真人消息前点名补存。记账在 memory-tools-v2.js trackUnsaved, 判定 wake.js _evalMemoryNudge, 注入 _takeMemoryNudge, 优先于另外两格。",
+  "unsaved_template": "(System · memory nudge) Last turn these saves were sent back by a check and never made again — they are **not in memory**:\n{list}\n\nSave each now: run the memory_query the check asked for, then memory_upsert again with what it asked to fix. If you told the person last turn that you had recorded it, tell them in one line that it was not saved then and is now."
+}

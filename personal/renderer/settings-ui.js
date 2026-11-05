@@ -1,0 +1,290 @@
+// settings-ui.js — 独立系统设置窗口: 接入方式 / 网络代理 / 本机 API。
+//
+// 边界: 这里只放**跟人格无关**的东西 —— 换谁来用都一样的那些。
+// 人格自己的(名字/头像/模型偏好/插件凭据)在 manager.js。代理和本机 API 原先长在人格管理窗口里,
+// 那是归属放错了(它俩本来就是进程级、存在 settings.json 和登记簿顶层), 2026-08-17 挪来这里。
+//
+// 界面语言: 与 renderer.js/manager.js 同一套 —— 字典在主进程 i18n.js, 这边只拿快照(S) 用 t() 取。
+const toastEl = document.getElementById('toast');
+
+let S = {};
+const t = (k, vars) => {
+  const v = S[k];
+  if (v == null) return '';
+  return vars ? String(v).replace(/\{(\w+)\}/g, (m, n) => (vars[n] != null ? String(vars[n]) : m)) : v;
+};
+
+function toast(text) {
+  toastEl.textContent = text; toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 1800);
+}
+
+// 凭据名字是用户自己填的, 拼进 innerHTML 前必须转义 —— 同 manager.js 那份
+const esc = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+// ---- 凭据仓库 (多条: 名字 + 端点 + key) ----
+// 一条一行, 现填现存。key 真值永远不回渲染层(主进程只说 keyState), 所以输入框空着 ≠ 没配:
+// 空着保存 = 保持原样。
+const ACL = document.getElementById('ac-list');
+const ACADD = document.getElementById('ac-add');
+
+let _credLast = null;      // 切语言时按快照重画, 不重新读盘(重读会冲掉没保存的输入)
+let _draft = null;         // 正在新增的那条(还没落盘, 没有 id)
+
+function credRender(d) {
+  if (d) _credLast = d;
+  const s = _credLast; if (!s) return;
+  const rows = [...(s.credentials || [])];
+  if (_draft) rows.push(_draft);
+  ACL.innerHTML = rows.length ? '' : `<div style="color:var(--muted);font-size:12px">${esc(t('sys_cred_empty'))}</div>`;
+  for (const c of rows) ACL.appendChild(credRow(c, s.defaultCredentialId));
+}
+
+function credRow(c, defId) {
+  const box = document.createElement('div');
+  box.style.cssText = 'border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px;margin-bottom:8px';
+  const isNew = !c.id;
+  const stale = c.keyState === 'stale';
+  box.innerHTML = `
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <input class="c-name" type="text" value="${esc(c.name || '')}" placeholder="${esc(t('sys_cred_name_ph'))}" style="flex:0 0 140px"/>
+      <input class="c-base" type="text" value="${esc(c.base_url || '')}" placeholder="https://api.anthropic.com" style="flex:1;min-width:180px"/>
+      <label style="font-weight:normal;font-size:12px;white-space:nowrap"><input type="radio" name="cred-def" class="c-def" ${c.id && c.id === defId ? 'checked' : ''} ${isNew ? 'disabled' : ''}> ${esc(t('sys_cred_default'))}</label>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap">
+      <input class="c-key" type="password" autocomplete="off" placeholder="${esc(c.keyState === 'ok' ? t('sys_api_key_saved') : (stale ? t('sys_api_key_stale_ph') : 'sk-ant-…'))}" style="flex:1;min-width:180px"/>
+      <span class="c-status" style="font-size:12px;color:var(--muted)">${stale ? esc(t('sys_api_key_stale')) : ''}</span>
+      <span style="flex:1"></span>
+      <button class="m-btn c-test">${esc(t('sys_test'))}</button>
+      <button class="m-btn c-del">${esc(t('mgr_delete'))}</button>
+      <button class="m-btn primary c-save">${esc(t('mgr_save'))}</button>
+    </div>`;
+  const q = (k) => box.querySelector(k);
+  const patch = () => ({ id: c.id || undefined, name: q('.c-name').value.trim(),
+                         base_url: q('.c-base').value.trim(), apiKey: q('.c-key').value });
+  q('.c-save').addEventListener('click', async () => {
+    if (!q('.c-name').value.trim()) { toast(t('sys_cred_need_name')); return; }
+    // 新增的那条必须当场给 key, 否则存出来一条永远用不了的空壳
+    if (isNew && !q('.c-key').value.trim()) { toast(t('sys_api_need_key')); return; }
+    const pt = patch();
+    // 新加的、只改名字的、没人在用的: 存了就完。改了正在用的端点或 key: 先问, 确定才存并重启那些人格;
+    // 取消 = 什么都不存, 表单留着用户改到一半的样子
+    const touches = !isNew && (pt.base_url !== (c.base_url || '') || !!pt.apiKey.trim());
+    const users = touches ? ((await window.butler.credentialUsers(c.id)).users || []) : [];
+    if (users.length && !confirm(t('sys_cred_restart_confirm', { name: pt.name, personas: users.map((u) => u.name).join('、') }))) return;
+    const r = await window.butler.saveCredential(pt);
+    if (!r.ok) { toast(r.error === 'encryption_unavailable' ? t('sys_api_no_keychain')
+                     : r.error === 'name_required' ? t('sys_cred_need_name') : t('mgr_save_failed') + (r.error || '')); return; }
+    _draft = null;
+    const failed = [];
+    for (const u of users) {
+      const rr = await window.butler.restartPersona(u.id, {});
+      if (!rr.ok) failed.push(u.name);
+    }
+    toast(failed.length ? t('sys_cred_restart_failed', { personas: failed.join('、') })
+      : t(users.length ? 'sys_cred_saved_restarted' : 'sys_cred_saved'));
+    credRefresh();
+  });
+  q('.c-del').addEventListener('click', async () => {
+    if (isNew) { _draft = null; credRender(); return; }
+    if (!confirm(t('sys_cred_del_confirm', { name: c.name }))) return;
+    await window.butler.deleteCredential(c.id);
+    credRefresh();
+  });
+  q('.c-test').addEventListener('click', async () => {
+    q('.c-test').disabled = true;
+    q('.c-status').textContent = t('sys_testing');
+    q('.c-status').style.color = 'var(--muted)';
+    const r = await window.butler.testCredential(patch());
+    q('.c-test').disabled = false;
+    q('.c-status').textContent = (r.ok ? '● ' : '○ ') + (r.detail || (r.error === 'no_key' ? t('sys_api_need_key') : ''));
+    q('.c-status').style.color = r.ok ? 'var(--ok)' : 'var(--danger)';
+  });
+  q('.c-def').addEventListener('change', async () => {
+    if (!c.id) return;
+    await window.butler.setDefaultCredential(c.id);
+    credRefresh();
+  });
+  return box;
+}
+
+async function credRefresh() {
+  try { credRender(await window.butler.listCredentials()); }
+  catch (e) { console.error('[settings] listCredentials failed:', e && e.message); }
+}
+
+ACADD.addEventListener('click', () => {
+  if (_draft) return;                       // 一次只让加一条, 免得攒出一堆没存的空行
+  _draft = { id: '', name: '', base_url: '', keyState: 'none' };
+  credRender();
+});
+
+// ---- 订阅长效 token ----
+// 背后是 `claude setup-token`。主进程那边会给它伪终端、按行拼出完整 token、并且**先真打一次
+// API 验活才存** —— 所以这里只管三件事: 显示状态、按钮防重复点、把结果说清楚。
+// 整个过程最长 10 分钟(等人在浏览器里点), 期间按钮必须禁用: 再点一次不会开第二个浏览器
+// (主进程有单飞锁), 但用户会以为没反应而反复点。
+const STG = document.getElementById('st-get');
+const STC = document.getElementById('st-clear');
+const STS = document.getElementById('st-state');
+
+let _subtokLast = null;
+function subtokRender(d) {
+  if (d) _subtokLast = d;
+  const s = _subtokLast; if (!s || !STS) return;
+  const k = s.state === 'ok' ? 'sys_subtok_ok' : s.state === 'stale' ? 'sys_subtok_stale' : 'sys_subtok_none';
+  STS.textContent = (s.state === 'ok' ? '● ' : '○ ') + t(k);
+  STS.style.color = s.state === 'ok' ? 'var(--ok)' : s.state === 'stale' ? 'var(--warn)' : 'var(--muted)';
+  STC.style.display = s.state === 'none' ? 'none' : '';     // 没配过就没什么可清
+}
+
+async function subtokRefresh() {
+  try { subtokRender(await window.butler.subTokenState()); }
+  catch (e) { console.error('[settings] subTokenState failed:', e && e.message); }
+}
+
+if (STG) STG.addEventListener('click', async () => {
+  STG.disabled = true; STC.disabled = true;
+  STS.textContent = t('sys_subtok_running');
+  STS.style.color = 'var(--muted)';
+  let r;
+  try { r = await window.butler.runSetupToken(); }
+  catch (e) { r = { ok: false, error: String((e && e.message) || e) }; }
+  STG.disabled = false; STC.disabled = false;
+  if (r && r.ok) { toast(t('sys_subtok_done')); }
+  else {
+    // 失败照实说, 并且明确"你原来的登录没事" —— 否则用户会以为自己刚把登录搞坏了
+    STS.textContent = t('sys_subtok_failed', { err: (r && r.error) || '' });
+    STS.style.color = 'var(--danger)';
+    return;                                   // 不 refresh: 让失败原因留在屏幕上
+  }
+  subtokRefresh();
+});
+
+if (STC) STC.addEventListener('click', async () => {
+  if (!confirm(t('sys_subtok_clear_confirm'))) return;
+  await window.butler.saveSubToken(null);
+  toast(t('sys_saved_restart'));
+  subtokRefresh();
+});
+
+// ---- 本机戳醒 API (进程级开关, 不属于任何人格) ----
+const LA = { enabled: document.getElementById('la-enabled'), port: document.getElementById('la-port'),
+             save: document.getElementById('la-save'), status: document.getElementById('la-status'),
+             curl: document.getElementById('la-curl'), copy: document.getElementById('la-copy') };
+
+// 切语言时按这份快照重画, 不重新读盘 —— 重读会把用户还没保存的输入冲掉
+let _laLast = null;
+function laRender(c) {
+  if (c) _laLast = c;
+  const s = _laLast; if (!s) return;
+  LA.enabled.checked = !!s.enabled;
+  LA.port.value = s.port;
+  LA.status.textContent = s.running ? t('mgr_la_running', { port: s.port }) : t(s.enabled ? 'mgr_la_down' : 'mgr_la_off');
+  LA.status.style.color = s.running ? '#5cb85c' : (s.enabled ? '#d9534f' : '#888');
+  LA.curl.textContent = `curl -X POST http://127.0.0.1:${s.port}/v1/poke \\\n  -H 'Content-Type: application/json' \\\n  -d '{"persona":"${s.sample || t('mgr_la_sample_persona')}","from":"watchdog.py","text":"${t('mgr_la_sample_text')}"}'`;
+}
+
+async function laRefresh() {
+  try {
+    const c = await window.butler.getLocalApi();
+    // 示例里填个真人格名, 复制出去就能直接跑
+    const r = await window.butler.listPersonas();
+    c.sample = (r && r.personas && r.personas[0] && r.personas[0].name) || '';
+    laRender(c);
+  } catch (e) { console.error('[settings] getLocalApi failed:', e && e.message); }
+}
+
+async function laSave() {
+  LA.save.disabled = true;
+  const r = await window.butler.setLocalApi({ enabled: LA.enabled.checked, port: Number(LA.port.value) });
+  LA.save.disabled = false;
+  if (!r.ok) { toast(t('mgr_save_failed') + r.error); return laRefresh(); }
+  toast(r.running ? t('mgr_la_started', { port: r.localApi.port }) : t('mgr_la_stopped'));
+  laRefresh();
+}
+
+LA.save.addEventListener('click', laSave);
+LA.enabled.addEventListener('change', laSave);
+LA.copy.addEventListener('click', () => { navigator.clipboard.writeText(LA.curl.textContent); toast(t('mgr_copied')); });
+
+// ---- 网络代理 (进程级; 国内用户基本必配, 地址每台机器不同, 只能让用户自己填) ----
+const PX = { enabled: document.getElementById('px-enabled'), url: document.getElementById('px-url'),
+             noproxy: document.getElementById('px-noproxy'), test: document.getElementById('px-test'),
+             save: document.getElementById('px-save'), status: document.getElementById('px-status') };
+
+function pxStatus(text, color) { PX.status.textContent = text; PX.status.style.color = color; }
+
+// 测试结果是这一刻真跑出来的实况, 切语言时不该被"已启用/直连"这种静态文案盖掉
+let _pxLast = null, _pxShowingTest = false;
+function pxRenderSaved(p) {
+  if (p) _pxLast = p;
+  const s = _pxLast || {};
+  _pxShowingTest = false;
+  pxStatus(s.enabled && s.url ? t('mgr_px_on', { url: s.url }) : t('mgr_px_direct'), s.enabled && s.url ? '#5cb85c' : '#888');
+}
+
+function pxPatch() {
+  return { proxy: { enabled: PX.enabled.checked, url: PX.url.value.trim(), no_proxy: PX.noproxy.value.trim() } };
+}
+
+async function pxRefresh() {
+  try {
+    const s = await window.butler.getSettings();
+    const p = (s && s.proxy) || {};
+    PX.enabled.checked = !!p.enabled;
+    PX.url.value = p.url || '';
+    PX.noproxy.value = p.no_proxy || '';
+    pxRenderSaved(p);
+  } catch (e) { console.error('[settings] getSettings failed:', e && e.message); }
+}
+
+async function pxSave() {
+  if (PX.enabled.checked && !PX.url.value.trim()) { toast(t('mgr_px_need_url')); return; }
+  PX.save.disabled = true;
+  const r = await window.butler.setSettings(pxPatch());
+  PX.save.disabled = false;
+  toast(t(r.proxy && r.proxy.on ? 'mgr_px_saved_on' : 'mgr_px_saved_off'));
+  pxRefresh();
+}
+
+async function pxTest() {
+  if (!PX.url.value.trim()) { toast(t('mgr_px_need_url')); return; }
+  PX.test.disabled = true;
+  pxStatus(t('mgr_px_testing'), '#888');
+  const r = await window.butler.testProxy(pxPatch());
+  PX.test.disabled = false;
+  pxStatus((r.ok ? '● ' : '○ ') + r.detail, r.ok ? '#5cb85c' : '#d9534f');
+  _pxShowingTest = true;
+  toast(r.ok ? t('mgr_px_ok') : t('mgr_px_bad') + r.detail);
+}
+
+PX.save.addEventListener('click', pxSave);
+PX.test.addEventListener('click', pxTest);
+
+// ---- 界面语言 ----
+function applyStrings(payload) {
+  S = (payload && payload.strings) || S;
+  document.title = t('sys_title');
+  document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
+  document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
+}
+
+window.butler.onLocaleChanged && window.butler.onLocaleChanged((payload) => {
+  applyStrings(payload);
+  laRender();                                 // 快照重画, 不读盘
+  if (!_pxShowingTest) pxRenderSaved();
+  credRender();                               // 快照重画, 不读盘
+  subtokRender();                             // 同上: 状态条是 t() 拼的, 换语言要跟着重画
+});
+
+(async () => {
+  // 先拿语言再画: 状态条是 t() 拼出来的, S 还空着就画会得到一屏空白
+  try { applyStrings(await window.butler.getLocale()); }
+  catch (e) { console.error('[settings] getLocale failed:', e && e.message); }
+  credRefresh();
+  subtokRefresh();
+  laRefresh();
+  pxRefresh();
+})();
