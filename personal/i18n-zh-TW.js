@@ -210,7 +210,7 @@ module.exports = {
   mgr_sdk_claude_code: 'Claude Code',
   mgr_sdk_butler: 'Butler 引擎(多模型)',
   mgr_sdk_sub_only: '用訂閱時只能跑在 Claude Code 上',
-  mgr_access_sub_locked: '這台機器還沒連 Claude 帳號, 用不了訂閱。去系統設定填 API Key, 或重開 butler 走一次登入',
+  mgr_access_sub_locked: 'Claude 訂閱還沒開通: 要在系統設定 →「Claude 訂閱」裡開啟並登入 Claude 才能用。不用訂閱就選 API Key',
   mgr_access_hint: '這個人格的 AI 從哪兒來。系統設定裡存的憑據只是存著, 在這兒選中哪條才用哪條。改完要重開這個人格才生效',
   mgr_cred_none: '系統設定裡還沒存憑據 —— 存一條才能選「用 key」',
   mgr_access_reopen: ' · 接入方式改了 —— 關標籤重開這個人格才生效(端點和憑據在會話啟動那刻定死, 換不了熱的)',
@@ -310,7 +310,7 @@ module.exports = {
   mgr_px_testing: '● 測試中…',
   mgr_px_ok: '代理可用',
   mgr_px_bad: '代理不通: ',
-  mgr_sys_moved: '網路代理、本機 API 這些對所有人格生效的設定, 已挪到主介面右上角的 ⚙ 系統設定。',
+  mgr_sys_moved: '網路代理、本機 API 等對所有人格生效的設定在主介面右上角的 ⚙ 系統設定裡。',
 
   // —— 系統設定視窗 (settings.html · 跟人格無關的那些) ——
   sys_title: '系統設定',

@@ -297,7 +297,7 @@ ok('推理子进程源码不住在可再生的 vendor 目录里', () => {
 });
 ok('协议注册早于 app ready(Electron 硬时序)', () => {
   const m = fs.readFileSync(path.join(__dirname, 'main.js'), 'utf8');
-  const reg = m.indexOf('registerScheme()');
+  const reg = m.indexOf('registerScheme(');
   const ready = m.indexOf('app.whenReady()');
   assert.ok(reg > 0 && ready > 0, '两处都该存在');
     assert.ok(reg < ready, 'registerScheme 必须在 app.whenReady 之前, 否则协议静默失效');

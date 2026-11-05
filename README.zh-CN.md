@@ -141,7 +141,8 @@ aibutler 起步于我自己的开发日常。最早是在 VS Code 里用官方�
 - **放哪里**：放进数据目录下的 `packages.local/`，一个插件一个 `.json`，立即热装，自己写的插件不用签名。
 - **两种形态**：单屏小工具 `ui`，多步引导流程 `workflow`。
 - **沙箱**：界面跑在沙箱里，没有 `require` / `fetch` / `eval` / `localStorage`，只有一个 `butlerUI` 对象（`onInit` · `onPush` · `call` · `setState` · `resize`）。
-- **原语**：命令只能落在一组固定原语上：`speak` `save_file` `state` `message` `db` `mail` `ai_access` `web` `secret` `record` `pron` `bus`。
+- **原语**：命令只能落在一组固定原语上：`speak` `save_file` `state` `message` `db` `mail` `ai_access` `web` `secret` `record` `pron` `asset` `bus`。
+- **本地媒体**：图片、音频、视频放进数据目录下的 `plugin-assets/<包id>/`，或用 `asset` 原语的 `pick` 让用户自己选文件。`url` 交回一个地址，填进界面自己的 `<img>`、`<audio>`、`<video>` 就能显示和播放，大视频也能拖进度；插件拿不到文件路径，也读不到原始字节。
 - **联网**：用 `web` 原语，包顶层写 `net` 域名白名单，名单外的主机在登记时就被拒绝；密钥用 `secret` 原语存进本机金库，插件拿不到原文。
 - **和人格联动**：按钮可以把结构化结果送回人格；标注为 AI 可用的命令，人格可以直接调用。
 - **分发**：从外部下发的插件必须先通过签名校验，见 `scripts/build-ui-package.js` 与 `scripts/sign-package.js`。

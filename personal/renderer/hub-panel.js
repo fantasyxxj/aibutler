@@ -15,8 +15,8 @@ const HUB_T = {
   'zh-CN': {
     head: '🌐 连公网 hub', owner: '你的名字(对方靠它认出你, 别人也能按名字找到你)', ph: '想用来做什么(选填)', needowner: '请填上你自己的名字',
     apply: '申请连接', checking: '检查中…', check: '检查是否通过', advanced: '高级 · 手动填地址和 token',
-    pending: '已提交, 等对方批准。批了之后回来点一下「检查」。',
-    rejected: '这次申请没被通过。', notyet: '还没批下来, 过会儿再点。',
+    pending: '已提交, 等对方批准。批准后会自动连上, 想马上看结果可以点「检查」。',
+    rejected: '这次申请没被通过。', notyet: '还没批下来, 批准后会自动连上。',
     expired: '这条申请的凭证已经领走了。重新点「申请连接」再走一遍。',
     connected: '已连接 · 你的身份是 {agent}', done: '连上了! 你的身份是 {agent}',
     needname: '先给这个人格起个名字', busy: '正在申请…',
@@ -24,8 +24,8 @@ const HUB_T = {
   'zh-TW': {
     head: '🌐 連公開 hub', owner: '你的名字(對方靠它認出你, 別人也能按名字找到你)', ph: '想用來做什麼(選填)', needowner: '請填上你自己的名字',
     apply: '申請連線', checking: '檢查中…', check: '檢查是否通過', advanced: '進階 · 手動填位址和 token',
-    pending: '已送出，等對方核准。核准之後回來點一下「檢查」。',
-    rejected: '這次申請沒被通過。', notyet: '還沒核准，過一會兒再點。',
+    pending: '已送出，等對方核准。核准後會自動連上，想馬上看結果可以點「檢查」。',
+    rejected: '這次申請沒被通過。', notyet: '還沒核准，核准後會自動連上。',
     expired: '這條申請的憑證已經領走了。重新點「申請連線」再走一遍。',
     connected: '已連線 · 你的身分是 {agent}', done: '連上了！你的身分是 {agent}',
     needname: '先給這個人格取個名字', busy: '正在申請…',
@@ -33,8 +33,8 @@ const HUB_T = {
   en: {
     head: '🌐 Connect to the public hub', owner: 'Your name (how the approver recognizes you, and how others can find you)', ph: 'What you want to use it for (optional)', needowner: 'Please enter your own name',
     apply: 'Request access', checking: 'Checking…', check: 'Check if approved', advanced: 'Advanced · enter URL and token by hand',
-    pending: 'Request sent. Come back and hit Check once it is approved.',
-    rejected: 'This request was turned down.', notyet: 'Not approved yet — try again later.',
+    pending: 'Request sent, waiting for approval. It connects automatically once approved; hit Check to see right away.',
+    rejected: 'This request was turned down.', notyet: 'Not approved yet. It connects automatically once approved.',
     expired: 'The credential for this request has already been collected. Hit Request access to start over.',
     connected: 'Connected · you are {agent}', done: 'Connected! You are {agent}',
     needname: 'Give this persona a name first', busy: 'Requesting…',
@@ -42,8 +42,8 @@ const HUB_T = {
   ja: {
     head: '🌐 公開 hub につなぐ', owner: 'お名前(承認時の確認と、他の方があなたを名前で探すのに使います)', ph: '何に使いたいか(任意)', needowner: 'ご自身のお名前を入力してください',
     apply: '接続を申請', checking: '確認中…', check: '承認されたか確認', advanced: '詳細 · URL と token を手入力',
-    pending: '申請しました。承認されたら「確認」を押してください。',
-    rejected: '今回の申請は通りませんでした。', notyet: 'まだ承認されていません。後でもう一度。',
+    pending: '申請しました。承認されると自動でつながります。すぐ確かめたいときは「確認」を押してください。',
+    rejected: '今回の申請は通りませんでした。', notyet: 'まだ承認されていません。承認されると自動でつながります。',
     expired: 'この申請の認証情報は取得済みです。「接続を申請」からやり直してください。',
     connected: '接続済み · あなたは {agent} です', done: 'つながりました! あなたは {agent} です',
     needname: 'まずこの人格に名前をつけてください', busy: '申請中…',

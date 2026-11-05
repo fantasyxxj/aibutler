@@ -44,7 +44,7 @@
   // 文案由 main 通过 query string 带进来(见本文件顶部注释: 此后 IPC 已不可达)
   const q = new URLSearchParams(location.search);
   if (q.get('title')) document.getElementById('title').textContent = q.get('title');
-  if (q.get('sub')) document.getElementById('sub').textContent = q.get('sub');
+  if (q.has('sub')) document.getElementById('sub').textContent = q.get('sub');
 </script>
 </body>
 </html>

@@ -23,12 +23,13 @@ const _stat = { forks: 0, calls: 0, texts: 0, ms: 0, lastRssMb: 0 };
 
 // 必须在 app ready 之前调 —— privileged scheme 的注册时机是硬约束, 晚了静默失效,
 // 表现为"协议能用但 import 还是被拦", 极难自诊断。
-function registerScheme() {
+// 🔴 registerSchemesAsPrivileged 只能调一次, 别的特权协议(如插件读资源的 butler-asset)经 extra 一起登记。
+function registerScheme(extra = []) {
   const { protocol } = require('electron');
   protocol.registerSchemesAsPrivileged([{
     scheme: SCHEME,
     privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, stream: true },
-  }]);
+  }, ...extra]);
 }
 
 // 协议只映射两个目录: 随包发的 vendor(推理库 + wasm 运行时) 和数据目录里的 models(下载来的模型)。

@@ -35,7 +35,8 @@ contextBridge.exposeInMainWorld('butler', {
   deletePersona: (id) => ipcRenderer.invoke('delete-persona', { id }),        // 登记簿删除(不删目录/记忆, 只是不再列)
   exportPersona: (id) => ipcRenderer.invoke('export-persona', { id }),        // 整体导出成一个文件 → { ok, path, size, stripped[] }
   importPersona: (targetDir) => ipcRenderer.invoke('import-persona', { targetDir }),   // 从文件导入(targetDir 留空 = personas/<名字>) → { ok, id, name, memory, stripped[], exportedAt }
-  openManagerWindow: () => ipcRenderer.invoke('open-manager-window'),         // 开独立管理窗口
+  openManagerWindow: (view) => ipcRenderer.invoke('open-manager-window', { view }),   // 开独立管理窗口; view='create' 进新建视图
+  onManagerView: (cb) => ipcRenderer.on('manager-view', (_e, v) => cb(v)),   // 窗口已开着时切视图
   openSettingsWindow: () => ipcRenderer.invoke('open-settings-window'),       // 开独立系统设置窗口(接入方式/代理/本机 API)
   // 连公网 hub: 留一句话申请 → 作者点头 → 自己点「检查」把 token 取回来并配好通道
   hubState: (personaId) => ipcRenderer.invoke('hub-state', { personaId }),    // { applyId, status, asked, ownerName, shouldPrompt }

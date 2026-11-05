@@ -220,7 +220,7 @@ const UI = {
     mgr_sdk_claude_code: 'Claude Code',
     mgr_sdk_butler: 'Butler 引擎(多模型)',
     mgr_sdk_sub_only: '用订阅时只能跑在 Claude Code 上',
-    mgr_access_sub_locked: '这台机器还没连 Claude 账号, 用不了订阅。去系统设置填 API Key, 或重开 butler 走一次登录',
+    mgr_access_sub_locked: 'Claude 订阅还没开通: 要在系统设置 →「Claude 订阅」里开启并登录 Claude 才能用。不用订阅就选 API Key',
     mgr_access_hint: '这个人格的 AI 从哪儿来。系统设置里存的凭据只是存着, 在这儿选中哪条才用哪条。改完要重开这个人格才生效',
     mgr_cred_none: '系统设置里还没存凭据 —— 存一条才能选「用 key」',
     mgr_access_reopen: ' · 接入方式改了 —— 关标签重开这个人格才生效(端点和凭据在会话启动那刻定死, 换不了热的)',
@@ -320,7 +320,7 @@ const UI = {
     mgr_px_testing: '● 测试中…',
     mgr_px_ok: '代理可用',
     mgr_px_bad: '代理不通: ',
-    mgr_sys_moved: '网络代理、本机 API 这些对所有人格生效的设置, 已挪到主界面右上角的 ⚙ 系统设置。',
+    mgr_sys_moved: '网络代理、本机 API 等对所有人格生效的设置在主界面右上角的 ⚙ 系统设置里。',
 
     // —— 系统设置窗口 (settings.html · 跟人格无关的那些) ——
     sys_title: '系统设置',
@@ -571,7 +571,7 @@ const UI = {
     mgr_sdk_claude_code: 'Claude Code',
     mgr_sdk_butler: 'Butler engine (multi-model)',
     mgr_sdk_sub_only: 'A subscription runs on Claude Code only',
-    mgr_access_sub_locked: 'No Claude account connected on this machine, so the subscription path is unavailable. Save an API key in system settings, or reopen butler to sign in',
+    mgr_access_sub_locked: 'The Claude subscription is not set up yet: turn it on and log in to Claude under System settings → "Claude subscription". Otherwise choose API key',
     mgr_access_hint: 'Where this persona\'s AI comes from. Credentials in system settings are only stored — the one you pick here is the one it uses. Reopen this persona for a change to take effect',
     mgr_cred_none: 'No credentials stored in system settings yet — add one before picking “use a key”',
     mgr_access_reopen: ' · access changed — reopen this persona\'s tab for it to take effect (the endpoint and credentials are fixed when the session starts and cannot be swapped live)',
@@ -671,7 +671,7 @@ const UI = {
     mgr_px_testing: '● testing…',
     mgr_px_ok: 'The proxy works',
     mgr_px_bad: 'The proxy did not respond: ',
-    mgr_sys_moved: 'Proxy, Local API and other settings that apply to every persona have moved to ⚙ System Settings, top right of the main window.',
+    mgr_sys_moved: 'Proxy, Local API and other settings that apply to every persona are in ⚙ System Settings, top right of the main window.',
 
     // —— System settings window (settings.html · the stuff that has nothing to do with personas) ——
     sys_title: 'System Settings',
@@ -921,7 +921,7 @@ const UI = {
     mgr_sdk_claude_code: 'Claude Code',
     mgr_sdk_butler: 'Butler エンジン(マルチモデル)',
     mgr_sdk_sub_only: 'サブスクは Claude Code でのみ動きます',
-    mgr_access_sub_locked: 'このマシンは Claude アカウント未接続のため、サブスクは使えません。システム設定で API Key を保存するか、butler を開き直してログインしてください',
+    mgr_access_sub_locked: 'Claude サブスクはまだ使えません。システム設定の「Claude サブスクリプション」でオンにして Claude にログインしてください。使わない場合は API Key を選んでください',
     mgr_access_hint: 'この人格の AI をどこから取るか。システム設定の認証情報は保存してあるだけで、ここで選んだものが使われます。変更後はこの人格を開き直すと反映されます',
     mgr_cred_none: 'システム設定にまだ認証情報がありません —— 1 つ保存してから「key を使う」を選んでください',
     mgr_access_reopen: ' · 接続方法を変更しました —— この人格のタブを開き直すと反映されます(接続先と認証情報は会話の開始時に固定され、その場では切り替えられません)',
@@ -1021,7 +1021,7 @@ const UI = {
     mgr_px_testing: '● テスト中…',
     mgr_px_ok: 'プロキシは使えます',
     mgr_px_bad: 'プロキシにつながりません: ',
-    mgr_sys_moved: 'プロキシやローカル API など、すべての人格に効く設定はメイン画面右上の ⚙ システム設定に移りました。',
+    mgr_sys_moved: 'プロキシやローカル API など、すべての人格に効く設定はメイン画面右上の ⚙ システム設定にあります。',
 
     // —— システム設定ウィンドウ (settings.html · 人格に依らないもの) ——
     sys_title: 'システム設定',

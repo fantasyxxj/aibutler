@@ -7,7 +7,7 @@ const crypto = require('crypto');
 
 // 🔴 宿主接线必须排在**任何 core 模块之前** —— core 里有模块在加载那一刻就取 paths
 // (如 agent/util.js 的 CLAUDE_BIN), 接线晚一行都会当场抛"宿主没注入"。
-require('./host-wiring'); require('./image-save-ipc'); require('./hub-ipc').onClaimed(async (id) => { const c = registry.get(id); const s = c && sessions.get(sidOf(c.homeDir)); if (s) await installPlugins(s); });   // 后者=连公网 hub 的 IPC(自注册, 单开文件因 main.js 撞行数闸); 回调=取到 token 当场起收件循环, 否则要重启才收件
+require('./host-wiring'); require('./image-save-ipc'); require('./hub-ipc').onClaimed(async (id, { agent } = {}) => { broadcastRegistry(); const c = registry.get(id); const s = c && sessions.get(sidOf(c.homeDir)); if (!s) return; await installPlugins(s); s.butler.submit(`[hub-connected] You are now connected to the hub as ${agent}. Other agents can reach you there, and their messages arrive in your inbox.`, undefined, { sourceKind: 'auto' }).catch(() => {}); });   // 后者=连公网 hub 的 IPC(自注册, 单开文件因 main.js 撞行数闸); 回调=取到 token 当场起收件循环(否则要重启才收件)、刷新人格页、告诉人格它接上了
 
 const { Butler, hasUnconsumedCtxLast, accessConfig } = require('../core/agent');
 const store = require('../core/chat-store');
@@ -1158,16 +1158,14 @@ function giftSelfIdentity(s, name, homeDir, memoryDir, wakePhrase, createdBy) {
   } catch (e) { console.error('[birth] self_identity 沉淀失败:', e && e.message); }
 }
 
-// 升级补填: key 人格的引擎栏空着就会跟着这台装没装 Claude SDK 走(作者 11-05: 不许留空)。
-// 1.0.5 之前的个人版都带 Claude SDK, 那时空着 = Claude Code(作者定); 之后的填这次启动实际会用的那个。
-async function fillEmptyEngines() {
-  await require('../core/agent/util').ccAvailable();   // sdkForNewPersona 只认探过的结果
+// 每次启动补填: 引擎栏空着的人格直接按接入方式定 —— 用 key 的跑 Butler, 用订阅的跑 Claude Code(作者 11-05)。
+// 不再按「上次版本」猜: 老包里 key 人格是借自带的 Claude SDK 跑的, 覆盖安装后那份 SDK 就没了, 猜成 cc 只会卡住。
+function fillEmptyEngines() {
   for (const p of registry.list()) {
-    if (p.accessMode !== 'api' || p.sdk) continue;
-    const sdk = capUpdate.cmpVersion(p.capabilitySeenVersion || '0.0.0', '1.0.5') < 0
-      ? 'claude-code' : require('../core/agent/util').sdkForNewPersona('api');
+    if (p.sdk) continue;
+    const sdk = p.accessMode === 'api' ? 'butler' : 'claude-code';
     registry.upsert({ ...p, sdk });
-    console.log(`[sdk] ${p.name} 引擎栏空着, 补成 ${sdk} (上次版本 ${p.capabilitySeenVersion || '?'})`);
+    console.log(`[sdk] ${p.name} 引擎栏空着, 按${p.accessMode === 'api' ? ' key' : '订阅'}定为 ${sdk}`);
   }
 }
 
@@ -1649,13 +1647,15 @@ function migrateControlLayout() {
 
 // 语义检索的自定义协议必须在 ready 之前登记 —— 这是 Electron 的硬时序,
 // 晚一步不会报错, 只会让协议"看着能用但 import 仍被同源策略拦", 极难自诊断。
-try { require('../core/embed/host').registerScheme(); } catch (e) { console.error('[embed] scheme 注册失败:', e); }
+try { require('../core/embed/host').registerScheme([require('../core/asset-bridge').SCHEME_DESC]); } catch (e) { console.error('[embed] scheme 注册失败:', e); }
 
 let startupDone = false;   // 见下面 window-all-closed
 app.whenReady().then(async () => {
   try {
     // 协议处理器要在 ready 之后装(net.fetch 依赖 session)。与上面的 registerScheme 是一对。
     try { require('../core/embed/host').installProtocol(); } catch (e) { console.error('[embed] protocol 安装失败:', e); }
+    // 插件读本地资源(asset 原语)的地址: 按令牌找文件, 支持 Range
+    try { require('electron').protocol.handle(assetBridge.SCHEME, (req) => assets.respond(req.url, req.headers.get('range'))); } catch (e) { console.error('[asset] protocol 安装失败:', e); }
     // 语音输入(STT): 授予 renderer getUserMedia('audio') 权限. Electron 默认拒绝媒体请求
     // → getUserMedia 拿到的是静音 stream, whisper 会稳定输出 "you" 幻觉. 修法:
     // ①setPermissionRequestHandler 显式放行 media  ②macOS 首次触发系统 TCC 弹窗
@@ -1693,15 +1693,13 @@ app.whenReady().then(async () => {
     // 未登录 → 问一次要不要连 Claude。真去连的话授权在后台跑, 这里不等 —— 人格会先在无凭据状态起来,
     // 授权完成后 reloginAndRecover 逐个把它们重建掉。
     await ensureClaudeAuth();
-    await fillEmptyEngines();   // 老 key 人格的引擎栏补上, 之后装不装 Claude SDK 都不再漂
-    require('../core/cc-sdk-install').autoEnable({   // 升级自带 SDK 的老版本: 有要跑 Claude Code 的人格就后台补下载, 下完问要不要重启
+    fillEmptyEngines();   // 空着的引擎栏按接入方式补上, 之后装不装 Claude SDK 都不再漂
+    // 有要跑 Claude Code 的人格而本机缺这一版的 SDK: 先问, 同意就等下载完直接重启 —— 人格和主窗口都不在下载期间起来
+    if (await require('./cc-sdk-boot').run({
+      S: i18n.uiStrings(currentLocale()),
       hasSubscriptionPersona: () => registry.list().some((p) => p.accessMode !== 'api' || p.sdk === 'claude-code'),
-      onReady: () => {
-        const S = i18n.uiStrings(currentLocale());
-        dialog.showMessageBox(mainWin || undefined, { type: 'info', buttons: [S.sys_cc_relaunch, S.sys_cc_later], defaultId: 0, cancelId: 1, message: S.sys_cc_auto_ready })
-          .then(({ response }) => { if (response === 0) relaunchApp(); });
-      },
-    });
+      relaunch: () => relaunchApp(),
+    })) return;
     // 恢复上次打开的标签。🔴 一个人格都没有时**不兜底创建** —— 渲染层显示空状态屏, 让用户
     // 先接上 AI、顺手选好人格目录, 点了「创建初始人格」才真的建。详见 first-persona.js。
     const dirs = loadOpenTabs().filter((d) => { try { return fs.existsSync(d); } catch (_) { return false; } });
@@ -1875,12 +1873,28 @@ ipcMain.handle('command-catalog', async () => ({ commands: commands.catalog() })
 const recordBridge = require('../core/record-bridge');
 const recordsDir = () => path.join(paths.controlDir(), 'recordings');
 const recordFor = recordBridge.create({ ipcMain, dir: recordsDir });
+// asset 原语: 包自己的素材目录 + 用户亲手挑过的文件(按包记授权)。选择框挂在发命令的那个窗口上
+const assetBridge = require('../core/asset-bridge');
+let _assetPickWin = null;
+const assets = assetBridge.create({
+  root: () => path.join(paths.dataDir(), 'plugin-assets'),   // 跟 packages.local 并排, 人格写插件时看得见
+  grantsFile: () => path.join(paths.controlDir(), 'plugin-asset-grants.json'),
+  pickFiles: async (filters) => {
+    const r = await dialog.showOpenDialog(_assetPickWin || mainWin, { properties: ['openFile', 'multiSelections'], filters });
+    return r.canceled ? [] : r.filePaths;
+  },
+});
 function commandCtx(sender) {
   return {
     // record 原语: 由发命令的那个窗口代录(插件沙箱里没有麦克风)。人格的 plugin_call 没有窗口, 也调不到 record
     record: recordFor(sender || null),
     // pron 原语送去评测时读本包录的那段
     recordFile: (pkg, id) => recordBridge.readRecording(recordsDir(), pkg, id),
+    // asset 原语: pick 只有按钮(有窗口)才弹得出框; 人格的 plugin_call 没窗口, 登记时 pick 已设成只给人按
+    asset: (pkg, op, args, decl) => {
+      if (op === 'pick') _assetPickWin = (sender && BrowserWindow.fromWebContents(sender)) || null;
+      return assets.handle(pkg, op, args, decl);
+    },
     locale: currentLocale(),
     /* 真正碰外界的动作从这里注入 —— commands.js 本身保持在纯 node 下能跑,
        否则那套原语的门禁就只能靠起一个 electron 才测得动。 */
@@ -2480,8 +2494,8 @@ ipcMain.handle('choose-directory', async (_e) => {
 });
 
 // 开独立管理窗口(单例; 再点=前置)
-ipcMain.handle('open-manager-window', async () => {
-  if (managerWin && !managerWin.isDestroyed()) { managerWin.focus(); return { ok: true }; }
+ipcMain.handle('open-manager-window', async (_e, { view } = {}) => {   // view: 'create' = 新建视图, 其余 = 人格列表
+  if (managerWin && !managerWin.isDestroyed()) { managerWin.webContents.send('manager-view', view === 'create' ? 'create' : 'list'); managerWin.focus(); return { ok: true }; }
   managerWin = new BrowserWindow({
     width: 720, height: 560, title: i18n.uiStrings(currentLocale()).mgr_title, backgroundColor: '#1e1e28', parent: mainWin, fullscreenable: false,
     // 版本号从这里递进去: preload 跑在沙箱里, 里面 require('./package.json') 会失败(静默落成 '?'), 标题就成了「v?」。
@@ -2492,7 +2506,7 @@ ipcMain.handle('open-manager-window', async () => {
   // 管理窗只落日志不转发: 那边没有人格在听。没有这条时渲染层一抛异常就彻底静默 ——
   // 按钮点了没反应而日志一个字都没有, 只能靠猜(2026-08-25 为"导入点不开"白猜了两轮)。
   require('../core/renderer-diagnostics').attachRendererDiagnostics(managerWin, 'manager-win'); require('./window-guard').attachEscClose(managerWin);
-  managerWin.loadFile(path.join(__dirname, 'renderer', 'manager.html'));
+  managerWin.loadFile(path.join(__dirname, 'renderer', 'manager.html'), view === 'create' ? { hash: 'create' } : {});
   return { ok: true };
 });
 

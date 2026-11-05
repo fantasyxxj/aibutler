@@ -652,6 +652,18 @@ F.accSub.addEventListener('change', refreshCreateModelOptions);
 F.accApi.addEventListener('change', refreshCreateModelOptions);
 F.cred.addEventListener('change', refreshCreateModelOptions);
 
+// 管理和新建分两个视图(作者 2026-11-05 定): 进管理只看人格列表, 新建由菜单「新建人格」直接进(#create)。
+let _view = 'list';
+function showView(v) {
+  const create = v === 'create';
+  _view = create ? 'create' : 'list';
+  document.getElementById('v-create').hidden = !create;
+  document.getElementById('v-list').hidden = create;
+  if (S.mgr_title) document.title = t(create ? 'mgr_new_persona' : 'mgr_title');
+}
+showView(location.hash === '#create' ? 'create' : 'list');
+window.butler.onManagerView && window.butler.onManagerView(showView);
+
 F.create.addEventListener('click', async () => {
   const name = F.name.value.trim();
   if (!name) { toast(t('mgr_name_required')); F.name.focus(); return; }
@@ -671,6 +683,7 @@ F.create.addEventListener('click', async () => {
     toast(t('mgr_created', { name: r.name }));
     F.name.value = ''; F.dir.value = ''; F.wake.value = ''; F.butler.checked = false; createSetAvatar('');
     (_subLoggedIn ? F.accSub : F.accApi).checked = true; await refreshCreateModelOptions();
+    showView('list');
   } else { toast(t('mgr_create_failed') + r.error); }
 });
 
@@ -680,7 +693,7 @@ F.create.addEventListener('click', async () => {
 // 静态文案走 data-i18n*, 动态生成的(人格行/编辑面板/状态条)只能整块重画。
 function applyStrings(payload) {
   S = (payload && payload.strings) || S;
-  document.title = t('mgr_title');
+  document.title = t(_view === 'create' ? 'mgr_new_persona' : 'mgr_title');
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
   document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });

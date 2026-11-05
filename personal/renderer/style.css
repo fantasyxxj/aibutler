@@ -458,10 +458,10 @@ mark.search-hit.current { background: #f59e0b; color: #1a1a1a; }
 .manager-body .sys-lede { color: #888; font-size: 12px; line-height: 1.6; margin: 0 0 14px; }
 .manager-body .row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-bottom: 1px solid #2f2f3a; }
 .manager-body .row:hover { background: #ffffff08; }
-.manager-body .m-name { flex: 1; font-weight: 500; }
+.manager-body .m-name { flex: 0 0 9em; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }   /* 定宽: 按内容分宽时名字一长路径就错位 */
 .manager-body .m-name input { background: transparent; border: none; color: inherit; font: inherit; font-weight: 500; width: 100%; padding: 2px 4px; border-radius: 3px; }
 .manager-body .m-name input:focus { background: #ffffff10; outline: 1px solid var(--brand-hi); }
-.manager-body .m-dir { color: #888; font-size: 11px; flex: 2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.manager-body .m-dir { color: #888; font-size: 11px; flex: 1 1 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .manager-body .m-tag { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: #ffffff14; }
 .manager-body .m-tag.butler { background: #f59e0b; color: #000; }
 .manager-body .m-tag.open { background: #22c55e; color: #000; }

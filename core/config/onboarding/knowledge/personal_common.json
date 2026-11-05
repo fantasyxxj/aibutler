@@ -1,7 +1,7 @@
 {
   "_": "出生知识包 · 个人版共用。个人版每个人格都灌(含初始人格); 行业版不灌 —— 行业版 manifest 的 knowledge 数组里没有它。可用变量: {{name}}",
   "bundle_id": "personal_common",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "items": [
     {
       "slug": "reference_one_persona_one_domain",
@@ -1121,22 +1121,22 @@
       "type": "reference",
       "importance": "high",
       "title": "插件就是一块能点的屏幕, 一个功能一个, 整个产物是一个 JSON",
-      "claim": "**插件就是一块能点的屏幕, 一个功能一个**。写一个插件的全部产物就是一个裸 JSON: 必填 type/id/version, **type 只能是 `ui`(一块屏幕) 或 `workflow`(分步骤翻的多步插件)**, 写成别的不报错也不提示, 但装载器不认、plugin_find 里看不见。屏幕本身是 title/html/css/js, 按钮在 commands 里声明。沙箱里只有 window.butlerUI 的 onInit/onPush/call/setState/resize 五个方法, 按钮能干的事封死在宿主给的原语里: message / speak / save_file / state / db / web / secret / record(录音) / pron(发音评测) —— 这就是能力上限, 绕不过去。",
+      "claim": "**插件就是一块能点的屏幕, 一个功能一个**。写一个插件的全部产物就是一个裸 JSON: 必填 type/id/version, **type 只能是 `ui`(一块屏幕) 或 `workflow`(分步骤翻的多步插件)**, 写成别的不报错也不提示, 但装载器不认、plugin_find 里看不见。屏幕本身是 title/html/css/js, 按钮在 commands 里声明。沙箱里只有 window.butlerUI 的 onInit/onPush/call/setState/resize 五个方法, 按钮能干的事封死在宿主给的原语里: message / speak / save_file / state / db / web / secret / record(录音) / pron(发音评测) / asset(读本地图片音视频) —— 这就是能力上限, 绕不过去。",
       "keywords": "写插件 怎么写 做一个插件 字段 payload 结构 长什么样 html css js commands butlerUI 能不能做到 上限 界面包 type 取值 ui workflow 装不上 找不到 plugin_find 看不见",
       "translations": {
         "ja": {
           "title": "プラグインとは押せる画面ひとつ。機能ひとつにつき一枚で、成果物は JSON 一個",
-          "claim": "**プラグインとは押せる画面ひとつ、機能ひとつにつき一枚**。成果物は裸の JSON 一個だけ: 必須は type/id/version、**type は `ui`(一枚の画面) か `workflow`(手順を追って捲る多段プラグイン)のみ**。他を書いてもエラーは出ないが、ローダーが認識せず plugin_find にも出ない。画面は title/html/css/js、ボタンは commands で宣言する。サンドボックスは window.butlerUI の onInit/onPush/call/setState/resize の五つだけで、ボタンができることはホストが用意した原語に封じられている: message / speak / save_file / state / db / web / secret / record(録音) / pron(発音評価) —— これが能力の上限で迂回路はない。",
+          "claim": "**プラグインとは押せる画面ひとつ、機能ひとつにつき一枚**。成果物は裸の JSON 一個だけ: 必須は type/id/version、**type は `ui`(一枚の画面) か `workflow`(手順を追って捲る多段プラグイン)のみ**。他を書いてもエラーは出ないが、ローダーが認識せず plugin_find にも出ない。画面は title/html/css/js、ボタンは commands で宣言する。サンドボックスは window.butlerUI の onInit/onPush/call/setState/resize の五つだけで、ボタンができることはホストが用意した原語に封じられている: message / speak / save_file / state / db / web / secret / record(録音) / pron(発音評価) / asset(ローカルの画像・音声・動画を読む) —— これが能力の上限で迂回路はない。",
           "keywords": "プラグインを書く どう書く プラグインを作る フィールド payload 構造 どんな形 html css js commands butlerUI できるか 上限 UI パッケージ type 値 workflow インストールできず 見つけられない plugin_find 見えない"
         },
         "en": {
           "title": "A plugin is one clickable screen, one per feature, and the whole deliverable is a single JSON",
-          "claim": "**A plugin is one clickable screen, one per feature.** The whole deliverable is a single bare JSON: type/id/version required, and **type may only be `ui` (one screen) or `workflow` (a multi-step plugin you page through)**. Anything else raises no error, but the loader ignores it and plugin_find never shows it. The screen is title/html/css/js; buttons are declared under commands. The sandbox exposes only onInit/onPush/call/setState/resize on window.butlerUI, and a button is capped at the host's primitives — message / speak / save_file / state / db / web / secret / record (recording) / pron (pronunciation scoring). That is the ceiling, with no way around it.",
+          "claim": "**A plugin is one clickable screen, one per feature.** The whole deliverable is a single bare JSON: type/id/version required, and **type may only be `ui` (one screen) or `workflow` (a multi-step plugin you page through)**. Anything else raises no error, but the loader ignores it and plugin_find never shows it. The screen is title/html/css/js; buttons are declared under commands. The sandbox exposes only onInit/onPush/call/setState/resize on window.butlerUI, and a button is capped at the host's primitives — message / speak / save_file / state / db / web / secret / record (recording) / pron (pronunciation scoring) / asset (reading local images, audio and video). That is the ceiling, with no way around it.",
           "keywords": "write plugin how to create field payload structure format html css js commands butlerUI can it do that capability limit UI package type values workflow not installing found plugin_find invisible"
         },
         "zh-TW": {
           "title": "外掛就是一塊能點的螢幕, 一個功能一個, 整個產物是一個 JSON",
-          "claim": "**外掛就是一塊能點的螢幕, 一個功能一個**。寫一個外掛的全部產物就是一個裸 JSON: 必填 type/id/version, **type 只能是 `ui`(一塊螢幕) 或 `workflow`(分步驟翻的多步外掛)**, 寫成別的不報錯也不提示, 但載入器不認、plugin_find 裡看不見。螢幕本身是 title/html/css/js, 按鈕在 commands 裡宣告。沙箱裡只有 window.butlerUI 的 onInit/onPush/call/setState/resize 五個方法, 按鈕能幹的事封死在宿主給的原語裡: message / speak / save_file / state / db / web / secret / record(錄音) / pron(發音評測) —— 這就是能力上限, 繞不過去。",
+          "claim": "**外掛就是一塊能點的螢幕, 一個功能一個**。寫一個外掛的全部產物就是一個裸 JSON: 必填 type/id/version, **type 只能是 `ui`(一塊螢幕) 或 `workflow`(分步驟翻的多步外掛)**, 寫成別的不報錯也不提示, 但載入器不認、plugin_find 裡看不見。螢幕本身是 title/html/css/js, 按鈕在 commands 裡宣告。沙箱裡只有 window.butlerUI 的 onInit/onPush/call/setState/resize 五個方法, 按鈕能幹的事封死在宿主給的原語裡: message / speak / save_file / state / db / web / secret / record(錄音) / pron(發音評測) / asset(讀本機圖片音影片) —— 這就是能力上限, 繞不過去。",
           "keywords": "寫外掛 怎麼寫 做一個外掛 字段 payload 結構 長什麼樣 html css js commands butlerUI 能不能做到 上限 外掛 type 取值 ui workflow 裝不上 找不到 plugin_find 看不見"
         }
       },
@@ -1338,6 +1338,38 @@
           "title": "外掛要錄音、評發音就用 record 和 pron 兩種命令, 由宿主代錄代評",
           "claim": "外掛沙箱裡沒有麥克風, 錄音由宿主代錄: 宣告 `{\"primitive\":\"record\",\"op\":\"warm\"}`(介面一顯示就呼叫, 提前開麥) · `{\"primitive\":\"record\",\"op\":\"start\",\"max_sec\":120}` · `{\"primitive\":\"record\",\"op\":\"stop\"}`(回 `data.id` / `data.path` / `data.duration_sec`) · `{\"primitive\":\"record\",\"op\":\"play\",\"params\":{\"id\":{\"required\":true}}}`; 介面 pointerdown 呼叫 start、pointerup 呼叫 stop 就是按住說話。評發音宣告 `{\"primitive\":\"pron\",\"op\":\"assess\",\"params\":{\"id\":{\"required\":true},\"text\":{},\"lang\":{}}}`, 傳錄音 id、原文(不傳就是自由回答)和語言(如 en-GB / ja-JP), 回總分、準確、流利、完整、韻律和逐詞分; Azure key 用 op key_set / status 在外掛介面裡存。現成的完整例子是外掛 pron-check。",
           "keywords": "外掛 錄音 麥克風 按住說話 回放 口說 跟讀 朗讀 發音 評分 打分 口說評測 雅思 日語 發音練習 Azure 微軟 key record pron 能不能錄音"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_plugin_payload_is_one_json_and_capped"
+        }
+      ]
+    },
+    {
+      "slug": "reference_plugin_asset_primitive_local_media",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "high",
+      "title": "插件能显示、播放本地的图片、音频、视频, 用 asset 命令拿地址",
+      "claim": "插件能显示和播放本地的图片(png jpg gif webp)、音频(mp3 wav m4a aac ogg flac opus)、视频(mp4 webm m4v mov): 素材放进数据目录下 `plugin-assets/<包id>/`(与 packages.local 并排, 可分子目录), 声明 `{\"primitive\":\"asset\",\"op\":\"list\"}`(回 `data.assets` 素材清单与 `data.picked` 用户选过的文件) · `{\"primitive\":\"asset\",\"op\":\"url\",\"params\":{\"name\":{},\"ref\":{}}}`(传素材相对名 name 或选过文件的 ref, 回 `data.url` 与 `data.kind`) · `{\"primitive\":\"asset\",\"op\":\"pick\",\"kinds\":[\"video\"]}`(弹系统打开框让用户挑文件, kinds 可省, 回 `data.picked` 各带 ref) · `{\"primitive\":\"asset\",\"op\":\"forget\",\"params\":{\"ref\":{\"required\":true}}}`; 把 url 填进界面自己的 `<img>` `<audio controls>` `<video controls>` 的 src, 播放、暂停、拖进度、变速、循环都用这些标签自带的功能, 大视频也能拖。",
+      "keywords": "插件 图片 照片 音频 音乐 听力 播放 视频 电影 课程 本地文件 素材 显示图片 放视频 播放器 选文件 打开文件 asset 能不能播 做得到吗",
+      "translations": {
+        "ja": {
+          "title": "プラグインはローカルの画像・音声・動画を表示・再生できる。asset 命令で URL を取る",
+          "claim": "プラグインはローカルの画像(png jpg gif webp)・音声(mp3 wav m4a aac ogg flac opus)・動画(mp4 webm m4v mov)を表示・再生できる: 素材はデータディレクトリの `plugin-assets/<包id>/`(packages.local と並び、サブフォルダ可)に置き、`{\"primitive\":\"asset\",\"op\":\"list\"}`(`data.assets` 素材一覧と `data.picked` ユーザーが選んだファイルを返す) · `{\"primitive\":\"asset\",\"op\":\"url\",\"params\":{\"name\":{},\"ref\":{}}}`(素材の相対名 name か選んだファイルの ref を渡し、`data.url` と `data.kind` を返す) · `{\"primitive\":\"asset\",\"op\":\"pick\",\"kinds\":[\"video\"]}`(OS のファイル選択を開いてユーザーに選ばせる。kinds は省略可。`data.picked` に各 ref) · `{\"primitive\":\"asset\",\"op\":\"forget\",\"params\":{\"ref\":{\"required\":true}}}` を宣言する; url を画面の `<img>` `<audio controls>` `<video controls>` の src に入れ、再生・一時停止・シーク・速度・ループはタグ自身の機能で行う。大きな動画もシークできる。",
+          "keywords": "プラグイン 画像 写真 音声 音楽 リスニング 再生 動画 映画 講座 ローカルファイル 素材 画像表示 動画再生 プレーヤー ファイル選択 asset できるか"
+        },
+        "en": {
+          "title": "Plugins can show and play local images, audio and video; get the address with an asset command",
+          "claim": "A plugin can show and play local images (png jpg gif webp), audio (mp3 wav m4a aac ogg flac opus) and video (mp4 webm m4v mov): put the files in `plugin-assets/<package id>/` under the data directory (next to packages.local; subfolders allowed) and declare `{\"primitive\":\"asset\",\"op\":\"list\"}` (returns `data.assets`, the bundled files, and `data.picked`, files the user chose) · `{\"primitive\":\"asset\",\"op\":\"url\",\"params\":{\"name\":{},\"ref\":{}}}` (pass a bundled file's relative name or a chosen file's ref; returns `data.url` and `data.kind`) · `{\"primitive\":\"asset\",\"op\":\"pick\",\"kinds\":[\"video\"]}` (opens the system file picker for the user; kinds optional; returns `data.picked`, each with a ref) · `{\"primitive\":\"asset\",\"op\":\"forget\",\"params\":{\"ref\":{\"required\":true}}}`; put the url into the src of the screen's own `<img>`, `<audio controls>` or `<video controls>`, and use those tags' built-in play, pause, seek, speed and loop. Large videos seek fine.",
+          "keywords": "plugin image photo audio music listening play video movie lesson local file media show picture video player choose file open file asset can it play"
+        },
+        "zh-TW": {
+          "title": "外掛能顯示、播放本機的圖片、音訊、影片, 用 asset 命令拿地址",
+          "claim": "外掛能顯示和播放本機的圖片(png jpg gif webp)、音訊(mp3 wav m4a aac ogg flac opus)、影片(mp4 webm m4v mov): 素材放進資料目錄下 `plugin-assets/<包id>/`(與 packages.local 並排, 可分子目錄), 宣告 `{\"primitive\":\"asset\",\"op\":\"list\"}`(回 `data.assets` 素材清單與 `data.picked` 使用者選過的檔案) · `{\"primitive\":\"asset\",\"op\":\"url\",\"params\":{\"name\":{},\"ref\":{}}}`(傳素材相對名 name 或選過檔案的 ref, 回 `data.url` 與 `data.kind`) · `{\"primitive\":\"asset\",\"op\":\"pick\",\"kinds\":[\"video\"]}`(彈系統開啟框讓使用者挑檔案, kinds 可省, 回 `data.picked` 各帶 ref) · `{\"primitive\":\"asset\",\"op\":\"forget\",\"params\":{\"ref\":{\"required\":true}}}`; 把 url 填進介面自己的 `<img>` `<audio controls>` `<video controls>` 的 src, 播放、暫停、拖進度、變速、循環都用這些標籤自帶的功能, 大影片也能拖。",
+          "keywords": "外掛 圖片 照片 音訊 音樂 聽力 播放 影片 電影 課程 本機檔案 素材 顯示圖片 放影片 播放器 選檔案 開啟檔案 asset 能不能播 做得到嗎"
         }
       },
       "edges": [

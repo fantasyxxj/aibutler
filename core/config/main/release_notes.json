@@ -918,5 +918,21 @@
         "en": "Creating tasks, setting reminders or opening a plugin (such as a read-aloud drill with Japanese text) sometimes got sent back for rewriting, and a few in a row meant it never got done. These actions are now written differently, so this should rarely happen now."
       }
     }
+  ],
+  "1.0.12": [
+    {
+      "title": {
+        "zh-CN": "启动时下载 Claude 组件，下完自动重启，不再先出主窗口",
+        "zh-TW": "啟動時下載 Claude 元件，下完自動重新啟動，不再先出主視窗",
+        "ja": "起動時の Claude コンポーネントのダウンロードは、終わると自動で再起動するようになった（先にメイン画面が出なくなった）",
+        "en": "Downloading the Claude components at startup now restarts the app automatically, without opening the main window first"
+      },
+      "detail": {
+        "zh-CN": "用 Claude 订阅的人格需要的组件不在本机时，启动会问要不要下载。以前点了「下载」，主窗口会先出来，人格在组件还没到的时候就开口报错；下完还要再点一次重启。现在下载期间只显示一个小进度窗，下完自动重启，人格和主窗口等新进程起来再出现。点「稍后」或下载失败就照常启动。",
+        "zh-TW": "用 Claude 訂閱的人格需要的元件不在本機時，啟動會問要不要下載。以前點了「下載」，主視窗會先出來，人格在元件還沒到的時候就開口報錯；下完還要再點一次重新啟動。現在下載期間只顯示一個小進度窗，下完自動重新啟動，人格和主視窗等新程序起來再出現。點「稍後」或下載失敗就照常啟動。",
+        "ja": "サブスクリプションで動く人格に必要なコンポーネントがこのパソコンにないと、起動時にダウンロードするか確認します。これまでは「ダウンロード」を押すと先にメイン画面が開き、コンポーネントが届く前に人格がエラーを出し、終わってからもう一度再起動を押す必要がありました。今はダウンロード中は小さな進捗ウィンドウだけを表示し、終わると自動で再起動して、人格とメイン画面は新しく起動してから現れます。「後で」を選んだときやダウンロードに失敗したときは、いつも通り起動します。",
+        "en": "If the components needed by personas on a Claude subscription are missing, startup asks whether to download them. Previously, choosing Download opened the main window right away, personas reported errors before the components arrived, and you had to confirm a restart afterwards. Now only a small progress window is shown during the download, the app restarts by itself when it finishes, and personas and the main window appear after the restart. Choosing Later, or a failed download, starts the app as usual."
+      }
+    }
   ]
 }

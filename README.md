@@ -141,7 +141,8 @@ A plugin is one JSON package: its own UI (`html` / `css` / `js`), command declar
 - **Where it goes**: `packages.local/` under the data directory, one `.json` per plugin. It hot-installs immediately, and plugins you write yourself need no signature.
 - **Two shapes**: single-screen tools (`ui`) and multi-step guided flows (`workflow`).
 - **Sandbox**: the UI runs sandboxed with no `require` / `fetch` / `eval` / `localStorage`, and exactly one host object, `butlerUI` (`onInit` · `onPush` · `call` · `setState` · `resize`).
-- **Primitives**: every command maps onto a fixed set of primitives: `speak` `save_file` `state` `message` `db` `mail` `ai_access` `web` `secret` `record` `pron` `bus`.
+- **Primitives**: every command maps onto a fixed set of primitives: `speak` `save_file` `state` `message` `db` `mail` `ai_access` `web` `secret` `record` `pron` `asset` `bus`.
+- **Local media**: put images, audio and video in `plugin-assets/<package id>/` under the data directory, or let the user choose files with the `asset` primitive's `pick`. `url` returns an address for the screen's own `<img>`, `<audio>` or `<video>`; the plugin can show and play the file (large videos seek fine) but never sees its path or raw bytes.
 - **Network access**: use the `web` primitive with a top-level `net` allowlist. Hosts outside the list are rejected at registration. Secrets go into the local vault through the `secret` primitive, and the plugin never sees them in plain text.
 - **Two-way with the persona**: buttons send structured results back to the persona, and commands marked for AI use can be called by the persona directly.
 - **Distribution**: plugins delivered from elsewhere must pass signature verification. See `scripts/build-ui-package.js` and `scripts/sign-package.js`.

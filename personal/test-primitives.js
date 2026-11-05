@@ -87,8 +87,8 @@ console.log('\n[4] 原语 —— 能力的真实上限');
 
   const names = Object.keys(commands.PRIMITIVES).sort();
   ok(JSON.stringify(names) === JSON.stringify(
-       ['ai_access', 'bus', 'db', 'mail', 'message', 'pron', 'record', 'save_file', 'secret', 'speak', 'state', 'web']),
-     `原语就这十二个: ${names.join(' / ')}`);
+       ['ai_access', 'asset', 'bus', 'db', 'mail', 'message', 'pron', 'record', 'save_file', 'secret', 'speak', 'state', 'web']),
+     `原语就这十三个: ${names.join(' / ')}`);
 
   // —— message: 沙箱通往 AI 的唯一一条路(2026-08-21 新增) ——
   // 在它之前, 包里填的东西没有任何办法送到模型那儿, 而失败的样子是"念了一段但 AI 什么都没收到"。

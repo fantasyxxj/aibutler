@@ -46,12 +46,15 @@
      'unsafe-inline' 是要的 —— 包的 html/css/js 就是内联进来的, 没有别的来源可给。
      但**没有 'unsafe-eval'**: 包不需要 eval, 而 eval 是把一段从别处拿来的字符串
      变成代码的唯一入口, 留着它等于给「二次下发」开了个不受签名管的后门。
-     connect-src / img-src 里没有 http —— 出网这件事整条不给, 要联网就交给 AI。 */
+     connect-src / img-src 里没有 http —— 出网这件事整条不给, 要联网就交给 AI。
+     butler-asset: 是 asset 原语交回的本地资源地址: 只放给 img / media, 能显示能播,
+     fetch 走 connect-src(回落 'none')读不到原始字节。 */
   const CSP = [
     "default-src 'none'",
     "script-src 'unsafe-inline'",
     "style-src 'unsafe-inline'",
-    "img-src data:",
+    "img-src data: butler-asset:",
+    "media-src butler-asset:",
     "font-src data:",
     "form-action 'none'",
     "base-uri 'none'",

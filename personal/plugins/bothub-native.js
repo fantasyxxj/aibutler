@@ -128,7 +128,7 @@ class BothubNativeChannel {
       id: ep.id || `bothub${idx}`, kind: 'bothub', base_url: ep.url,
       token: ep.token, agent: ep.agent, poll_interval: ep.poll_interval,
     });
-    if (!this.offsets.get(idx)) await this._skipBacklog(endpoint, idx);
+    if (!this.offsets.get(idx)) await this._catchUpBacklog(ep, endpoint, idx);
     else this.onLog(`[bothub:${this.personaName}#${idx}] 从落盘 offset=${this.offsets.get(idx)} 续上`);
     if (this.stopped) return;
 
@@ -176,25 +176,32 @@ class BothubNativeChannel {
     return this._processGraded(ep, idx, msgs);
   }
 
-  // 首启跳积压: agent-bus 分页升序每页 ≤50 条, 一页的 max 只是**分页 tail** 不是真 tail。
-  // 一直拉到某页不满 (=真 tail) 才算数。全程只推 offset, 不唤醒。
-  async _skipBacklog(endpoint, idx) {
+  // 首启补收积压(作者 2026-11-05 定: 积压批量取回一次处理, 不跳过): 这个号头一回起收件循环、本地没有游标时,
+  // 把服务端还留着的未读(保鲜 7 天)一页页拉完, 落收件箱、推游标, 再合成一批交给人格。
+  // agent-bus 分页升序每页 ≤50 条, 一页的 max 只是**分页 tail** 不是真 tail, 一直拉到某页不满才算拉完。
+  async _catchUpBacklog(ep, endpoint, idx) {
     const PAGE = 50;
-    const HARD_CAP = 200;   // 防死循环: 最多 200 页 (10000 条历史 = 极限)
-    let cur = 0, pages = 0, total = 0;
+    const HARD_CAP = 200;   // 防死循环: 最多 200 页
+    let cur = 0, pages = 0;
+    const msgs = [];
     try {
       while (pages < HARD_CAP && !this.stopped) {
         const { items, nextCursor } = await endpoint.poll({ cursor: cur });
         if (!items.length) break;
-        cur = nextCursor; total += items.length; pages += 1;
+        msgs.push(...items.map((it) => it.payload));
+        cur = nextCursor; pages += 1;
         if (items.length < PAGE) break;
       }
-      this.offsets.set(idx, cur); this._saveOffsets();
-      this.onLog(`[bothub:${this.personaName}#${idx}] 首启跳积压 → offset=${cur} (${total} 条历史 / ${pages} 页, 不处理)`);
     } catch (e) {
-      this.onLog(`[bothub:${this.personaName}#${idx}]⚠ 首启 peek 失败: ${e.message} — 用最后拿到的 offset=${cur} 兜底`);
-      if (cur) { this.offsets.set(idx, cur); this._saveOffsets(); }
+      this.onLog(`[bothub:${this.personaName}#${idx}]⚠ 首启补收失败: ${e.message} — 已拉到的 ${msgs.length} 条照常交付`);
     }
+    const live = msgs.filter((m) => classifyBusMsg(m) !== 'silent');
+    if (this.inbox && live.length) this.inbox.add(this._epKey(idx), live);
+    if (cur) { this.offsets.set(idx, cur); this._saveOffsets(); }
+    this.onLog(`[bothub:${this.personaName}#${idx}] 首启补收积压 ${msgs.length} 条(要交给人格 ${live.length} 条) → offset=${cur}`);
+    if (!live.length || this.stopped) return;
+    const kind = live.some((m) => classifyBusMsg(m) === 'immediate') ? 'immediate' : 'batched';
+    this._flush(ep, idx, live.length, `首启补收积压 ${live.length} 条`, kind, live);
   }
 
   _gradeState(idx) {

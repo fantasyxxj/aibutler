@@ -1519,7 +1519,7 @@ async function showPicker() {
       onClick: async () => { await window.butler.openPersonaRef(p.id); } });
   }
   if (list.length) { const sep = document.createElement('div'); sep.className = 'p-sep'; pop.appendChild(sep); }
-  addItem({ label: t('new_persona_menu'), action: true, onClick: () => window.butler.openManagerWindow() });
+  addItem({ label: t('new_persona_menu'), action: true, onClick: () => window.butler.openManagerWindow('create') });
   addItem({ label: t('manage_persona_menu'), action: true, onClick: () => window.butler.openManagerWindow() });
   document.body.appendChild(mask);
 }

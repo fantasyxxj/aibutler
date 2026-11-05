@@ -10,7 +10,6 @@
 const { cfg } = require('./host');
 const workflow = require('./workflow.js');
 const netFetch = require('./net-fetch.js');
-const pronAssess = require('./pron-assess.js');
 
 /* ── 包带来的命令 ──
    下发包要能**增量提升能力**, 不能加点东西就让用户重装(作者 2026-08-13)。
@@ -42,7 +41,7 @@ const PKG_NAME = /^[a-z0-9][a-z0-9_-]{0,31}$/;
 // 🔴 **白名单**。ここに無い欄は登記の時に落ちる —— 宣言に書いたのに効かない、という形で。
 //    `idempotency` と `termbase_fill` は宿主が読む欄なので、増やす時はこの表も一緒に。
 const PKG_DECL_FIELDS = ['summary', 'params', 'label_default', 'notify_ai', 'primitive', 'http', 'op',
-                        'idempotency', 'termbase_fill', 'ai', 'sql', 'max_sec'];
+                        'idempotency', 'termbase_fill', 'ai', 'sql', 'max_sec', 'kinds'];
 
 // 端点の笼: /bus/v1/ 以外は装填の時点で弾く。呼ぶ時ではなく**登記の時**に弾くのが肝 ——
 // 押されるまで気付かない不備は、実機で店主が押した時に初めて出る。
@@ -114,6 +113,8 @@ function registerPackageCommands(pkgId, decls, { dbSetup, net } = {}) {
     // 录音的开停也不叫醒 AI(行业版的 notifyAi 只看 notify_ai, 不看原语默认值), 包显式写了才听它的。
     // 评测也只给人按: 每评一次花的是用户自己那把 key 的额度。
     if (prim === 'record' || prim === 'pron') { decl.ai = false; if (decl.notify_ai == null) decl.notify_ai = false; }
+    // 弹选择框只给人按: 让人格去挑用户的文件没有意义, 授权得是人亲手点的。
+    if (prim === 'asset' && decl.op === 'pick') decl.ai = false;
     if (prim === 'db' && setup) decl.setup = setup;
     decl.channel = 'local';   // 🔴 源码定。包写什么都不算数。
     decl.pkg = id;
@@ -163,6 +164,7 @@ const PRIMITIVE_NOTIFY = {
   secret: false,      // 只回「设没设」, AI 不需要知道
   record: false,      // 交回的是录音编号和路径, 给界面接着用(回放、送去评分)
   pron: false,        // 分数是画给练的人看的
+  asset: false,       // 交回的是给界面用的地址和文件清单
 };
 
 function notifyAi(name) {
@@ -390,89 +392,8 @@ const PRIMITIVES = {
     return ctx.pkgSecrets.handle(decl.pkg, op, args || {});
   },
 
-  /* 录音。插件沙箱里没有麦克风(不是安全上下文, navigator.mediaDevices 不存在),
-     所以由宿主页代录, 录好的 wav 落在**这个包自己的**录音目录, 只交回 { id, path, duration_sec }。
-     🔴 做什么只从声明的 op 读(warm / start / stop / cancel / play), 包里一条命令只干一件事。
-        warm = 界面一显示就调: 窗口在前台时先把麦克风开着、只在内存里留最近 0.5 秒, start 时接在最前面
-        (人一按下就开口, 而开麦要时间); stop 后宿主再多收 0.5 秒才停。
-     🔴 时长上限 max_sec 写在声明里(默认 60, 最多 300), 到点宿主自己停 —— 包忘了 stop 麦克风也会关。
-     🔴 play 只认 id, 不收路径: 读得到的只有本包录过的那几段。 */
-  async record(args, ctx, decl) {
-    const op = String((decl && decl.op) || '').trim();
-    if (!['warm', 'start', 'stop', 'cancel', 'play'].includes(op)) {
-      return { ok: false, code: 'bad_decl', message: 'record: op 只能是 warm / start / stop / cancel / play' };
-    }
-    if (typeof ctx.record !== 'function') {
-      return { ok: false, code: 'no_record', message: 'record: 这个版本录不了音' };
-    }
-    const n = Number(decl.max_sec);
-    const maxSec = Number.isFinite(n) && n > 0 ? Math.min(Math.round(n), 300) : 60;
-    const id = String((args && args.id) || '').trim();
-    if (op === 'play' && !/^[0-9a-z-]{1,40}$/.test(id)) {
-      return { ok: false, code: 'bad_param', message: 'record: play 要给 stop 交回的 id' };
-    }
-    const r = await ctx.record(op, { pkg: decl.pkg, maxSec, id });
-    if (!r || !r.ok) {
-      return { ok: false, code: (r && r.code) || 'record_failed', message: (r && r.message) || '没录成' };
-    }
-    return { ok: true, message: '', data: r.data };
-  },
-
-  /* 发音评测: 本包录的一段(record 原语交回的 id) + 原文 + 语言 → 整段分和逐词分(core/pron-assess.js 连续识别)。
-     原文不给 = 自由回答(只评发音和流利, 回听到的文字); 另回时长、语速、长停顿、填充词。
-     key 是用户自己的 Azure key, 跟 secret 原语同一个金库、按包存, **没有读出原文的 op**;
-     区不是秘密, status 照实回。op 从声明读: status / key_set / key_clear / assess。
-     key_set 不给区就拿 key 去各区试(不计费), 认出来的区一起存; 哪个区都不认就不存, 说清楚。 */
-  async pron(args, ctx, decl) {
-    const op = String((decl && decl.op) || '').trim();
-    if (!['status', 'key_set', 'key_clear', 'assess'].includes(op)) {
-      return { ok: false, code: 'bad_decl', message: 'pron: op 只能是 status / key_set / key_clear / assess' };
-    }
-    const vault = ctx.pkgSecrets;
-    if (!vault) return { ok: false, code: 'no_secret_store', message: 'pron: 这个版本没有存密钥的地方' };
-    const pkg = decl.pkg;
-    const region = () => vault.get(pkg, 'azure_region') || '';
-    if (op === 'status') return { ok: true, message: '', data: { set: !!vault.get(pkg, 'azure_key'), region: region(), regions: pronAssess.REGIONS } };
-    if (op === 'key_clear') {
-      vault.handle(pkg, 'clear', { name: 'azure_key' }); vault.handle(pkg, 'clear', { name: 'azure_region' });
-      return { ok: true, message: '', data: { set: false } };
-    }
-    if (op === 'key_set') {
-      const key = String((args && args.key) || '').trim();
-      if (!key) return { ok: false, code: 'missing_param', message: 'pron: 没有 key' };
-      let rg = String((args && args.region) || '').trim();
-      if (rg && rg !== 'auto') {
-        if (!pronAssess.REGIONS.includes(rg)) return { ok: false, code: 'bad_param', message: `pron: 不认识的区 ${rg}` };
-        const okIn = await pronAssess.keyWorksIn(key, rg, ctx.fetch);
-        if (okIn === false) return { ok: false, code: 'bad_key', message: `pron: 这把 key 在 ${rg} 不认` };
-      } else {
-        rg = await pronAssess.detectRegion(key, ctx.fetch);
-        if (!rg) return { ok: false, code: 'bad_key', message: 'pron: 哪个区都不认这把 key, 请检查 key 或手动选区' };
-      }
-      const a = vault.handle(pkg, 'set', { name: 'azure_key', value: key });
-      if (!a.ok) return a;
-      vault.handle(pkg, 'set', { name: 'azure_region', value: rg });
-      return { ok: true, message: '', data: { set: true, region: rg } };
-    }
-    // assess
-    const id = String((args && args.id) || '').trim();
-    const text = String((args && args.text) || '').trim();
-    const lang = String((args && args.lang) || 'en-US').trim();
-    if (!/^[0-9a-z-]{1,40}$/.test(id)) return { ok: false, code: 'bad_param', message: 'pron: 要给 record stop 交回的 id' };
-    if (!/^[a-z]{2,3}-[A-Z]{2}$/.test(lang)) return { ok: false, code: 'bad_param', message: `pron: 语言写成 en-US 这种形状(收到 ${lang})` };
-    if (typeof ctx.recordFile !== 'function') return { ok: false, code: 'no_record', message: 'pron: 这个版本没有录音' };
-    const wav = ctx.recordFile(pkg, id);
-    if (!wav) return { ok: false, code: 'recording_not_found', message: `pron: 没有这段录音 ${id}` };
-    const key = vault.get(pkg, 'azure_key');
-    if (!key) return { ok: false, code: 'no_key', message: 'pron: 还没填 Azure key' };
-    try {
-      const engine = ctx.pronEngine || pronAssess.assessStream;   // 门禁注入假引擎, 不花额度
-      const r = await engine({ wav, reference: text, lang, key, region: region() });
-      return { ok: true, message: '', data: r };
-    } catch (e) {
-      return { ok: false, code: e.code || 'assess_failed', message: `pron: ${e.message}` };
-    }
-  },
+  // 录音 / 发音评测 / 读本地资源: 实现在 primitives-media.js
+  ...require('./primitives-media.js'),
 
   /* 叩这条命令自己声明的端点, 把业务数据取回给界面。
      🔴 **端点只从声明里读(decl.http), 绝不从调用参数读** —— 参数是界面传的, 而界面里跑的

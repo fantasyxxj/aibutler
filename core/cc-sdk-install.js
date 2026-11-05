@@ -153,14 +153,18 @@ function disable({ deleteFiles } = {}) {
   return { ok: true };
 }
 
-// 老用户升级: 以前的包自带 SDK, 现在不带了。数据里有用订阅的人格、还没下载、也没被用户关过
-// → 后台自动下载, 下完由宿主提示重启。返回是否开始了下载。
-function autoEnable({ hasSubscriptionPersona, onReady }) {
+// 每次启动都查: 有要跑 Claude Code 的人格、本机却没有这一版要的 SDK(老包自带的那份随覆盖安装没了 /
+// 安装包换了 SDK 版本)、也没被用户关过 → 先由宿主问一句, 同意才下载。
+// 🔴 等下载完才返回: 宿主拿到 ok 就直接重启, 人格和主窗口都不在下载期间起来 ——
+// 否则人格先在没有 SDK 的状态下起来, 立刻接入故障被挂起, 紧接着又被重启打断(作者 11-05)。
+// 返回 null = 没下载(不需要 / 用户选了稍后) · { ok, error? } = 下载结果。
+async function autoEnable({ hasSubscriptionPersona, confirm, onStart = () => {}, onProgress }) {
   const st = status();
-  if (!st.applicable || st.installed || exists(offMark()) || !hasSubscriptionPersona()) return false;
-  console.log('[cc-sdk] 有用订阅的人格但还没下载 Claude Agent SDK → 自动下载');
-  install().then((r) => { if (r && r.ok) onReady(); });
-  return true;
+  if (!st.applicable || st.installed || exists(offMark()) || !hasSubscriptionPersona()) return null;
+  console.log(`[cc-sdk] 有要跑 Claude Code 的人格, 本机没有 ${st.version} → 问要不要下载`);
+  if (confirm && !(await confirm())) { console.log('[cc-sdk] 用户选了稍后, 下次启动再问'); return null; }
+  await onStart();
+  return install(onProgress);
 }
 
 // relaunch: 宿主给的「重启 app」(core 不认识 Electron) · send: 往设置窗口推进度

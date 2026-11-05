@@ -19,10 +19,13 @@ module.exports = (UI) => {
     sys_cc_extracting: '正在解压…',
     sys_cc_need_relaunch: '已下载 {version}, 重启全能管家后生效',
     sys_cc_removed_relaunch: '已关闭, 重启全能管家后生效',
-    sys_cc_state_need_login: '已开启, 还没登录 Claude',
+    sys_cc_state_need_login: '还差一步: 登录 Claude 后才算开启, 之前订阅不能用',
     sys_cc_state_ready: '已开启并登录。到人格管理里把人格的接入方式选成「订阅」就能用',
     sys_cc_failed: '没成功: {err}',
-    sys_cc_auto_ready: 'Claude 订阅组件已下载好。重启全能管家后, 用订阅的人格就能正常回话。',
+    sys_cc_auto_title: '正在下载 Claude 组件, 下完自动重启…',
+    sys_cc_auto_failed: 'Claude 组件没下载成功: {err}\n\n先照常启动, 下次启动会再问; 也可以到系统设置「Claude 订阅」里重新下载。',
+    sys_cc_auto_ask: '有人格要用 Claude Code 跑, 本机还没有它需要的 Claude 组件。现在下载吗?(约 110 MB, 下完重启, 没登录的话接着登录 Claude)',
+    sys_cc_download: '下载',
     sys_cc_later: '稍后',
   });
 
@@ -42,10 +45,13 @@ module.exports = (UI) => {
     sys_cc_extracting: '正在解壓…',
     sys_cc_need_relaunch: '已下載 {version}, 重新啟動全能管家後生效',
     sys_cc_removed_relaunch: '已關閉, 重新啟動全能管家後生效',
-    sys_cc_state_need_login: '已開啟, 還沒登入 Claude',
+    sys_cc_state_need_login: '還差一步: 登入 Claude 後才算開啟, 之前訂閱不能用',
     sys_cc_state_ready: '已開啟並登入。到人格管理裡把人格的接入方式選成「訂閱」就能用',
     sys_cc_failed: '沒成功: {err}',
-    sys_cc_auto_ready: 'Claude 訂閱元件已下載好。重新啟動全能管家後, 用訂閱的人格就能正常回話。',
+    sys_cc_auto_title: '正在下載 Claude 元件, 下完自動重新啟動…',
+    sys_cc_auto_failed: 'Claude 元件沒下載成功: {err}\n\n先照常啟動, 下次啟動會再問; 也可以到系統設定「Claude 訂閱」裡重新下載。',
+    sys_cc_auto_ask: '有人格要用 Claude Code 跑, 本機還沒有它需要的 Claude 元件。現在下載嗎?(約 110 MB, 下完重新啟動, 沒登入的話接著登入 Claude)',
+    sys_cc_download: '下載',
     sys_cc_later: '稍後',
   });
 
@@ -65,10 +71,13 @@ module.exports = (UI) => {
     sys_cc_extracting: 'Extracting…',
     sys_cc_need_relaunch: 'Downloaded {version}. Restart the app to use it',
     sys_cc_removed_relaunch: 'Turned off. Takes effect after restarting the app',
-    sys_cc_state_need_login: 'On, not logged in to Claude yet',
+    sys_cc_state_need_login: 'One step left: the subscription works only after you log in to Claude',
     sys_cc_state_ready: 'On and logged in. In Persona manager, set a persona\'s access to "Subscription" to use it',
     sys_cc_failed: 'Did not work: {err}',
-    sys_cc_auto_ready: 'The Claude subscription components have been downloaded. Restart the app so personas on the subscription can reply again.',
+    sys_cc_auto_title: 'Downloading Claude components; the app restarts when done…',
+    sys_cc_auto_failed: 'The Claude components could not be downloaded: {err}\n\nStarting as usual. You will be asked again next launch, or you can download them under Settings › Claude subscription.',
+    sys_cc_auto_ask: 'Some personas run on Claude Code, but the Claude components they need are not on this computer yet. Download now? (about 110 MB; restart afterwards, then sign in to Claude if needed)',
+    sys_cc_download: 'Download',
     sys_cc_later: 'Later',
   });
 
@@ -88,10 +97,13 @@ module.exports = (UI) => {
     sys_cc_extracting: '展開中…',
     sys_cc_need_relaunch: '{version} をダウンロードしました。アプリを再起動すると使えます',
     sys_cc_removed_relaunch: 'オフにしました。アプリの再起動後に反映されます',
-    sys_cc_state_need_login: 'オン・Claude にまだログインしていません',
+    sys_cc_state_need_login: 'あと一歩: Claude にログインするまでサブスクは使えません',
     sys_cc_state_ready: 'オン・ログイン済み。人格管理で人格の接続方法を「サブスクリプション」にすると使えます',
     sys_cc_failed: 'うまくいきませんでした: {err}',
-    sys_cc_auto_ready: 'Claude サブスクリプション用のコンポーネントをダウンロードしました。アプリを再起動すると、サブスクリプションで動く人格が返事できるようになります。',
+    sys_cc_auto_title: 'Claude コンポーネントをダウンロード中。終わると自動で再起動します…',
+    sys_cc_auto_failed: 'Claude コンポーネントをダウンロードできませんでした: {err}\n\nいつも通り起動します。次回起動時にもう一度確認するほか、設定の「Claude サブスクリプション」からダウンロードし直せます。',
+    sys_cc_auto_ask: 'Claude Code で動く人格がありますが、必要な Claude コンポーネントがまだこのパソコンにありません。今ダウンロードしますか?(約 110 MB。終わったら再起動し、未ログインなら Claude にログインします)',
+    sys_cc_download: 'ダウンロード',
     sys_cc_later: 'あとで',
   });
 };
