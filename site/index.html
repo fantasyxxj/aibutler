@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>aibutler · 给 AI 一份属于自己的记忆</title>
+<link rel="icon" type="image/png" href="../assets/logo.png">
 <meta name="description" content="aibutler 是面向长期运行智能体的持久记忆层：自研图数据库引擎、事件驱动的常驻人格、AI 为你当场开发工具。">
 <style>
 :root{
@@ -24,7 +25,7 @@ img{max-width:100%;display:block}
 nav{position:sticky;top:0;z-index:10;background:rgba(11,16,34,.78);backdrop-filter:blur(14px);border-bottom:1px solid rgba(38,48,90,.6)}
 nav .wrap{display:flex;align-items:center;height:64px;gap:32px}
 .logo{font-weight:800;font-size:20px;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
-.logo i{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--r),var(--m));display:inline-block;box-shadow:0 0 18px rgba(56,211,232,.45)}
+.logo img{width:28px;height:28px;border-radius:7px;display:block;box-shadow:0 0 16px rgba(240,190,120,.35)}
 nav ul{display:flex;gap:26px;list-style:none;font-size:14.5px;color:var(--ink2);flex:1}
 nav ul a:hover{color:var(--ink)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;font-weight:600;font-size:15px;transition:.2s}
@@ -132,7 +133,7 @@ footer li{list-style:none;margin:4px 0}
 <body>
 
 <nav><div class="wrap">
-  <a class="logo" href="#"><i></i>aibutler</a>
+  <a class="logo" href="#"><img src="../assets/logo.png" alt="">aibutler</a>
   <ul>
     <li><a href="#features">功能</a></li>
     <li><a href="#events">事件驱动</a></li>
@@ -384,7 +385,7 @@ curl -X POST http://127.0.0.1:8787/v1/poke \
 </div></section>
 
 <footer><div class="wrap">
-  <div><div class="logo"><i></i>aibutler</div><p style="margin-top:12px">Apache License 2.0</p></div>
+  <div><div class="logo"><img src="../assets/logo.png" alt="">aibutler</div><p style="margin-top:12px">Apache License 2.0</p></div>
   <div><h4>参考文献</h4><ul>
     <li>Lewis et al. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. NeurIPS 2020.</li>
     <li>Chen et al. Dense X Retrieval: What Retrieval Granularity Should We Use? EMNLP 2024.</li>
