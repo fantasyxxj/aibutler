@@ -126,6 +126,20 @@ footer li{list-style:none;margin:4px 0}
 .say:before{content:"“";color:var(--m)}.say:after{content:"”";color:var(--m)}
 .kind{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:rgba(56,211,232,.12);color:var(--m)}
 .theory .card{background:rgba(22,31,61,.7)}
+.car{position:relative;margin:64px auto 0;max-width:900px}
+.car .vp{position:relative;border-radius:22px;overflow:hidden;background:#f3f5fb;aspect-ratio:980/653;box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 0 1px var(--line)}
+.car .sl{position:absolute;inset:0;opacity:0;transition:opacity .6s ease;pointer-events:none}
+.car .sl.on{opacity:1;pointer-events:auto}
+.car .sl img{width:100%;height:100%;object-fit:contain;object-position:top center}
+.car .sl.dark{background:#141824}
+.car .arr{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:rgba(11,16,34,.72);color:var(--ink);font-size:20px;cursor:pointer;z-index:2}
+.car .arr:hover{border-color:var(--r)}.car .arr.l{left:-60px}.car .arr.r{right:-60px}
+.car .cap{margin-top:20px;font-size:16.5px;color:var(--ink2);min-height:28px}
+.car .cap b{color:var(--ink)}.car .cap a{color:var(--m);margin-left:8px;white-space:nowrap}
+.car .dots{display:flex;gap:9px;justify-content:center;margin-top:14px}
+.car .dots button{width:9px;height:9px;border-radius:5px;border:0;background:var(--line);cursor:pointer;padding:0;transition:.3s}
+.car .dots button.on{background:var(--m);width:26px}
+@media (max-width:1100px){.car .arr{display:none}}
 @media (max-width:960px){
   .hero{padding:72px 0 50px}.hero .shot{margin-top:44px;border-radius:14px}
   nav ul{display:none}.lang{margin-left:auto}
@@ -163,7 +177,18 @@ footer li{list-style:none;margin:4px 0}
     <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">免费下载</a>
     <a class="btn ghost" href="../docs/">十分钟上手 →</a>
   </div>
-  <img class="shot" style="max-width:860px" src="../docs/img/chat-chart.png" alt="说一句「把这周的开销按类别统计一下」，表格和图直接出在聊天里">
+  <div class="car" id="car">
+    <button class="arr l" aria-label="prev">‹</button><button class="arr r" aria-label="next">›</button>
+    <div class="vp">
+      <div class="sl" data-cap='<b>「把记账本里这个月的开销按类别统计一下」</b>　表格和柱状图直接出在聊天里'><img src="../assets/showcase/zh-chart.png" alt="开销统计表和柱状图" loading="lazy"></div>
+      <div class="sl" data-cap='<b>「帮我做一个俄罗斯方块游戏」</b>　几分钟写好，当场就能玩'><img src="../assets/showcase/zh-tetris.png" alt="人格写的俄罗斯方块" loading="lazy"></div>
+      <div class="sl dark" data-cap='<b>「给孩子做个繁体字描红打分的练习页」</b>　一位家长用它做的，已经放到网上<a href="https://hant.aicreditup.com">在线试试 →</a>'><img src="../assets/showcase/hant.png" alt="繁体字描红打分练习页" loading="lazy"></div>
+      <div class="sl" data-cap='<b>「画一下斜面上物体的受力分析图」</b>　示意图和公式一起讲清楚'><img src="../assets/showcase/zh-phys.png" alt="斜面受力分析图" loading="lazy"></div>
+      <div class="sl" data-cap='<b>「我想要个记账的小工具」</b>　带界面、能存数据，装好就能用'><img src="../assets/showcase/zh-ledger.png" alt="人格写的记账小工具" loading="lazy"></div>
+    </div>
+    <div class="cap"></div>
+    <div class="dots"></div>
+  </div>
 </div></header>
 
 <div class="strip"><div class="wrap">
@@ -307,5 +332,17 @@ footer li{list-style:none;margin:4px 0}
   </ul></div>
 </div></footer>
 
+<script>
+(function(){var c=document.getElementById('car');if(!c)return;var s=c.querySelectorAll('.sl'),cap=c.querySelector('.cap'),dots=c.querySelector('.dots'),i=0,t=null;
+var still=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+s.forEach(function(_,k){var b=document.createElement('button');b.setAttribute('aria-label',String(k+1));b.onclick=function(){go(k);};dots.appendChild(b);});
+function go(k){i=(k+s.length)%s.length;s.forEach(function(e,j){e.classList.toggle('on',j===i);});dots.querySelectorAll('button').forEach(function(e,j){e.classList.toggle('on',j===i);});cap.innerHTML=s[i].getAttribute('data-cap');restart();}
+function restart(){if(t)clearInterval(t);if(!still)t=setInterval(function(){go(i+1);},5000);}
+c.querySelector('.arr.l').onclick=function(){go(i-1);};c.querySelector('.arr.r').onclick=function(){go(i+1);};
+c.addEventListener('mouseenter',function(){if(t)clearInterval(t);});c.addEventListener('mouseleave',restart);
+var x0=null;c.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+c.addEventListener('touchend',function(e){if(x0==null)return;var d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>40)go(i+(d<0?1:-1));x0=null;});
+go(0);})();
+</script>
 </body>
 </html>
