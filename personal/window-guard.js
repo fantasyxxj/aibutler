@@ -25,6 +25,15 @@ function attachEscClose(win) {
   });
 }
 
+// 设置窗里的 http(s) 链接(使用文档等)交给系统浏览器, 不在 butler 里开新窗(同主窗的做法)
+function attachExternalLinks(win) {
+  const { shell } = require('electron');
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:\/\//i.test(url)) shell.openExternal(url);
+    return { action: 'deny' };
+  });
+}
+
 function guardMainWindow(win, log = console.log) {
   if (!win) return;
   let fixing = false;
@@ -88,4 +97,4 @@ function guardMainWindow(win, log = console.log) {
   win.on('closed', () => clearInterval(timer));
 }
 
-module.exports = { attachEscClose, guardMainWindow, MIN_PX, RESTORE };
+module.exports = { attachEscClose, guardMainWindow, MIN_PX, RESTORE, attachExternalLinks };

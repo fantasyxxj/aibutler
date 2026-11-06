@@ -3,19 +3,48 @@
 <head>
   <meta charset="utf-8" />
   <title>系统设置</title>
+  <link rel="stylesheet" href="theme.css" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="persona-card.css" />
 </head>
 <!-- 界面文字一律走 data-i18n / data-i18n-title / data-i18n-ph, settings-ui.js 的 applyStrings 统一刷。
      这里写的中文只是"没刷之前那一帧"的兜底, 真源在 i18n.js。门禁 test-i18n.js 会扫。 -->
 <body class="manager-body">
   <h1 data-i18n="sys_heading">⚙️ 系统设置</h1>
   <p class="sys-lede" data-i18n="sys_lede">这些设置对所有人格一样, 跟当前开的是谁无关。人格自己的设置(名字/头像/模型/插件)在「人格管理」里。</p>
+  <!-- 分组(作者 2026-11-06 定): 通用 / 模型服务 / 工具 / 高级, settings-tabs.js 按 data-group 切 -->
+  <div class="e-tabs sys-tabs">
+    <button type="button" data-group="general" data-i18n="sys_grp_general">通用</button>
+    <button type="button" data-group="models" data-i18n="sys_grp_models">模型服务</button>
+    <button type="button" data-group="tools" data-i18n="sys_grp_tools">工具</button>
+    <button type="button" data-group="adv" data-i18n="sys_grp_adv">高级</button>
+  </div>
+
+  <!-- 外观: 三选一, 点了当场生效(主进程改 nativeTheme, 所有窗口跟着变) -->
+  <div class="m-form" data-group="general">
+    <label data-i18n="sys_theme">外观</label>
+    <div class="seg" id="themeSeg">
+      <button data-theme="system" data-i18n="sys_theme_system">跟随系统</button>
+      <button data-theme="light" data-i18n="sys_theme_light">浅色</button>
+      <button data-theme="dark" data-i18n="sys_theme_dark">深色</button>
+    </div>
+    <div></div>
+    <div style="color:var(--muted);font-size:12px;" data-i18n="sys_theme_hint">界面深浅色, 切换当场生效。</div>
+  </div>
+
+  <!-- 使用文档: 在系统浏览器里打开文档站(window-guard.attachExternalLinks 接住 target=_blank) -->
+  <div class="m-form" data-group="general">
+    <label data-i18n="sys_docs">使用文档</label>
+    <div><a href="https://fantasyxxj.github.io/aibutler/docs/" target="_blank" style="color:var(--brand-hi)" data-i18n="sys_docs_link">打开使用文档 ↗</a></div>
+    <div></div>
+    <div style="color:var(--muted);font-size:12px;" data-i18n="sys_docs_hint">安装、接模型、配通道都在里面。不想翻文档, 直接问人格也行。</div>
+  </div>
 
   <!-- 🔴 这里只是**凭据仓库**: 存一套 key + 端点, 存了不代表启用。
        哪个人格走订阅、哪个走这把 key, 在人格管理里各自选(作者 2026-08-18 定案) —— 用一个全局
        开关去管每个人格的事正是之前"别扭"的来源。 -->
-  <div class="m-form">
-    <label data-i18n="sys_access">API 凭据</label><div style="color:#888;font-size:12px;" data-i18n="sys_access_hint">在这里存 key 和端点, 可以存多条备用的。**存着不等于用**: 哪个人格用哪条, 去人格管理里那个人格的「接入方式」选。</div>
+  <div class="m-form" data-group="models">
+    <label data-i18n="sys_access">API 凭据</label><div style="color:var(--muted);font-size:12px;" data-i18n="sys_access_hint">在这里存 key 和端点, 可以存多条备用的。**存着不等于用**: 哪个人格用哪条, 去人格管理里那个人格的「接入方式」选。</div>
 
     <div></div>
     <div id="ac-list"></div>
@@ -26,35 +55,34 @@
     </div>
 
     <div></div>
-    <div style="color:#888;font-size:12px;" data-i18n="sys_api_model_moved">模型不在这里选 —— 每个人格用哪个模型是它自己的事, 在人格管理里各自选。这里填完端点后, 那边的模型下拉会来这个端点现拉可用清单。</div>
+    <div style="color:var(--muted);font-size:12px;" data-i18n="sys_api_model_moved">模型不在这里选 —— 每个人格用哪个模型是它自己的事, 在人格管理里各自选。这里填完端点后, 那边的模型下拉会来这个端点现拉可用清单。</div>
   </div>
 
-  <!-- 联网搜索 key: 只给 Butler 引擎的本机 WebSearch 用, 规则见 core/search-keys.js -->
-  <div class="m-form">
-    <label data-i18n="sys_search">联网搜索</label><div style="color:#888;font-size:12px;" data-i18n="sys_search_hint"></div>
-    <label>Brave</label>
-    <div style="display:flex;gap:6px;align-items:center"><input id="sk-brave" type="password" autocomplete="off" style="flex:1"/><button class="m-btn sk-del" data-p="brave" data-i18n="mgr_delete">删除</button></div>
-    <label>Tavily</label>
-    <div style="display:flex;gap:6px;align-items:center"><input id="sk-tavily" type="password" autocomplete="off" style="flex:1"/><button class="m-btn sk-del" data-p="tavily" data-i18n="mgr_delete">删除</button></div>
-    <label data-i18n="sys_search_prefer">优先用</label>
-    <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:13px">
-      <label style="font-weight:normal"><input type="radio" name="sk-prefer" value=""> <span data-i18n="sys_search_prefer_auto"></span></label>
-      <label style="font-weight:normal"><input type="radio" name="sk-prefer" value="brave"> Brave</label>
-      <label style="font-weight:normal"><input type="radio" name="sk-prefer" value="tavily"> Tavily</label>
-      <span style="flex:1"></span>
-      <button id="sk-save" class="m-btn primary" data-i18n="mgr_save">保存</button>
+  <!-- 联网搜索引擎: 只给 Butler 引擎的本机 WebSearch 用, 规则见 core/search-keys.js, 界面在 search-ui.js -->
+  <div class="m-form" data-group="tools">
+    <label data-i18n="sys_search">联网搜索</label><div style="color:var(--muted);font-size:12px;" data-i18n="sys_search_hint"></div>
+    <label data-i18n="sys_search_engines">搜索引擎</label>
+    <div>
+      <div id="sk-list" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div id="sk-empty" style="color:var(--muted);font-size:12px;padding:4px 0" data-i18n="sys_search_empty"></div>
+      <label id="sk-off-row" style="display:flex;gap:6px;align-items:center;font-weight:normal;font-size:13px;color:var(--text);margin-top:8px"><input type="checkbox" id="sk-off"> <span data-i18n="sys_search_disable"></span></label>
+      <div style="display:flex;gap:6px;align-items:center;margin-top:8px">
+        <select id="sk-type"></select><button id="sk-add" class="m-btn" data-i18n="sys_search_add">＋ 添加</button>
+        <span style="flex:1"></span>
+        <button id="sk-save" class="m-btn primary" data-i18n="mgr_save">保存</button>
+      </div>
     </div>
     <div></div>
-    <div style="color:#888;font-size:12px;" data-i18n="sys_search_get_key"></div>
+    <div style="color:var(--muted);font-size:12px;" data-i18n="sys_search_get_key"></div>
     <div></div>
-    <div style="color:#888;font-size:12px;" data-i18n="sys_search_restart_hint"></div>
+    <div style="color:var(--muted);font-size:12px;" data-i18n="sys_search_restart_hint"></div>
   </div>
 
   <!-- 订阅长效 token: 走订阅的人才用得上(走自己 API key 的不受续期问题影响)。
        按钮背后是 `claude setup-token`, 拿到后会先真打一次 API 验活才存 —— 半截/失效的
        token 长得跟真的一样, 存进去会让所有人格集体 401 而看不出是它的错。 -->
-  <div class="m-form" id="st-form">
-    <label data-i18n="sys_subtok">订阅长效 token</label><div style="color:#888;font-size:12px;" data-i18n="sys_subtok_hint">订阅认证每隔几天会自己续不上, 于是半夜突然全体罢工、只能人工重登。换一张一年期的长效 token 就绕开了这件事。点下面的按钮 → 浏览器里点一下授权 → 剩下的自动办好。</div>
+  <div class="m-form" data-group="models" id="st-form">
+    <label data-i18n="sys_subtok">订阅长效 token</label><div style="color:var(--muted);font-size:12px;" data-i18n="sys_subtok_hint">订阅认证每隔几天会自己续不上, 于是半夜突然全体罢工、只能人工重登。换一张一年期的长效 token 就绕开了这件事。点下面的按钮 → 浏览器里点一下授权 → 剩下的自动办好。</div>
 
     <div></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -65,8 +93,8 @@
     </div>
   </div>
 
-  <div class="m-form">
-    <label data-i18n="mgr_proxy">网络代理</label><div style="color:#888;font-size:12px;" data-i18n="mgr_proxy_hint">模型请求 · bus · LINE/TG · 语音引擎下载, 全部走这里</div>
+  <div class="m-form" data-group="adv">
+    <label data-i18n="mgr_proxy">网络代理</label><div style="color:var(--muted);font-size:12px;" data-i18n="mgr_proxy_hint">模型请求 · bus · LINE/TG · 语音引擎下载, 全部走这里</div>
     <div></div><div class="m-checkline"><input type="checkbox" id="px-enabled"/><label for="px-enabled" data-i18n="mgr_proxy_enable">启用代理</label><span id="px-status" class="ap-photo-hint" style="margin:0 0 0 8px;"></span></div>
     <label data-i18n="mgr_addr">地址</label>
     <div style="display:flex;gap:6px;align-items:center;">
@@ -77,12 +105,12 @@
     <label data-i18n="mgr_noproxy">不走代理</label>
     <div>
       <input id="px-noproxy" type="text" placeholder="localhost,127.0.0.1,::1" style="width:100%"/>
-      <div style="color:#888;font-size:12px;margin-top:4px;" data-i18n="mgr_noproxy_hint">逗号分隔。填你的代理软件给的 HTTP 端口(不是 SOCKS)；改完需重启 app 才对已在跑的人格生效。</div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px;" data-i18n="mgr_noproxy_hint">逗号分隔。填你的代理软件给的 HTTP 端口(不是 SOCKS)；改完需重启 app 才对已在跑的人格生效。</div>
     </div>
   </div>
 
-  <div class="m-form">
-    <label data-i18n="mgr_localapi">本机 API</label><div style="color:#888;font-size:12px;" data-i18n="mgr_localapi_hint">外部程序 HTTP 戳醒人格 (只侦听 127.0.0.1)</div>
+  <div class="m-form" data-group="adv">
+    <label data-i18n="mgr_localapi">本机 API</label><div style="color:var(--muted);font-size:12px;" data-i18n="mgr_localapi_hint">外部程序 HTTP 戳醒人格 (只侦听 127.0.0.1)</div>
     <div></div><div class="m-checkline"><input type="checkbox" id="la-enabled"/><label for="la-enabled" data-i18n="mgr_enable">开启</label><span id="la-status" class="ap-photo-hint" style="margin:0 0 0 8px;"></span></div>
     <label data-i18n="mgr_port">端口</label>
     <div style="display:flex;gap:6px;align-items:center;">
@@ -97,8 +125,8 @@
   </div>
 
   <!-- 彩蛋: 有 Claude 订阅的人自己开, 现下 Claude Agent SDK(安装包不带)。见 core/cc-sdk-install.js -->
-  <div class="m-form" id="cc-form" style="display:none">
-    <label data-i18n="sys_cc">Claude 订阅</label><div style="color:#888;font-size:12px;" data-i18n="sys_cc_hint"></div>
+  <div class="m-form" data-group="models" id="cc-form" style="display:none">
+    <label data-i18n="sys_cc">Claude 订阅</label><div style="color:var(--muted);font-size:12px;" data-i18n="sys_cc_hint"></div>
     <div></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <span id="cc-state" style="font-size:12px;color:var(--muted)"></span>
@@ -113,6 +141,7 @@
   <div id="toast" class="m-toast"></div>
 
   <script src="settings-ui.js"></script>
+  <script src="settings-tabs.js"></script>
   <script src="search-ui.js"></script>
   <script src="cc-sdk-ui.js"></script>
 </body>

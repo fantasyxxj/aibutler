@@ -934,5 +934,63 @@
         "en": "If the components needed by personas on a Claude subscription are missing, startup asks whether to download them. Previously, choosing Download opened the main window right away, personas reported errors before the components arrived, and you had to confirm a restart afterwards. Now only a small progress window is shown during the download, the app restarts by itself when it finishes, and personas and the main window appear after the restart. Choosing Later, or a failed download, starts the app as usual."
       }
     }
+  ],
+  "1.0.13": [
+    {
+      "title": {
+        "zh-CN": "界面换新：浅色 / 深色主题，人格菜单和人格卡片，设置分组",
+        "zh-TW": "介面換新：淺色 / 深色主題，人格選單和人格卡片，設定分組",
+        "ja": "画面を一新：ライト / ダーク テーマ、人格メニューと人格カード、設定のグループ分け",
+        "en": "A refreshed interface: light and dark themes, a persona menu and cards, grouped settings"
+      },
+      "detail": {
+        "zh-CN": "系统设置 →「通用」里可以选浅色、深色或跟随系统。主窗口上方的「人格 ▾」能直接切换、新建和管理人格；人格编辑分成「基本 / AI / 身份档案 / 通道 / 高级」几页；系统设置分成「通用 / 模型服务 / 工具 / 高级」。第一次打开只剩两步：先接上 AI，再给人格起名字。",
+        "zh-TW": "系統設定 →「一般」裡可以選淺色、深色或跟隨系統。主視窗上方的「人格 ▾」能直接切換、新建和管理人格；人格編輯分成「基本 / AI / 身分檔案 / 通道 / 進階」幾頁；系統設定分成「一般 / 模型服務 / 工具 / 進階」。第一次開啟只剩兩步：先接上 AI，再給人格取名字。",
+        "ja": "システム設定 →「一般」でライト・ダーク・システムに合わせるを選べます。メイン画面上部の「人格 ▾」から人格の切り替え・新規作成・管理ができ、人格の編集は「基本 / AI / プロフィール / チャネル / 詳細設定」のタブに、システム設定は「一般 / モデル / ツール / 詳細設定」に分かれました。初回起動は「AI につなぐ」「名前をつける」の 2 ステップだけです。",
+        "en": "Pick light, dark or system in Settings → General. The \"Personas ▾\" menu at the top switches, creates and manages personas; the persona editor is split into Basics / AI / Profile / Channels / Advanced tabs, and Settings into General / Model providers / Tools / Advanced. First run is now two steps: connect an AI, then name your persona."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "人格可以接飞书 / Lark、钉钉、Discord、Slack 机器人，也能往群里发通知",
+        "zh-TW": "人格可以接飛書 / Lark、釘釘、Discord、Slack 機器人，也能往群裡發通知",
+        "ja": "人格を Feishu / Lark、DingTalk、Discord、Slack のボットにつなげ、グループに通知も送れるように",
+        "en": "Personas can connect to Feishu / Lark, DingTalk, Discord and Slack bots, and post to group chats"
+      },
+      "detail": {
+        "zh-CN": "人格编辑 →「通道」→「添加通道」，选类型按卡片上的步骤配好，就能在这些软件里私聊或在群里 @ 它。钉钉、飞书、企业微信的群机器人只填一条地址，就能让人格往群里发提醒。Slack 卡片上的「复制应用配置」能一次配好应用。",
+        "zh-TW": "人格編輯 →「通道」→「新增通道」，選類型照卡片上的步驟配好，就能在這些軟體裡私聊或在群裡 @ 它。釘釘、飛書、企業微信的群機器人只填一條地址，就能讓人格往群裡發提醒。Slack 卡片上的「複製應用設定」能一次配好應用。",
+        "ja": "人格の編集 →「チャネル」→「チャネルを追加」で種類を選び、カードの手順どおりに設定すると、各アプリで個別に話したりグループで @ したりできます。DingTalk・Feishu・WeCom のグループボットは URL を 1 つ貼るだけで、人格がグループに通知を送れます。Slack はカードの「アプリ設定をコピー」で一度に設定できます。",
+        "en": "In the persona editor, Channels → Add channel, pick a type and follow the steps on the card to chat with it privately or @ it in groups. DingTalk, Feishu and WeCom group bots need only a webhook address to let the persona post reminders. On the Slack card, \"Copy app manifest\" sets up the app in one go."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "联网搜索可以自己加搜索引擎，在中国大陆也能搜",
+        "zh-TW": "聯網搜尋可以自己加搜尋引擎，在中國大陸也能搜",
+        "ja": "ウェブ検索に検索エンジンを自分で追加できるように（中国大陸でも検索可能）",
+        "en": "Add your own web search engines, including ones that work in mainland China"
+      },
+      "detail": {
+        "zh-CN": "系统设置 →「工具」→「联网搜索」，可以加 Bing、DuckDuckGo、Brave、Tavily、SearXNG，排先后、单独「测一下」，一家不通自动换下一家。什么都不加时只用模型自带的搜索。在中国大陆推荐加 Bing。",
+        "zh-TW": "系統設定 →「工具」→「聯網搜尋」，可以加 Bing、DuckDuckGo、Brave、Tavily、SearXNG，排先後、單獨「測一下」，一家不通自動換下一家。什麼都不加時只用模型內建的搜尋。在中國大陸推薦加 Bing。",
+        "ja": "システム設定 →「ツール」→「ウェブ検索」で Bing・DuckDuckGo・Brave・Tavily・SearXNG を追加し、順番を決めて個別に「テスト」できます。1 つがつながらなければ自動で次へ。何も追加しなければモデル内蔵の検索だけを使います。中国大陸では Bing がおすすめです。",
+        "en": "In Settings → Tools → Web search, add Bing, DuckDuckGo, Brave, Tavily or SearXNG, order them and test each one; if one fails the next is tried. With none added, only the model's built-in search is used. In mainland China, add Bing."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "有了使用文档，复制按钮也修好了",
+        "zh-TW": "有了使用文件，複製按鈕也修好了",
+        "ja": "使い方ガイドを用意し、コピーボタンも直しました",
+        "en": "A user guide, and copy buttons work again"
+      },
+      "detail": {
+        "zh-CN": "系统设置 →「通用」→「打开使用文档」，安装、接模型、配通道、插件都写在里面。另外，之前 app 里所有「复制」按钮点了没反应，现在都能复制了。",
+        "zh-TW": "系統設定 →「一般」→「開啟使用文件」，安裝、接模型、配通道、外掛都寫在裡面。另外，之前 app 裡所有「複製」按鈕點了沒反應，現在都能複製了。",
+        "ja": "システム設定 →「一般」→「使い方ガイドを開く」に、インストール・モデル接続・チャネル設定・プラグインをまとめました（いまは中国語のみ）。また、アプリ内の「コピー」ボタンが反応しなかった問題を直しました。",
+        "en": "Settings → General → Open the user guide covers installing, connecting models, channels and plugins (in Chinese for now). Also, every Copy button in the app silently did nothing before; they work now."
+      }
+    }
   ]
 }

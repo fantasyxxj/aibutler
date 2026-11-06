@@ -7,7 +7,7 @@ const crypto = require('crypto');
 
 // 🔴 宿主接线必须排在**任何 core 模块之前** —— core 里有模块在加载那一刻就取 paths
 // (如 agent/util.js 的 CLAUDE_BIN), 接线晚一行都会当场抛"宿主没注入"。
-require('./host-wiring'); require('./image-save-ipc'); require('./hub-ipc').onClaimed(async (id, { agent } = {}) => { broadcastRegistry(); const c = registry.get(id); const s = c && sessions.get(sidOf(c.homeDir)); if (!s) return; await installPlugins(s); s.butler.submit(`[hub-connected] You are now connected to the hub as ${agent}. Other agents can reach you there, and their messages arrive in your inbox.`, undefined, { sourceKind: 'auto' }).catch(() => {}); });   // 后者=连公网 hub 的 IPC(自注册, 单开文件因 main.js 撞行数闸); 回调=取到 token 当场起收件循环(否则要重启才收件)、刷新人格页、告诉人格它接上了
+require('./host-wiring'); require('./image-save-ipc'); require('./channels/ipc'); const { windowBg } = require('./theme-ipc'); require('./hub-ipc').onClaimed(async (id, { agent } = {}) => { broadcastRegistry(); const c = registry.get(id); const s = c && sessions.get(sidOf(c.homeDir)); if (!s) return; await installPlugins(s); s.butler.submit(`[hub-connected] You are now connected to the hub as ${agent}. Other agents can reach you there, and their messages arrive in your inbox.`, undefined, { sourceKind: 'auto' }).catch(() => {}); });   // 后者=连公网 hub 的 IPC(自注册, 单开文件因 main.js 撞行数闸); 回调=取到 token 当场起收件循环(否则要重启才收件)、刷新人格页、告诉人格它接上了
 
 const { Butler, hasUnconsumedCtxLast, accessConfig } = require('../core/agent');
 const store = require('../core/chat-store');
@@ -606,7 +606,7 @@ async function installPlugins(s) {
   };
   s.tgPlugin = new TgPlugin(plugins.tg, s.butler.name, pluginLog, s.butler.memoryDir, tgOnMessage);
   // v2: 把 bot_token 注入 butler, 供 MCP send_tg 工具用 (每次 installPlugins 都刷, 支持热切换 token)
-  s.butler.setTgConfig(plugins.tg || {});
+  s.butler.setTgConfig(plugins.tg || {}); require('./channels/wire').wireChannels(s, entry, { cfg, log: pluginLog }).catch((e) => console.error('[channels]', e && e.message));   // 统一通道(飞书/钉钉/群机器人…, personal/channels/)
   const rTg = s.tgPlugin.start(s.butler.homeDir);
   if (!rTg.ok) pluginLog(`[tg:${s.butler.name}] 启动失败: ${rTg.error}`);
   else if (rTg.mode === 'native') pluginLog(`[tg:${s.butler.name}] ✅ native long polling 启动`);
@@ -1361,7 +1361,7 @@ async function showBootingWindow(homeDirs) {
 
 function createWindow() {
   mainWin = new BrowserWindow({
-    ...require('../core/dev-window-place')(980, 780), minWidth: 640, minHeight: 480, title: `全能管家 v${app.getVersion()}`, backgroundColor: '#1e1e28',
+    ...require('../core/dev-window-place')(980, 780), minWidth: 640, minHeight: 480, title: `全能管家 v${app.getVersion()}`, backgroundColor: windowBg(),
     // 版本号从这里递进去: preload 跑在沙箱里, 里面 require('./package.json') 会失败(静默落成 '?'), 标题就成了「v?」。
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false,
       additionalArguments: [`--butler-version=${app.getVersion()}`] },
@@ -1660,12 +1660,9 @@ app.whenReady().then(async () => {
     // → getUserMedia 拿到的是静音 stream, whisper 会稳定输出 "you" 幻觉. 修法:
     // ①setPermissionRequestHandler 显式放行 media  ②macOS 首次触发系统 TCC 弹窗
     try {
-      session.defaultSession.setPermissionRequestHandler((wc, permission, cb) => {
-        cb(permission === 'media' || permission === 'audioCapture');
-      });
-      session.defaultSession.setPermissionCheckHandler((wc, permission) => {
-        return permission === 'media' || permission === 'audioCapture';
-      });
+      const allowPerm = (p) => p === 'media' || p === 'audioCapture' || p === 'clipboard-sanitized-write';   // 剪贴板写: 各处「复制」按钮
+      session.defaultSession.setPermissionRequestHandler((wc, permission, cb) => cb(allowPerm(permission)));
+      session.defaultSession.setPermissionCheckHandler((wc, permission) => allowPerm(permission));
       if (process.platform === 'darwin') {
         const st = systemPreferences.getMediaAccessStatus('microphone');
         console.log('[voice-stt/perm] mic access status =', st);
@@ -1675,11 +1672,10 @@ app.whenReady().then(async () => {
         }
       }
     } catch (e) { console.error('[voice-stt/perm] setup failed:', e); }
-    // 首启①选语言 ②选数据目录 ③落盘 — 必须在任何登记簿/人格读写之前(打包模式; 开发模式三步全 no-op)。
-    // 干净启动: 不带任何数据种子; 首个默认人格由下面 ensureEntry 现场脚手架。用户装完自己把旧数据拷进数据目录即可。
-    // 🔴 三步的**先后不能换**: 语言最先问(后两个框都要用它显示), 但最后才写 ——
-    //    settings.json 住在 dataDir()/app/ 下, 目录还没定就写 = 写进默认位, 用户自选了别处它就成了孤儿。
-    const firstRunLocale = require('./first-run').run();   // 语言 → 数据位置, 两个框一趟问完(见 first-run.js)
+    // 首启落定数据目录(写指针, 不弹框) — 必须在任何登记簿/人格读写之前(打包模式; 开发模式 no-op)。
+    // 语言不问: 跟系统走, 空状态屏第一屏能改。settings.json 住在 dataDir()/app/ 下, 所以指针先于任何设置写入。
+    // 干净启动: 不带任何数据种子; 没有人格时渲染层显示空状态屏, 用户建了才有。
+    const firstRunLocale = require('./first-run').run();   // 现在恒为 null(见 first-run.js), 留着这条落盘口子
     if (firstRunLocale) settings.write({ language: firstRunLocale });
     require('./data-dir-guard').checkAll(firstRunLocale); migrateControlLayout();   // 指针丢了 / 数据在安装目录 → 先问清楚; 再把总控数据挪进 app/(都在任何登记簿读写前)
     // 代理: 必须早于任何出网动作(下面 ensureClaudeAuth 就要连 Anthropic)。
@@ -1742,7 +1738,7 @@ app.on('before-quit', () => {
   try { localApiServer && localApiServer.stop(); } catch (_) {}
   for (const s of sessions.values()) {
     try { s.tgPlugin && s.tgPlugin.stop(); } catch (_) {}
-    try { s.bothubPlugin && s.bothubPlugin.stop(); } catch (_) {}
+    try { s.bothubPlugin && s.bothubPlugin.stop(); } catch (_) {}  try { s.channels && s.channels.stopAll(); } catch (_) {}
   }
 });
 // 启动链跑完之前不认"窗口全关": 关掉启动小窗到 createWindow 之间窗口数瞬时为 0,
@@ -1772,7 +1768,7 @@ ipcMain.handle('list-personas', async () => ({
     // 状态: 已开人格的托管子进程实况(pid/exit); 未开=null
     pluginStatus: (() => {
       const s = sessions.get(sidOf(p.homeDir));
-      return s ? { tg: s.tgPlugin && s.tgPlugin.status(), bothub: s.bothubPlugin && s.bothubPlugin.status() } : null;
+      return s ? { tg: s.tgPlugin && s.tgPlugin.status(), bothub: s.bothubPlugin && s.bothubPlugin.status(), channels: s.channels && s.channels.status() } : null;
     })(),
   })),
 }));
@@ -1837,7 +1833,7 @@ require('../core/credentials').register({
   openApiPersonas: () => registry.list().filter((p) => p.accessMode === 'api' && sessions.has(sidOf(p.homeDir))),
 });
 
-require('../core/search-keys').register({ ipcMain, settings, secrets });   // 联网搜索 key(Brave / Tavily)
+require('../core/search-keys').register({ ipcMain, settings, secrets });   // 联网搜索引擎(用户自加、排序、禁用)
 require('../core/cc-sdk-install').register({   // 开源包「使用 Claude 订阅」: 用户自己下载 SDK, 装好重启生效
   ipcMain, relaunch: () => relaunchApp(),
   send: (ch, p) => { if (settingsWin && !settingsWin.isDestroyed()) settingsWin.webContents.send(ch, p); },
@@ -2312,7 +2308,7 @@ ipcMain.handle('restart-persona', async (_e, { id, patch } = {}) => {
   }
   const wasBlocked = !!s.butler._authBlocked;
   if (s.tgPlugin)     { try { await s.tgPlugin.stop();     } catch (_) {} }
-  if (s.bothubPlugin) { try { await s.bothubPlugin.stop(); } catch (_) {} }
+  if (s.bothubPlugin) { try { await s.bothubPlugin.stop(); } catch (_) {} }  if (s.channels) { try { await s.channels.stopAll(); } catch (_) {} }
   if (s.linePlugin)   { try { await s.linePlugin.stop();   } catch (_) {} }
   try { await s.butler.dispose(); } catch (_) {}
   sessions.delete(sid);
@@ -2497,7 +2493,7 @@ ipcMain.handle('choose-directory', async (_e) => {
 ipcMain.handle('open-manager-window', async (_e, { view } = {}) => {   // view: 'create' = 新建视图, 其余 = 人格列表
   if (managerWin && !managerWin.isDestroyed()) { managerWin.webContents.send('manager-view', view === 'create' ? 'create' : 'list'); managerWin.focus(); return { ok: true }; }
   managerWin = new BrowserWindow({
-    width: 720, height: 560, title: i18n.uiStrings(currentLocale()).mgr_title, backgroundColor: '#1e1e28', parent: mainWin, fullscreenable: false,
+    width: 720, height: 560, title: i18n.uiStrings(currentLocale()).mgr_title, backgroundColor: windowBg(), parent: mainWin, fullscreenable: false,
     // 版本号从这里递进去: preload 跑在沙箱里, 里面 require('./package.json') 会失败(静默落成 '?'), 标题就成了「v?」。
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false,
       additionalArguments: [`--butler-version=${app.getVersion()}`] },
@@ -2514,11 +2510,11 @@ ipcMain.handle('open-manager-window', async (_e, { view } = {}) => {   // view: 
 ipcMain.handle('open-settings-window', async () => {
   if (settingsWin && !settingsWin.isDestroyed()) { settingsWin.focus(); return { ok: true }; }
   settingsWin = new BrowserWindow({
-    width: 720, height: 640, title: i18n.uiStrings(currentLocale()).sys_title, backgroundColor: '#1e1e28', parent: mainWin, fullscreenable: false,
+    width: 720, height: 640, title: i18n.uiStrings(currentLocale()).sys_title, backgroundColor: windowBg(), parent: mainWin, fullscreenable: false,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false,
       additionalArguments: [`--butler-version=${app.getVersion()}`] },
   });
-  settingsWin.on('closed', () => { settingsWin = null; }); require('./window-guard').attachEscClose(settingsWin);   // 全屏下红绿灯会隐藏, Esc 是唯一退路
+  settingsWin.on('closed', () => { settingsWin = null; }); require('./window-guard').attachEscClose(settingsWin); require('./window-guard').attachExternalLinks(settingsWin);   // 全屏下红绿灯会隐藏, Esc 是唯一退路
   settingsWin.loadFile(path.join(__dirname, 'renderer', 'settings.html'));
   return { ok: true };
 });
@@ -2548,7 +2544,7 @@ ipcMain.handle('close-session', async (_e, { sid } = {}) => {
     send({ phase: 'hide' });
   }
   if (s.tgPlugin)     { try { await s.tgPlugin.stop();     } catch (_) {} }
-  if (s.bothubPlugin) { try { await s.bothubPlugin.stop(); } catch (_) {} }
+  if (s.bothubPlugin) { try { await s.bothubPlugin.stop(); } catch (_) {} }  if (s.channels) { try { await s.channels.stopAll(); } catch (_) {} }
   if (s.linePlugin)   { try { await s.linePlugin.stop();   } catch (_) {} }
   try { await s.butler.dispose(); } catch (_) {}
   sessions.delete(sid);

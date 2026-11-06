@@ -71,7 +71,7 @@ function buildEnv(preferredModel, useApi, gateway, credentialId) {
   // ⚠️ 不放在 applyAccessEnv 里: 那个函数只管接入方式(凭据/端点/模型), 这是功能位, 两码事。
   //    留着 `Task`(派子代理)和 `TaskStop`(停后台任务) —— 它们跟任务清单无关, 不受这个开关影响。
   env.CLAUDE_CODE_ENABLE_TASKS = 'false';
-  // 联网搜索 key 与「优先」开关(只有 Butler 引擎的本机 WebSearch 读), 见 core/search-keys.js
+  // 用户自加的联网搜索引擎(只有 Butler 引擎的本机 WebSearch 读), 见 core/search-keys.js
   return require('../search-keys').applyEnv(env);
 }
 

@@ -2,9 +2,11 @@
 //
 // WebFetch: 抓页面 → 去标签成正文。正文长、又给了 prompt 时, 用当前会话的模型读一遍再回答
 //   (ctx.complete 由 loop 提供), 免得整页几万字塞进上下文。
-// WebSearch: env 里有 BRAVE_API_KEY 用 Brave, 有 TAVILY_API_KEY 用 Tavily, 都没有走 DuckDuckGo 的 html 版。
+// WebSearch: 按 env.BUTLER_SEARCH_ENGINES 里用户排好的引擎依次试(引擎本身在 search-engines.ts)。
+//   没配引擎时这个工具不该出现 —— session.ts 会把它摘掉, 只留模型服务端自带的搜索。
 
 import type { BuiltinTool, ToolOutput } from './registry.js';
+import { parseEngines, searchChain, type Hit } from './search-engines.js';
 
 const ok = (text: string): ToolOutput => ({ content: [{ type: 'text', text }] });
 const fail = (text: string): ToolOutput => ({ content: [{ type: 'text', text: `<tool_use_error>${text}</tool_use_error>` }], isError: true });
@@ -79,45 +81,6 @@ export const WebFetch: BuiltinTool = {
   },
 };
 
-interface Hit { title: string; url: string; snippet: string }
-
-async function braveSearch(q: string, key: string, signal: AbortSignal): Promise<Hit[]> {
-  const r = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(q)}&count=10`, { headers: { Accept: 'application/json', 'X-Subscription-Token': key }, signal });
-  if (!r.ok) throw new Error(`Brave HTTP ${r.status}`);
-  const j: any = await r.json();
-  return (j.web?.results || []).map((x: any) => ({ title: x.title, url: x.url, snippet: htmlToText(x.description || '') }));
-}
-
-async function tavilySearch(q: string, key: string, signal: AbortSignal): Promise<Hit[]> {
-  const r = await fetch('https://api.tavily.com/search', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` }, body: JSON.stringify({ query: q, max_results: 10 }), signal });
-  if (!r.ok) throw new Error(`Tavily HTTP ${r.status}`);
-  const j: any = await r.json();
-  return (j.results || []).map((x: any) => ({ title: x.title, url: x.url, snippet: x.content || '' }));
-}
-
-async function ddgSearch(q: string, signal: AbortSignal): Promise<Hit[]> {
-  const r = await fetch('https://html.duckduckgo.com/html/', { method: 'POST', headers: { 'User-Agent': UA, 'Content-Type': 'application/x-www-form-urlencoded' }, body: `q=${encodeURIComponent(q)}`, signal });
-  if (!r.ok) throw new Error(`DuckDuckGo HTTP ${r.status}`);
-  // 查得太密时 DuckDuckGo 回 202 + 人机验证页: 不是「没搜到」, 照实报失败, 模型才会换法子
-  if (r.status === 202) throw new Error('DuckDuckGo is rate-limiting this machine (HTTP 202); retry later, or ask the user to set a Brave/Tavily key in settings');
-  const html = await r.text();
-  // 按结果块切开再各自取标题和摘要 —— 一条正则跨块配对会把摘要配错或配空
-  const hits: Hit[] = [];
-  for (const block of html.split(/class="result results_links|class="result__body/).slice(1)) {
-    const a = /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/.exec(block);
-    if (!a) continue;
-    let url = decode(a[1]);
-    const uddg = /[?&]uddg=([^&]+)/.exec(url);
-    if (uddg) url = decodeURIComponent(uddg[1]);
-    if (url.startsWith('//')) url = `https:${url}`;
-    if (hits.some((h) => h.url === url)) continue;
-    const sn = /class="result__snippet"[^>]*>([\s\S]*?)<\/(?:a|div|td)>/.exec(block);
-    hits.push({ title: htmlToText(a[2]), url, snippet: sn ? htmlToText(sn[1]) : '' });
-    if (hits.length >= 10) break;
-  }
-  return hits;
-}
-
 const host = (u: string) => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (_) { return ''; } };
 const inDomains = (u: string, ds: string[]) => ds.some((d) => { const h = host(u); const x = d.replace(/^www\./, ''); return h === x || h.endsWith(`.${x}`); });
 
@@ -144,11 +107,7 @@ export const WebSearch: BuiltinTool = {
     let hits: Hit[];
     let engine: string;
     try {
-      // 用户勾了优先哪家就先用哪家; 没勾则有哪把 key 用哪把, 都没有才去 DuckDuckGo
-      const useTavily = !!ctx.env.TAVILY_API_KEY && (ctx.env.BUTLER_SEARCH_PREFER === 'tavily' || !ctx.env.BRAVE_API_KEY);
-      if (ctx.env.BRAVE_API_KEY && !useTavily) { engine = 'brave'; hits = await braveSearch(query, ctx.env.BRAVE_API_KEY, ctx.signal); }
-      else if (useTavily) { engine = 'tavily'; hits = await tavilySearch(query, ctx.env.TAVILY_API_KEY!, ctx.signal); }
-      else { engine = 'duckduckgo'; hits = await ddgSearch(query, ctx.signal); }
+      ({ engine, hits } = await searchChain(query, parseEngines(ctx.env.BUTLER_SEARCH_ENGINES), ctx.signal, { ua: UA, text: htmlToText, decode }));
     } catch (e: any) { return fail(`Search failed: ${e && e.message}`); }
     if (allow.length) hits = hits.filter((h) => inDomains(h.url, allow));
     if (block.length) hits = hits.filter((h) => !inDomains(h.url, block));

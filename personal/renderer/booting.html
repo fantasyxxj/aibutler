@@ -30,6 +30,12 @@
   .text { min-width: 0; }
   .title { font-size: 14px; font-weight: 600; color: #e6e6e6; }
   .sub { font-size: 12px; color: #a0a4ac; margin-top: 5px; line-height: 1.5; }
+  @media (prefers-color-scheme: light) {
+    .card { background: #ffffff; border-color: #dadfe9; box-shadow: 0 12px 40px #00000026; }
+    .spinner { border-color: #dadfe9; border-top-color: #3b5bdb; }
+    .title { color: #1f2330; }
+    .sub { color: #6b7189; }
+  }
 </style>
 </head>
 <body>

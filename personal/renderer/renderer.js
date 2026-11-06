@@ -685,18 +685,8 @@ function refreshBusy() {
   if (window.chipsUI) window.chipsUI.setDisabled(!t || t.busy);   // chip 跟 sendBtn 同状态, 防流式中途手滑再塞一条
 }
 
-// ---- 头像: emoji 或 字母(名字首字 + 按名字 hash 的稳定背景色) ----
-const AVATAR_COLORS = ['#e0567a', '#e08a56', '#c9a227', '#5cae5c', '#4aa3c7', '#6b7ae0', '#a15ce0', '#c74a9e'];
-// avatar 字段: 图片(data:/file:/http/绝对路径) → 照片头像; 否则 emoji; 空 → 字母头像
-function isImgAvatar(v) { return typeof v === 'string' && /^(data:|file:|https?:|\/)/.test(v); }
-function avatarOf(persona) {
-  const name = (persona && persona.name) || '?';
-  const av = persona && persona.avatar;
-  if (av && isImgAvatar(av)) return { img: av };
-  if (av) return { emoji: av };
-  let h = 0; for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return { letter: [...name][0] || '?', bg: AVATAR_COLORS[h % AVATAR_COLORS.length] };
-}
+// 头像(emoji / 照片 / 字母 + 按名字 hash 的底色)在 persona-card.js, 人格管理窗口也用同一份
+const { avatarOf, paintAvatar } = window.PersonaCard;
 // 标签栏管家帽子: 在标签上叠一个 👑, 一眼看出谁是管家。跟"打开时的管家身份"(openedAsButler)走。
 function paintCrown(tabEl, persona) {
   if (!tabEl) return;
@@ -710,24 +700,6 @@ function paintCrown(tabEl, persona) {
     tabEl.appendChild(crown);
   } else if (!isB && crown) {
     crown.remove();
-  }
-}
-
-function paintAvatar(el, persona) {
-  if (!el) return;
-  const a = avatarOf(persona);
-  el.classList.toggle('is-emoji', !!a.emoji);
-  el.classList.toggle('is-photo', !!a.img);
-  if (a.img) {
-    el.textContent = '';
-    el.style.backgroundImage = `url("${a.img}")`;
-    el.style.backgroundSize = 'cover';
-    el.style.backgroundPosition = 'center';
-    el.style.backgroundColor = 'transparent';
-  } else {
-    el.style.backgroundImage = '';
-    el.textContent = a.emoji || a.letter;
-    el.style.background = a.emoji ? 'transparent' : a.bg;
   }
 }
 
@@ -1495,7 +1467,7 @@ if (cancelBtn) cancelBtn.addEventListener('click', async () => {
   } finally { cancelBtn.disabled = false; }
 });
 compactBtn.addEventListener('click', doCompact);
-// ＋号 = 弹已登记人格 picker; 底部两条 "新建人格…"/"管理人格…" 打开管理窗口。已开的置灰。
+// 「人格 ▾」= 弹已登记人格: 每行头像 + 名字 + 接入/模型, 开着的亮绿点, 点哪行都切过去; 底部新建 / 管理。
 async function showPicker() {
   const existing = document.querySelector('.picker-mask');
   if (existing) { existing.remove(); return; }
@@ -1503,24 +1475,20 @@ async function showPicker() {
   const list = (r && r.personas) || [];
   const mask = document.createElement('div'); mask.className = 'picker-mask';
   const pop = document.createElement('div'); pop.className = 'picker';
+  const at = newTabBtn.getBoundingClientRect();
+  pop.style.top = `${at.bottom + 6}px`; pop.style.left = `${Math.max(8, at.left)}px`;
   mask.appendChild(pop);
   mask.addEventListener('click', (e) => { if (e.target === mask) mask.remove(); });
-  const addItem = (opts) => {
-    const it = document.createElement('div');
-    it.className = 'p-item' + (opts.open ? ' open' : '') + (opts.action ? ' p-action' : '');
-    it.innerHTML = `<span class="p-name">${opts.label}</span>` +
-      (opts.butler ? `<span class="p-tag butler">${escapeHtml(t('butler'))}</span>` : '') +
-      (opts.open ? `<span class="p-tag">${escapeHtml(t('opened'))}</span>` : '');
-    if (!opts.open && opts.onClick) it.addEventListener('click', () => { mask.remove(); opts.onClick(); });
-    pop.appendChild(it);
-  };
   for (const p of list) {
-    addItem({ label: p.name, butler: p.isButler, open: p.open,
-      onClick: async () => { await window.butler.openPersonaRef(p.id); } });
+    pop.appendChild(window.PersonaCard.row(p, { t, onClick: async () => { mask.remove(); await window.butler.openPersonaRef(p.id); } }));
   }
   if (list.length) { const sep = document.createElement('div'); sep.className = 'p-sep'; pop.appendChild(sep); }
-  addItem({ label: t('new_persona_menu'), action: true, onClick: () => window.butler.openManagerWindow('create') });
-  addItem({ label: t('manage_persona_menu'), action: true, onClick: () => window.butler.openManagerWindow() });
+  const action = (label, cls, fn) => {
+    const it = document.createElement('div'); it.className = 'p-action ' + cls; it.textContent = label;
+    it.addEventListener('click', () => { mask.remove(); fn(); }); pop.appendChild(it);
+  };
+  action(t('new_persona_menu'), 'new', () => window.butler.openManagerWindow('create'));
+  action(t('manage_persona_menu'), '', () => window.butler.openManagerWindow());
   document.body.appendChild(mask);
 }
 newTabBtn.addEventListener('click', showPicker);
@@ -1658,28 +1626,28 @@ function showPathContextMenu(e, p) {
   menu.className = 'filepath-menu';
   Object.assign(menu.style, {
     position: 'fixed', left: e.clientX + 'px', top: e.clientY + 'px',
-    background: '#2b2b36', border: '1px solid #444', borderRadius: '6px',
+    background: 'var(--panel-2)', border: '1px solid var(--line)', borderRadius: '6px',
     padding: '4px 0', minWidth: '200px', zIndex: 99999,
-    boxShadow: '0 4px 16px rgba(0,0,0,0.4)', fontSize: '13px', color: '#e0e0e0',
+    boxShadow: '0 4px 16px var(--shadow)', fontSize: '13px', color: 'var(--text)',
     userSelect: 'none',
   });
   items.forEach((it) => {
     const row = document.createElement('div');
     row.textContent = it.label;
     Object.assign(row.style, { padding: '6px 14px', cursor: 'pointer' });
-    row.addEventListener('mouseenter', () => row.style.background = '#3a3a48');
+    row.addEventListener('mouseenter', () => row.style.background = 'var(--hover)');
     row.addEventListener('mouseleave', () => row.style.background = 'transparent');
     row.addEventListener('click', () => { it.act(); menu.remove(); });
     menu.appendChild(row);
   });
   // 分隔线 + 路径提示
   const sep = document.createElement('div');
-  Object.assign(sep.style, { borderTop: '1px solid #444', margin: '4px 0' });
+  Object.assign(sep.style, { borderTop: '1px solid var(--line)', margin: '4px 0' });
   menu.appendChild(sep);
   const info = document.createElement('div');
   info.textContent = p;
   Object.assign(info.style, {
-    padding: '4px 14px 6px', fontSize: '11px', color: '#888',
+    padding: '4px 14px 6px', fontSize: '11px', color: 'var(--muted)',
     wordBreak: 'break-all', maxWidth: '400px',
   });
   menu.appendChild(info);
@@ -1740,10 +1708,15 @@ function showPersona(p) {
 }
 
 // Mermaid 一次性初始化 (securityLevel:'strict' 禁止图内 <script> / 点击回调; startOnLoad:false 由 renderMd 手动 render)
-if (window.mermaid) {
-  try { window.mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'strict' }); }
+// 深浅跟着界面走: 切了主题之后新画的图用新配色(已画好的不重画)
+const darkMq = window.matchMedia('(prefers-color-scheme: dark)');
+function initMermaid() {
+  if (!window.mermaid) return;
+  try { window.mermaid.initialize({ startOnLoad: false, theme: darkMq.matches ? 'dark' : 'default', securityLevel: 'strict' }); }
   catch (e) { console.warn('mermaid init 失败', e); }
 }
+initMermaid();
+darkMq.addEventListener('change', initMermaid);
 
 // 切语言不重启 app: 存盘 → 主进程广播 → 每个窗口自己重刷。
 // 要求重启才生效的话, 用户会以为没选上, 再点一遍。

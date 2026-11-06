@@ -501,8 +501,8 @@ class StreamMixin {
     out.push('mcp__butler__update_prompt_chips');   // 自己维护输入框上方快捷按钮: 所有人格
     out.push('mcp__butler__get_chip_usage');        // 换之前先看哪个真在被用, 别凭印象换
     if (this.tgBotToken) out.push('mcp__butler__send_tg');             // 已配 TG 才放行 send_tg
-    // 配了 bus 才放行往 bus 说话的两个。send_line 那族已删 —— 发 LINE 是 bus 上的一个
-    // command, 走能力包里的声明或 bus_exec, 不再是内核里的专用工具。
+    if (this.channelHost && this.channelHost.list().length) out.push('mcp__butler__send_message');   // 配了统一通道才放行
+    // 配了 bus 才放行往 bus 说话的两个。send_line 那族已删 —— 发 LINE 是 bus 上的 command(能力包声明或 bus_exec)。
     // bus_admin = 往 bothub 那条 bus 发消息/发文件/取文件三个 op。原先只放行了 send_bothub,
     // bus_put_file / bus_get_file 从来没进过白名单 —— 注册了却调不动, 与 persona_tune 同一种漏。
     if (this.buses.all().some((b) => b.kind === 'bothub')) out.push('mcp__butler__bus_admin');

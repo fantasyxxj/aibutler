@@ -248,6 +248,8 @@ class Butler {
   // v2 TG 通路: 给 send_tg 工具供 bot_token; 支持热切换 (installPlugins 每次调用会重新 set)
   // TG 不走 bus —— 它是直接打 Telegram Bot API, 跟"我们自己的服务端"不是一回事。
   setTgConfig(cfg) { this.tgBotToken = (cfg && cfg.bot_token) || null; }
+  // 统一通道宿主(个人版 personal/channels 的 ChannelHost: list() / send(id, {to, text})), 给 send_message 用
+  setChannelHost(host) { this.channelHost = host || null; }
   // 这台机器对话的 bus 目标表(有序, 第一个是默认)。宿主启动/热切换时调一次。
   // specs = [{ id, kind:'v1'|'bothub', base_url, token, agent?, label? }]
   setBuses(specs) { this.buses = new BusRegistry(specs || []); }

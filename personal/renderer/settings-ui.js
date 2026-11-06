@@ -181,7 +181,7 @@ function laRender(c) {
   LA.enabled.checked = !!s.enabled;
   LA.port.value = s.port;
   LA.status.textContent = s.running ? t('mgr_la_running', { port: s.port }) : t(s.enabled ? 'mgr_la_down' : 'mgr_la_off');
-  LA.status.style.color = s.running ? '#5cb85c' : (s.enabled ? '#d9534f' : '#888');
+  LA.status.style.color = s.running ? 'var(--ok)' : (s.enabled ? 'var(--danger)' : 'var(--muted)');
   LA.curl.textContent = `curl -X POST http://127.0.0.1:${s.port}/v1/poke \\\n  -H 'Content-Type: application/json' \\\n  -d '{"persona":"${s.sample || t('mgr_la_sample_persona')}","from":"watchdog.py","text":"${t('mgr_la_sample_text')}"}'`;
 }
 
@@ -221,7 +221,7 @@ function pxRenderSaved(p) {
   if (p) _pxLast = p;
   const s = _pxLast || {};
   _pxShowingTest = false;
-  pxStatus(s.enabled && s.url ? t('mgr_px_on', { url: s.url }) : t('mgr_px_direct'), s.enabled && s.url ? '#5cb85c' : '#888');
+  pxStatus(s.enabled && s.url ? t('mgr_px_on', { url: s.url }) : t('mgr_px_direct'), s.enabled && s.url ? 'var(--ok)' : 'var(--muted)');
 }
 
 function pxPatch() {
@@ -251,10 +251,10 @@ async function pxSave() {
 async function pxTest() {
   if (!PX.url.value.trim()) { toast(t('mgr_px_need_url')); return; }
   PX.test.disabled = true;
-  pxStatus(t('mgr_px_testing'), '#888');
+  pxStatus(t('mgr_px_testing'), 'var(--muted)');
   const r = await window.butler.testProxy(pxPatch());
   PX.test.disabled = false;
-  pxStatus((r.ok ? '● ' : '○ ') + r.detail, r.ok ? '#5cb85c' : '#d9534f');
+  pxStatus((r.ok ? '● ' : '○ ') + r.detail, r.ok ? 'var(--ok)' : 'var(--danger)');
   _pxShowingTest = true;
   toast(r.ok ? t('mgr_px_ok') : t('mgr_px_bad') + r.detail);
 }
@@ -279,7 +279,17 @@ window.butler.onLocaleChanged && window.butler.onLocaleChanged((payload) => {
   subtokRender();                             // 同上: 状态条是 t() 拼的, 换语言要跟着重画
 });
 
+// ---- 外观: 跟随系统 / 浅色 / 深色 ----
+const THEME_SEG = document.getElementById('themeSeg');
+function themeMark(theme) { for (const b of THEME_SEG.querySelectorAll('button')) b.classList.toggle('on', b.dataset.theme === theme); }
+THEME_SEG.addEventListener('click', async (e) => {
+  const b = e.target.closest('button[data-theme]'); if (!b) return;
+  const r = await window.butler.setTheme(b.dataset.theme);
+  if (r && r.ok) themeMark(r.theme);
+});
+
 (async () => {
+  window.butler.getTheme().then((r) => themeMark(r && r.theme)).catch(() => {});
   // 先拿语言再画: 状态条是 t() 拼出来的, S 还空着就画会得到一屏空白
   try { applyStrings(await window.butler.getLocale()); }
   catch (e) { console.error('[settings] getLocale failed:', e && e.message); }

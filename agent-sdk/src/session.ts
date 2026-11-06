@@ -10,14 +10,9 @@ import { ToolRegistry, type BuiltinTool } from './tools/registry.js';
 import { collectPreToolUse } from './hooks.js';
 import { uuid } from './loop.js';
 import { Agent, AGENT_TOOL, SUBAGENT_SYSTEM } from './tools/agent.js';
+import { parseEngines, type EngineConf } from './tools/search-engines.js';
 
-// 服务端 web_search 不一定真能用(网关可能不支持或搜不到), 所以本机 WebSearch 一直留着当兜底
-const SEARCH_NOTE = '\n\nThere are two web search tools: web_search runs on the model provider\'s side, WebSearch runs locally. '
-  + 'Use web_search first; if it errors or finds nothing useful, use WebSearch.';
-
-const LOCAL_FALLBACK_DESC = 'Fallback web search that runs locally. Use web_search first; call this only when web_search errored '
-  + 'or found nothing useful. Returns result titles, URLs and snippets; cite the URLs you rely on.';
-
+// 联网搜索二选一: 用户配了本机引擎就只给本机 WebSearch, 没配就只给模型服务端自带的 web_search(作者 11-06 定)
 export class Session {
   readonly sessionId = uuid();
   readonly out = new Channel<any>();
@@ -46,12 +41,14 @@ export class Session {
   setupError: unknown = null;
   builtins: BuiltinTool[] = [];
   isChild = false;
-  serverSearch: any = null;   // 服务端搜索工具; 有它时与本机 WebSearch 并列给模型
+  serverSearch: any = null;   // 服务端搜索工具; 只在没配本机引擎时给, 与本机 WebSearch 二选一
+  localEngines: EngineConf[] = [];   // 用户在设置里加的本机搜索引擎, 排前的先试
 
   constructor(opts: any) {
     this.opts = opts || {};
     const proc: any = (globalThis as any).process;
     this.env = this.opts.env || (proc && proc.env) || {};
+    this.localEngines = parseEngines(this.env.BUTLER_SEARCH_ENGINES);
     this.cwd = this.opts.cwd;
     this.replay = !!(this.opts.extraArgs && 'replay-user-messages' in this.opts.extraArgs);
     this.partial = !!this.opts.includePartialMessages;
@@ -65,8 +62,8 @@ export class Session {
     try {
       const r = resolveModel(this.opts.model, this.env, this.opts.fetch, this.sessionId);
       this.model = r.model; this.modelId = r.id; this.family = r.family;
-      // 用户在设置里勾了「优先用自己的搜索 key」(BUTLER_SEARCH_PREFER)就只走本机, 否则服务端优先
-      if (r.serverSearch && !this.env.BUTLER_SEARCH_PREFER) this.serverSearch = r.serverSearch();
+      // 用户在设置里加了搜索引擎(且没勾禁用)就只走本机那几家, 否则只用模型服务端自带的(有就有, 没有就没有)
+      if (r.serverSearch && !this.localEngines.length) this.serverSearch = r.serverSearch();
       const info = modelInfo(r.id);
       this.contextWindow = info.contextWindow;
       this.maxOutput = Number(this.opts.maxOutputTokens) > 0 ? Number(this.opts.maxOutputTokens) : info.maxOutput;
@@ -80,13 +77,18 @@ export class Session {
     this.mcpStatus = Object.keys(this.opts.mcpServers || {}).map((name) => ({ name, status: connected.has(name) ? 'connected' : 'failed' }));
     // Agent 由核心层自带; 宿主的 tools 名单里没列它就不会露出来(行业版 / 教育版就没有)
     this.builtins = [...(Array.isArray(this.opts.builtinTools) ? this.opts.builtinTools : []), Agent];
-    // 服务端搜索开着时, 本机 WebSearch 的说明改成「兜底」: 只在系统提示里叮嘱一句, 模型照样先挑它(11-03 haiku 实测)
-    if (this.serverSearch) this.builtins = this.builtins.map((t) => t.name === 'WebSearch' ? { ...t, description: LOCAL_FALLBACK_DESC } : t);
     this.registry = new ToolRegistry(this.opts, this.builtins, this.conns);
     // 宿主没放行 WebSearch(行业版等)就不给服务端搜索: 放行名单管的是「这个人格能不能上网搜」
-    if (!this.registry.entries.some((e) => e.name === 'WebSearch')) this.serverSearch = null;
-    if (this.serverSearch) this.system += SEARCH_NOTE;
-    this.log(`[agent-sdk] ${this.modelId}: web search = ${this.serverSearch ? 'provider first, local fallback' : `local only${this.env.BUTLER_SEARCH_PREFER ? ` (${this.env.BUTLER_SEARCH_PREFER} preferred)` : ''}`}`);
+    const searchAllowed = this.registry.entries.some((e) => e.name === 'WebSearch');
+    if (!searchAllowed) this.serverSearch = null;
+    // 没配本机引擎 → 本机 WebSearch 摘掉, 两个搜索工具不同时出现, 模型不用挑
+    if (searchAllowed && !this.localEngines.length) {
+      this.builtins = this.builtins.filter((t) => t.name !== 'WebSearch');
+      this.registry = new ToolRegistry(this.opts, this.builtins, this.conns);
+    }
+    this.log(`[agent-sdk] ${this.modelId}: web search = ${!searchAllowed ? 'off'
+      : this.localEngines.length ? `local (${this.localEngines.map((e) => e.type).join(' > ')})`
+        : this.serverSearch ? 'provider only' : 'none (model has no built-in search, no local engine set)'}`);
   }
 
   // 子代理: 同一个模型、同一套工具和闸、共用 MCP 连接, 空白历史, 不能再起子代理, 流不转发给宿主。

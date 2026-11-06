@@ -42,12 +42,15 @@ contextBridge.exposeInMainWorld('butler', {
   hubState: (personaId) => ipcRenderer.invoke('hub-state', { personaId }),    // { applyId, status, asked, ownerName, shouldPrompt }
   hubApply: (opt) => ipcRenderer.invoke('hub-apply', opt),                    // { displayName, ownerName, message, personaId } → { ok, applyId, status }
   hubClaim: (personaId) => ipcRenderer.invoke('hub-claim', { personaId }),    // → { ok, granted, status, agent }
+  channelTest: (spec, text) => ipcRenderer.invoke('channel-test', { spec, text }),   // 通道页「发一条测试」→ { ok, error? }
   hubDismiss: () => ipcRenderer.invoke('hub-dismiss'),                        // 「我不用」: 以后不再自动问
   getLocalApi: () => ipcRenderer.invoke('get-local-api'),                     // 本机戳醒 API 配置 { enabled, port, running }
   setLocalApi: (patch) => ipcRenderer.invoke('set-local-api', patch),         // 改开关/端口 → 立即重起服务
   getLocale: () => ipcRenderer.invoke('get-locale'),                          // 界面语言 { locale, strings, locales:[{id,label}] }
   setLocale: (locale) => ipcRenderer.invoke('set-locale', { locale }),        // 切界面语言 → { ok, locale, strings, locales }
   onLocaleChanged: (cb) => ipcRenderer.on('locale-changed', (_e, d) => cb(d)),  // 别的窗口切了语言 → 本窗口跟着重绘(两个窗口两种语言像坏了)
+  getTheme: () => ipcRenderer.invoke('get-theme'),                            // 界面深浅 { theme: 'system'|'light'|'dark' }
+  setTheme: (theme) => ipcRenderer.invoke('set-theme', { theme }),            // 切深浅: 主进程改 nativeTheme, 各窗口媒体查询当场跟着变
   getSettings: () => ipcRenderer.invoke('get-settings'),                      // 用户设置 { proxy:{enabled,url,no_proxy}, _file }
   setSettings: (patch) => ipcRenderer.invoke('set-settings', patch),          // 存盘 + 立即应用代理
   testProxy: (patch) => ipcRenderer.invoke('test-proxy', patch),              // 用待验证的配置试连 → { ok, detail }
@@ -58,8 +61,9 @@ contextBridge.exposeInMainWorld('butler', {
   deleteCredential: (id) => ipcRenderer.invoke('delete-credential', { id }),
   setDefaultCredential: (id) => ipcRenderer.invoke('set-default-credential', { id }),
   testCredential: (patch) => ipcRenderer.invoke('test-credential', patch),    // 拿这条凭据真发一次最小请求 → { ok, detail }
-  listSearchKeys: () => ipcRenderer.invoke('list-search-keys'),               // { prefer:'brave'|'tavily'|'', keys:{brave,tavily: none|ok|stale}, keychain }
-  saveSearchKeys: (patch) => ipcRenderer.invoke('save-search-keys', patch),     // { brave?, tavily?, prefer? } · key: 空=不动 / null=删 / 串=换
+  listSearchKeys: () => ipcRenderer.invoke('list-search-keys'),               // { engines:[{id,type,url?,key:none|ok|stale}], disabled, types, keychain }
+  saveSearchKeys: (patch) => ipcRenderer.invoke('save-search-keys', patch),     // { engines:[{id?,type,url?,key?}], disabled } · 整表替换, 顺序即先后 · key: 空=不动 / null=删 / 串=换
+  testSearchEngine: (eng) => ipcRenderer.invoke('test-search-engine', eng),     // { type, id?, url?, key? } → { ok, ms, count?, first?, error? }
   ccSdkStatus: () => ipcRenderer.invoke('cc-sdk-status'),                      // { applicable, installed, installing, version } · 开源包才 applicable
   ccSdkInstall: () => ipcRenderer.invoke('cc-sdk-install'),                    // 下载 Claude Agent SDK · { ok, error? }
   ccSdkDisable: (opts) => ipcRenderer.invoke('cc-sdk-disable', opts),        // 关闭订阅 { deleteFiles } · 删文件要用户在第二个框里确认

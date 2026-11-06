@@ -87,15 +87,15 @@
     menu.className = 'filepath-menu';
     Object.assign(menu.style, {
       position: 'fixed', left: e.clientX + 'px', top: e.clientY + 'px',
-      background: '#2b2b36', border: '1px solid #444', borderRadius: '6px',
+      background: 'var(--panel-2)', border: '1px solid var(--line)', borderRadius: '6px',
       padding: '4px 0', minWidth: '180px', zIndex: 100000,
-      boxShadow: '0 4px 16px rgba(0,0,0,0.4)', fontSize: '13px', color: '#e0e0e0', userSelect: 'none',
+      boxShadow: '0 4px 16px var(--shadow)', fontSize: '13px', color: 'var(--text)', userSelect: 'none',
     });
     for (const it of items) {
       const row = document.createElement('div');
       row.textContent = it.label;
       Object.assign(row.style, { padding: '6px 14px', cursor: 'pointer' });
-      row.addEventListener('mouseenter', () => { row.style.background = '#3a3a48'; });
+      row.addEventListener('mouseenter', () => { row.style.background = 'var(--hover)'; });
       row.addEventListener('mouseleave', () => { row.style.background = 'transparent'; });
       row.addEventListener('click', () => { menu.remove(); it.act(); });
       menu.appendChild(row);

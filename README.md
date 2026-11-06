@@ -46,7 +46,7 @@ In the back-and-forth with "Teacher", whatever my child imagines gets an answer 
 2. Install, launch, and follow the guide to create your first persona.
 3. Pick a model and enter an API key in Settings, and start talking.
 
-To run from source, see [Build from source](#build-from-source).
+The [user guide](https://fantasyxxj.github.io/aibutler/docs/) (Chinese for now) walks through installing, connecting models, channels and plugins. To run from source, see [Build from source](#build-from-source).
 
 ## What you can do with it
 

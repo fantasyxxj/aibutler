@@ -5,8 +5,6 @@
 module.exports = {
   // —— 頂欄 / 標籤 ——
   title: '全能管家',
-  tabbar_hint: '點頭像切換人格 · ＋新建/管理',
-  new_tab: '新建/開啟人格(空目錄=新建, 已有=續上)',
   persona_dir_hint: '目前人格的目錄(記憶體所在)',
   ctx_hint: '上下文佔用(真 usage)',
   ctx_empty: '— %',
@@ -159,7 +157,6 @@ module.exports = {
   // —— 管理視窗 (manager.html / manager.js) ——
   mgr_title: '人格管理',
   mgr_heading: '🧑‍🤝‍🧑 人格管理',
-  mgr_empty: '(登記簿為空)',
   mgr_edit: '編輯',
   mgr_collapse: '收起',
   mgr_set_butler: '設為管家',
@@ -353,21 +350,4 @@ module.exports = {
   sys_test: '測試',
   sys_testing: '● 測試中…',
   sys_saved_restart: '已保存 · 必須重啟 App 才生效, 在那之前一直按原來的設定跑',
-
-  // —— 首次啟動 (main.js · 系統對話框, 早於視窗) ——
-  // 🔴 這一條【四份字典必須逐字相同】, 所以刻意不翻成繁體 —— 它是語言選擇框的標題,
-  // 寫成一串多語就是要讓還沒選語言的人也讀得懂; 翻了就等於各語言看到不同的標題。門禁守著。
-  firstrun_lang_title: '选择语言 / Language / 言語',
-  firstrun_lang_message: '全能管家 · 首次啟動',
-  firstrun_lang_detail: '選擇介面語言。以後可在設定裡改。',
-  firstrun_dir_title: '選擇資料保存位置',
-  firstrun_dir_message: '全能管家 · 首次啟動',
-  firstrun_dir_detail: '管家的記憶、人格登記簿、聊天記錄等資料要存到一個固定位置。\n\n預設位置：\n{dir}\n\n(Windows 使用者若想放到 C 碟以外，點"自選資料夾"。以後也能在設定裡遷移。)',
-  firstrun_dir_default: '使用預設位置',
-  firstrun_dir_pick: '自選資料夾…',
-  firstrun_dir_picker_title: '選擇資料保存資料夾',
-  firstrun_dir_fail_title: '該位置不可用',
-  firstrun_dir_fail_message: '選的資料夾無法寫入, 已改用預設位置',
-  firstrun_dir_fail_detail: '{chosen}\n({err})\n\n資料將保存到:\n{dir}\n\n以後可在設定裡遷移。',
-  firstrun_ok: '知道了',
 };

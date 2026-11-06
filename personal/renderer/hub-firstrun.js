@@ -1,6 +1,8 @@
-// hub-firstrun.js — 装完第一次运行时问一句「要不要连上公网 hub」。
+// hub-firstrun.js — 「要不要连上公网 hub」: 进主界面后挂一条横幅(跟提醒横幅一个样子), 不挡人。
+// 点「了解并申请」才弹下面那个填名字的框; 「以后再说」只收起这一次, 下次启动还挂;
+// 「不用了」= 以后都不挂(作者 2026-11-06 定: 不做首启强制步骤, 也不只藏在设置里)。
 //
-// 🔴 只问这一次。问过(申请了 / 说了不用 / 本来就配过 bus)就再也不弹 —— 判据在
+// 🔴 挂到用户选了为止。问过(申请了 / 说了不用 / 本来就配过 bus)就再也不弹 —— 判据在
 // core/hub-join.js 的 shouldPrompt(), 不在这儿。升级上来的老安装没有那个标记, 所以
 // 会被问一次, 这是作者要的: 老用户也该知道有这条路。
 //
@@ -13,6 +15,7 @@
 (() => {
   const T = {
     'zh-CN': {
+      banner: '连上公网 hub, 你的管家就能和别人的管家互相找到、互发消息, 遇到问题也能直接找开发者的管家。', learn: '了解并申请', later: '以后再说',
       title: '要连上公网 hub 吗?',
       lede: '连上 hub, 你的管家就能和别人的管家直接打交道: 互相发消息、传文件, 托对方的管家帮忙办事、回答问题; 用着遇到问题, 也能让管家直接找开发者的管家求助。别人按你的名字就能找到你。填上名字提交申请, 批准后自动接通, 不用再操作。',
       owner: '你的名字(对方靠它认出你, 别人也能按名字找到你)',
@@ -23,6 +26,7 @@
       needname: '这台机器上还没有人格, 先建一个再来连。',
     },
     'zh-TW': {
+      banner: '連上公開 hub, 你的管家就能和別人的管家互相找到、互傳訊息, 遇到問題也能直接找開發者的管家。', learn: '了解並申請', later: '以後再說',
       title: '要連上公開 hub 嗎?',
       lede: '連上 hub, 你的管家就能和別人的管家直接打交道: 互相傳訊息、傳檔案, 託對方的管家幫忙辦事、回答問題; 用著遇到問題, 也能讓管家直接找開發者的管家求助。別人按你的名字就能找到你。填上名字送出申請, 核准後自動接通, 不用再操作。',
       owner: '你的名字(對方靠它認出你, 別人也能按名字找到你)',
@@ -33,6 +37,7 @@
       needname: '這台機器上還沒有人格, 先建一個再來連。',
     },
     en: {
+      banner: 'Connect to the public hub so your butler can find and message other people\'s butlers, and reach the developer\'s butler when something goes wrong.', learn: 'Learn more & apply', later: 'Not now',
       title: 'Connect to the public hub?',
       lede: 'On the hub, your butler can deal directly with other people\'s butlers: send messages and files, ask their butler to help with a task or answer a question, and when something goes wrong, reach the developer\'s butler for help. Others can find you by your name. Enter your name and apply; once approved it connects automatically, nothing more to do.',
       owner: 'Your name (how the approver recognizes you, and how others can find you)',
@@ -43,6 +48,7 @@
       needname: 'No persona on this machine yet — create one first.',
     },
     ja: {
+      banner: '公開 hub につなぐと、あなたの執事が他の方の執事と見つけ合い、メッセージを送り合えます。困ったときは開発者の執事にも直接相談できます。', learn: '詳しく見て申請', later: 'あとで',
       title: '公開 hub につなぎますか?',
       lede: 'hub につなぐと、あなたの執事が他の方の執事と直接やり取りできます。メッセージやファイルを送り合い、相手の執事に用事や質問を頼めます。困ったときは開発者の執事に直接助けを求めることもできます。他の方はお名前であなたを探せます。お名前を入れて申請すると、承認後に自動でつながります。追加の操作はいりません。',
       owner: 'お名前(承認時の確認と、他の方があなたを名前で探すのに使います)',
@@ -64,7 +70,7 @@
     display:flex; align-items:center; justify-content:center; padding:24px; }
   #hubFirstOverlay .hf-card { background:var(--panel-2); color:var(--text);
     border:1px solid var(--line); border-radius:var(--radius); padding:22px 26px;
-    width:min(460px,86vw); box-shadow:0 16px 48px #000c; }
+    width:min(460px,86vw); box-shadow:0 16px 48px var(--shadow); }
   #hubFirstOverlay h3 { margin:0 0 8px; font-size:15px; font-weight:600; }
   #hubFirstOverlay p { margin:0 0 14px; font-size:13px; color:var(--muted); line-height:1.6; }
   #hubFirstOverlay textarea, #hubFirstOverlay .hf-owner { width:100%; box-sizing:border-box; padding:8px 10px; margin-bottom:14px;
@@ -111,6 +117,8 @@
 
     const note = (s) => { ov.querySelector('.hf-note').textContent = s; };
     const close = () => ov.remove();
+    // 从横幅点进来又不想现在填: 点框外就关, 跟「以后再说」一样, 下次启动横幅还挂
+    ov.addEventListener('click', (e) => { if (e.target === ov) close(); });
 
     ov.querySelector('.hf-no').addEventListener('click', async () => {
       await window.butler.hubDismiss();
@@ -153,11 +161,31 @@
       const loc = await window.butler.getLocale();
       if (loc && loc.locale) L = loc.locale;
       const st = await window.butler.hubState();
-      if (st && st.shouldPrompt) show();
+      if (st && st.shouldPrompt) banner();
     } catch (_) { /* 问不出来就不问, 别为了一个引导把主界面挡住 */ }
   }
 
+  // 横幅: 挂在提醒横幅同一位置(#authBanner 后面), 三个出口
+  function banner() {
+    if (document.getElementById('hubBar')) return;
+    const css = document.createElement('style');
+    css.textContent = '#hubBar{display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:1px solid var(--line);border-left:3px solid var(--brand);background:var(--panel);color:var(--text);font-size:12px}'
+      + '#hubBar .hb-text{flex:1;min-width:0}'
+      + '#hubBar button{flex:0 0 auto;padding:2px 10px;font-size:12px;border-radius:4px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);cursor:pointer}'
+      + '#hubBar button.hb-go{background:var(--brand);border-color:var(--brand);color:#fff}';
+    document.head.appendChild(css);
+    const bar = document.createElement('div'); bar.id = 'hubBar';
+    const btn = (cls, k, fn) => { const b = document.createElement('button'); b.className = cls; b.textContent = tt(k); b.addEventListener('click', fn); return b; };
+    const text = document.createElement('span'); text.className = 'hb-text'; text.textContent = '🌐 ' + tt('banner');
+    bar.append(text,
+      btn('hb-go', 'learn', () => { bar.remove(); show(); }),
+      btn('hb-later', 'later', () => bar.remove()),
+      btn('hb-no', 'no', async () => { bar.remove(); await window.butler.hubDismiss(); }));
+    const anchor = document.getElementById('authBanner');
+    anchor.parentNode.insertBefore(bar, anchor.nextSibling);
+  }
+
   // show 也挂出去: 这一屏只在全新安装上出现一次, 不挂出来就没法在开发机上验它长什么样。
-  window.hubFirstRun = { show, maybeShow };
+  window.hubFirstRun = { show, banner, maybeShow };
   window.addEventListener('DOMContentLoaded', maybeShow);
 })();

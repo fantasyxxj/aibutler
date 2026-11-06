@@ -140,12 +140,12 @@ class McpToolsMixin {
     );
     // —— 原生图记忆工具(每人格自带; 遗忘曲线热度 + 图扩散关联检索) ——
     const G = () => this.memory;
-    const { sendTg, busExec, busAdmin } = this._channelTools({ tool, z, D });
+    const { sendTg, busExec, busAdmin, sendMessage } = this._channelTools({ tool, z, D });
     // 记忆工具集中在 memory-tools-v2.js。
     const memTools = registerMemoryToolsV2({ tool, z, graph: G, descriptions: D,
       onHit: (id) => this.sessionHits.add(id), agent: this });
     const { pluginFind, pluginOpen, pluginCall } = registerPluginTools(this, { tool, z, D });
-    const tools = [compact, ctxUsage, chatLog, pluginFind, pluginOpen, ...(pluginCall ? [pluginCall] : []), ...memTools, sendTg, busExec, busAdmin];
+    const tools = [compact, ctxUsage, chatLog, pluginFind, pluginOpen, ...(pluginCall ? [pluginCall] : []), ...memTools, sendTg, busExec, busAdmin, sendMessage];
     // —— ask_persona 已删(2026-09-08)。它与 talk_peer 语义等价, 当年留双工具是为了兼容既有习惯;
     //    6149 份 transcript 实测 ask_persona 24 次 / talk_peer 260 次, 习惯早已归一。
     //    投递路径 personaOps.ask 仍留着(wakeloop 等处在用), 只是不再作为工具暴露。

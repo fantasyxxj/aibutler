@@ -155,6 +155,10 @@
   else ready();
 })();`;
 
+  // 插件 iframe 的配色 token: 与 theme.css 同名同值(test-theme-tokens.js 守着), 深浅两套靠 iframe 自己的
+  // prefers-color-scheme 切 —— 主进程改了 nativeTheme, 已经开着的插件当场跟着变, 不用重载。
+  const THEME_DARK = '--bg:#1e1e28;--panel:#262633;--panel-2:#2c2c3c;--line:#34344a;--field:#15151d;--text:#e6e6ef;--text-2:#b9b9d0;--muted:#8a8aa5;--brand:#3b5bdb;--brand-hi:#4a6bff;--accent:#f0b000;--ok:#4ade80;--warn:#f0b000;--danger:#f87171;--btn:#3a3a52;--btn-hi:#45456a;--btn-line:#4a4a66;--hover:#ffffff10;--tint:#ffffff14;--code-bg:#00000040;--shadow:#0006;';
+  const THEME_LIGHT = '--bg:#f5f6fa;--panel:#ffffff;--panel-2:#eef0f6;--line:#dadfe9;--field:#ffffff;--text:#1f2330;--text-2:#474d63;--muted:#6b7189;--brand:#3b5bdb;--brand-hi:#4a6bff;--accent:#d98e00;--ok:#15803d;--warn:#b45309;--danger:#dc2626;--btn:#e8ebf2;--btn-hi:#dce1eb;--btn-line:#c6ccda;--hover:#0000000a;--tint:#0000000d;--code-bg:#0000000d;--shadow:#00000026;';
   /* 拼出沙箱世界的整份文档。**纯函数** —— 门禁靠它直接验 CSP 和拼装顺序,
      不用隔着真 iframe 猜。
      顺序是硬要求: CSP 在最前(晚一步就有一段内容不受它管), 桥在包的脚本之前
@@ -172,9 +176,8 @@
       // 这套值与 renderer/style.css 的 :root 同源, 包直接 var(--text)/var(--brand) 就跟主题一致,
       // 不必自己编颜色 —— 自己编正是"白底白字"那类事故的来源。
       '<style>'
-        + ':root{--bg:#1e1e28;--panel:#262633;--panel-2:#2c2c3c;--line:#34344a;--field:#15151d;'
-        + '--text:#e6e6ef;--muted:#8a8aa5;--brand:#3b5bdb;--brand-hi:#4a6bff;--accent:#f0b000;'
-        + '--ok:#4ade80;--warn:#f0b000;--danger:#f87171;--radius:12px;--radius-sm:8px}'
+        + ':root{color-scheme:dark;' + THEME_DARK + '--radius:12px;--radius-sm:8px}'
+        + '@media (prefers-color-scheme: light){:root{color-scheme:light;' + THEME_LIGHT + '}}'
         + 'html,body{margin:0;padding:0;font:14px/1.6 system-ui,sans-serif;'
         + 'background:var(--panel-2);color:var(--text)}'
         + 'a{color:var(--brand-hi)}hr{border:0;border-top:1px solid var(--line)}'

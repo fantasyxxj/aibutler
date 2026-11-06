@@ -1,4 +1,4 @@
-// 出向通道的 MCP 工具: send_tg · bus_exec · bus_admin(send / put_file / get_file)。
+// 出向通道的 MCP 工具: send_tg · bus_exec · bus_admin(send / put_file / get_file) · send_message(宿主接上的统一通道)。
 //
 // 🔴 send_line 那一族(text/image/sticker/flex)已删除。作者 2026-08-24:
 //   「不需要有 send_line 这个工具。line 必须通过服务端转发…… 发送 line 其实是 bus 里面的
@@ -215,7 +215,24 @@ class McpChannelsMixin {
         return { content: [{ type: 'text', text: r.ok ? String(r.text).slice(0, 30000) : r.error }] };
       }
     );
-    return { sendTg, busExec, busAdmin };
+    // —— send_message: 宿主接上的统一通道(飞书 / 钉钉 / 群机器人…, 个人版 personal/channels/)。
+    //    不带 channel 就把现有通道清单还给它 —— 通道随时热增删, 清单写不进开机就定死的工具说明。
+    const sendMessage = tool(
+      'send_message',
+      D.send_message,
+      { channel: z.string().optional().describe('channel id; omit to list the channels this persona has'),
+        to: z.string().optional().describe('chat id to send to; omit = the chat that last messaged this channel. Group bots need none'),
+        text: z.string().optional().describe('message text') },
+      async ({ channel, to, text }) => {
+        const host = this.channelHost;
+        const list = host ? host.list() : [];
+        const table = list.map((c) => `- ${c.id} · ${c.typeName}${c.label ? ` (${c.label})` : ''} · ${c.direction}${c.lastChat ? ` · last chat ${c.lastChat}` : ''}`).join('\n');
+        if (!channel || !text) return { content: [{ type: 'text', text: list.length ? `Channels:\n${table}\nCall again with channel + text.` : 'This persona has no channels set up.' }] };
+        const r = await host.send(channel, { to, text: stripSsmlForPlainText(text) });
+        return { content: [{ type: 'text', text: r.ok ? `✅ sent via ${channel}${r.note ? ` · ${r.note}` : ''}` : `⚠️ ${r.error}${list.length ? `\nChannels:\n${table}` : ''}` }] };
+      }
+    );
+    return { sendTg, busExec, busAdmin, sendMessage };
   }
 }
 

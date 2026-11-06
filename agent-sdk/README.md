@@ -53,7 +53,7 @@ The returned `Query` is an async iterator with `interrupt()` and `getContextUsag
 
 - **Agent**: runs a sub-agent with the same model, tools and hooks, a blank history and no further `Agent`; only its final answer comes back as the tool result, its stream is not forwarded. `options.agents[type].prompt` overrides the sub-agent system prompt.
 - **Skill**: file-based skills — directories with a `SKILL.md` (YAML front matter `name` / `description`) under `<cwd>/.claude/skills/` and `~/.claude/skills/`; `options.skills` limits the list. The tool is hidden when no skill is found. Skills that ship inside the Claude Code binary are not available.
-- **WebSearch** backend: Brave when `env.BRAVE_API_KEY` is set, Tavily when `env.TAVILY_API_KEY` is set, otherwise DuckDuckGo's HTML endpoint. **WebFetch** returns page text; for long pages with a `prompt`, the session model reads the page and answers.
+- **WebSearch** runs the engines listed in `env.BUTLER_SEARCH_ENGINES` (JSON `[{type, key?, url?}]`, set by the host from the user's settings), first to last, moving on when one fails or times out. With no engines set, `WebSearch` is removed and only the provider's own `web_search` is offered (when the model has one); with engines set, only `WebSearch` is offered. **WebFetch** returns page text; for long pages with a `prompt`, the session model reads the page and answers.
 
 - **Tool deferral**: when `tools` includes `ToolSearch`, MCP tools not marked `alwaysLoad` are listed by name only; the model loads their schemas with `ToolSearch` first.
 - **Prompt caching**: Anthropic-protocol models get cache breakpoints on the system prompt and the last two messages; other providers cache prefixes automatically, and tool order is kept stable.
@@ -80,6 +80,7 @@ The returned `Query` is an async iterator with `interrupt()` and `getContextUsag
 | `src/tools/registry.ts` | tool list, filtering, deferral, `ToolSearch` |
 | `src/tools/agent.ts` | `Agent` sub-agent tool |
 | `src/tools/web.ts` | `WebFetch` / `WebSearch`, HTML → text |
+| `src/tools/search-engines.ts` | local search engines (Bing, DuckDuckGo, Brave, Tavily, SearXNG), tried in the user's order with a per-engine timeout |
 | `src/mcp/` | `tool()` / `createSdkMcpServer()`; connecting MCP servers |
 | `src/node/` | desktop tools (`files.ts`, `shell.ts`, `skills.ts`) and MCP transports (Node only) |
 | `test/` | `npm test` |

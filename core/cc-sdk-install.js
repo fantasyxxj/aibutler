@@ -23,17 +23,24 @@ const ROOT = path.join(__dirname, '..');
 const platPkg = () => `${MAIN}-${process.platform}-${process.arch}`;
 const binName = () => (process.platform === 'win32' ? 'claude.exe' : 'claude');
 
+// 版本清单所在的 app 根目录。宿主可给 paths.appRoot(): 行业版打包后 core 在 node_modules/@butler/core 里, 上一层没有 package.json
+function appRoot() {
+  try { const f = require('./host').paths.appRoot; if (typeof f === 'function') return f(); } catch (_) {}
+  return ROOT;
+}
+
 // { version, integrity: { <包名>: 'sha512-…' } } | null
 let _manifest;
 function manifest() {
   if (_manifest !== undefined) return _manifest;
   _manifest = null;
+  const root = appRoot();
   try {
-    const m = require(path.join(ROOT, 'package.json')).butlerCcSdk;
+    const m = require(path.join(root, 'package.json')).butlerCcSdk;
     if (m && m.version && m.integrity) return (_manifest = m);
   } catch (_) {}
   try {   // 开发: 没烙过, 现读 lock
-    const pk = JSON.parse(fs.readFileSync(path.join(ROOT, 'package-lock.json'), 'utf8')).packages || {};
+    const pk = JSON.parse(fs.readFileSync(path.join(root, 'package-lock.json'), 'utf8')).packages || {};
     const main = pk[`node_modules/${SCOPE}/${MAIN}`];
     if (!main) return _manifest;
     const integrity = {};

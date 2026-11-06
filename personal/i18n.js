@@ -15,8 +15,6 @@ const UI = {
   'zh-CN': {
     // —— 顶栏 / 标签 ——
     title: '全能管家',
-    tabbar_hint: '点头像切换人格 · ＋新建/管理',
-    new_tab: '新建/打开人格(空目录=新建, 已有=续上)',
     persona_dir_hint: '当前人格的目录(记忆体所在)',
     ctx_hint: '上下文占用(真 usage)',
     ctx_empty: '— %',
@@ -169,7 +167,6 @@ const UI = {
     // —— 管理窗口 (manager.html / manager.js) ——
     mgr_title: '人格管理',
     mgr_heading: '🧑‍🤝‍🧑 人格管理',
-    mgr_empty: '(登记簿为空)',
     mgr_edit: '编辑',
     mgr_collapse: '收起',
     mgr_set_butler: '设为管家',
@@ -363,28 +360,10 @@ const UI = {
     sys_test: '测试',
     sys_testing: '● 测试中…',
     sys_saved_restart: '已保存 · 必须重启 App 才生效, 在那之前一直按原来的设置跑',
-
-    // —— 首次启动 (main.js · 系统对话框, 早于窗口) ——
-    // 语言框的标题用 OS 猜的那种语言显示; 猜错也不要紧, 按钮上三种语言各写各的名字。
-    firstrun_lang_title: '选择语言 / Language / 言語',
-    firstrun_lang_message: '全能管家 · 首次启动',
-    firstrun_lang_detail: '选择界面语言。以后可在设置里改。',
-    firstrun_dir_title: '选择数据保存位置',
-    firstrun_dir_message: '全能管家 · 首次启动',
-    firstrun_dir_detail: '管家的记忆、人格登记簿、聊天记录等数据要存到一个固定位置。\n\n默认位置：\n{dir}\n\n（Windows 用户若想放到 C 盘以外，点"自选文件夹"。以后也能在设置里迁移。）',
-    firstrun_dir_default: '使用默认位置',
-    firstrun_dir_pick: '自选文件夹…',
-    firstrun_dir_picker_title: '选择数据保存文件夹',
-    firstrun_dir_fail_title: '该位置不可用',
-    firstrun_dir_fail_message: '选的文件夹无法写入, 已改用默认位置',
-    firstrun_dir_fail_detail: '{chosen}\n({err})\n\n数据将保存到:\n{dir}\n\n以后可在设置里迁移。',
-    firstrun_ok: '知道了',
   },
 
   en: {
     title: 'Butler',
-    tabbar_hint: 'Click an avatar to switch · ＋ new / manage',
-    new_tab: 'New / open a persona (empty folder = new, existing = resume)',
     persona_dir_hint: "This persona's folder (where its memory lives)",
     ctx_hint: 'Context used (real usage)',
     ctx_empty: '— %',
@@ -520,7 +499,6 @@ const UI = {
 
     mgr_title: 'Personas',
     mgr_heading: '🧑‍🤝‍🧑 Personas',
-    mgr_empty: '(no personas registered yet)',
     mgr_edit: 'Edit',
     mgr_collapse: 'Close',
     mgr_set_butler: 'Make butler',
@@ -714,27 +692,10 @@ const UI = {
     sys_test: 'Test',
     sys_testing: '● testing…',
     sys_saved_restart: 'Saved · restart the app to take effect; until then the old settings stay in use',
-
-    // —— First run (main.js · native dialogs, before any window exists) ——
-    firstrun_lang_title: '选择语言 / Language / 言語',
-    firstrun_lang_message: 'Butler · first run',
-    firstrun_lang_detail: 'Pick the language for the interface. You can change it later in settings.',
-    firstrun_dir_title: 'Where should your data live?',
-    firstrun_dir_message: 'Butler · first run',
-    firstrun_dir_detail: 'Memories, the persona registry and chat history all need a fixed place to live.\n\nDefault:\n{dir}\n\n(Pick your own folder if you want it off the system drive. You can move it later in settings.)',
-    firstrun_dir_default: 'Use the default',
-    firstrun_dir_pick: 'Pick a folder…',
-    firstrun_dir_picker_title: 'Choose a folder for your data',
-    firstrun_dir_fail_title: 'That location will not work',
-    firstrun_dir_fail_message: 'That folder cannot be written to, so the default is being used instead',
-    firstrun_dir_fail_detail: '{chosen}\n({err})\n\nYour data will live in:\n{dir}\n\nYou can move it later in settings.',
-    firstrun_ok: 'Got it',
   },
 
   ja: {
     title: '万能執事',
-    tabbar_hint: 'アイコンをクリックで切り替え · ＋ 新規/管理',
-    new_tab: '人格を新規作成/開く(空のフォルダ=新規, 既存=続きから)',
     persona_dir_hint: 'この人格のフォルダ(記憶の置き場所)',
     ctx_hint: 'コンテキスト使用量(実 usage)',
     ctx_empty: '— %',
@@ -870,7 +831,6 @@ const UI = {
 
     mgr_title: '人格の管理',
     mgr_heading: '🧑‍🤝‍🧑 人格の管理',
-    mgr_empty: '(登録された人格はまだありません)',
     mgr_edit: '編集',
     mgr_collapse: '閉じる',
     mgr_set_butler: '執事にする',
@@ -1064,24 +1024,9 @@ const UI = {
     sys_test: 'テスト',
     sys_testing: '● テスト中…',
     sys_saved_restart: '保存しました · アプリを再起動すると反映されます。それまでは元の設定のままです',
-
-    // —— 初回起動 (main.js · ウィンドウより前に出るネイティブダイアログ) ——
-    firstrun_lang_title: '选择语言 / Language / 言語',
-    firstrun_lang_message: '万能執事 · 初回起動',
-    firstrun_lang_detail: '画面の言語を選んでください。後から設定で変えられます。',
-    firstrun_dir_title: 'データの保存先を選ぶ',
-    firstrun_dir_message: '万能執事 · 初回起動',
-    firstrun_dir_detail: '記憶・人格の名簿・会話の履歴は決まった場所に保存します。\n\n既定の場所：\n{dir}\n\n(システムドライブ以外に置きたいときは「フォルダを選ぶ」を。後から設定で移せます。)',
-    firstrun_dir_default: '既定の場所を使う',
-    firstrun_dir_pick: 'フォルダを選ぶ…',
-    firstrun_dir_picker_title: 'データを保存するフォルダを選ぶ',
-    firstrun_dir_fail_title: 'その場所は使えません',
-    firstrun_dir_fail_message: '選んだフォルダに書き込めないため、既定の場所に切り替えました',
-    firstrun_dir_fail_detail: '{chosen}\n({err})\n\nデータの保存先:\n{dir}\n\n後から設定で移せます。',
-    firstrun_ok: 'わかりました',
   },
 };
-UI['zh-TW'] = require('./i18n-zh-TW'); require('./i18n-quit')(UI); require('./i18n-search')(UI); require('./i18n-ccsdk')(UI);   // 別ファイル(同じ理由: 500 行規則の行数門番)。quit/search は 4 言語ぶんを各ロケールに混ぜ込む
+UI['zh-TW'] = require('./i18n-zh-TW'); require('./i18n-quit')(UI); require('./i18n-search')(UI); require('./i18n-ccsdk')(UI); require('./i18n-theme')(UI);   // 別ファイル(同じ理由: 500 行規則の行数門番)。quit/search は 4 言語ぶんを各ロケールに混ぜ込む
 
 const LANG_NAMES = { 'zh-CN': '简体中文', 'zh-TW': '繁體中文', en: 'English', ja: '日本語' };
 
@@ -1106,22 +1051,6 @@ function supportedUiLocales() {
   return Object.keys(UI).map((id) => ({ id, label: LANG_NAMES[id] || id }));
 }
 
-// 初回起動の言語選択(main.js のネイティブダイアログ)に渡す材料。
-// ボタンの文字は**各言語が自分の名前を自分の文字で**名乗る —— 言語を選ぶ画面だけは
-// 翻訳が要らない。既定の反転位置は OS の言語 —— 当たっていれば Enter 一回で終わる。
-// ダイアログを開く前の判断を全部ここに寄せてあるのは、electron 無しで門番が試せるようにするため。
-function firstRunLanguageChoices(osLocale) {
-  const ids = Object.keys(UI);
-  const guess = normalizeLocale(osLocale) || DEFAULT_LOCALE;
-  const at = ids.indexOf(guess);
-  return {
-    ids,
-    labels: ids.map((id) => LANG_NAMES[id] || id),
-    defaultIndex: at < 0 ? ids.indexOf(DEFAULT_LOCALE) : at,
-    guess,
-  };
-}
-
 // '{name}' 形式の差し込み。値が無いキーはそのまま残す(空文字に潰すと、
 // 文章が意味不明になったときに原因が分からなくなる)。
 function fmt(tpl, vars) {
@@ -1129,4 +1058,4 @@ function fmt(tpl, vars) {
   return String(tpl).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] != null ? String(vars[k]) : m));
 }
 
-module.exports = { UI, LANG_NAMES, DEFAULT_LOCALE, uiStrings, supportedUiLocales, firstRunLanguageChoices, normalizeLocale, fmt };
+module.exports = { UI, LANG_NAMES, DEFAULT_LOCALE, uiStrings, supportedUiLocales, normalizeLocale, fmt };

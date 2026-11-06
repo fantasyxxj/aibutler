@@ -23,7 +23,7 @@
     + '#reminderBar .rb-when{flex:0 0 auto;color:var(--muted)}'
     + '#reminderBar .rb-text{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}'
     + '#reminderBar button,#reminderBar select{flex:0 0 auto;padding:2px 10px;font-size:12px;border-radius:4px;border:1px solid var(--line);background:var(--panel-2);color:var(--text);cursor:pointer}'
-    + '#reminderBar button.rb-go{background:var(--accent);border-color:var(--accent);color:var(--bg)}'
+    + '#reminderBar button.rb-go{background:var(--accent);border-color:var(--accent);color:#1e1e28}'
     + '#reminderBar .rb-more{padding:3px 14px;color:var(--muted)}';
   document.head.appendChild(css);
 

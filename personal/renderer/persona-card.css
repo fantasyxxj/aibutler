@@ -1,0 +1,70 @@
+/* 人格「▾」下拉与人格管理卡片(persona-card.js) · 编辑面板标签页(edit-tabs.js) */
+.pc-avatar { flex: none; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; overflow: hidden; }
+.pc-avatar.sm { width: 28px; height: 28px; font-size: 13px; }
+.pc-avatar.lg { width: 44px; height: 44px; font-size: 19px; }
+.pc-avatar.is-emoji.sm { font-size: 20px; }
+.pc-avatar.is-emoji.lg { font-size: 30px; }
+.pc-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+
+/* 顶栏「人格 ▾」: 文字按钮, 一眼看出点开是人格菜单, 不像「新开一个」 */
+#newTabBtn {
+  flex: none; height: 30px; padding: 0 10px 0 12px; border-radius: 999px;
+  background: var(--btn); color: var(--text); border: 1px solid var(--btn-line); cursor: pointer;
+  font-size: 13px; display: inline-flex; align-items: center; gap: 4px; -webkit-app-region: no-drag;
+}
+#newTabBtn:hover { background: var(--btn-hi); }
+#newTabBtn .caret { font-size: 10px; color: var(--muted); }
+
+.picker-mask { position: fixed; inset: 0; background: transparent; z-index: 999; }
+.picker { position: absolute; top: 52px; left: 12px; width: 300px; max-height: 70vh; overflow-y: auto;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 28px var(--shadow); padding: 6px; }
+.picker .p-item { display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 6px; cursor: pointer; user-select: none; }
+.picker .p-item:hover { background: var(--hover); }
+.picker .p-txt { flex: 1; min-width: 0; }
+.picker .p-name { font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.picker .p-meta { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.picker .p-tag { font-size: 10px; padding: 0 5px; border-radius: 3px; }
+.picker .p-tag.butler { background: #f59e0b; color: #000; }
+.picker .p-sep { height: 1px; background: var(--line); margin: 6px 2px; }
+.picker .p-action { padding: 8px; border-radius: 6px; cursor: pointer; font-size: 13px; color: var(--text-2); }
+.picker .p-action:hover { background: var(--hover); color: var(--text); }
+.picker .p-action.new { color: var(--brand-hi); }
+
+/* 人格管理: 卡片网格 */
+#list.pc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 14px; }
+#list.pc-grid > .edit-box { grid-column: 1 / -1; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.pc-card { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; cursor: pointer; display: flex; flex-direction: column; gap: 12px; transition: border-color .12s, box-shadow .12s; }
+.pc-card:hover { border-color: var(--brand-hi); box-shadow: 0 4px 14px var(--shadow); }
+.pc-head { display: flex; align-items: center; gap: 10px; padding-right: 22px; }
+.pc-who { flex: 1; min-width: 0; }
+.pc-name { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pc-foot { display: flex; gap: 6px; }
+.pc-foot .m-btn.primary { background: var(--brand); color: #fff; }
+.pc-foot .m-btn.primary:hover { background: var(--brand-hi); }
+.pc-more { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border: none; border-radius: 6px; background: transparent; color: var(--muted); font-size: 16px; line-height: 1; cursor: pointer; }
+.pc-more:hover { background: var(--hover); color: var(--text); }
+.pc-menu { position: absolute; top: 36px; right: 8px; z-index: 5; min-width: 140px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 22px var(--shadow); padding: 4px; display: flex; flex-direction: column; }
+.pc-menu[hidden] { display: none; }
+.pc-menu button { background: transparent; border: none; color: var(--text); text-align: left; padding: 7px 10px; border-radius: 5px; font: inherit; font-size: 12.5px; cursor: pointer; }
+.pc-menu button:hover:not(:disabled) { background: var(--hover); }
+.pc-menu button:disabled { color: var(--muted); cursor: default; }
+.pc-menu button.danger { color: var(--danger); }
+.pc-new { border: 1px dashed var(--btn-line); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; min-height: 118px; color: var(--muted); cursor: pointer; font-size: 13px; background: transparent; }
+.pc-new:hover { color: var(--brand-hi); border-color: var(--brand-hi); }
+
+/* 编辑面板标签页 */
+.edit-box .e-tabs, .sys-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); margin: 0 0 12px; }
+.edit-box .e-tabs button, .sys-tabs button { background: transparent; border: none; border-bottom: 2px solid transparent; color: var(--muted); padding: 7px 14px; font: inherit; font-size: 13px; cursor: pointer; margin-bottom: -1px; }
+.edit-box .e-tabs button:hover, .sys-tabs button:hover { color: var(--text); }
+.edit-box .e-tabs button.on, .sys-tabs button.on { color: var(--text); border-bottom-color: var(--brand); font-weight: 600; }
+.edit-box [data-tab][hidden] { display: none !important; }
+.manager-body .edit-box .e-persona-md, .manager-body .edit-box .e-plugin { border-top: none; margin-top: 0; padding-top: 0; }
+.edit-box details.e-fold { margin: 4px 0 8px; font-size: 12px; color: var(--muted); }
+.edit-box details.e-fold summary { cursor: pointer; user-select: none; margin-bottom: 6px; }
+.manager-body details.m-adv { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.manager-body details.m-adv summary { cursor: pointer; user-select: none; padding: 4px 0; }
+.manager-body .m-adv-form { border-top: none; margin-top: 4px; padding: 6px 0 0; color: var(--text); }
+.manager-body .m-form[data-group][hidden] { display: none !important; }
+.manager-body .m-form .e-dir-note { font-size: 11px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+.manager-body .m-form select { background: var(--field); color: var(--text); border: 1px solid var(--line); border-radius: 4px; padding: 5px 6px; font: inherit; font-size: 13px; }

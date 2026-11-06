@@ -5,16 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>全能管家</title>
   <link rel="stylesheet" href="../../node_modules/katex/dist/katex.min.css" />
+  <link rel="stylesheet" href="theme.css" />
   <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="persona-card.css" />
 </head>
 <!-- 界面文字一律走 data-i18n / data-i18n-title / data-i18n-ph, renderer.js 的 applyStrings 统一刷。
      这里写的中文只是"没刷之前那一帧"的兜底, 不是真源 —— 真源在 i18n.js。
      门禁 test-i18n.js 会扫: 带中文的元素必须有 data-i18n*, 否则切了语言它不跟着变。 -->
 <body>
-  <!-- 人格切换栏(最上): 一排头像图标=开启的人格(点击切换), ＋=新建/管理 -->
+  <!-- 人格切换栏(最上): 一排头像图标=开启的人格(点击切换), 「人格 ▾」=打开别的 / 新建 / 管理 -->
   <nav id="tabbar" data-i18n-title="tabbar_hint" title="点头像切换人格 · ＋新建/管理">
     <div id="tabs"></div>
-    <button id="newTabBtn" data-i18n-title="new_tab" title="新建/打开人格(空目录=新建, 已有=续上)">＋</button>
+    <button id="newTabBtn" data-i18n-title="new_tab" title="打开、新建或管理人格"><span data-i18n="persona_menu_btn">人格</span><span class="caret">▾</span></button>
     <select class="lang" id="lang" data-i18n-title="lang_hint" title="界面语言 / Display language"></select>
     <button id="settingsBtn" data-i18n="sys_btn" data-i18n-title="sys_open" title="系统设置(API 凭据 · 代理 · 本机 API) — 对所有人格生效">设置</button>
   </nav>
@@ -99,6 +101,7 @@
   <script src="chips.js"></script>
   <script src="hub-firstrun.js"></script>
   <script src="empty-state.js"></script>
+  <script src="persona-card.js"></script>
   <script src="renderer.js"></script>
   <!-- renderer.js 之后: 关闭遮罩要用那边的 t() -->
   <script src="sediment-overlay.js"></script>

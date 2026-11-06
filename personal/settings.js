@@ -42,6 +42,7 @@ const DEFAULTS = {
     base_url: '',                         // 空 = 官方 api.anthropic.com; 填了 = 第三方网关
   },
   language: '',
+  theme: 'system',                      // 'system' | 'light' | 'dark' —— 界面深浅, 由 theme-ipc.js 落到 nativeTheme
 };
 
 function file() { return path.join(paths.controlDir(), 'settings.json'); }

@@ -51,20 +51,11 @@ console.log('\n[2] en 字典里不许漏翻(残留中日文就是漏了)');
 {
   // lang_hint 例外: 语言切换入口本身必须双语 —— 界面被切成一门读不懂的语言时,
   // 用户要靠它切回来, 只写英文的话中文用户就找不着了。行业版同样做法。
-  // firstrun_lang_title 例外同理且更甚: 那是**还没选语言**时的第一个框, 三种语言的人都得认得它。
-  const BILINGUAL_ON_PURPOSE = new Set(['lang_hint', 'firstrun_lang_title']);
+  const BILINGUAL_ON_PURPOSE = new Set(['lang_hint']);
   const leftover = Object.entries(i18n.UI.en)
     .filter(([k, v]) => !BILINGUAL_ON_PURPOSE.has(k) && CJK.test(String(v))).map(([k]) => k);
   ok(leftover.length === 0, `en 无残留中日文${leftover.length ? ' — ' + leftover.join(',') : ''}`);
   ok(CJK.test(i18n.UI.en.lang_hint), 'lang_hint 刻意保持双语(切错语言也找得回来)');
-  // 反向也守: 各份字典里这个标题必须**一模一样**且中英兼备。
-  // 谁哪天顺手把某一份"翻译"了 → 不一致 → 红。(日文那半写作「言語」也是汉字,
-  // 所以不能用假名判在不在, 只能判"各份同一串"。zh-TW 那份就差点被翻成「選擇語言」。)
-  {
-    const vals = Object.keys(i18n.UI).map((l) => String(i18n.UI[l].firstrun_lang_title || ''));
-    ok(new Set(vals).size === 1, `首启语言框标题各份字典完全一致 — "${vals[0]}"`);
-    ok(CJK.test(vals[0]) && /[A-Za-z]/.test(vals[0]), '首启语言框标题中英兼备(还没选语言, 谁都得认得)');
-  }
 
   // ja 用汉字假名是正常的, 但简体字特有写法混进来就是抄漏了。抽查几个易错键。
   ok(!/管家|记忆|设置/.test(JSON.stringify(i18n.UI.ja)), 'ja 没混进简体中文词');
@@ -256,7 +247,7 @@ console.log('\n[7] manager.js / renderer.js: t() 引用的键都在字典里');
   // 反向: 字典里的 mgr_*/sys_* 得真有人用, 否则就是改完界面留下的死键。
   // 扫全部窗口的源码 —— 少列一份文件, 那份文件用到的键就会被误判成死键(2026-08-17 加设置窗口时踩过)。
   const uiSrc = ['renderer/manager.js', 'renderer/manager.html', 'renderer/settings-ui.js', 'renderer/search-ui.js', 'renderer/cc-sdk-ui.js',
-                 'renderer/settings.html', 'renderer/index.html', 'main.js', 'cc-sdk-boot.js']
+                 'renderer/settings.html', 'renderer/index.html', 'renderer/persona-card.js', 'renderer/edit-tabs.js', 'main.js', 'cc-sdk-boot.js']
     .map((f) => fs.readFileSync(path.join(__dirname, f), 'utf8')).join('\n');
   for (const [prefix, min] of [['mgr_', 60], ['sys_', 20]]) {
     const keys = Object.keys(i18n.UI['zh-CN']).filter((k) => k.startsWith(prefix));
@@ -317,78 +308,18 @@ console.log('\n[8] 真 DOM: 管理窗口 applyStrings 之后界面真的变了')
   ok(createBtn.textContent === '创建并打开', '切回中文: → 创建并打开');
 }
 
-/* ─────────── [9] 首启语言选择: 弹框前的判断 ─────────── */
-// 弹框本身测不了(要 electron), 所以判断全抽进了纯函数 firstRunLanguageChoices。
-console.log('\n[9] 首启语言屏: OS 语言 → 默认反转在哪个按钮');
-{
-  const c = i18n.firstRunLanguageChoices('zh-CN');
-  ok(c.ids.length === 4 && c.labels.length === 4, `4 个按钮: ${c.labels.join(' / ')}`);
-  // 选语言的界面不需要翻译 —— 每种语言用自己的文字写自己的名字
-  ok(c.labels.every((l) => !/^[a-z-]+$/i.test(l) || l === 'English'),
-     '按钮上是语言自己的名字, 不是 locale 代码');
-  ok(!CJK.test('English') && c.labels.includes('English'), 'English 用拉丁字母自称');
-
-  const guessOf = (osLocale) => i18n.firstRunLanguageChoices(osLocale).guess;
-  ok(guessOf('en-US') === 'en', 'en-US → en');
-  ok(guessOf('ja-JP') === 'ja', 'ja-JP → ja');
-  ok(guessOf('zh-Hans-CN') === 'zh-CN', 'zh-Hans-CN → zh-CN');
-  ok(guessOf('zh-Hant-TW') === 'zh-TW', 'zh-Hant-TW → zh-TW(繁体已有自己那份, 不再寄简体)');
-  ok(guessOf('th-TH') === i18n.DEFAULT_LOCALE, `泰语等不支持的 → 默认 ${i18n.DEFAULT_LOCALE}`);
-  ok(guessOf('') === i18n.DEFAULT_LOCALE, '空 locale → 默认');
-  ok(guessOf(undefined) === i18n.DEFAULT_LOCALE, 'undefined → 默认(取不到 OS 语言也不能崩)');
-
-  // 默认反转的按钮必须就是猜中的那个 —— 猜对的人一个回车就过去了
-  for (const osl of ['en-US', 'ja-JP', 'zh-CN', 'th-TH']) {
-    const r = i18n.firstRunLanguageChoices(osl);
-    ok(r.ids[r.defaultIndex] === r.guess, `${osl}: 默认按钮落在 ${r.guess} 上`);
-  }
-}
-
-/* ─────────── [10] 首启三步的先后顺序 ─────────── */
+/* ─────────── [9] 首启不弹框, 指针先于任何设置写入 ─────────── */
 // 🔴 顺序错了**不会报错**, 只是设置静默丢失: settings.json 住在 dataDir()/app/ 下,
-// 数据目录是第二步才定的 —— 语言在第一步就落盘 = 写进默认位, 用户接着自选了别的文件夹,
-// 那份设置就成了孤儿, 重启读不回来。所以这条只能靠门禁守。
-console.log('\n[10] 首启三步: 问语言 → 选目录 → 才落盘');
+// 数据目录指针没写就写设置 = 写进一个没人认的位置。所以这条只能靠门禁守。
+console.log('\n[9] 首启: 不弹语言/目录框, 先写数据目录指针');
 {
-  // 两个框 2026-09-23 从 main.js 搬进了 first-run.js(那份只许改不许长), 调用点还在 main.js。
   const src = fs.readFileSync(path.join(__dirname, 'first-run.js'), 'utf8');
   const main = fs.readFileSync(path.join(__dirname, 'main.js'), 'utf8');
-  const at = (re) => src.search(re);
-
-  const iLang = at(/const locale = chooseLanguage\(\)/);
-  const iDir = at(/\n  chooseDataDir\(locale\)/);
+  ok(!/dialog\./.test(src.replace(/\/\/.*$/gm, '')), '首启不弹系统框(语言跟系统走, 空状态屏可改)');
+  ok(/paths\.setDataDir\(/.test(src), '首启写下数据目录指针');
   const iRun = main.search(/const firstRunLocale = require\('\.\/first-run'\)\.run\(\)/);
-  const iSave = main.search(/settings\.write\(\{ language: firstRunLocale \}\)/);
-
-  ok(iLang > 0, '① chooseLanguage() 有被调用');
-  ok(iDir > 0, '② chooseDataDir(locale) 有被调用');
-  ok(iSave > 0, '③ settings.write({ language }) 有被调用');
-  ok(iLang < iDir, '语言问在选目录之前(后面两个框都要用它显示)');
-  ok(iRun > 0 && iRun < iSave, '🔴 落盘排在选目录之后(否则设置写进默认位, 用户自选了别处就成孤儿)');
-
-  // 数据目录那个框曾经是硬编码中文的(英语用户装上第一眼就是中文)。它在 createWindow 之前,
-  // 不走 renderer 的 data-i18n 扫描 → [4][5] 扫不到它, 只能在这儿守。
-  // 找**会出现在屏幕上**的中文字面量: 注释是给我们看的、console 是给日志看的, 都不算。
-  const uiLiterals = (code) => code.split('\n')
-    .map((l) => l.replace(/\/\/.*$/, ''))            // 行尾注释(这两个函数体里没有带 // 的字符串)
-    .filter((l) => !/^\s*[*/]/.test(l))              // 块注释
-    .filter((l) => !/console\.(log|error|warn)/.test(l))
-    .flatMap((l) => l.match(/'[^']*'|"[^"]*"/g) || [])
-    .filter((s) => CJK.test(s));
-
-  const dirFn = src.slice(at(/function chooseDataDir/), at(/两步一趟跑完/));
-  ok(dirFn.length > 200, '截到了 chooseDataDir 函数体');
-  const dirHard = uiLiterals(dirFn);
-  ok(dirHard.length === 0,
-     `数据目录框里没有硬编码中文文案${dirHard.length ? ' — ' + dirHard.join(' | ') : ''}`);
-  ok(/i18n\.uiStrings\(locale\)/.test(dirFn), '数据目录框用的是上一步选的语言');
-
-  // 语言框自己也一样: 它比 uiStrings 还早, 用的是 OS 猜测值
-  const langFn = src.slice(at(/function chooseLanguage/), at(/② 让用户选数据保存位置/));
-  const langHard = uiLiterals(langFn);
-  ok(langHard.length === 0,
-     `语言框里没有硬编码中文文案${langHard.length ? ' — ' + langHard.join(' | ') : ''}`);
-  ok(/i18n\.uiStrings\(c\.guess\)/.test(langFn), '语言框用 OS 猜测值渲染(此刻还没人选过语言)');
+  const iSave = main.search(/settings\.write\(/);
+  ok(iRun > 0 && iRun < iSave, '🔴 写指针排在任何 settings.write 之前');
 }
 
 console.log(`\n${fail === 0 ? '✅' : '❌'} i18n: ${pass} passed, ${fail} failed`);

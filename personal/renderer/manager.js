@@ -63,12 +63,13 @@ function modelSrcNote() {
 // 所以一旦填了具体模型名, 下拉里就只剩它自己一条, 看着像"没得选"。手输能力(第三方网关的
 // 模型名千奇百怪)靠末尾这条「其它」+ 下面的手输框保住。
 const MODEL_CUSTOM = '__custom__';
-const isKnownModel = (v) => (_MODEL_OPTIONS || []).some((o) => o.id === (v || ''));
+const isKnownModel = (v) => _MODEL_OPTIONS === null || _MODEL_OPTIONS.some((o) => o.id === (v || ''));
 // defaultOpt: 新建表单才给的「跟随默认」空值项。编辑面板不给 —— 那里空值的含义已经由末尾
 // 「其它」+ 空手输框表达得了; 新建时则需要一个能被选中的显式默认项, 否则一打开就停在「其它」上。
 // needModel: 用 API key 时没有能用的默认模型(Butler 引擎留空直接报错, 作者 2026-11-05 定) ——
 // 不给「跟随默认」, 清单里的空 id 项也剔掉, 没选过就默认选中第一个。
 function modelOptionsHtml(cur, { defaultOpt = false, needModel = false } = {}) {
+  if (_MODEL_OPTIONS === null) return `<option value="${esc(cur)}" selected>${esc(cur || '…')}</option>`;
   const list = needModel ? (_MODEL_OPTIONS || []).filter((o) => o.id) : (_MODEL_OPTIONS || []);
   if (needModel) { defaultOpt = false; if (!cur && list.length) cur = list[0].id; }
   const known = list.some((o) => o.id === (cur || ''));
@@ -317,7 +318,8 @@ function readPluginsFromPanel(box) {
 // makeEditPanel 是同步渲染的, 所以渲染前先把全局那两个变量切到这个人格对应的那份缓存。
 function useModelCache(useApi, credentialId) {
   const c = _MODEL_CACHE[useApi ? `api:${credentialId || ''}` : 'sub'];
-  if (c) { _MODEL_OPTIONS = c.options; _MODEL_SRC = c.src; }
+  // 没拉过 = null: 下拉先只摆当前那一个, 展开编辑时才去拉(开窗就全拉, 每份 0.3-1.4s 串着等, 卡片几秒才出来)
+  ({ options: _MODEL_OPTIONS, src: _MODEL_SRC } = c || { options: null, src: null });
 }
 
 // 订阅通路能不能用。拿不到就当能用 —— 探测失败去置灰一个本来可选的选项, 比漏置灰更糟。
@@ -349,44 +351,20 @@ async function refreshSubAuth() {
 async function refresh() {
   await refreshSubAuth();   // 必须早于下面画各人格编辑面板: 那些单选是同步拼字符串的, 读的就是 _subLoggedIn
   const r = await window.butler.listPersonas();
-  const list = (r && r.personas) || [];
-  // 预拉缓存: 订阅那份总要, 走 key 的那份只在真有人格选了它时才去问端点(省一次 10s 超时)
-  await ensureModelOptions(false);
-  // 走 key 的人格各自预拉自己那条凭据的清单(两条凭据多半是两个网关, 清单不通用)
-  for (const cid of new Set(list.filter((p) => p.accessMode === 'api').map((p) => p.credentialId || ''))) {
-    await ensureModelOptions(true, cid);
-  }
-  listEl.innerHTML = '';
+  const list = (r && r.personas) || [];   // 模型清单不在这儿预拉: 展开哪个人格的编辑才拉它那一份
+  listEl.innerHTML = ''; listEl.classList.add('pc-grid');
   for (const p of list) {
-    const row = document.createElement('div'); row.className = 'row';
-    const name = document.createElement('div'); name.className = 'm-name'; name.textContent = p.name;
-
-    const dir = document.createElement('div'); dir.className = 'm-dir'; dir.textContent = p.homeDir; dir.title = p.homeDir;
-
-    const tags = document.createElement('div'); tags.style.display = 'flex'; tags.style.gap = '4px';
-    if (p.isButler) { const tag = document.createElement('span'); tag.className = 'm-tag butler'; tag.textContent = t('butler'); tags.appendChild(tag); }
-    if (p.open)     { const tag = document.createElement('span'); tag.className = 'm-tag open';   tag.textContent = t('opened'); tags.appendChild(tag); }
-
-    const editB = document.createElement('button'); editB.className = 'm-btn'; editB.textContent = t('mgr_edit');
-    const setB = document.createElement('button'); setB.className = 'm-btn'; setB.textContent = t('mgr_set_butler'); setB.disabled = !!p.isButler;
-    setB.title = t('mgr_set_butler_hint');
-    setB.addEventListener('click', async () => {
+    // 卡片: 点卡片 / 「打开对话」切到这个人格; 「编辑」常驻; 设为管家 / 导出 / 删除收进「⋯」
+    const setButler = async () => {
       // 只在该人格"当前正开着"时提示: 管家身份标记会立刻切, 但它正跑的会话工具是启动时定死的,
       // list/open/create 这些管家专属工具要等会话重建(关标签重开 / 下次清空 / 重启 app)才长出来。
-      // 没开的人格无需提示——下次打开就是全新会话, 自带管家能力。
       if (p.open && !window.confirm(t('mgr_set_butler_confirm', { name: p.name }))) return;
       const r2 = await window.butler.updatePersona(p.id, { isButler: true });
       if (r2.ok) toast(t(p.open ? 'mgr_butler_set_open' : 'mgr_butler_set', { name: p.name }));
-    });
-
-    const exp = document.createElement('button'); exp.className = 'm-btn'; exp.textContent = t('mgr_export');
-    // 开着也能导: 后端先 persist + VACUUM INTO 出一致快照再打包。原先这里置灰, 而置灰的按钮
-    // 在 Chromium 里收不到鼠标事件, title 那句解释永远弹不出来 —— 用户只看到"导出不能用"。
-    exp.title = t('mgr_export_hint');
-    exp.addEventListener('click', async () => {
-      exp.disabled = true;
+    };
+    // 开着也能导: 后端先 persist + VACUUM INTO 出一致快照再打包
+    const doExport = async () => {
       const r2 = await window.butler.exportPersona(p.id);
-      exp.disabled = false;
       if (r2.canceled) return;
       if (!r2.ok) { toast(t('mgr_export_failed') + (r2.error || '')); return; }
       const mb = (r2.size / 1048576).toFixed(1);
@@ -394,21 +372,26 @@ async function refresh() {
       toast(r2.stripped && r2.stripped.length
         ? t('mgr_exported_stripped', { mb, list: r2.stripped.join(', ') })
         : t('mgr_exported', { mb }));
-    });
-
-    const del = document.createElement('button'); del.className = 'm-btn danger'; del.textContent = t('mgr_delete'); del.disabled = !!p.open;
-    del.title = p.open ? t('mgr_delete_open_hint') : t('mgr_delete_hint');
-    del.addEventListener('click', async () => {
+    };
+    const doDelete = async () => {
       if (!confirm(t('mgr_delete_confirm', { name: p.name }))) return;
       const r2 = await window.butler.deletePersona(p.id);
       if (r2.ok) toast(t('mgr_deleted', { name: p.name })); else toast(t('mgr_delete_failed') + r2.error);
-    });
-
-    row.append(name, dir, tags, editB, setB, exp, del);
-    listEl.appendChild(row);
+    };
+    const { card, editBtn: editB } = window.PersonaCard.card(p, { t,
+      onOpen: () => window.butler.openPersonaRef(p.id),
+      onEdit: () => {},
+      menu: [
+        // 置灰的按钮收不到鼠标事件, title 弹不出来, 用户只看到「不能点」不知道为什么 —— 所以不置灰:
+        // 已是管家就不给这一项; 开着的人格点删除当场说要先关
+        ...(p.isButler ? [] : [{ label: t('mgr_set_butler'), title: t('mgr_set_butler_hint'), onClick: setButler }]),
+        { label: t('mgr_export'), title: t('mgr_export_hint'), onClick: doExport },
+        { label: t('mgr_delete'), danger: true, title: p.open ? t('mgr_delete_open_hint') : t('mgr_delete_hint'), onClick: () => (p.open ? toast(t('mgr_delete_open_hint')) : doDelete()) },
+      ] });
+    listEl.appendChild(card);
 
     // 展开式编辑面板(隐藏或按上次状态)
-    const panel = makeEditPanel(p);
+    const panel = makeEditPanel(p); window.ChannelCards.apply(panel, p, t); window.EditTabs.apply(panel, t);   // 通道页收成卡片, 再分 基本/AI/身份档案/通道/高级 几页
     panel.style.display = expanded.has(p.id) ? 'block' : 'none';
     listEl.appendChild(panel);
     // 展开时懒加载 persona.md 内容 (只加载一次, 避免每次刷新覆盖用户改的)
@@ -422,7 +405,7 @@ async function refresh() {
     editB.addEventListener('click', async () => {
       const showing = panel.style.display !== 'none';
       panel.style.display = showing ? 'none' : 'block';
-      if (showing) expanded.delete(p.id); else { expanded.add(p.id); await loadPersonaMdIfNeeded(); }
+      if (showing) expanded.delete(p.id); else { expanded.add(p.id); loadModelsIfNeeded(); await loadPersonaMdIfNeeded(); }
       editB.textContent = showing ? t('mgr_edit') : t('mgr_collapse');
       if (!showing) panel.querySelector('.e-name').focus();
     });
@@ -486,6 +469,9 @@ async function refresh() {
       await reloadModels();
     };
     const onAccessChange = async () => { await reloadModels(); };
+    let modelsLoaded = false;
+    const loadModelsIfNeeded = () => { if (!modelsLoaded) { modelsLoaded = true; reloadModels(); } };
+    if (expanded.has(p.id)) loadModelsIfNeeded();
     accApi.addEventListener('change', onAccessChange);
     accSub.addEventListener('change', onAccessChange);
     // 换凭据 = 换端点, 能用的模型清单跟着换(同切接入方式那条道理)
@@ -530,7 +516,7 @@ async function refresh() {
       // 🔴 这里必须写 buses: readPluginsFromPanel 返回的是 { tg, buses }, 没有 bothub 这个键。
       // 写成 bothub 时它恒为 undefined —— 面板里配的 bus 一条都进不了 patch, 表现是「按了保存什么都没发生」,
       // 而且不报错(2026-08-25 作者在 dev 上撞到)。这是 plugins.bothub 改名 plugins.buses 时漏改的一行。
-      patch.plugins = { ...oldPlugins, tg: newPlugins.tg, buses: newPlugins.buses };
+      patch.plugins = { ...oldPlugins, tg: newPlugins.tg, buses: newPlugins.buses, channels: window.ChannelCards.read(panel, p) };
 
       // ── 🔴 模式变了: 走「沉淀 → 拆流 → 才写盘 → 重开」那条原子路, 不走 updatePersona ──
       // 顺序是死的。早一步写盘, update-persona 会把新模型 setModel 热切进**旧端点**的会话,
@@ -578,7 +564,10 @@ async function refresh() {
       panel.style.display = 'none'; expanded.delete(p.id); editB.textContent = t('mgr_edit');
     });
   }
-  if (!list.length) { listEl.innerHTML = `<div class="row" style="color:#888">${esc(t('mgr_empty'))}</div>`; }
+  // 最后一张虚线卡 = 新建, 跟主界面菜单「新建人格」进同一个视图
+  const add = document.createElement('button'); add.className = 'pc-new'; add.textContent = t('new_persona_menu');
+  add.addEventListener('click', () => showView('create'));
+  listEl.appendChild(add);
 }
 
 F.choose.addEventListener('click', async () => {
@@ -662,6 +651,7 @@ function showView(v) {
   if (S.mgr_title) document.title = t(create ? 'mgr_new_persona' : 'mgr_title');
 }
 showView(location.hash === '#create' ? 'create' : 'list');
+document.getElementById('v-back').addEventListener('click', () => showView('list'));
 window.butler.onManagerView && window.butler.onManagerView(showView);
 
 F.create.addEventListener('click', async () => {
