@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)
 
-> **Reasoning is solved. Memory is the missing half of the mind.**
+> **A complete mind is reasoning plus memory. Reasoning is here. We add the memory.**
 >
 > aibutler is a desktop runtime for long-running AI agents. Every persona has its own persistent memory, identity and tools, carries its thread across sessions, context compactions and restarts, and grows sharper the longer it works with you.
 

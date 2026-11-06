@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)
 
-> **推理已经解决，记忆是大脑缺失的另一半。**
+> **完整的大脑，是推理加记忆。推理已经有了，我们补上记忆。**
 >
 > aibutler 是面向长期运行智能体的桌面运行时：每个 AI 人格都有自己的持久记忆、身份和工具，跨会话、跨上下文压缩、跨重启都接得上，和你共事越久越精准。
 
