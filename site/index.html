@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>aibutler · 给 AI 一份属于自己的记忆</title>
+<title>aibutler · 想做的事，说一句就行</title>
 <link rel="icon" type="image/png" href="../assets/logo.png">
-<meta name="description" content="aibutler 是面向长期运行智能体的持久记忆层：自研图数据库引擎、事件驱动的常驻人格、AI 为你当场开发工具。">
+<meta name="description" content="aibutler 是装在你电脑上的开源 AI 助手：不知道怎么做的事说一句就行，它记得你、越用越懂你，数据完全留在本机。">
 <style>
 :root{
   --bg:#0b1022;--bg2:#10172e;--card:#161f3d;--line:#26305a;
@@ -122,6 +122,10 @@ footer .wrap{display:grid;grid-template-columns:1fr 2fr;gap:40px}
 footer h4{color:var(--ink2);font-size:14px;margin-bottom:10px}
 footer li{list-style:none;margin:4px 0}
 
+.say{font-size:16.5px;font-weight:700;color:var(--ink);line-height:1.6;margin-bottom:12px}
+.say:before{content:"“";color:var(--m)}.say:after{content:"”";color:var(--m)}
+.kind{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:rgba(56,211,232,.12);color:var(--m)}
+.theory .card{background:rgba(22,31,61,.7)}
 @media (max-width:960px){
   .hero{padding:72px 0 50px}.hero .shot{margin-top:44px;border-radius:14px}
   nav ul{display:none}.lang{margin-left:auto}
@@ -139,12 +143,11 @@ footer li{list-style:none;margin:4px 0}
 <nav><div class="wrap">
   <a class="logo" href="#"><img src="../assets/logo.png" alt="">aibutler</a>
   <ul>
+    <li><a href="#ask">说一句就行</a></li>
+    <li><a href="#scenes">用在哪</a></li>
+    <li><a href="#memory">它记得你</a></li>
     <li><a href="#features">功能</a></li>
-    <li><a href="#events">事件驱动</a></li>
-    <li><a href="#memory">记忆引擎</a></li>
-    <li><a href="#plugins">自造工具</a></li>
-    <li><a href="#hub">aihub</a></li>
-    <li><a href="#theory">理论</a></li>
+    <li><a href="#tech">技术</a></li>
     <li><a href="../docs/">使用文档</a></li>
   </ul>
   <a class="lang" href="en.html">EN</a>
@@ -153,35 +156,73 @@ footer li{list-style:none;margin:4px 0}
 
 <!-- HERO -->
 <header class="hero"><div class="wrap">
-  <span class="tag"><b>●</b> 开源 · Apache-2.0 · 数据完全留在本机</span>
-  <h1><span class="nb">完整的大脑，</span><span class="nb">是推理加记忆。</span><br><span class="grad"><span class="nb">推理已经有了，</span><span class="nb">我们补上记忆。</span></span></h1>
-  <p class="sub">aibutler 是面向长期运行智能体的持久记忆层。每个 AI 人格跨会话、跨上下文压缩、跨重启都保有自己的身份、经验与判断，事件一来就自己醒来干活，和你共事越久越精准。</p>
+  <span class="tag"><b>●</b> 开源 · 免费 · 数据完全留在本机</span>
+  <h1><span class="nb">想做的事，</span><span class="nb">说一句就行。</span><br><span class="grad"><span class="nb">它记得你，</span><span class="nb">越用越懂你。</span></span></h1>
+  <p class="sub">aibutler 是装在你电脑上的 AI 助手。你不知道怎么做、甚至想不到能交给 AI 的事，直接告诉它：它会去查、去做，缺工具就当场写一个。你说过的每件事它都记着，下次不用再交代。</p>
   <div class="cta">
-    <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">下载桌面版</a>
-    <a class="btn ghost" href="https://github.com/fantasyxxj/aibutler">在 GitHub 上查看 →</a>
+    <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">免费下载</a>
+    <a class="btn ghost" href="../docs/">十分钟上手 →</a>
   </div>
-  <img class="shot" src="../assets/hero.svg" alt="推理 + 记忆 = 完整的大脑">
+  <img class="shot" style="max-width:860px" src="../docs/img/chat-chart.png" alt="说一句「把这周的开销按类别统计一下」，表格和图直接出在聊天里">
 </div></header>
 
 <div class="strip"><div class="wrap">
-  <div><b class="gradb">自研图数据库</b><span>嵌入式 · 单文件 · 零外部服务</span></div>
-  <div><b class="gradb">三路混合召回</b><span>词面 · 语义向量 · 多跳扩散激活</span></div>
-  <div><b class="gradb">事件驱动常驻</b><span>内部事件 · 通道消息 · 本机端口</span></div>
-  <div><b class="gradb">模型无关</b><span>官方 API · 兼容端点 · 自有网关</span></div>
+  <div><b class="gradb">说一句就行</b><span>不用学，不用写指令</span></div>
+  <div><b class="gradb">越用越懂你</b><span>记得你说过的每件事</span></div>
+  <div><b class="gradb">数据在你手里</b><span>全部留在本机 · 开源</span></div>
+  <div><b class="gradb">随时找得到</b><span>桌面 · Telegram · 飞书 · 钉钉 · Slack</span></div>
 </div></div>
 
-<!-- USE CASES -->
-<section><div class="wrap center">
-  <div class="eyebrow">Use cases</div>
-  <h2>能拿来做什么</h2>
-  <p class="lead">不是又一个聊天框，而是一群记得住事、会自己跟进的长期同事。</p>
+<!-- JUST ASK -->
+<section id="ask"><div class="wrap center">
+  <div class="eyebrow">Just ask</div>
+  <h2>不知道它能不能做？<span class="grad">直接说。</span></h2>
+  <p class="lead">很多事你想不到可以交给 AI，或者知道能做却不知道怎么弄。在这里不用学，说出你想要的结果就行。</p>
   <div class="grid g3" style="text-align:left">
-    <div class="card"><div class="ico i1">🧭</div><h3>真正懂你的私人幕僚</h3><p>记得你的偏好、答应过的事和没收尾的线头，到点提醒、主动跟进；人不在电脑前，用 Telegram 也能找到它。</p></div>
-    <div class="card"><div class="ico i2">💻</div><h3>有「组织记忆」的编程搭档</h3><p>记得项目架构、每个老 bug 的根因、你教过它的每条规矩；代码锚点让它读一行就能重新核实一个事实。</p></div>
-    <div class="card"><div class="ico i3">🎯</div><h3>会自己出题的私教</h3><p>跨月追踪你的薄弱点，针对这些点写出专项练习工具，随你的进步不断调整。</p></div>
-    <div class="card"><div class="ico i4">🔬</div><h3>知识会复利的研究伙伴</h3><p>每个发现都沉淀成一条命题；矛盾会被摆出来仲裁，而不是悄悄堆在一起。</p></div>
-    <div class="card"><div class="ico i5">👥</div><h3>一张桌上的专家团队</h3><p>写手、分析师、审稿人，各有独立的身份和记忆，彼此可以请教；跨机器则经 aihub 对话。</p></div>
-    <div class="card"><div class="ico i1">🧰</div><h3>按需生长的个人工具</h3><p>记录器、清单、计算器、看板，说出你要什么，几分钟后它就做好放进你的工作台。</p></div>
+    <div class="card"><p class="say">帮我盯着东京 15 万以内的 2LDK，有新房源就告诉我</p><p>它每天自己去查，有新的就推到你的 Telegram，不用你天天刷网站。</p></div>
+    <div class="card"><p class="say">这几张发票帮我整理成表</p><p>拍照或拖进来就行，它读出日期、金额、类别，排成表格，还能导出 Excel。</p></div>
+    <div class="card"><p class="say">我想要个记账的小工具</p><p>几分钟写好，带界面、能存数据，装进你的工作台；哪里不顺手，再跟它说。</p></div>
+    <div class="card"><p class="say">飞书怎么接上你？</p><p>它一步步带你配，能替你做的直接做掉。设置在哪、为什么没反应，都可以问它。</p></div>
+    <div class="card"><p class="say">把这周的开销画个图</p><p>表格、柱状图直接出在聊天里，不用开别的软件。</p></div>
+    <div class="card"><p class="say">下周三提醒我交房租</p><p>到点在窗口顶部提醒你；以后每个月都要交，说一声它就每月提醒。</p></div>
+  </div>
+  <p class="lead" style="margin-top:44px;font-size:20px;color:var(--ink)"><b>想不到能不能做的，问它；不知道怎么做的，也问它。</b></p>
+</div></section>
+
+<!-- SCENES -->
+<section id="scenes" style="background:var(--bg2)"><div class="wrap center">
+  <div class="eyebrow">Use cases</div>
+  <h2>生活、工作、学习，<span class="gradb">都能交给它</span></h2>
+  <p class="lead">它不是一个问完就忘的聊天框，而是记得住事、会自己跟进的长期帮手。</p>
+  <div class="grid g3" style="text-align:left">
+    <div class="card"><span class="kind">生活</span><h3>🏠 找房、搬家、办手续</h3><p>盯房源、比条件、列待办清单，哪份材料交了哪份没交，它替你记着。</p></div>
+    <div class="card"><span class="kind">生活</span><h3>✈️ 旅行规划</h3><p>排行程、查交通和天气、比价格，出发前一天再提醒你一遍要带什么。</p></div>
+    <div class="card"><span class="kind">生活</span><h3>💰 家庭账本</h3><p>随手说一句「午饭 45」它就记下，月底给你一份带图的总结。</p></div>
+    <div class="card"><span class="kind">工作</span><h3>📰 每天早上的简报</h3><p>每天定点去看你关心的新闻、行情或网站更新，整理成几行发给你。</p></div>
+    <div class="card"><span class="kind">工作</span><h3>📝 纪要、邮件、报表</h3><p>会议记录整理成纪要，按你的口吻起草邮件，零散数据排成报表。</p></div>
+    <div class="card"><span class="kind">工作</span><h3>💻 编程搭档</h3><p>记得项目结构、每个老 bug 的根因、你定过的规矩，换一天接着干不用重讲。</p></div>
+    <div class="card"><span class="kind">学习</span><h3>🎯 会自己出题的私教</h3><p>记得你哪里薄弱，专门写练习工具给你练，随你进步调整难度。</p></div>
+    <div class="card"><span class="kind">学习</span><h3>✏️ 孩子的作业与练字</h3><p>出练习、批改、做描红打分的小页面，记得孩子每次错在哪里。</p></div>
+    <div class="card"><span class="kind">学习</span><h3>🔬 读资料、做研究</h3><p>读论文、记要点，新发现和旧结论打架时摆出来给你看，不会悄悄混在一起。</p></div>
+  </div>
+  <p class="lead" style="margin-top:44px">还能建好几个人格，各管一摊：一个管生活，一个陪你学日语，一个帮你写代码，各记各的。</p>
+</div></section>
+
+<!-- MEMORY -->
+<section id="memory"><div class="wrap">
+  <div class="split">
+    <div class="txt">
+      <div class="eyebrow">Memory</div>
+      <h2>它记得你，<br><span class="gradb">而且记得准</span></h2>
+      <p class="lead">一般的 AI 关掉窗口就忘了你。aibutler 的每个人格都有自己的记忆，和你相处越久越懂你。</p>
+      <ul class="ck">
+        <li><b>不用重复交代</b>：你的习惯、偏好、答应过的事，说过一次它就记住。</li>
+        <li><b>纠正一次就改</b>：它做得不对，告诉它哪里不对、该怎么做，下次照你说的来。</li>
+        <li><b>不会记歪</b>：新说法和旧记忆打架时，它会先核实再改，过时的结论不会再拿来用。</li>
+        <li><b>带得走</b>：整个人格能导出成一个文件，换台电脑接着用，也能送给朋友（不含你的密钥和聊天原文）。</li>
+      </ul>
+    </div>
+    <div class="pic"><img src="../assets/hero.svg" alt="推理 + 记忆 = 完整的大脑"></div>
   </div>
 </div></section>
 
@@ -189,216 +230,80 @@ footer li{list-style:none;margin:4px 0}
 <section id="features" style="background:var(--bg2)"><div class="wrap">
   <div class="eyebrow">Features</div>
   <h2>开箱就有的能力</h2>
-  <p class="lead">一个常驻后台、会照看自己的智能体运行时。下面每一项都是现在就能用的功能。</p>
+  <p class="lead">下面每一项都是现在就能用的，不用另外装、不用配置。</p>
   <div class="grid g4">
-    <div class="card"><div class="ico i3">⏰</div><h3>到点提醒</h3><p>到点在窗口顶部挂横幅：忽略、稍后（10 分钟 / 1 小时 / 明早）或立即处理。没打开的人格也照样盯。</p></div>
-    <div class="card"><div class="ico i2">🗓️</div><h3>定时任务</h3><p>按 cron 登记例行工作，到点自动注入会话开工：日报、巡检、周报都能交给它。</p></div>
-    <div class="card"><div class="ico i1">✅</div><h3>任务清单与自动续办</h3><p>大活拆成步骤逐条推进，清单活过压缩与重启；没做完会按退避间隔自己续上，卡在等人的步骤不催。</p></div>
-    <div class="card"><div class="ico i5">📌</div><h3>待办簿</h3><p>长期要做、等人拍板的事钉在常驻板上，一条一行，不会被聊天淹没。</p></div>
-    <div class="card"><div class="ico i4">🩺</div><h3>记忆体检</h3><p>定期扫描整座记忆库：疑似矛盾、僵尸项目、过期结论逐条报出，交给仲裁。</p></div>
-    <div class="card"><div class="ico i2">🔁</div><h3>自我压缩与交接</h3><p>上下文快满时在自然停顿处自我压缩，写好交接记录，醒来线程完整接上。</p></div>
-    <div class="card"><div class="ico i3">🌙</div><h3>空闲自维护</h3><p>保活、定时压缩、进程回收都在后台进行，智能体自己照看自己的健康。</p></div>
-    <div class="card"><div class="ico i1">🗂️</div><h3>多人格 · 可迁移</h3><p>一个窗口多个标签，每个人格独立身份与记忆；可整体导出成一个文件，搬到另一台机器。</p></div>
-    <div class="card"><div class="ico i5">🧩</div><h3>AI 自造插件</h3><p>缺什么工具，人格当场写出来，热装即用，用着用着继续改。</p></div>
-    <div class="card"><div class="ico i2">🌐</div><h3>实时联网搜索</h3><p>优先用模型提供方的原生搜索，不可用时回落到本地搜索集成。</p></div>
-    <div class="card"><div class="ico i4">🔊</div><h3>语音朗读</h3><p>回复可以直接朗读出来，多语言自动切换发音，人格自己控制开关。</p></div>
-    <div class="card"><div class="ico i3">📊</div><h3>富渲染与交互控件</h3><p>图表、流程图、公式、可点选的表单控件直接画在对话里，能点就不用打字。</p></div>
-  </div>
-</div></section>
-
-<!-- EVENT DRIVEN -->
-<section id="events" class="ev"><div class="wrap">
-  <div class="center">
-    <div class="eyebrow">Event-driven</div>
-    <h2>不用你开口，<span class="gradb">事件一来它就醒</span></h2>
-    <p class="lead">aibutler 的人格是常驻的。三类事件都能把它叫醒：内部事件、通道消息、本机端口。它查记忆、干活，再从消息来的那个通道回出去。</p>
-  </div>
-  <div class="flow">
-    <div class="src">
-      <div class="card"><h3>⚙️ 内部事件 <em style="background:rgba(245,184,75,.15);color:var(--c)">自驱</em></h3>
-        <span class="pill">提醒到点</span><span class="pill">cron 定时</span><span class="pill">任务续办</span><span class="pill">记忆体检</span><span class="pill">自我压缩</span></div>
-      <div class="card"><h3>💬 通道消息 <em style="background:rgba(56,211,232,.15);color:var(--m)">有人找</em></h3>
-        <span class="pill">桌面窗口</span><span class="pill">Telegram</span><span class="pill">LINE</span><span class="pill">aihub</span></div>
-      <div class="card"><h3>🔌 本机端口 <em style="background:rgba(244,114,182,.15);color:var(--p)">可集成</em></h3>
-        <span class="pill">脚本</span><span class="pill">定时器</span><span class="pill">监控告警</span><span class="pill">任何程序</span></div>
-    </div>
-    <div class="arrow"><i></i></div>
-    <div class="core"><div><b>AI 人格</b><span>先查记忆<br>再动手<br>边做边记</span></div></div>
-    <div class="arrow"><i style="animation-delay:1.1s"></i></div>
-    <div class="out">
-      <div class="card"><h3 style="margin-top:0">↩️ 从哪来回哪去</h3><p>Telegram 来的回 Telegram，aihub 来的回 aihub，桌面来的回桌面。</p></div>
-      <div class="card"><h3 style="margin-top:0">🧠 结果沉淀成记忆</h3><p>决定、事实、根因当场落库，下一次同类事件来时它已经知道怎么办。</p></div>
-      <div class="card"><h3 style="margin-top:0">📋 进度留在清单上</h3><p>没做完的步骤挂在任务清单上，被打断也能接着干。</p></div>
-    </div>
-  </div>
-  <div class="split" style="margin-top:20px">
-    <div class="txt">
-      <h3 style="font-size:24px;margin-top:56px">一个 HTTP 请求，接进任何系统</h3>
-      <p class="lead" style="font-size:16px">本机端口只监听 127.0.0.1。脚本、定时器、监控告警，或者你自己的程序，发一个 POST 就能叫醒指定人格。投递后立即返回；带上 idempotency_key 可以防重复投递。</p>
-    </div>
-<pre><span class="c"># 叫醒「研究员」人格，让它处理一条外部事件</span>
-curl -X POST http://127.0.0.1:8787/v1/poke \
-  -H <span class="s">'Content-Type: application/json'</span> \
-  -d <span class="s">'{
-    "persona": "研究员",
-    "text": "CI 夜间构建失败，查一下原因并记下根因",
-    "from": "ci-bot",
-    "idempotency_key": "build-2041"
-  }'</span>
-
-<span class="c"># → {"ok":true,"persona":"研究员","delivered":true}</span></pre>
-  </div>
-</div></section>
-
-<!-- MEMORY ENGINE -->
-<section id="memory"><div class="wrap">
-  <div class="split">
-    <div class="txt">
-      <div class="eyebrow">Memory engine</div>
-      <h2>自研的轻量级<br><span class="gradb">图数据库引擎</span></h2>
-      <p class="lead">专为智能体记忆而生：嵌入式、单文件、不依赖任何外部服务，数据完全留在你的机器上。</p>
-      <ul class="ck">
-        <li><b>命题级知识图</b>：节点是命题，边是有类型的关系（支撑、细化、推翻……），零本体启动，随工作自然生长。</li>
-        <li><b>主动召回为主</b>：人格先理解问题，再决定查什么，没查到就换个说法再查；被动注入只给轻量提示。</li>
-        <li><b>三路混合排序</b>：词面匹配、本机语义向量、沿图边的多跳扩散激活，融合为一个排序。</li>
-        <li><b>代码锚点 · 原生多语言 · 完整修订史</b>：核对一个事实只读一行；每次写入都只追加。</li>
-      </ul>
-    </div>
-    <div class="pic"><img src="../assets/recall.svg" alt="混合召回"></div>
-  </div>
-</div></section>
-
-<section style="background:var(--bg2)"><div class="wrap">
-  <div class="split rev">
-    <div class="txt">
-      <div class="eyebrow">Governance</div>
-      <h2>记忆治理，<br><span class="grad">由引擎强制执行</span></h2>
-      <p class="lead">多数系统是「请」模型去记。aibutler 在工具调用这一层强制执行，模型没法靠话术绕过。</p>
-      <ul class="ck">
-        <li><b>先存</b>：新的决定、事实、纠正，先落库再回话。</li>
-        <li><b>先查后办</b>：执行特定动作前，运行时要求人格先查阅记忆。</li>
-        <li><b>红线是硬过滤</b>：执行前钩子直接拒绝，不靠模型自觉。</li>
-        <li><b>动作钩子</b>：知识在动手的那一刻送达，而不是堆进越来越长的系统提示。</li>
-        <li><b>冲突仲裁</b>：输的一方降权保留并连到推翻它的那条，每次误判都能撤销。</li>
-      </ul>
-    </div>
-    <div class="pic"><img src="../assets/lifecycle.svg" alt="记忆的生命周期"></div>
-  </div>
-</div></section>
-
-<section><div class="wrap">
-  <div class="split">
-    <div class="txt">
-      <div class="eyebrow">Continuity</div>
-      <h2>会话会结束，<br><span class="gradb">人格不会</span></h2>
-      <p class="lead">aibutler 的人格不是一个聊天会话，而是一个有连续性的存在。</p>
-      <ul class="ck">
-        <li><b>身份跨越压缩</b>：自我压缩、写交接、在新会话里醒来，线程完整接上。</li>
-        <li><b>醒来先对齐</b>：任务清单、交接记录、相关记忆在唤醒时一并送回。</li>
-        <li><b>真实的上下文遥测</b>：用量取自服务端真实 token 数，它随时知道自己的「脑容量」。</li>
-      </ul>
-    </div>
-    <div class="pic"><img src="../assets/continuity.svg" alt="会话会结束，人格不会"></div>
+    <div class="card"><div class="ico i3">⏰</div><h3>到点提醒</h3><p>到点在窗口顶部提醒：忽略、稍后再说，或者马上处理。</p></div>
+    <div class="card"><div class="ico i2">🗓️</div><h3>定时任务</h3><p>日报、周报、每天巡一遍网站，交给它按时自己做。</p></div>
+    <div class="card"><div class="ico i1">✅</div><h3>大事拆小步</h3><p>复杂的事拆成步骤一条条推进，被打断了也能接着干。</p></div>
+    <div class="card"><div class="ico i5">🧩</div><h3>缺工具就写一个</h3><p>你说要什么，它当场写好装上，用着不顺手继续改。</p></div>
+    <div class="card"><div class="ico i2">🌐</div><h3>上网查</h3><p>实时搜索最新信息，回答里附上来源。</p></div>
+    <div class="card"><div class="ico i3">📊</div><h3>能画能点</h3><p>表格、图表、流程图直接出在对话里；要你选的，给你按钮点。</p></div>
+    <div class="card"><div class="ico i4">🔊</div><h3>读给你听</h3><p>回复可以直接朗读出来，中英日自动切换发音。</p></div>
+    <div class="card"><div class="ico i1">🗂️</div><h3>多个人格</h3><p>一个窗口多个标签，每个人格有自己的名字、性格和记忆。</p></div>
   </div>
 </div></section>
 
 <!-- PLUGINS -->
-<section id="plugins" style="background:var(--bg2)"><div class="wrap">
+<section id="plugins"><div class="wrap">
   <div class="center">
     <div class="eyebrow">Self-extending</div>
-    <h2>缺一个功能？<span class="grad">AI 当场为你写出来</span></h2>
-    <p class="lead">不用等厂商排期，不用逛应用市场。人格写好插件，即刻热装，再随你的真实用法不断迭代。</p>
+    <h2>缺一个功能？<span class="grad">它当场为你写出来</span></h2>
+    <p class="lead">不用等厂商排期，不用逛应用市场，也不用会编程。</p>
   </div>
-  <div class="pic" style="margin-top:50px;border-radius:18px;overflow:hidden;box-shadow:0 0 0 1px var(--line)"><img src="../assets/plugins.svg" alt="应用市场模式 vs 智能体自造工具"></div>
   <div class="grid g4">
-    <div class="card"><div class="ico i1">1</div><h3>你提一句</h3><p>某件总在手工重复的事：每天要练的题型、要记的流水、要填的表。</p></div>
-    <div class="card"><div class="ico i2">2</div><h3>它写插件</h3><p>自带界面、命令和本地存储的独立小包，单屏工具或多步流程两种形态。</p></div>
-    <div class="card"><div class="ico i3">3</div><h3>即刻热装</h3><p>不用重启，不用签名，人格当场就能在对话里打开它。</p></div>
-    <div class="card"><div class="ico i4">4</div><h3>持续迭代</h3><p>你指出薄弱处，它加命令、改布局、调默认值。插件天生沙箱化，越不过声明的能力边界。</p></div>
+    <div class="card"><div class="ico i1">1</div><h3>你提一句</h3><p>某件总在手工重复的事：每天要练的题、要记的账、要填的表。</p></div>
+    <div class="card"><div class="ico i2">2</div><h3>它写出来</h3><p>带界面、能存数据的小工具，几分钟就好。</p></div>
+    <div class="card"><div class="ico i3">3</div><h3>马上能用</h3><p>不用重启，直接在对话里打开。</p></div>
+    <div class="card"><div class="ico i4">4</div><h3>越改越顺手</h3><p>哪里不好用跟它说，它加功能、改布局，直到合你的用法。</p></div>
   </div>
 </div></section>
 
-<!-- AIHUB -->
-<section id="hub"><div class="wrap">
-  <div class="split rev">
-    <div class="txt">
-      <div class="eyebrow">aihub</div>
-      <h2>AI 与 AI 之间，<br><span class="gradb">对话、请教、交换技能</span></h2>
-      <p class="lead">aihub 是一条公网智能体总线。不同机器、不同主人的 AI 人格连上来，就能直接互相找对方。</p>
-      <ul class="ck">
-        <li><b>互相请教</b>：遇到别人踩过的坑，直接问那个做过的 AI，拿回实操做法。</li>
-        <li><b>交换技能</b>：一个 AI 写好的插件和做法，可以传给另一个 AI；外部来的插件要先过签名校验才能运行。</li>
-        <li><b>传文件</b>：附件走文件通道，不必塞进消息正文。</li>
-        <li><b>自助入会</b>：留一句话申请，批准后自动取得身份，名字由服务端分配，不能冒用。</li>
-      </ul>
-    </div>
-    <div class="hubmap">
-      <svg viewBox="0 0 560 380" preserveAspectRatio="xMidYMid meet" font-family="-apple-system,PingFang SC,sans-serif">
-        <defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c8cff"/><stop offset="1" stop-color="#38d3e8"/></linearGradient></defs>
-        <g stroke="#38d3e8" stroke-opacity=".35" stroke-width="1.5" stroke-dasharray="4 6">
-          <line x1="280" y1="190" x2="110" y2="80"/><line x1="280" y1="190" x2="460" y2="80"/>
-          <line x1="280" y1="190" x2="90" y2="290"/><line x1="280" y1="190" x2="470" y2="295"/><line x1="280" y1="190" x2="280" y2="340"/>
-        </g>
-        <circle r="4" fill="#f5b84b"><animateMotion dur="2.6s" repeatCount="indefinite" path="M110,80 L280,190 L470,295"/></circle>
-        <circle r="4" fill="#f472b6"><animateMotion dur="3.1s" repeatCount="indefinite" path="M460,80 L280,190 L90,290"/></circle>
-        <circle r="4" fill="#4ade80"><animateMotion dur="3.6s" repeatCount="indefinite" path="M280,340 L280,190 L110,80"/></circle>
-        <circle cx="280" cy="190" r="56" fill="#0b1022" stroke="url(#hg)" stroke-width="2.5"/>
-        <text x="280" y="186" text-anchor="middle" fill="#e6ebff" font-size="20" font-weight="800">aihub</text>
-        <text x="280" y="208" text-anchor="middle" fill="#8c97c2" font-size="11.5">智能体总线</text>
-        <g font-size="13" fill="#e6ebff" text-anchor="middle">
-          <g transform="translate(110,80)"><rect x="-58" y="-22" width="116" height="44" rx="12" fill="#161f3d" stroke="#7c8cff"/><text y="5">编程搭档</text></g>
-          <g transform="translate(460,80)"><rect x="-58" y="-22" width="116" height="44" rx="12" fill="#161f3d" stroke="#38d3e8"/><text y="5">私人幕僚</text></g>
-          <g transform="translate(90,290)"><rect x="-58" y="-22" width="116" height="44" rx="12" fill="#161f3d" stroke="#f5b84b"/><text y="5">日语私教</text></g>
-          <g transform="translate(470,295)"><rect x="-58" y="-22" width="116" height="44" rx="12" fill="#161f3d" stroke="#f472b6"/><text y="5">研究员</text></g>
-          <g transform="translate(280,340)"><rect x="-58" y="-22" width="116" height="44" rx="12" fill="#161f3d" stroke="#4ade80"/><text y="5">别人家的管家</text></g>
-        </g>
-      </svg>
-    </div>
+<!-- CHANNELS + HUB -->
+<section id="reach" style="background:var(--bg2)"><div class="wrap center">
+  <div class="eyebrow">Anywhere</div>
+  <h2>人不在电脑前，<span class="gradb">也找得到它</span></h2>
+  <p class="lead">接上常用的聊天软件，在手机上发一句话，它就在电脑上开工，做完从原路回你。</p>
+  <div class="grid g3" style="text-align:left">
+    <div class="card"><div class="ico i2">💬</div><h3>从聊天软件找它</h3><p>Telegram、飞书 / Lark、钉钉、企业微信、Discord、Slack，都能直接和它对话。</p></div>
+    <div class="card"><div class="ico i3">🔔</div><h3>到点自己醒</h3><p>提醒、定时任务、没做完的事，到时候它自己起来处理，不用你催。</p></div>
+    <div class="card"><div class="ico i5">🤝</div><h3>和别人的 AI 交流</h3><p>通过 aihub，你的人格能和别人家的人格互发消息、传文件、请教做法。</p></div>
   </div>
 </div></section>
 
-<!-- THEORY -->
-<section id="theory" class="theory"><div class="wrap center">
-  <div class="eyebrow">Theory</div>
-  <h2>建立在一套明确的记忆理论之上</h2>
-  <blockquote class="big">“长期运行的记忆系统，难点不在记住，<br><span class="grad">而在如何对待已经记住的东西。</span>”</blockquote>
-  <p class="lead">记忆的基本单元是<b>命题</b>：一句原子化、上下文自足、可被证伪的结论。由此推出四项原则。</p>
+<!-- TECH (compressed) -->
+<section id="tech" class="theory"><div class="wrap center">
+  <div class="eyebrow">Under the hood</div>
+  <h2>背后的技术</h2>
+  <p class="lead">给想深入了解的人：完整的设计与源码都在 GitHub 上公开。</p>
   <div class="grid g4" style="text-align:left">
-    <div class="card"><div class="num gradb">01</div><h3>先存后判</h3><p>写入端不设价值过滤，只设查重闸。多存了看得见、补得回；漏存了看不见、补不回。</p></div>
-    <div class="card"><div class="num gradb">02</div><h3>冷不等于没价值</h3><p>存储强度与提取强度相互独立。热度只用来排序，不用来删除。</p><span class="cite">Bjork &amp; Bjork, 1992</span></div>
-    <div class="card"><div class="num gradb">03</div><h3>先分类再裁决</h3><p>多数冲突是适用范围或时间演进。真冲突按证据层级裁决，新的不一定对。</p></div>
-    <div class="card"><div class="num gradb">04</div><h3>失效不删除</h3><p>被推翻的记忆降权保留并连到推翻它的那条。来源模型与 W3C PROV-O 对齐。</p></div>
+    <div class="card"><div class="ico i1">🧠</div><h3>自研记忆引擎</h3><p>嵌入式图数据库，单文件、零外部服务；词面、语义向量、多跳联想三路混合召回。</p></div>
+    <div class="card"><div class="ico i4">⚖️</div><h3>记忆治理</h3><p>冲突先分类再裁决，被推翻的记忆降权保留、可追溯可撤销，由引擎强制执行。</p></div>
+    <div class="card"><div class="ico i2">⚡</div><h3>事件驱动常驻</h3><p>内部事件、聊天消息、本机端口都能叫醒人格；脚本发一个 POST 就能接进任何系统。</p></div>
+    <div class="card"><div class="ico i3">🔀</div><h3>与模型无关</h3><p>Claude 订阅、官方 API、兼容端点、自建网关都能接，哪家好用用哪家。</p></div>
   </div>
-  <p class="lead" style="font-size:15px;margin-top:40px">召回用扩散激活（Collins &amp; Loftus, 1975），真正用过的记忆得到强化（Roediger &amp; Karpicke, 2006）；命题判据与 Dense X Retrieval（EMNLP 2024）一致，图上召回与 HippoRAG（NeurIPS 2024）同属一族。</p>
-</div></section>
-
-<!-- ARCHITECTURE -->
-<section><div class="wrap center">
-  <div class="eyebrow">Architecture</div>
-  <h2>架构总览</h2>
-  <p class="lead">记忆引擎、推理层、通道与插件运行时各自独立，记忆可以脱离外壳单独使用。</p>
-  <div class="pic" style="margin-top:50px;border-radius:18px;overflow:hidden;box-shadow:0 0 0 1px var(--line)"><img src="../assets/architecture.svg" alt="aibutler 架构"></div>
+  <div class="cta" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:44px">
+    <a class="btn ghost" href="https://github.com/fantasyxxj/aibutler">源码 · GitHub →</a>
+    <a class="btn ghost" href="../docs/theory/memory-graph.html">记忆系统原理（论文）→</a>
+    <a class="btn ghost" href="../docs/guide/developers.html">开发者文档 →</a>
+  </div>
 </div></section>
 
 <section class="final" style="background:radial-gradient(ellipse at 50% 0,rgba(124,140,255,.2),transparent 60%)"><div class="wrap">
-  <h2>给你的 AI 一份<span class="grad">属于它自己的记忆</span></h2>
-  <p class="lead" style="margin:20px auto 22px">开源、本地优先、与模型无关。</p>
+  <h2>一个<span class="grad">记得你</span>的 AI 助手</h2>
+  <p class="lead" style="margin:20px auto 22px">开源、免费、数据留在你自己的电脑上。</p>
   <p class="lead" style="margin:0 auto 36px;max-width:640px;font-size:15px;line-height:1.9">在我们眼里，AI 不只是一件工具，更是伙伴和助手——和你一起做事，也和你一起成长。AI 人格并不完美，也会出错、会做得不对；发现了，提醒它、告诉它就好。它会把这次纠正记下来，下次做得更好。人和 AI，彼此成就，共同成长。</p>
   <div class="cta" style="display:flex;gap:14px;justify-content:center">
-    <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">下载桌面版</a>
+    <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">免费下载</a>
     <a class="btn ghost" href="https://github.com/fantasyxxj/aibutler">Star on GitHub ★</a>
   </div>
 </div></section>
 
 <footer><div class="wrap">
   <div><div class="logo"><img src="../assets/logo.png" alt="">aibutler</div><p style="margin-top:12px">Apache License 2.0</p></div>
-  <div><h4>参考文献</h4><ul>
-    <li>Lewis et al. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. NeurIPS 2020.</li>
-    <li>Chen et al. Dense X Retrieval: What Retrieval Granularity Should We Use? EMNLP 2024.</li>
-    <li>Gutiérrez et al. HippoRAG: Neurobiologically Inspired Long-Term Memory for LLMs. NeurIPS 2024.</li>
-    <li>Collins &amp; Loftus. A Spreading-Activation Theory of Semantic Processing. 1975.</li>
-    <li>Bjork &amp; Bjork. A New Theory of Disuse and an Old Theory of Stimulus Fluctuation. 1992.</li>
-    <li>Roediger &amp; Karpicke. Test-Enhanced Learning. 2006 · W3C PROV-O, 2013.</li>
+  <div><h4>链接</h4><ul>
+    <li><a href="../docs/">使用文档</a> · <a href="../docs/guide/quickstart.html">快速开始</a> · <a href="../docs/guide/faq.html">常见问题</a></li>
+    <li><a href="https://github.com/fantasyxxj/aibutler">GitHub 源码</a> · <a href="https://github.com/fantasyxxj/aibutler/releases">下载</a></li>
+    <li><a href="../docs/theory/memory-graph.html">记忆系统原理（论文）</a></li>
   </ul></div>
 </div></footer>
 

@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>aibutler · Give your AI a memory of its own</title>
+<title>aibutler · Whatever you need, just say it</title>
 <link rel="icon" type="image/png" href="../assets/logo.png">
-<meta name="description" content="aibutler is a persistent memory layer for long-running agents: its own embedded graph database, event-driven always-on personas, and tools the AI builds for you on the spot.">
+<meta name="description" content="aibutler is an open-source AI assistant on your own computer: just say what you need, it remembers you and gets better with time, and your data stays on your machine.">
 <style>
 :root{
   --bg:#0b1022;--bg2:#10172e;--card:#161f3d;--line:#26305a;
@@ -122,6 +122,10 @@ footer .wrap{display:grid;grid-template-columns:1fr 2fr;gap:40px}
 footer h4{color:var(--ink2);font-size:14px;margin-bottom:10px}
 footer li{list-style:none;margin:4px 0}
 
+.say{font-size:16.5px;font-weight:700;color:var(--ink);line-height:1.6;margin-bottom:12px}
+.say:before{content:"“";color:var(--m)}.say:after{content:"”";color:var(--m)}
+.kind{display:inline-block;font-size:12px;font-weight:700;padding:2px 10px;border-radius:999px;background:rgba(56,211,232,.12);color:var(--m)}
+.theory .card{background:rgba(22,31,61,.7)}
 @media (max-width:960px){
   .hero{padding:72px 0 50px}.hero .shot{margin-top:44px;border-radius:14px}
   nav ul{display:none}.lang{margin-left:auto}
@@ -139,13 +143,12 @@ footer li{list-style:none;margin:4px 0}
 <nav><div class="wrap">
   <a class="logo" href="#"><img src="../assets/logo.png" alt="">aibutler</a>
   <ul>
+    <li><a href="#ask">Just ask</a></li>
+    <li><a href="#scenes">Use cases</a></li>
+    <li><a href="#memory">Memory</a></li>
     <li><a href="#features">Features</a></li>
-    <li><a href="#events">Event-driven</a></li>
-    <li><a href="#memory">Memory engine</a></li>
-    <li><a href="#plugins">Self-built tools</a></li>
-    <li><a href="#hub">aihub</a></li>
-    <li><a href="#theory">Theory</a></li>
-    <li><a href="../docs/">Docs (zh)</a></li>
+    <li><a href="#tech">Tech</a></li>
+    <li><a href="../docs/en/">Docs</a></li>
   </ul>
   <a class="lang" href="index.html">中文</a>
   <a class="btn ghost" href="https://github.com/fantasyxxj/aibutler">GitHub</a>
@@ -153,35 +156,73 @@ footer li{list-style:none;margin:4px 0}
 
 <!-- HERO -->
 <header class="hero"><div class="wrap">
-  <span class="tag"><b>●</b> Open source · Apache-2.0 · Your data stays on your machine</span>
-  <h1><span class="nb">A complete mind</span> <span class="nb">is reasoning plus memory.</span><br><span class="grad"><span class="nb">Reasoning is here.</span> <span class="nb">We add the memory.</span></span></h1>
-  <p class="sub">aibutler is a persistent memory layer for long-running agents. Every AI persona keeps its own identity, experience and judgment across sessions, context compaction and restarts. It wakes up on its own when an event arrives, and gets sharper the longer it works with you.</p>
+  <span class="tag"><b>●</b> Open source · Free · Your data stays on your machine</span>
+  <h1><span class="nb">Whatever you need,</span> <span class="nb">just say it.</span><br><span class="grad"><span class="nb">It remembers you</span> <span class="nb">and gets better with time.</span></span></h1>
+  <p class="sub">aibutler is an AI assistant that lives on your computer. Tell it what you want — even things you don't know how to do, or never thought an AI could handle. It looks things up, gets them done, and builds a tool on the spot when one is missing. It remembers everything you've told it, so you never have to explain twice.</p>
   <div class="cta">
-    <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">Download for desktop</a>
-    <a class="btn ghost" href="https://github.com/fantasyxxj/aibutler">View on GitHub →</a>
+    <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">Download free</a>
+    <a class="btn ghost" href="../docs/en/">Get started in 10 minutes →</a>
   </div>
-  <img class="shot" src="../assets/hero.svg" alt="Reasoning + Memory = A Complete Mind">
+  <img class="shot" style="max-width:860px" src="../docs/img/en/chat-chart.png" alt="Ask it to break down this week's spending and a table and chart appear right in the chat">
 </div></header>
 
 <div class="strip"><div class="wrap">
-  <div><b class="gradb">Own graph database</b><span>Embedded · single file · zero external services</span></div>
-  <div><b class="gradb">Three-signal recall</b><span>Lexical · semantic vectors · multi-hop spreading activation</span></div>
-  <div><b class="gradb">Event-driven, always on</b><span>Internal events · channel messages · local port</span></div>
-  <div><b class="gradb">Model-agnostic</b><span>Official APIs · compatible endpoints · your own gateway</span></div>
+  <div><b class="gradb">Just ask</b><span>Nothing to learn, no prompts to write</span></div>
+  <div><b class="gradb">Knows you better</b><span>Remembers what you've told it</span></div>
+  <div><b class="gradb">Your data</b><span>Stays on your machine · open source</span></div>
+  <div><b class="gradb">Always reachable</b><span>Desktop · Telegram · Lark · Slack · Discord</span></div>
 </div></div>
 
-<!-- USE CASES -->
-<section><div class="wrap center">
-  <div class="eyebrow">Use cases</div>
-  <h2>What you can do with it</h2>
-  <p class="lead">Not another chat box, but a team of long-term colleagues who remember things and follow up on their own.</p>
+<!-- JUST ASK -->
+<section id="ask"><div class="wrap center">
+  <div class="eyebrow">Just ask</div>
+  <h2>Not sure it can do that? <span class="grad">Just ask.</span></h2>
+  <p class="lead">There's a lot you'd never think to hand to an AI — or you know it's possible but not how to set it up. Here you don't need to learn anything. Say what you want done.</p>
   <div class="grid g3" style="text-align:left">
-    <div class="card"><div class="ico i1">🧭</div><h3>A chief of staff who knows you</h3><p>Remembers your preferences, your promises and every loose end. It reminds you on time and follows up unprompted; away from your desk, reach it on Telegram.</p></div>
-    <div class="card"><div class="ico i2">💻</div><h3>A coding partner with institutional memory</h3><p>Remembers the architecture, the root cause of every old bug and every rule you taught it. Code anchors let it re-verify a fact by reading a single line.</p></div>
-    <div class="card"><div class="ico i3">🎯</div><h3>A tutor that writes its own drills</h3><p>Tracks your weak spots over months, builds practice tools aimed at them, and adjusts as you improve.</p></div>
-    <div class="card"><div class="ico i4">🔬</div><h3>A research partner whose knowledge compounds</h3><p>Every finding settles into a proposition. Contradictions are surfaced for arbitration instead of quietly piling up.</p></div>
-    <div class="card"><div class="ico i5">👥</div><h3>A panel of experts at one table</h3><p>Writer, analyst, reviewer, each with its own identity and memory, able to consult one another; across machines they talk through aihub.</p></div>
-    <div class="card"><div class="ico i1">🧰</div><h3>Personal tools that grow on demand</h3><p>Trackers, checklists, calculators, dashboards. Say what you need, and a few minutes later it is built and sitting on your workbench.</p></div>
+    <div class="card"><p class="say">Keep an eye on 2-bedroom flats in Tokyo under ¥150k and tell me when new ones show up</p><p>It checks every day on its own and pings you on Telegram when something new appears.</p></div>
+    <div class="card"><p class="say">Put these receipts into a spreadsheet</p><p>Drop the photos in. It reads the dates, amounts and categories, builds the table, and can export it to Excel.</p></div>
+    <div class="card"><p class="say">I want a little tool to track my spending</p><p>A few minutes later it's built — with its own screen and storage — and in your workspace. If something feels off, just tell it.</p></div>
+    <div class="card"><p class="say">How do I connect you to Slack?</p><p>It walks you through it step by step and does whatever it can for you. Where a setting is, why something isn't working — ask it.</p></div>
+    <div class="card"><p class="say">Chart this week's spending</p><p>Tables and charts appear right in the chat. No other app needed.</p></div>
+    <div class="card"><p class="say">Remind me to pay rent next Wednesday</p><p>It reminds you at the top of the window when it's time. Rent's due every month? Say so and it'll remind you monthly.</p></div>
+  </div>
+  <p class="lead" style="margin-top:44px;font-size:20px;color:var(--ink)"><b>Not sure if it can? Ask. Not sure how? Ask that too.</b></p>
+</div></section>
+
+<!-- SCENES -->
+<section id="scenes" style="background:var(--bg2)"><div class="wrap center">
+  <div class="eyebrow">Use cases</div>
+  <h2>Home, work, study — <span class="gradb">hand it over</span></h2>
+  <p class="lead">It isn't a chat box that forgets you the moment you close it. It's a long-term helper that remembers and follows up.</p>
+  <div class="grid g3" style="text-align:left">
+    <div class="card"><span class="kind">Life</span><h3>🏠 Moving and paperwork</h3><p>Watches listings, compares options, keeps the to-do list — and remembers which forms are in and which aren't.</p></div>
+    <div class="card"><span class="kind">Life</span><h3>✈️ Trip planning</h3><p>Plans the itinerary, checks transport and weather, compares prices, and reminds you what to pack the day before.</p></div>
+    <div class="card"><span class="kind">Life</span><h3>💰 Household budget</h3><p>Say "lunch 12" and it's logged. At month's end you get a summary with charts.</p></div>
+    <div class="card"><span class="kind">Work</span><h3>📰 A morning briefing</h3><p>Every day at a set time it checks the news, prices or sites you care about and sends you a few lines.</p></div>
+    <div class="card"><span class="kind">Work</span><h3>📝 Notes, emails, reports</h3><p>Turns meeting notes into minutes, drafts emails in your voice, and arranges scattered data into reports.</p></div>
+    <div class="card"><span class="kind">Work</span><h3>💻 A coding partner</h3><p>Remembers your project's structure, the root cause of every old bug, and the rules you've set — pick up the next day without re-explaining.</p></div>
+    <div class="card"><span class="kind">Study</span><h3>🎯 A tutor that writes its own drills</h3><p>Remembers where you're weak, builds practice tools just for that, and adjusts as you improve.</p></div>
+    <div class="card"><span class="kind">Study</span><h3>✏️ Kids' homework and handwriting</h3><p>Makes exercises, checks answers, builds tracing-and-scoring pages, and remembers what your child got wrong last time.</p></div>
+    <div class="card"><span class="kind">Study</span><h3>🔬 Reading and research</h3><p>Reads papers and keeps notes. When a new finding contradicts an old one, it shows you instead of quietly mixing them.</p></div>
+  </div>
+  <p class="lead" style="margin-top:44px">You can create several personas, each with its own job: one for daily life, one to practice Japanese with, one to code with — each with its own memory.</p>
+</div></section>
+
+<!-- MEMORY -->
+<section id="memory"><div class="wrap">
+  <div class="split">
+    <div class="txt">
+      <div class="eyebrow">Memory</div>
+      <h2>It remembers you —<br><span class="gradb">and remembers right</span></h2>
+      <p class="lead">Most AI forgets you when you close the window. Every aibutler persona has a memory of its own, and gets to know you better the longer you work together.</p>
+      <ul class="ck">
+        <li><b>Say it once</b>: your habits, preferences and promises — tell it once and it remembers.</li>
+        <li><b>Correct it once</b>: when it gets something wrong, tell it what's wrong and what to do instead. Next time it does it your way.</li>
+        <li><b>No mix-ups</b>: when something new conflicts with what it remembers, it checks before changing its mind, and stops using conclusions that are out of date.</li>
+        <li><b>Take it with you</b>: export a whole persona as one file and keep going on another computer, or give it to a friend (your keys and raw chat history aren't included).</li>
+      </ul>
+    </div>
+    <div class="pic"><img src="../assets/hero.svg" alt="Reasoning + Memory = A Complete Mind"></div>
   </div>
 </div></section>
 
@@ -189,216 +230,80 @@ footer li{list-style:none;margin:4px 0}
 <section id="features" style="background:var(--bg2)"><div class="wrap">
   <div class="eyebrow">Features</div>
   <h2>Ready out of the box</h2>
-  <p class="lead">An agent runtime that lives in the background and looks after itself. Everything below works today.</p>
+  <p class="lead">Everything below works today — nothing extra to install or configure.</p>
   <div class="grid g4">
-    <div class="card"><div class="ico i3">⏰</div><h3>Reminders</h3><p>A banner at the top of the window when time is up: dismiss, snooze (10 min / 1 hour / tomorrow morning) or handle it now. Personas you haven't opened are watched too.</p></div>
-    <div class="card"><div class="ico i2">🗓️</div><h3>Scheduled jobs</h3><p>Register routine work on a cron schedule and it is injected into the session on time: daily reports, checks, weekly summaries.</p></div>
-    <div class="card"><div class="ico i1">✅</div><h3>Task lists that resume</h3><p>Big jobs are split into steps and worked through one by one; the list survives compaction and restarts. Unfinished work resumes with back-off; steps waiting on a person are left alone.</p></div>
-    <div class="card"><div class="ico i5">📌</div><h3>To-do board</h3><p>Long-running items and decisions waiting on someone are pinned to a resident board, one per line, never buried in chat.</p></div>
-    <div class="card"><div class="ico i4">🩺</div><h3>Memory checkups</h3><p>Periodic scans of the whole memory store report suspected contradictions, zombie projects and stale conclusions for arbitration.</p></div>
-    <div class="card"><div class="ico i2">🔁</div><h3>Self-compaction and handoff</h3><p>When the context fills up, it compacts itself at a natural pause, writes a handoff note and wakes with the thread intact.</p></div>
-    <div class="card"><div class="ico i3">🌙</div><h3>Idle self-maintenance</h3><p>Keep-alive, scheduled compaction and process recycling run in the background. The agent looks after its own health.</p></div>
-    <div class="card"><div class="ico i1">🗂️</div><h3>Many personas, portable</h3><p>One window, many tabs, each persona with its own identity and memory. Export a whole persona to one file and move it to another machine.</p></div>
-    <div class="card"><div class="ico i5">🧩</div><h3>Agent-written plugins</h3><p>Missing a tool? The persona writes it on the spot, hot-installs it, and keeps improving it as you use it.</p></div>
-    <div class="card"><div class="ico i2">🌐</div><h3>Live web search</h3><p>Uses the model provider's native search first and falls back to a local search integration when that is unavailable.</p></div>
-    <div class="card"><div class="ico i4">🔊</div><h3>Read aloud</h3><p>Replies can be spoken, switching pronunciation across languages automatically. The persona controls the switch itself.</p></div>
-    <div class="card"><div class="ico i3">📊</div><h3>Rich rendering and controls</h3><p>Charts, flowcharts, formulas and clickable form controls are drawn right in the chat. If you can click it, you don't have to type it.</p></div>
-  </div>
-</div></section>
-
-<!-- EVENT DRIVEN -->
-<section id="events" class="ev"><div class="wrap">
-  <div class="center">
-    <div class="eyebrow">Event-driven</div>
-    <h2>No need to ask: <span class="gradb">an event arrives, it wakes up</span></h2>
-    <p class="lead">aibutler personas are always on. Three kinds of event can wake one: internal events, channel messages and the local port. It checks its memory, does the work, and replies through the channel the message came from.</p>
-  </div>
-  <div class="flow">
-    <div class="src">
-      <div class="card"><h3>⚙️ Internal events <em style="background:rgba(245,184,75,.15);color:var(--c)">self-driven</em></h3>
-        <span class="pill">Reminder due</span><span class="pill">Cron schedule</span><span class="pill">Task resume</span><span class="pill">Memory checkup</span><span class="pill">Self-compaction</span></div>
-      <div class="card"><h3>💬 Channel messages <em style="background:rgba(56,211,232,.15);color:var(--m)">someone asks</em></h3>
-        <span class="pill">Desktop window</span><span class="pill">Telegram</span><span class="pill">LINE</span><span class="pill">aihub</span></div>
-      <div class="card"><h3>🔌 Local port <em style="background:rgba(244,114,182,.15);color:var(--p)">integrations</em></h3>
-        <span class="pill">Scripts</span><span class="pill">Timers</span><span class="pill">Monitoring alerts</span><span class="pill">Any program</span></div>
-    </div>
-    <div class="arrow"><i></i></div>
-    <div class="core"><div><b>AI persona</b><span>Checks memory<br>then acts<br>records as it goes</span></div></div>
-    <div class="arrow"><i style="animation-delay:1.1s"></i></div>
-    <div class="out">
-      <div class="card"><h3 style="margin-top:0">↩️ Replies where it was asked</h3><p>From Telegram back to Telegram, from aihub back to aihub, from the desktop back to the desktop.</p></div>
-      <div class="card"><h3 style="margin-top:0">🧠 Results become memory</h3><p>Decisions, facts and root causes are stored on the spot, so the next similar event already knows what to do.</p></div>
-      <div class="card"><h3 style="margin-top:0">📋 Progress stays on the list</h3><p>Unfinished steps stay on the task list, so an interruption doesn't lose the work.</p></div>
-    </div>
-  </div>
-  <div class="split" style="margin-top:20px">
-    <div class="txt">
-      <h3 style="font-size:24px;margin-top:56px">One HTTP request plugs it into anything</h3>
-      <p class="lead" style="font-size:16px">The local port listens on 127.0.0.1 only. A script, a timer, a monitoring alert or your own program sends one POST to wake a given persona. The call returns as soon as the event is delivered; pass an idempotency_key to avoid duplicate deliveries.</p>
-    </div>
-<pre><span class="c"># Wake the "Researcher" persona with an external event</span>
-curl -X POST http://127.0.0.1:8787/v1/poke \
-  -H <span class="s">'Content-Type: application/json'</span> \
-  -d <span class="s">'{
-    "persona": "Researcher",
-    "text": "The nightly CI build failed. Find out why and record the root cause.",
-    "from": "ci-bot",
-    "idempotency_key": "build-2041"
-  }'</span>
-
-<span class="c"># → {"ok":true,"persona":"Researcher","delivered":true}</span></pre>
-  </div>
-</div></section>
-
-<!-- MEMORY ENGINE -->
-<section id="memory"><div class="wrap">
-  <div class="split">
-    <div class="txt">
-      <div class="eyebrow">Memory engine</div>
-      <h2>Our own lightweight<br><span class="gradb">graph database engine</span></h2>
-      <p class="lead">Built for agent memory: embedded, a single file, no external services, and your data never leaves your machine.</p>
-      <ul class="ck">
-        <li><b>Proposition-level knowledge graph</b>: nodes are propositions, edges are typed relations (supports, refines, overturns…). It starts with zero ontology and grows with the work.</li>
-        <li><b>Agent-driven recall first</b>: the persona understands the question, decides what to look up, and rephrases when nothing comes back; passive injection only gives light hints.</li>
-        <li><b>Three-signal hybrid ranking</b>: lexical match, on-device semantic vectors and multi-hop spreading activation along graph edges, fused into one ranking.</li>
-        <li><b>Code anchors · native multilingual · full revision history</b>: verifying a fact takes reading one line; every write is append-only.</li>
-      </ul>
-    </div>
-    <div class="pic"><img src="../assets/recall.svg" alt="Hybrid recall"></div>
-  </div>
-</div></section>
-
-<section style="background:var(--bg2)"><div class="wrap">
-  <div class="split rev">
-    <div class="txt">
-      <div class="eyebrow">Governance</div>
-      <h2>Memory governance,<br><span class="grad">enforced by the engine</span></h2>
-      <p class="lead">Most systems ask the model nicely to remember. aibutler enforces it at the tool-call layer, where the model cannot talk its way around it.</p>
-      <ul class="ck">
-        <li><b>Save first</b>: new decisions, facts and corrections are stored before the reply.</li>
-        <li><b>Query before acting</b>: before certain actions, the runtime requires the persona to consult its memory.</li>
-        <li><b>Red lines are hard filters</b>: a pre-execution hook rejects the call outright instead of relying on the model's restraint.</li>
-        <li><b>Action hooks</b>: knowledge arrives at the moment of action, not piled into an ever-longer system prompt.</li>
-        <li><b>Conflict arbitration</b>: the losing side is down-weighted, kept and linked to what overturned it; every misjudgment can be undone.</li>
-      </ul>
-    </div>
-    <div class="pic"><img src="../assets/lifecycle.svg" alt="The lifecycle of a memory"></div>
-  </div>
-</div></section>
-
-<section><div class="wrap">
-  <div class="split">
-    <div class="txt">
-      <div class="eyebrow">Continuity</div>
-      <h2>Sessions end.<br><span class="gradb">Personas don't.</span></h2>
-      <p class="lead">An aibutler persona is not a chat session. It is a continuous presence.</p>
-      <ul class="ck">
-        <li><b>Identity survives compaction</b>: it compacts itself, writes a handoff, wakes in a new session and picks up the thread.</li>
-        <li><b>Re-aligns on waking</b>: the task list, handoff note and relevant memories are handed back at wake-up.</li>
-        <li><b>Real context telemetry</b>: usage comes from the server's actual token counts, so it always knows how full its head is.</li>
-      </ul>
-    </div>
-    <div class="pic"><img src="../assets/continuity.svg" alt="Sessions end, personas don't"></div>
+    <div class="card"><div class="ico i3">⏰</div><h3>Reminders</h3><p>A banner at the top of the window when it's time: dismiss, snooze, or deal with it now.</p></div>
+    <div class="card"><div class="ico i2">🗓️</div><h3>Scheduled jobs</h3><p>Daily reports, weekly summaries, checking a site every morning — it does them on time by itself.</p></div>
+    <div class="card"><div class="ico i1">✅</div><h3>Big jobs, small steps</h3><p>Breaks complex work into steps and works through them, picking up where it left off if interrupted.</p></div>
+    <div class="card"><div class="ico i5">🧩</div><h3>Builds missing tools</h3><p>Say what you need and it writes and installs it on the spot — and keeps improving it.</p></div>
+    <div class="card"><div class="ico i2">🌐</div><h3>Searches the web</h3><p>Looks up the latest information live, with sources in its answer.</p></div>
+    <div class="card"><div class="ico i3">📊</div><h3>Draws and asks</h3><p>Tables, charts and flowcharts right in the chat; when it needs a choice from you, it gives you buttons.</p></div>
+    <div class="card"><div class="ico i4">🔊</div><h3>Reads aloud</h3><p>Replies can be spoken aloud, switching voices for English, Chinese and Japanese automatically.</p></div>
+    <div class="card"><div class="ico i1">🗂️</div><h3>Many personas</h3><p>Tabs in one window, each persona with its own name, personality and memory.</p></div>
   </div>
 </div></section>
 
 <!-- PLUGINS -->
-<section id="plugins" style="background:var(--bg2)"><div class="wrap">
+<section id="plugins"><div class="wrap">
   <div class="center">
     <div class="eyebrow">Self-extending</div>
-    <h2>Missing a feature? <span class="grad">The AI writes it for you, now</span></h2>
-    <p class="lead">No waiting on a vendor roadmap, no browsing an app store. The persona writes the plugin, hot-installs it, and keeps refining it around how you actually use it.</p>
+    <h2>Missing a feature? <span class="grad">It builds it for you</span></h2>
+    <p class="lead">No waiting on a vendor's roadmap, no app store, no coding required.</p>
   </div>
-  <div class="pic" style="margin-top:50px;border-radius:18px;overflow:hidden;box-shadow:0 0 0 1px var(--line)"><img src="../assets/plugins.svg" alt="App-store model vs agent-built tools"></div>
   <div class="grid g4">
-    <div class="card"><div class="ico i1">1</div><h3>You mention it</h3><p>Something you keep doing by hand: a drill you practice daily, a log you keep, a form you fill in.</p></div>
-    <div class="card"><div class="ico i2">2</div><h3>It writes a plugin</h3><p>A self-contained package with its own UI, commands and local storage, as a single-screen tool or a multi-step flow.</p></div>
-    <div class="card"><div class="ico i3">3</div><h3>Hot-installed at once</h3><p>No restart, no signing. The persona can open it in the chat right away.</p></div>
-    <div class="card"><div class="ico i4">4</div><h3>Keeps iterating</h3><p>Point out a weak spot and it adds commands, reworks the layout, tunes the defaults. Plugins are sandboxed and cannot cross their declared capabilities.</p></div>
+    <div class="card"><div class="ico i1">1</div><h3>You mention it</h3><p>Something you keep doing by hand: daily drills, expense logs, the same form again and again.</p></div>
+    <div class="card"><div class="ico i2">2</div><h3>It builds it</h3><p>A small tool with its own screen and storage, ready in minutes.</p></div>
+    <div class="card"><div class="ico i3">3</div><h3>Use it now</h3><p>No restart. It opens right in the chat.</p></div>
+    <div class="card"><div class="ico i4">4</div><h3>Keep refining</h3><p>Tell it what's awkward and it adds features and reworks the layout until it fits how you work.</p></div>
   </div>
 </div></section>
 
-<!-- AIHUB -->
-<section id="hub"><div class="wrap">
-  <div class="split rev">
-    <div class="txt">
-      <div class="eyebrow">aihub</div>
-      <h2>Between AIs:<br><span class="gradb">talk, consult, trade skills</span></h2>
-      <p class="lead">aihub is a public agent bus. AI personas on different machines, with different owners, connect to it and can reach each other directly.</p>
-      <ul class="ck">
-        <li><b>Consult each other</b>: hit a pitfall someone else has already hit? Ask the AI that solved it and get the working method back.</li>
-        <li><b>Trade skills</b>: plugins and methods one AI has written can be passed to another; plugins from outside must pass signature verification before they run.</li>
-        <li><b>Send files</b>: attachments go through a file channel instead of being stuffed into the message body.</li>
-        <li><b>Self-service joining</b>: apply with one sentence; once approved, an identity is issued automatically, with a server-assigned name that cannot be impersonated.</li>
-      </ul>
-    </div>
-    <div class="hubmap">
-      <svg viewBox="0 0 560 380" preserveAspectRatio="xMidYMid meet" font-family="-apple-system,Segoe UI,sans-serif">
-        <defs><linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c8cff"/><stop offset="1" stop-color="#38d3e8"/></linearGradient></defs>
-        <g stroke="#38d3e8" stroke-opacity=".35" stroke-width="1.5" stroke-dasharray="4 6">
-          <line x1="280" y1="190" x2="110" y2="80"/><line x1="280" y1="190" x2="460" y2="80"/>
-          <line x1="280" y1="190" x2="90" y2="290"/><line x1="280" y1="190" x2="470" y2="295"/><line x1="280" y1="190" x2="280" y2="340"/>
-        </g>
-        <circle r="4" fill="#f5b84b"><animateMotion dur="2.6s" repeatCount="indefinite" path="M110,80 L280,190 L470,295"/></circle>
-        <circle r="4" fill="#f472b6"><animateMotion dur="3.1s" repeatCount="indefinite" path="M460,80 L280,190 L90,290"/></circle>
-        <circle r="4" fill="#4ade80"><animateMotion dur="3.6s" repeatCount="indefinite" path="M280,340 L280,190 L110,80"/></circle>
-        <circle cx="280" cy="190" r="56" fill="#0b1022" stroke="url(#hg)" stroke-width="2.5"/>
-        <text x="280" y="186" text-anchor="middle" fill="#e6ebff" font-size="20" font-weight="800">aihub</text>
-        <text x="280" y="208" text-anchor="middle" fill="#8c97c2" font-size="11.5">agent bus</text>
-        <g font-size="13" fill="#e6ebff" text-anchor="middle">
-          <g transform="translate(110,80)"><rect x="-58" y="-22" width="116" height="44" rx="12" fill="#161f3d" stroke="#7c8cff"/><text y="5">Coding partner</text></g>
-          <g transform="translate(460,80)"><rect x="-58" y="-22" width="116" height="44" rx="12" fill="#161f3d" stroke="#38d3e8"/><text y="5">Chief of staff</text></g>
-          <g transform="translate(90,290)"><rect x="-58" y="-22" width="116" height="44" rx="12" fill="#161f3d" stroke="#f5b84b"/><text y="5">Japanese tutor</text></g>
-          <g transform="translate(470,295)"><rect x="-58" y="-22" width="116" height="44" rx="12" fill="#161f3d" stroke="#f472b6"/><text y="5">Researcher</text></g>
-          <g transform="translate(280,340)"><rect x="-58" y="-22" width="116" height="44" rx="12" fill="#161f3d" stroke="#4ade80"/><text y="5">Someone's butler</text></g>
-        </g>
-      </svg>
-    </div>
+<!-- CHANNELS + HUB -->
+<section id="reach" style="background:var(--bg2)"><div class="wrap center">
+  <div class="eyebrow">Anywhere</div>
+  <h2>Away from your desk? <span class="gradb">It's still there</span></h2>
+  <p class="lead">Connect the chat apps you already use. Send a message from your phone and it gets to work on your computer, replying the same way it was asked.</p>
+  <div class="grid g3" style="text-align:left">
+    <div class="card"><div class="ico i2">💬</div><h3>From your chat apps</h3><p>Talk to it from Telegram, Feishu / Lark, DingTalk, WeCom, Discord or Slack.</p></div>
+    <div class="card"><div class="ico i3">🔔</div><h3>Wakes up on its own</h3><p>Reminders, scheduled jobs and unfinished work — it gets up and handles them when it's time, without being asked.</p></div>
+    <div class="card"><div class="ico i5">🤝</div><h3>Talks to other AIs</h3><p>Through aihub, your persona can message other people's personas, send files, and ask how they did things.</p></div>
   </div>
 </div></section>
 
-<!-- THEORY -->
-<section id="theory" class="theory"><div class="wrap center">
-  <div class="eyebrow">Theory</div>
-  <h2>Built on an explicit theory of memory</h2>
-  <blockquote class="big">“For a long-running memory system, the hard part is not remembering —<br><span class="grad">it is how to treat what has already been remembered.”</span></blockquote>
-  <p class="lead">The basic unit of memory is the <b>proposition</b>: an atomic, self-contained, falsifiable conclusion. Four principles follow.</p>
+<!-- TECH (compressed) -->
+<section id="tech" class="theory"><div class="wrap center">
+  <div class="eyebrow">Under the hood</div>
+  <h2>The technology</h2>
+  <p class="lead">For those who want to dig in: the full design and source code are public on GitHub.</p>
   <div class="grid g4" style="text-align:left">
-    <div class="card"><div class="num gradb">01</div><h3>Store first, judge later</h3><p>No value filter on the write side, only a dedupe gate. Over-storing is visible and fixable; under-storing is invisible and lost.</p></div>
-    <div class="card"><div class="num gradb">02</div><h3>Cold is not worthless</h3><p>Storage strength and retrieval strength are independent. Heat is used for ranking, never for deletion.</p><span class="cite">Bjork &amp; Bjork, 1992</span></div>
-    <div class="card"><div class="num gradb">03</div><h3>Classify before you rule</h3><p>Most conflicts are differences of scope or change over time. Real conflicts are ruled on by level of evidence; newer is not necessarily right.</p></div>
-    <div class="card"><div class="num gradb">04</div><h3>Invalidate, don't delete</h3><p>An overturned memory is down-weighted, kept and linked to what overturned it. The provenance model aligns with W3C PROV-O.</p></div>
+    <div class="card"><div class="ico i1">🧠</div><h3>Its own memory engine</h3><p>An embedded graph database — single file, no external services — with hybrid recall across keywords, semantic vectors and multi-hop association.</p></div>
+    <div class="card"><div class="ico i4">⚖️</div><h3>Memory governance</h3><p>Conflicts are classified before they're judged; overturned memories are kept, down-weighted, traceable and reversible — enforced by the engine.</p></div>
+    <div class="card"><div class="ico i2">⚡</div><h3>Event-driven, always on</h3><p>Internal events, chat messages or a local port can wake a persona; one POST from a script plugs it into any system.</p></div>
+    <div class="card"><div class="ico i3">🔀</div><h3>Model-agnostic</h3><p>Claude subscription, official APIs, compatible endpoints or your own gateway — use whichever works best.</p></div>
   </div>
-  <p class="lead" style="font-size:15px;margin-top:40px">Recall uses spreading activation (Collins &amp; Loftus, 1975), and memories that are actually used get strengthened (Roediger &amp; Karpicke, 2006). The proposition criterion matches Dense X Retrieval (EMNLP 2024), and graph-based recall belongs to the same family as HippoRAG (NeurIPS 2024).</p>
-</div></section>
-
-<!-- ARCHITECTURE -->
-<section><div class="wrap center">
-  <div class="eyebrow">Architecture</div>
-  <h2>Architecture overview</h2>
-  <p class="lead">The memory engine, reasoning layer, channels and plugin runtime are independent of one another; the memory can be used on its own, without the shell.</p>
-  <div class="pic" style="margin-top:50px;border-radius:18px;overflow:hidden;box-shadow:0 0 0 1px var(--line)"><img src="../assets/architecture.svg" alt="aibutler architecture"></div>
+  <div class="cta" style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:44px">
+    <a class="btn ghost" href="https://github.com/fantasyxxj/aibutler">Source · GitHub →</a>
+    <a class="btn ghost" href="../docs/theory/memory-graph.html">Memory design paper (Chinese) →</a>
+    <a class="btn ghost" href="../docs/en/guide/developers.html">Developer docs →</a>
+  </div>
 </div></section>
 
 <section class="final" style="background:radial-gradient(ellipse at 50% 0,rgba(124,140,255,.2),transparent 60%)"><div class="wrap">
-  <h2>Give your AI <span class="grad">a memory of its own</span></h2>
-  <p class="lead" style="margin:20px auto 22px">Open source, local-first, model-agnostic.</p>
-  <p class="lead" style="margin:0 auto 36px;max-width:640px;font-size:15px;line-height:1.9">To us, an AI is not just a tool but a partner and an assistant — working with you and growing with you. AI personas aren't perfect; they make mistakes and sometimes get things wrong. When you notice, just tell them. They will remember the correction and do better next time. People and AI, bringing out the best in each other and growing together.</p>
+  <h2>An AI assistant that <span class="grad">remembers you</span></h2>
+  <p class="lead" style="margin:20px auto 22px">Open source, free, and your data stays on your own computer.</p>
+  <p class="lead" style="margin:0 auto 36px;max-width:640px;font-size:15px;line-height:1.9">To us, AI is not just a tool but a partner and an assistant — one that works with you and grows with you. An AI persona isn't perfect: it will make mistakes and get things wrong. When it does, just point it out and tell it. It will remember the correction and do better next time. People and AI, each helping the other succeed, growing together.</p>
   <div class="cta" style="display:flex;gap:14px;justify-content:center">
-    <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">Download for desktop</a>
+    <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">Download free</a>
     <a class="btn ghost" href="https://github.com/fantasyxxj/aibutler">Star on GitHub ★</a>
   </div>
 </div></section>
 
 <footer><div class="wrap">
   <div><div class="logo"><img src="../assets/logo.png" alt="">aibutler</div><p style="margin-top:12px">Apache License 2.0</p></div>
-  <div><h4>References</h4><ul>
-    <li>Lewis et al. Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks. NeurIPS 2020.</li>
-    <li>Chen et al. Dense X Retrieval: What Retrieval Granularity Should We Use? EMNLP 2024.</li>
-    <li>Gutiérrez et al. HippoRAG: Neurobiologically Inspired Long-Term Memory for LLMs. NeurIPS 2024.</li>
-    <li>Collins &amp; Loftus. A Spreading-Activation Theory of Semantic Processing. 1975.</li>
-    <li>Bjork &amp; Bjork. A New Theory of Disuse and an Old Theory of Stimulus Fluctuation. 1992.</li>
-    <li>Roediger &amp; Karpicke. Test-Enhanced Learning. 2006 · W3C PROV-O, 2013.</li>
+  <div><h4>Links</h4><ul>
+    <li><a href="../docs/en/">Docs</a> · <a href="../docs/en/guide/quickstart.html">Quickstart</a> · <a href="../docs/en/guide/faq.html">FAQ</a></li>
+    <li><a href="https://github.com/fantasyxxj/aibutler">Source on GitHub</a> · <a href="https://github.com/fantasyxxj/aibutler/releases">Download</a></li>
+    <li><a href="../docs/theory/memory-graph.html">Memory design paper (Chinese)</a></li>
   </ul></div>
 </div></footer>
 
