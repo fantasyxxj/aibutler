@@ -32,6 +32,14 @@
     <div style="color:var(--muted);font-size:12px;" data-i18n="sys_theme_hint">界面深浅色, 切换当场生效。</div>
   </div>
 
+  <!-- 快速切换模型: 默认关; 打开才在主界面顶栏人格名字右边出现「key · 模型 ▾」(作者 11-07) -->
+  <div class="m-form" data-group="general">
+    <label data-i18n="sys_qs">快速切换模型</label>
+    <div class="m-checkline"><input type="checkbox" id="qs-enabled"/><label for="qs-enabled" data-i18n="sys_qs_enable">在顶栏显示</label></div>
+    <div></div>
+    <div style="color:var(--muted);font-size:12px;" data-i18n="sys_qs_hint">打开后, 主界面人格名字右边会出现「key · 模型 ▾」, 点开就能给当前人格换 key 和模型。</div>
+  </div>
+
   <!-- 使用文档: 在系统浏览器里打开文档站(window-guard.attachExternalLinks 接住 target=_blank) -->
   <div class="m-form" data-group="general">
     <label data-i18n="sys_docs">使用文档</label>
@@ -67,9 +75,7 @@
       <div id="sk-empty" style="color:var(--muted);font-size:12px;padding:4px 0" data-i18n="sys_search_empty"></div>
       <label id="sk-off-row" style="display:flex;gap:6px;align-items:center;font-weight:normal;font-size:13px;color:var(--text);margin-top:8px"><input type="checkbox" id="sk-off"> <span data-i18n="sys_search_disable"></span></label>
       <div style="display:flex;gap:6px;align-items:center;margin-top:8px">
-        <select id="sk-type"></select><button id="sk-add" class="m-btn" data-i18n="sys_search_add">＋ 添加</button>
-        <span style="flex:1"></span>
-        <button id="sk-save" class="m-btn primary" data-i18n="mgr_save">保存</button>
+        <button id="sk-add" class="m-btn" data-i18n="sys_search_add">＋ 添加</button><select id="sk-type" style="display:none"></select>
       </div>
     </div>
     <div></div>
@@ -140,6 +146,8 @@
 
   <div id="toast" class="m-toast"></div>
 
+  <script src="win-close.js"></script>
+  <script src="vendor-cards.js"></script>
   <script src="settings-ui.js"></script>
   <script src="settings-tabs.js"></script>
   <script src="search-ui.js"></script>

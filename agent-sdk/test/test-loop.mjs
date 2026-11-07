@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { z } from 'zod';
 import { query, tool, createSdkMcpServer } from '../dist/index.js';
-import { anthropicStep, fakeFetch, userMsg, queue, GATEWAY_ENV } from './helpers.mjs';
+import { anthropicStep, fakeFetch, userMsg, queue, sse, GATEWAY_ENV } from './helpers.mjs';
 
 function butlerServer(calls) {
   return createSdkMcpServer({ name: 'butler', version: '0.0.1', tools: [
@@ -218,6 +218,69 @@ test('5xx 重试并发 api_retry; 401 不重试, result.is_error 且枚举是 au
   const r2 = m2.find((m) => m.subtype === 'api_retry');
   assert.equal(r2.error, 'authentication_failed');
   assert.equal(m2.at(-1).is_error, true);
+  p.close(); await q.return();
+});
+
+test('流断开、一个字没出(没有结束块): 按 NoOutputGeneratedError 认成可重试, 重发后只出一份回复', async () => {
+  // 只来了 message_start 就断: AI SDK 报 NoOutputGeneratedError(「No output generated…finish chunk」), 11-07 测试 app 实际撞到的就是这种
+  const cut = sse([
+    { type: 'message_start', message: { id: 'm', type: 'message', role: 'assistant', model: 'x', content: [], usage: { input_tokens: 1, output_tokens: 1 } } },
+  ]);
+  const f = fakeFetch([cut, anthropicStep([{ text: '完整回复' }])]);
+  const p = queue();
+  const q = query({ prompt: p, options: { model: 'm', env: GATEWAY_ENV, fetch: f } });
+  p.push(userMsg('a'));
+  const m = await take(q, isResult);
+  const retry = m.find((x) => x.subtype === 'api_retry');
+  assert.ok(retry, '要发 api_retry');
+  assert.ok(retry.retry_delay_ms > 0, '断流要真重试(retry_delay_ms > 0), 宿主据此撤掉半截字');
+  assert.equal(retry.error_status, null);
+  assert.equal(f.calls.length, 2);
+  const texts = m.filter((x) => x.type === 'assistant').flatMap((x) => x.message.content.filter((b) => b.type === 'text').map((b) => b.text));
+  assert.deepEqual(texts, ['完整回复'], '断掉的那一步不进 assistant 消息');
+  assert.equal(m.at(-1).is_error, false);
+  assert.equal(m.at(-1).result, '完整回复');
+  p.close(); await q.return();
+});
+
+test('回复说到一半流断了(finishReason=interrupted): 重发, 半截不进 assistant 消息', async () => {
+  const half = sse([
+    { type: 'message_start', message: { id: 'm', type: 'message', role: 'assistant', model: 'x', content: [], usage: { input_tokens: 1, output_tokens: 1 } } },
+    { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+    { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: '收到，这就' } },
+  ]);
+  const f = fakeFetch([half, anthropicStep([{ text: '定好了。' }])]);
+  const p = queue();
+  const q = query({ prompt: p, options: { model: 'm', env: GATEWAY_ENV, fetch: f } });
+  p.push(userMsg('a'));
+  const m = await take(q, isResult);
+  const retry = m.find((x) => x.subtype === 'api_retry');
+  assert.ok(retry && retry.retry_delay_ms > 0, '要真重发');
+  const texts = m.filter((x) => x.type === 'assistant').flatMap((x) => x.message.content.filter((b) => b.type === 'text').map((b) => b.text));
+  assert.deepEqual(texts, ['定好了。']);
+  assert.equal(m.at(-1).result, '定好了。');
+  p.close(); await q.return();
+});
+
+test('OpenAI 兼容协议没收到结束原因就断: InvalidResponseDataError 按类型判可重试', async () => {
+  const { classify, StreamCut } = await import('../dist/errors.js');
+  const { InvalidResponseDataError, NoOutputGeneratedError } = await import('ai');
+  assert.equal(classify(new InvalidResponseDataError({ data: undefined, message: 'Response stream ended without a finish reason.' })).retryable, true);
+  assert.equal(classify(new NoOutputGeneratedError()).retryable, true);
+  assert.equal(classify(new StreamCut('x')).retryable, true);
+  assert.equal(classify(new Error('No output generated. The model stream ended without a finish chunk.')).retryable, false, '只看类型: 普通 Error 带同样的字也不算');
+});
+
+test('报错消息带 error 字段(同官方 SDK), 正常回复不带', async () => {
+  const f = fakeFetch([{ status: 401 }, anthropicStep([{ text: 'ok' }])]);
+  const p = queue();
+  const q = query({ prompt: p, options: { model: 'm', env: GATEWAY_ENV, fetch: f } });
+  p.push(userMsg('a'));
+  const m1 = await take(q, isResult);
+  assert.equal(m1.find((x) => x.type === 'assistant').error, 'authentication_failed');
+  p.push(userMsg('b'));
+  const m2 = await take(q, isResult);
+  assert.equal(m2.find((x) => x.type === 'assistant').error, undefined);
   p.close(); await q.return();
 });
 

@@ -28,6 +28,8 @@
   --btn-line:  #4a4a66;
   --hover:     #ffffff10;
   --tint:      #ffffff14;
+  /* 工具气泡「· 完成」的字样: 这里只是占位, renderer.js applyStrings 按界面语言当场改写(不是颜色, 浅色不另写) */
+  --tool-done-label: '';
   --code-bg:   #00000040;
   --shadow:    #0006;
   --scrim:     #00000060;

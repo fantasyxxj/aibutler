@@ -3,6 +3,7 @@
 const gateSubmit = require('../rate-gate').gateSubmit;
 const CancelToken = require('../rate-gate').CancelToken;
 const { CLAUDE_BIN, HAS_EXTERNAL_TEXT, nowStamp, loadSdk, resolveSdkKind, makeMsgQueue, withTimeout } = require('./util');
+const { takeDayOpener } = require('./day-opener');
 const { buildEnv } = require('./env');
 const crypto = require('crypto');
 const turnMute = require('./turn-mute');
@@ -302,7 +303,9 @@ class StreamMixin {
     const _shard = this._takeKnowledgeShards(_raw, _srcKind, isHeartbeatPing);
     // 空提醒不拼, 免把非字符串 text 隐式转成字符串
     const _stamped = typeof text === 'string' ? nowStamp() + text : text;
-    const _pre = `${_recall}${_shard}${_nudge}`;
+    // 当天第一条真人消息才有, 一天一次(见 day-opener.js)
+    const _opener = takeDayOpener(this, _srcKind, isHeartbeatPing);
+    const _pre = `${_recall}${_shard}${_nudge}${_opener}`;
     const body = _pre ? _pre + _stamped : _stamped;
     this._busy = true;
     const _msg = this.buildUserMessage(body, attachments);

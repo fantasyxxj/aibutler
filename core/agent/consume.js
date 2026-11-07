@@ -46,8 +46,16 @@ class ConsumeMixin {
           // CLI 从 HTTP 响应里读出来的事实: error_status 是状态码, error 是 SDK 分好的枚举。
           // 在 result 之前到达, 于是 result 那里判故障时可以直接用它, 不必再拿正文猜。
           // 只记不判 —— 重试可能成功, 此刻还不是故障。
-          this._lastApiFault = { sdkErr: msg.error || null, status: msg.error_status != null ? msg.error_status : null, at: Date.now(), seq: this._turnSeq };
-          console.error(`[api-retry] ${this.name} ${msg.attempt}/${msg.max_retries} status=${this._lastApiFault.status} err=${this._lastApiFault.sdkErr}`);
+          this._lastApiFault = { sdkErr: msg.error || null, status: msg.error_status != null ? msg.error_status : null, at: Date.now(), seq: this._turnSeq, attempt: msg.attempt, max: msg.max_retries };
+          console.error(`[api-retry] ${this.name} ${msg.attempt}/${msg.max_retries} status=${this._lastApiFault.status} err=${this._lastApiFault.sdkErr} delay=${msg.retry_delay_ms || 0}`);
+          // retry_delay_ms > 0 = 引擎真的要重发这一步。这一步已经流出去的半截字要撤掉, 不然重发后同一句话出现两遍
+          if (msg.retry_delay_ms > 0 && this._stepText) {
+            const n = this._stepText.length;
+            if (this._cur.endsWith(this._stepText)) this._cur = this._cur.slice(0, -n);
+            if (this._deltaText.endsWith(this._stepText)) this._deltaText = this._deltaText.slice(0, -n);
+            this._stepText = '';
+            this._emit('onTextDiscard');
+          }
         } else if (msg.type === 'stream_event') {
           // 逐字流式: 增量文本 delta → 立刻抛出去(渲染层往气泡追加), 同时累积到 _cur/_deltaText
           const ev = msg.event;
@@ -61,6 +69,8 @@ class ConsumeMixin {
           //    表现就是模型写完话去思考的那几十秒里, 正文一直是没排版的生 markdown。
           if (ev && ev.type === 'message_start') {
             this._blockKinds = {}; this._argIdx = {};
+            this._stepText = '';
+            this._emit('onStepStart');   // 界面记下这一步从气泡哪儿开始, 重试时撤回到这里
             // 没走到判定就没人删的残条(流被打断/拆掉)会一直攒着, 每条都拖着几百 token 的正文
             for (const [k, v] of this._argFrags) if (Date.now() - v.at > 300_000) this._argFrags.delete(k);
           }
@@ -106,6 +116,7 @@ class ConsumeMixin {
             this._deltaText += ev.delta.text;
             this._turnStreamed = true;
             this._cur += ev.delta.text;
+            this._stepText = (this._stepText || '') + ev.delta.text;
             this._emit('onText', ev.delta.text);
           }
         } else if (msg.type === 'assistant') {
@@ -120,9 +131,14 @@ class ConsumeMixin {
             this._pendingTools = [];
           }
           let outChars = 0, argChars = 0;   // 成本采样: 本条消息我方产出的量(下一轮起按缓存价重复付)
-          for (const b of (msg.message?.content || [])) {
+          const f = this._lastApiFault;
+          const cutOut = !!msg.error && f && f.seq === this._turnSeq && f.status == null && f.attempt >= f.max;
+          if (cutOut) console.error(`[api] ${this.name} 断流重试 ${f.attempt} 次用尽 · 原文=${JSON.stringify(String((msg.message?.content || [])[0]?.text || '').slice(0, 300))}`);
+          for (const b0 of (msg.message?.content || [])) {
+            const b = cutOut && b0.type === 'text' ? { ...b0, text: cfg.renderL('main/stream_cut_failed', { n: f.attempt }).trim() } : b0;
+            // 报错消息(msg.error)不管这一步流出过多少半截字都要显示出来, 不然最后只剩半句话
             // text: 已通过 stream_event 逐字发过则跳过(_deltaText 有值=覆盖过); 没发过(流式没覆盖)才补发整块
-            if (b.type === 'text' && b.text) { outChars += b.text.length; if (!this._deltaText) { this._cur += b.text; this._emit('onText', b.text); } }
+            if (b.type === 'text' && b.text) { outChars += b.text.length; if (!this._deltaText || msg.error) { this._cur += b.text; this._emit('onText', b.text); } }
             // 每个工具调用抛成一条持久条目(而非挤成一条转瞬 activity), 渲染层排进消息流、不清除
             else if (b.type === 'tool_use') {
               argChars += JSON.stringify(b.input || {}).length;

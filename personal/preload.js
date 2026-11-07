@@ -26,6 +26,8 @@ contextBridge.exposeInMainWorld('butler', {
   listOpeners: () => ipcRenderer.invoke('list-openers'),                                    // 本机装了哪些可选打开方式 → [{key,label}]
   listPersonas: () => ipcRenderer.invoke('list-personas'),                    // { personas:[{id,name,homeDir,isButler,open}] }
   openPersonaRef: (ref) => ipcRenderer.invoke('open-persona-ref', { ref }),   // 按名字/id/目录打开已登记人格
+  modelVendors: () => ipcRenderer.invoke('model-vendors'),   // 按档选模型: 厂家卡片(id/名字/官方地址/有哪几档)
+  pickModelForTier: (opt) => ipcRenderer.invoke('pick-model-for-tier', opt),   // {credentialId, tier, vendor?} → 真发一条试通的那一档型号, 或失败原因
   listModelOptions: (opt) => ipcRenderer.invoke('list-model-options', opt),   // opt:{useApi} = 该人格此刻选的接入方式 → {options, source:'live'|'fallback', from}: 走 key 问端点, 订阅问 SDK, 拉不到回落 config/models/list.json; source/from 供 UI 写清"这几个是哪来的"
   createPersonaUI: (spec) => ipcRenderer.invoke('create-persona-ui', spec),   // 管理 UI 建人格 { name, homeDir?, wakePhrase?, isButler? }
   updatePersona: (id, patch) => ipcRenderer.invoke('update-persona', { id, patch }),  // 改 name/wakePhrase/isButler
@@ -37,7 +39,8 @@ contextBridge.exposeInMainWorld('butler', {
   importPersona: (targetDir) => ipcRenderer.invoke('import-persona', { targetDir }),   // 从文件导入(targetDir 留空 = personas/<名字>) → { ok, id, name, memory, stripped[], exportedAt }
   openManagerWindow: (view) => ipcRenderer.invoke('open-manager-window', { view }),   // 开独立管理窗口; view='create' 进新建视图
   onManagerView: (cb) => ipcRenderer.on('manager-view', (_e, v) => cb(v)),   // 窗口已开着时切视图
-  openSettingsWindow: () => ipcRenderer.invoke('open-settings-window'),       // 开独立系统设置窗口(接入方式/代理/本机 API)
+  openSettingsWindow: (group) => ipcRenderer.invoke('open-settings-window', { group }),   // 开独立系统设置窗口; group=general|models|tools|adv 停在哪一页(不给 = 通用)
+  onSettingsGroup: (cb) => ipcRenderer.on('settings-group', (_e, g) => cb(g)),          // 设置窗已开着时, 别处要它翻到某一页
   // 连公网 hub: 留一句话申请 → 作者点头 → 自己点「检查」把 token 取回来并配好通道
   hubState: (personaId) => ipcRenderer.invoke('hub-state', { personaId }),    // { applyId, status, asked, ownerName, shouldPrompt }
   hubApply: (opt) => ipcRenderer.invoke('hub-apply', opt),                    // { displayName, ownerName, message, personaId } → { ok, applyId, status }
@@ -51,13 +54,16 @@ contextBridge.exposeInMainWorld('butler', {
   onLocaleChanged: (cb) => ipcRenderer.on('locale-changed', (_e, d) => cb(d)),  // 别的窗口切了语言 → 本窗口跟着重绘(两个窗口两种语言像坏了)
   getTheme: () => ipcRenderer.invoke('get-theme'),                            // 界面深浅 { theme: 'system'|'light'|'dark' }
   setTheme: (theme) => ipcRenderer.invoke('set-theme', { theme }),            // 切深浅: 主进程改 nativeTheme, 各窗口媒体查询当场跟着变
+  getQuickSwitch: () => ipcRenderer.invoke('get-quick-switch'),               // 顶栏「key · 模型 ▾」开没开 { on }(默认关)
+  setQuickSwitch: (on) => ipcRenderer.invoke('set-quick-switch', { on }),     // 开关它 → 所有窗口收 quick-switch-changed
+  onQuickSwitchChanged: (cb) => ipcRenderer.on('quick-switch-changed', (_e, d) => cb(d)),
   getSettings: () => ipcRenderer.invoke('get-settings'),                      // 用户设置 { proxy:{enabled,url,no_proxy}, _file }
   setSettings: (patch) => ipcRenderer.invoke('set-settings', patch),          // 存盘 + 立即应用代理
   testProxy: (patch) => ipcRenderer.invoke('test-proxy', patch),              // 用待验证的配置试连 → { ok, detail }
   // 凭据仓库(多条)。key 真值一律不回传, 只给 keyState: none/ok/stale
-  listCredentials: () => ipcRenderer.invoke('list-credentials'),              // { credentials:[{id,name,base_url,keyState}], defaultCredentialId, subLoggedIn, keychain, ccAvailable }
+  listCredentials: () => ipcRenderer.invoke('list-credentials'),              // { credentials:[{id,name,base_url,vendor,keyState}], defaultCredentialId, subLoggedIn, keychain, ccAvailable }
   credentialUsers: (id) => ipcRenderer.invoke('credential-users', { id }),       // { users:[{id,name}] } 开着且正用这条的人格
-  saveCredential: (patch) => ipcRenderer.invoke('save-credential', patch),    // { id?, name, base_url, apiKey, makeDefault } · apiKey: 空=不动 / null=删 / 串=换
+  saveCredential: (patch) => ipcRenderer.invoke('save-credential', patch),    // { id?, name, base_url, vendor?, apiKey, makeDefault } · vendor=厂家卡片的 id, 空=其他 · apiKey: 空=不动 / null=删 / 串=换
   deleteCredential: (id) => ipcRenderer.invoke('delete-credential', { id }),
   setDefaultCredential: (id) => ipcRenderer.invoke('set-default-credential', { id }),
   testCredential: (patch) => ipcRenderer.invoke('test-credential', patch),    // 拿这条凭据真发一次最小请求 → { ok, detail }
@@ -97,7 +103,8 @@ contextBridge.exposeInMainWorld('butler', {
 
   onUserEcho: (cb) => ipcRenderer.on('user-echo', (_e, d) => cb(d.sid, d.text)),  // 程序注入的消息(如出生教育)也显示成 user 气泡
   onChunk: (cb) => ipcRenderer.on('assistant-chunk', (_e, d) => cb(d.sid, d.text)),
-  onTextDone: (cb) => ipcRenderer.on('assistant-text-done', (_e, d) => cb(d.sid)),   // 文本块收尾 → 气泡定稿渲染, 不等整轮结束
+  onTextDone: (cb) => ipcRenderer.on('assistant-text-done', (_e, d) => cb(d.sid)),
+  onStep: (cb) => ipcRenderer.on('assistant-step', (_e, d) => cb(d.sid, d.phase)),   // start = 模型开始新的一步 · discard = 这一步断流要重发, 撤掉它流出的字   // 文本块收尾 → 气泡定稿渲染, 不等整轮结束
   onActivity: (cb) => ipcRenderer.on('activity', (_e, d) => cb(d.sid, d.text)),
   onTool: (cb) => ipcRenderer.on('tool-call', (_e, d) => cb(d.sid, d.tool)),   // { desc, name }
   onTasks: (cb) => ipcRenderer.on('tasks', (_e, d) => cb(d.sid, d.tasks)),    // AI 自己那份任务清单

@@ -6,6 +6,10 @@
 // 用法: node scripts/dist.js --mac | --win  [--x64]  [--locked]  [--dir]
 //   --x64 = mac 打 Intel 包(默认跟本机架构)
 //   --locked = 分发版(源码锁, 见 personal/paths.js isLockedBuild) · --dir = 只出未压缩的 app 目录, 用来核内容
+//
+// mac 公证: 钥匙串里有 notarytool 凭据(默认名 butler-notary, 可用 APPLE_KEYCHAIN_PROFILE 换)就由
+// electron-builder 在签名后公证 app 并装订, 再装进 dmg —— 装订在 app 上, 拖出 dmg 后断网首开也认。
+// 没有凭据照常出包, 只是未公证。存凭据: xcrun notarytool store-credentials butler-notary --apple-id … --team-id …
 'use strict';
 const { execFileSync } = require('child_process');
 const path = require('path');
@@ -45,6 +49,13 @@ if (require.main === module) (async () => {
   fs.writeFileSync(cfgFile, JSON.stringify(buildConfig(pkg.build, { locked: want.includes('--locked'), intel: want.includes('--x64') }), null, 2));
   const builder = require('electron-builder');
   const dir = want.includes('--dir') ? 'dir' : undefined;
+  if (!want.includes('--win') && !dir) {
+    const profile = process.env.APPLE_KEYCHAIN_PROFILE || 'butler-notary';
+    let ok = false;
+    try { execFileSync('xcrun', ['notarytool', 'history', '--keychain-profile', profile], { stdio: 'ignore' }); ok = true; } catch {}
+    if (ok) process.env.APPLE_KEYCHAIN_PROFILE = profile;
+    console.log(ok ? `[dist] 公证: 用钥匙串凭据 ${profile}` : `[dist] ⚠️ 钥匙串里没有 notarytool 凭据 ${profile}, 这个包不公证`);
+  }
   const targets = want.includes('--win') ? builder.Platform.WINDOWS.createTarget(dir, builder.Arch.x64) : builder.Platform.MAC.createTarget(dir, ...(want.includes('--x64') ? [builder.Arch.x64] : []));
   await builder.build({ targets, config: cfgFile });
 })().catch((e) => { console.error(e); process.exit(1); });

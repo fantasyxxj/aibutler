@@ -324,7 +324,7 @@ function syncFactory(graph, { name, isButler = false, archiveMissing = true, pac
 
   for (const f of stats.failed) console.error('[factory] 出厂同步:', f);
   for (const s of stats.skipped) console.error(`[factory] slug 被人格自生记忆占用, 跳过: ${s}`);
-  for (const b of stats.pinnedBlocked) console.error(`[factory] 快查名额已满, 这条只进了库没进快查表: ${b.slug}`);
+  for (const b of stats.pinnedBlocked) console.error(`[factory] 这条只进了库没进快查表: ${b.slug} —— ${String(b.reason).split('\n')[0]}`);
   return stats;
 }
 

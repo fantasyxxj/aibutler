@@ -2,7 +2,8 @@
 // 经 env.BUTLER_SEARCH_ENGINES 传进来: JSON 数组 [{ type, key?, url? }], 排前的先试。
 //
 // 一家失败(连不上 / 超时 / 报错 / 一条结果都没解出来)就换下一家, 全挂才报错 ——
-// 大陆直连 DuckDuckGo、Brave 会被挡到超时(11-06 实测), 所以每家只等 ENGINE_TIMEOUT_MS。
+// 大陆直连 Brave 会被挡到超时(11-06 实测), 所以每家只等 ENGINE_TIMEOUT_MS。
+// 不要 key 的 Bing / DuckDuckGo 抓网页 11-07 拿掉: 回的是凑数页面或人机验证页, 见 butler core/search-keys.js。
 // 加一种引擎 = 在 ENGINES 里登记一个函数 + 设置页 core/search-keys.js 的 TYPES 加一项。
 
 export interface Hit { title: string; url: string; snippet: string }
@@ -11,52 +12,6 @@ type Search = (q: string, conf: EngineConf, signal: AbortSignal, util: Util) => 
 interface Util { ua: string; text: (html: string) => string; decode: (s: string) => string }
 
 export const ENGINE_TIMEOUT_MS = 8_000;
-
-async function bing(q: string, _c: EngineConf, signal: AbortSignal, u: Util): Promise<Hit[]> {
-  // 大陆访问 www.bing.com 会被重定向到 cn.bing.com, fetch 跟着走即可
-  const r = await fetch(`https://www.bing.com/search?q=${encodeURIComponent(q)}`, { headers: { 'User-Agent': u.ua, Accept: 'text/html' }, redirect: 'follow', signal });
-  if (!r.ok) throw new Error(`Bing HTTP ${r.status}`);
-  const html = await r.text();
-  const hits: Hit[] = [];
-  for (const block of html.split(/<li class="b_algo"/).slice(1)) {
-    const a = /<h2[^>]*>\s*<a[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/.exec(block);
-    if (!a) continue;
-    let url = u.decode(a[1]);
-    // 跳转链接 bing.com/ck/a?…&u=a1<base64url> → 解出真地址
-    const m = /[?&]u=a1([^&]+)/.exec(url);
-    if (/bing\.com\/ck\//.test(url) && m) {
-      try { url = atob(m[1].replace(/-/g, '+').replace(/_/g, '/')); } catch (_) { /* 解不开就留跳转链接 */ }
-    }
-    if (!/^https?:/.test(url) || hits.some((h) => h.url === url)) continue;
-    const sn = /<p[^>]*>([\s\S]*?)<\/p>/.exec(block);
-    hits.push({ title: u.text(a[2]), url, snippet: sn ? u.text(sn[1]) : '' });
-    if (hits.length >= 10) break;
-  }
-  return hits;
-}
-
-async function duckduckgo(q: string, _c: EngineConf, signal: AbortSignal, u: Util): Promise<Hit[]> {
-  const r = await fetch('https://html.duckduckgo.com/html/', { method: 'POST', headers: { 'User-Agent': u.ua, 'Content-Type': 'application/x-www-form-urlencoded' }, body: `q=${encodeURIComponent(q)}`, signal });
-  if (!r.ok) throw new Error(`DuckDuckGo HTTP ${r.status}`);
-  // 查得太密时 DuckDuckGo 回 202 + 人机验证页: 不是「没搜到」, 照实报失败
-  if (r.status === 202) throw new Error('DuckDuckGo is rate-limiting this machine (HTTP 202)');
-  const html = await r.text();
-  // 按结果块切开再各自取标题和摘要 —— 一条正则跨块配对会把摘要配错或配空
-  const hits: Hit[] = [];
-  for (const block of html.split(/class="result results_links|class="result__body/).slice(1)) {
-    const a = /<a[^>]+class="result__a"[^>]+href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/.exec(block);
-    if (!a) continue;
-    let url = u.decode(a[1]);
-    const uddg = /[?&]uddg=([^&]+)/.exec(url);
-    if (uddg) url = decodeURIComponent(uddg[1]);
-    if (url.startsWith('//')) url = `https:${url}`;
-    if (hits.some((h) => h.url === url)) continue;
-    const sn = /class="result__snippet"[^>]*>([\s\S]*?)<\/(?:a|div|td)>/.exec(block);
-    hits.push({ title: u.text(a[2]), url, snippet: sn ? u.text(sn[1]) : '' });
-    if (hits.length >= 10) break;
-  }
-  return hits;
-}
 
 async function brave(q: string, c: EngineConf, signal: AbortSignal, u: Util): Promise<Hit[]> {
   const r = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(q)}&count=10`, { headers: { Accept: 'application/json', 'X-Subscription-Token': c.key || '' }, signal });
@@ -82,7 +37,7 @@ async function searxng(q: string, c: EngineConf, signal: AbortSignal, u: Util): 
   return (j.results || []).slice(0, 10).map((x: any) => ({ title: x.title || '', url: x.url, snippet: u.text(x.content || '') }));
 }
 
-export const ENGINES: Record<string, Search> = { bing, duckduckgo, brave, tavily, searxng };
+export const ENGINES: Record<string, Search> = { brave, tavily, searxng };
 
 export function parseEngines(raw: string | undefined): EngineConf[] {
   try {

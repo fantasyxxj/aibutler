@@ -1,5 +1,5 @@
 {
-  "_comment": "出厂 prompt chip 池 — 新人格首次开窗铺这些。定位是【能力橱窗】: 让第一次用的人一眼看见 butler 能干什么, 每个按钮点下去都当场做成一件事。这是【安装时下发的模板】, 不是一次性脚手架: 点过【不消失】, 只记次数(2026-08-17 作者统一个人版/行业版口径)。退休只有两条路 —— 用户说清掉, 或 AI 用 get_chip_usage 发现长期没人点后【提醒用户】; 程序不自动删。改这个文件只影响还没退休的 chip。🔴 label/prompt 可以是字符串, 也可以是 {ja,en,zh-CN,zh-TW} —— 出厂 chip 一律用后者(它是用户直接看得见的字符串, 跟界面文案同档), core/registry.js 的 resolveChips 按显示语言挑一份; 人格自己写的 chip 传字符串, 原样透传。",
+  "_comment": "出厂 prompt chip 池 — 新人格首次开窗铺这些。定位是【场景橱窗】(2026-11-07 作者定: 按用户的事起名, 不按功能起名): 让第一次用的人一眼看见自己的哪些事能交给 butler, 每个按钮点下去都当场做成一件事。这是【安装时下发的模板】, 不是一次性脚手架: 点过【不消失】, 只记次数(2026-08-17 作者统一个人版/行业版口径)。退休只有两条路 —— 用户说清掉, 或 AI 用 get_chip_usage 发现长期没人点后【提醒用户】; 程序不自动删。改这个文件只影响还没退休的 chip。🔴 label/prompt 可以是字符串, 也可以是 {ja,en,zh-CN,zh-TW} —— 出厂 chip 一律用后者(它是用户直接看得见的字符串, 跟界面文案同档), core/registry.js 的 resolveChips 按显示语言挑一份; 人格自己写的 chip 传字符串, 原样透传。",
   "chips": [
     {
       "id": "howto",
@@ -19,105 +19,54 @@
       }
     },
     {
-      "id": "aboutme",
-      "icon": "👤",
+      "id": "remind",
+      "icon": "⏰",
       "kind": "main",
       "label": {
-        "zh-CN": "先说下我的情况",
-        "ja": "私のことを聞いて",
-        "en": "Get to know me",
-        "zh-TW": "先說下我的情況"
+        "zh-CN": "到点提醒我",
+        "ja": "時間に知らせて",
+        "en": "Remind me",
+        "zh-TW": "到點提醒我"
       },
       "prompt": {
-        "zh-CN": "我想让你先了解我。你来问，一次只问一个问题，把我是谁、我要你帮什么、我的偏好摸清楚。问完用 memory_upsert 存成一个关于我的记忆节点，再把你记下的念给我核对。",
-        "ja": "私のことを先に理解してほしいです。あなたが質問してください。毎回一つの質問だけで、私が誰で、何をしてほしいのか、好みは何かを理解してください。質問が終わったら memory_upsert で私に関する記憶ノードを保存して、記録した内容を確認するために読み上げてください。",
-        "en": "I'd like you to get to know me first. You ask the questions—one at a time—to understand who I am, what I need help with, and what I prefer. Once you're done, save it as a memory node using memory_upsert and read back what you've recorded so I can verify it.",
-        "zh-TW": "我想讓你先了解我。你來問，一次只問一個問題，把我是誰、我要你幫什麼、我的偏好摸清楚。問完用 memory_upsert 存成一個關於我的記憶節點，再把你記下的念給我核對。"
+        "zh-CN": "我有件事要你到点提醒我。先问我是什么事、什么时候、要不要提前提醒、要不要每周重复，问清了就定好提醒，再把你定的时间念给我核对。",
+        "ja": "時間になったら知らせてほしいことがある。まず、何のことか、いつか、前もって知らせるか、毎週繰り返すかを聞いて。決まったらリマインダーを設定して、設定した日時を読み上げて確認させて。",
+        "en": "I have something I want you to remind me about. First ask me what it is, when, whether to remind me ahead of time, and whether it repeats each week. Once that is clear, set the reminder and read the time back to me so I can check it.",
+        "zh-TW": "我有件事要你到點提醒我。先問我是什麼事、什麼時候、要不要提前提醒、要不要每週重複，問清了就定好提醒，再把你定的時間念給我核對。"
       }
     },
     {
-      "id": "draw",
-      "icon": "🎨",
+      "id": "chat",
+      "icon": "💬",
       "kind": "trick",
       "label": {
-        "zh-CN": "给我画张图",
-        "ja": "図を描いて",
-        "en": "Draw me a diagram",
-        "zh-TW": "給我畫張圖"
+        "zh-CN": "陪我聊聊",
+        "ja": "話を聞いて",
+        "en": "Let's talk",
+        "zh-TW": "陪我聊聊"
       },
       "prompt": {
-        "zh-CN": "画张图给我看。先问我想讲清楚的是什么（流程、结构、时序还是关系），再挑合适的画法直接嵌在回复里画出来——SVG 和 mermaid 流程图 butler 前端都会渲染。画完问我哪里要改，改到我满意。",
-        "ja": "図を描いて見せてください。まず、流れ図か、構造図か、時系列図か、関係図か、何を説明したいのか教えてください。次に、適切な描き方を選んで、返答の中に直接描きます。SVG と mermaid フローチャートは butler フロントエンドで表示できます。描いたら、何を変えたいか教えてください。満足するまで変更します。",
-        "en": "Draw a diagram for me. First, tell me what you want to visualize—a process, structure, timeline, or relationship. Then I'll pick the right format and render it directly in my response using SVG or mermaid diagrams, which butler's frontend supports. Once it's done, let me know what needs to change.",
-        "zh-TW": "畫張圖給我看。先問我想講清楚的是什麼（流程、結構、時序還是關係），再挑合適的畫法直接嵌在回覆裡畫出來——SVG 和 mermaid 流程圖 butler 前端都會渲染。畫完問我哪裡要改，改到我滿意。"
+        "zh-CN": "我想找人聊聊。你先问我最近怎么样，认真听，别急着给建议。聊完把我在烦的事记下来，过几天定个提醒，回头问问我好点没有。",
+        "ja": "ちょっと話を聞いてほしい。まず最近どうか聞いて、ちゃんと聞いて、すぐアドバイスしないで。話し終わったら私が悩んでいることを覚えておいて、何日か後にリマインダーを入れて、少しは良くなったか聞いてきて。",
+        "en": "I want someone to talk to. Start by asking how I have been, and really listen—don't rush to give advice. When we are done, remember what is bothering me and set a reminder to check back in a few days and ask whether I am doing better.",
+        "zh-TW": "我想找人聊聊。你先問我最近怎麼樣，認真聽，別急著給建議。聊完把我在煩的事記下來，過幾天定個提醒，回頭問問我好點沒有。"
       }
     },
     {
-      "id": "animate",
-      "icon": "▶️",
+      "id": "html",
+      "icon": "📄",
       "kind": "trick",
       "label": {
-        "zh-CN": "画个会动的",
-        "ja": "アニメを作って",
-        "en": "Make it move",
-        "zh-TW": "畫個會動的"
+        "zh-CN": "帮我整理写东西",
+        "ja": "まとめて書いて",
+        "en": "Sort it out and write it up",
+        "zh-TW": "幫我整理寫東西"
       },
       "prompt": {
-        "zh-CN": "画一张真的会动的图给我看，不要静态图。用 SVG 动画标签写（这里的 JS 不执行，动画得靠 animate / animateTransform 这类标签）。先问我想看什么动起来，画完再问我要不要加个按钮，点一下才开始跑。",
-        "ja": "本当に動く図を描いて見せてください。静止画ではなく。SVG アニメーションタグを使って書きます。ここでは JS は実行されないので、animate や animateTransform などのタグで動きを作ります。まず、何を動かしたいか教えてください。描いたら、ボタンを付けて、クリックしてから実行を開始するようにするか聞きます。",
-        "en": "Draw me something that actually moves—not a static image. I'll use SVG animation tags (JS doesn't run here, so the animation relies on tags like animate and animateTransform). First tell me what you want to see move, then I'll ask if you want a button that starts the animation when clicked.",
-        "zh-TW": "畫一張真的會動的圖給我看，不要靜態圖。用 SVG 動畫標籤寫（這裡的 JS 不執行，動畫得靠 animate / animateTransform 這類標籤）。先問我想看什麼動起來，畫完再問我要不要加個按鈕，點一下才開始跑。"
-      }
-    },
-    {
-      "id": "form",
-      "icon": "📝",
-      "kind": "trick",
-      "label": {
-        "zh-CN": "给我做个表单",
-        "ja": "フォームを作って",
-        "en": "Make a form",
-        "zh-TW": "給我做個表單"
-      },
-      "prompt": {
-        "zh-CN": "帮我做个小表单，让我用点的、不用打字。先问我要填的是什么，然后在回复里直接放输入框、下拉、拉杆和按钮让我填。我填完提交给你，你把结果整理成结论给我。",
-        "ja": "小さなフォームを作ってください。入力や選択肢をクリックするだけで、タイピングは不要です。まず何を入力したいのか教えてください。その後、返答の中に入力ボックス、ドロップダウン、スライダー、ボタンを直接配置します。入力が完了して送信したら、結果を結論にまとめます。",
-        "en": "Make a simple form for me—click to fill, no typing required. First tell me what data you want, then I'll put input fields, dropdowns, sliders, and a button right in my response. You fill it out and submit, and I'll compile the results into a summary.",
-        "zh-TW": "幫我做個小表單，讓我用點的、不用打字。先問我要填的是什麼，然後在回覆裡直接放輸入框、下拉、拉桿和按鈕讓我填。我填完提交給你，你把結果整理成結論給我。"
-      }
-    },
-    {
-      "id": "plugin",
-      "icon": "🧩",
-      "kind": "trick",
-      "label": {
-        "zh-CN": "给我做个插件",
-        "ja": "プラグインを作って",
-        "en": "Build a plugin",
-        "zh-TW": "給我做個插件"
-      },
-      "prompt": {
-        "zh-CN": "给我做个小插件，装进 butler 里长期用，不是聊完就没了的那种。先问我想要个什么小工具（比如计数器、记账板、抽签、倒计时），然后你自己把插件写出来装上，装好告诉我在哪儿点开、怎么用。",
-        "ja": "小さなプラグインを作ってください。butler に長期的にインストールすることができます。チャットが終わったら消えるものではありません。まず、どのような小ツール（例：カウンター、支出記録、くじ引き、カウントダウン）が欲しいか教えてください。その後、プラグインを書いてインストールします。インストールが完了したら、どこをクリックするか、どう使うかを教えます。",
-        "en": "Build me a small plugin to install in butler for long-term use—not something that disappears after we chat. First tell me what kind of tool you want (like a counter, expense tracker, lottery, countdown timer), then I'll write and install the plugin. Once it's installed, I'll show you where to find it and how to use it.",
-        "zh-TW": "給我做個小插件，裝進 butler 裡長期用，不是聊完就沒了的那種。先問我想要個什麼小工具（比如計數器、記帳板、抽籤、倒計時），然後你自己把插件寫出來裝上，裝好告訴我在哪兒點開、怎麼用。"
-      }
-    },
-    {
-      "id": "tts",
-      "icon": "🔊",
-      "kind": "trick",
-      "label": {
-        "zh-CN": "读给我听",
-        "ja": "話して聞かせて",
-        "en": "Read it to me",
-        "zh-TW": "讀給我聽"
-      },
-      "prompt": {
-        "zh-CN": "我想听你说话。你先看看语音功能是不是开着，没开就手把手带我打开（一步一步说，我照做）；开好之后立刻挑一段读给我听，让我听听你的声音。",
-        "ja": "あなたが話すのを聞きたいです。まず音声機能が有効になっているか確認してください。有効でなければ、手順を一つずつ説明して、有効にするのを手伝います。有効になったら、そこからすぐに何か読んで聞かせます。あなたの声を聞かせてください。",
-        "en": "I want to hear you speak. First check if voice features are enabled—if not, I'll walk you through turning it on step by step. Once it's on, I'll immediately read something to let you hear my voice.",
-        "zh-TW": "我想聽你說話。你先看看語音功能是不是開著，沒開就手把手帶我打開（一步一步說，我照做）；開好之後立刻挑一段讀給我聽，讓我聽聽你的聲音。"
+        "zh-CN": "帮我把一堆材料整理成东西。先问我材料在哪（贴给你，或者告诉你我电脑里文件的位置，你自己去读）、要整理成什么（要点、报告、邮件还是 PPT）、给谁看。做完把文件的绝对路径贴给我，让我点开就能看。",
+        "ja": "手元の資料をまとめてほしい。まず、資料はどこにあるか（ここに貼るか、パソコンのファイルの場所を教えるので自分で読んで）、何にまとめるか（要点、レポート、メール、スライド）、誰に見せるかを聞いて。できたらファイルの絶対パスを貼って、クリックで開けるようにして。",
+        "en": "Help me turn a pile of material into something usable. First ask me where the material is (I paste it, or tell you where the files are on my computer and you read them yourself), what to make of it (key points, a report, an email or slides), and who it is for. When it is done, paste the file's absolute path so I can open it with a click.",
+        "zh-TW": "幫我把一堆材料整理成東西。先問我材料在哪（貼給你，或者告訴你我電腦裡檔案的位置，你自己去讀）、要整理成什麼（要點、報告、郵件還是 PPT）、給誰看。做完把檔案的絕對路徑貼給我，讓我點開就能看。"
       }
     },
     {
@@ -125,16 +74,33 @@
       "icon": "🔍",
       "kind": "trick",
       "label": {
-        "zh-CN": "帮我搜个东西",
-        "ja": "検索してほしい",
-        "en": "Search the web",
-        "zh-TW": "幫我搜個東西"
+        "zh-CN": "帮我查查比比",
+        "ja": "調べて比べて",
+        "en": "Look it up and compare",
+        "zh-TW": "幫我查查比比"
       },
       "prompt": {
-        "zh-CN": "帮我上网查点东西。先问我想查什么，然后去搜，搜完给我结论 + 你参考的来源链接，别只给一堆链接让我自己读。",
-        "ja": "ネットで何か調べてください。まず何を探したいのか教えてください。その後、検索します。完了したら、結論と参考にしたソースリンクをください。単にリンクのリストだけではなく。",
-        "en": "Search the web for me. First tell me what you want to look up, then I'll search and give you a conclusion plus the source links I used—not just a pile of links for you to sort through.",
-        "zh-TW": "幫我上網查點東西。先問我想查什麼，然後去搜，搜完給我結論 + 你參考的來源鏈接，別只給一堆鏈接讓我自己讀。"
+        "zh-CN": "帮我上网查一件事，或者比一比几样东西。先问我查什么、比什么、最看重哪几点，然后去搜。搜完给我结论；要比的话做成一张对比表，附上你参考的来源链接，别只给一堆链接让我自己读。",
+        "ja": "ネットで調べてほしいこと、比べてほしいものがある。まず、何を調べるか・何を比べるか・どこを一番重視するかを聞いてから検索して。結論を出して、比べるなら比較表にして、参考にしたリンクも付けて。リンクだけ並べて読ませるのはやめて。",
+        "en": "Look something up online for me, or compare a few things. First ask me what to look up or compare and what matters most to me, then search. Give me a conclusion; for a comparison, make a table, and include the sources you used—don't just hand me a pile of links to read.",
+        "zh-TW": "幫我上網查一件事，或者比一比幾樣東西。先問我查什麼、比什麼、最看重哪幾點，然後去搜。搜完給我結論；要比的話做成一張對比表，附上你參考的來源連結，別只給一堆連結讓我自己讀。"
+      }
+    },
+    {
+      "id": "quiz",
+      "icon": "📚",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "每天考考我",
+        "ja": "毎日テストして",
+        "en": "Quiz me daily",
+        "zh-TW": "每天考考我"
+      },
+      "prompt": {
+        "zh-CN": "我想每天学一点东西。先问我想学什么、现在什么水平、每天几点考我、一次几道题，然后定成每天到点的任务。到点你就出题考我，我答完你批改，记下我老错的地方，下次多考。",
+        "ja": "毎日少しずつ何かを覚えたい。まず、何を学びたいか、今どのくらいのレベルか、毎日何時にテストするか、1回何問かを聞いて、毎日決まった時間のタスクにして。時間になったら問題を出して、答えたら採点して、よく間違えるところを覚えておいて次に多めに出して。",
+        "en": "I want to learn a little every day. First ask me what I want to learn, my current level, what time each day to quiz me, and how many questions each time, then set it up as a daily task. At that time, quiz me, mark my answers, and remember what I keep getting wrong so you ask more of it next time.",
+        "zh-TW": "我想每天學一點東西。先問我想學什麼、現在什麼程度、每天幾點考我、一次幾道題，然後定成每天到點的任務。到點你就出題考我，我答完你批改，記下我老錯的地方，下次多考。"
       }
     },
     {
@@ -155,20 +121,54 @@
       }
     },
     {
-      "id": "html",
-      "icon": "📄",
+      "id": "draw",
+      "icon": "🎨",
       "kind": "trick",
       "label": {
-        "zh-CN": "给我做个文档",
-        "ja": "文書を作成",
-        "en": "Create a document",
-        "zh-TW": "給我做個文檔"
+        "zh-CN": "画张图讲清楚",
+        "ja": "図で説明して",
+        "en": "Explain it with a diagram",
+        "zh-TW": "畫張圖講清楚"
       },
       "prompt": {
-        "zh-CN": "帮我做一份文档。你先问我两件事：做什么内容、给谁看；再问我要哪种格式——HTML、PDF、Word 还是 PPT，我选一个。然后按我选的做出来，做完把文件的绝对路径贴给我，让我点开就能看。",
-        "ja": "文書を作成してください。まず二つのことを質問します：何の内容にするか、誰に見せるか。次に、どのフォーマットが欲しいか質問します——HTML、PDF、Word、それとも PPT、一つ選んでください。その後、選んだフォーマットで作成します。完了したら、ファイルの絶対パスを貼り付けるので、クリックして見ることができます。",
-        "en": "Create a document for you. First I'll ask two things: what the content should be about and who it's for. Then I'll ask which format you want—HTML, PDF, Word, or PPT. I'll create it in your chosen format and give you the absolute file path so you can open it.",
-        "zh-TW": "幫我做一份文檔。你先問我兩件事：做什麼內容、給誰看；再問我要哪種格式——HTML、PDF、Word 還是 PPT，我選一個。然後按我選的做出來，做完把文件的絕對路徑貼給我，讓我點開就能看。"
+        "zh-CN": "画张图帮我把一件事讲清楚。先问我想讲的是什么（流程、结构、时序还是关系），再挑合适的画法直接嵌在回复里画出来——SVG 和 mermaid 流程图 butler 前端都会渲染；动起来更好懂的，就用 SVG 动画标签（animate / animateTransform，这里的 JS 不执行）让它动。画完问我哪里要改，改到我满意。",
+        "ja": "図を描いて、あることを分かりやすく説明して。まず何を説明したいか（流れ、構造、時系列、関係）を聞いてから、合う描き方で返信の中に直接描いて。SVG と mermaid のフローチャートは butler の画面で表示できる。動いた方が分かりやすいなら SVG のアニメーションタグ（animate / animateTransform。ここでは JS は動かない）で動かして。描いたら直したいところを聞いて、納得いくまで直して。",
+        "en": "Draw a diagram that makes something clear for me. First ask what I want to explain (a process, a structure, a sequence or a relationship), then pick the right kind of drawing and put it right in your reply—butler renders SVG and mermaid flowcharts. If it is clearer moving, animate it with SVG animation tags (animate / animateTransform; JS does not run here). Then ask what to change and keep going until I am happy.",
+        "zh-TW": "畫張圖幫我把一件事講清楚。先問我想講的是什麼（流程、結構、時序還是關係），再挑合適的畫法直接嵌在回覆裡畫出來——SVG 和 mermaid 流程圖 butler 前端都會渲染；動起來更好懂的，就用 SVG 動畫標籤（animate / animateTransform，這裡的 JS 不執行）讓它動。畫完問我哪裡要改，改到我滿意。"
+      }
+    },
+    {
+      "id": "tts",
+      "icon": "🔊",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "读给我听",
+        "ja": "話して聞かせて",
+        "en": "Read it to me",
+        "zh-TW": "讀給我聽"
+      },
+      "prompt": {
+        "zh-CN": "我想听你说话。你先看看语音功能是不是开着，没开就手把手带我打开（一步一步说，我照做）；开好之后立刻挑一段读给我听，让我听听你的声音。",
+        "ja": "あなたが話すのを聞きたいです。まず音声機能が有効になっているか確認してください。有効でなければ、手順を一つずつ説明して、有効にするのを手伝います。有効になったら、そこからすぐに何か読んで聞かせます。あなたの声を聞かせてください。",
+        "en": "I want to hear you speak. First check if voice features are enabled—if not, I'll walk you through turning it on step by step. Once it's on, I'll immediately read something to let you hear my voice.",
+        "zh-TW": "我想聽你說話。你先看看語音功能是不是開著，沒開就手把手帶我打開（一步一步說，我照做）；開好之後立刻挑一段讀給我聽，讓我聽聽你的聲音。"
+      }
+    },
+    {
+      "id": "plugin",
+      "icon": "🧩",
+      "kind": "trick",
+      "label": {
+        "zh-CN": "做个小工具",
+        "ja": "小さな道具を作って",
+        "en": "Build me a little tool",
+        "zh-TW": "做個小工具"
+      },
+      "prompt": {
+        "zh-CN": "给我做个小工具。先问我想要什么（比如记账板、计数器、抽签、倒计时，或者一个让我点选、不用打字的小表单）。只用一次的，你直接在回复里放输入框、下拉和按钮让我填；要长期用的，你写成插件装进 butler，装好告诉我在哪儿点开、怎么用。",
+        "ja": "ちょっとした道具を作ってほしい。まず私が何を欲しいか聞いて（家計簿、カウンター、くじ引き、カウントダウン、または入力せずにクリックで選べる小さなフォームなど）。一度きりなら返信の中に入力欄・プルダウン・ボタンを直接置いて記入させて。ずっと使うものなら butler のプラグインとして作ってインストールし、どこで開いてどう使うか教えて。",
+        "en": "Build me a little tool. First ask me what I want (an expense board, a counter, a lucky draw, a countdown, or a small form I can click through instead of typing). If it is one-off, put the inputs, dropdowns and buttons right in your reply for me to fill in; if I will keep using it, write it as a plugin, install it in butler, and tell me where to open it and how to use it.",
+        "zh-TW": "給我做個小工具。先問我想要什麼（比如記帳板、計數器、抽籤、倒數計時，或者一個讓我點選、不用打字的小表單）。只用一次的，你直接在回覆裡放輸入框、下拉和按鈕讓我填；要長期用的，你寫成外掛裝進 butler，裝好告訴我在哪兒點開、怎麼用。"
       }
     },
     {

@@ -464,7 +464,8 @@ function registerMemoryToolsV2({ tool, z, graph, descriptions = {}, onHit = () =
       hint: 'Pinned = resident: its claim rides along at the top of every session. on=false removes it. demote=<slug> takes one out in the same call when the set is full.',
       run: (a) => {
         const g = G();
-        if (a.on === false) { const r = g.unpin(a.id); return txt(`✔ removed from pinned set: #${r.id}`); }
+        // 平铺参数不过 zod, on 可能是 "false" / 0 —— 只认 === false 会把「取消」反做成置顶
+        if ([false, 0, 'false', '0', 'off', 'no'].includes(a.on)) { const r = g.unpin(a.id); return txt(`✔ removed from pinned set: #${r.id}`); }
         const r = g.setPinned(a.id, a.reason || '', { demote: a.demote });
         return txt(`📌 pinned: #${r.id} · pinned ${r.used}/${r.quota}${a.demote ? ` (${a.demote} displaced)` : ''}`);
       } },

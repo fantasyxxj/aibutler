@@ -43,6 +43,8 @@ function applyStrings(payload) {
   document.querySelectorAll('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
   document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
   cancelBtn.textContent = `⏹ ${t('cancel')}`;   // 图标+文字拼的, 不走 data-i18n
+  // 工具气泡收尾那句「· 完成」是 CSS ::after 画的, 文字只能经变量递进去(原先写死中文)
+  document.documentElement.style.setProperty('--tool-done-label', JSON.stringify(` · ${t('tool_done')}`));
   window.MD_I18N = S;                           // md.js/widgets.js 的用户可见文案跟着界面语言走
   setStatus(_statusKey, _statusOverride);       // 状态条是拼出来的, 切完语言要重拼
 }
@@ -976,6 +978,7 @@ function markUnread(tab) {
 window.butler.onUserEcho((sid, text) => {   // 程序注入的消息(如 butler 出生教育)显示成 user 气泡
   const tab = tabs.get(sid);
   if (!tab || !String(text || '').trim()) return;
+  tab._echoTurn = true;   // 这一轮收尾时画面停在人格最后一段的开头(出生教育: 那段是给用户看的招呼)
   addMsgTo(tab, 'user', text);
   maybeScroll(tab);
   markUnread(tab);
@@ -1018,6 +1021,13 @@ window.butler.onResult((sid, { finalText, interrupted }) => {
   }
   tab.busy = false;
   if (tab.sid === activeSid) { refreshBusy(); setStatus('idle'); }
+  if (tab._echoTurn) {
+    tab._echoTurn = false;
+    // 汇报和招呼在同一条里时, 招呼前那条 --- 就是界线; 没有界线就照常停在最底(招呼本来就在最后)
+    const last = [...tab.chat.querySelectorAll('.msg.assistant')].pop();
+    const hr = last && [...last.querySelectorAll('hr')].pop();
+    if (hr && tab.sid === activeSid) hr.scrollIntoView({ block: 'start' });
+  }
 });
 window.butler.onActivity((sid, text) => {
   const tab = tabs.get(sid);
@@ -1702,9 +1712,10 @@ function showPersona(p) {
   if (!p) return;
   paintAvatar(personaAvatar, p);
   personaName.textContent = p.name || t('persona');
-  personaDir.textContent = p.homeDir || '';
+  window.PathMarquee.set(personaDir, p.homeDir || '');
   personaDir.title = `${t('dir_label')}: ${p.homeDir}\n${t('mem_label')}: ${p.memoryDir}`;
   document.title = `${t('title')} v${window.butler.version} · ${p.name || ''}`;
+  if (window.ModelSwitch) window.ModelSwitch.show(p.homeDir);
 }
 
 // Mermaid 一次性初始化 (securityLevel:'strict' 禁止图内 <script> / 点击回调; startOnLoad:false 由 renderMd 手动 render)

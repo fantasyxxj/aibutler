@@ -388,14 +388,16 @@ class McpToolsMixin {
         mode: z.enum(['replace', 'merge']).optional()
           .describe("default replace (full set, and empty array clears everything). Use merge to add or edit a few by id without resending the rest — read get_chip_usage first only if you need the current text; merge leaves untouched ids exactly as they are"),
         remove: z.array(z.string()).optional()
-          .describe('ids to drop from the custom set; works with merge (can be used alone, with no chips)') },
-      async ({ chips, mode, remove }) => {
+          .describe('ids to take off screen, factory-shipped or custom; works with merge (can be used alone, with no chips)'),
+        keep: z.array(z.string()).optional()
+          .describe('ids the user chose to keep after you asked about retiring them: restarts their 14-day clock') },
+      async ({ chips, mode, remove, keep }) => {
         if (!this.personaOps || !this.personaOps.setChips) return { content: [{ type: 'text', text: '⚠️ Chip capability not ready (this persona has no UI attached)' }] };
         const merging = mode === 'merge';
         // 传空 = 用户要"没有按钮", 出厂那批也得退休 —— 否则他看着屏幕原样, 以为你没照做。
         // 🔴 增量模式除外: merge 传空是"这次没有要改的", 不是"清空屏幕"。
         const clearAll = !merging && (!Array.isArray(chips) || chips.length === 0);
-        const r = this.personaOps.setChips(chips || [], { retireFactory: clearAll, mode, remove });
+        const r = this.personaOps.setChips(chips || [], { retireFactory: clearAll, mode, remove, keep });
         if (!r || !r.ok) return { content: [{ type: 'text', text: `⚠️ Update failed: ${(r && r.error) || 'unknown'}` }] };
         if (clearAll) return { content: [{ type: 'text', text: '✅ All chips cleared (custom + factory-shipped both retired, will not reappear). UI refreshed in place.' }] };
         // 把每个按钮真正落库的档位回显出来 —— 档位拼错会被退回 permanent(见 registry.setCustomChips),
@@ -405,7 +407,8 @@ class McpToolsMixin {
             : c.lifetime === 'until_done' ? '[temp·self-dismiss]' : '';
           return `${c.icon} ${c.label}${tag}`;
         }).join(' · ');
-        const dropped = Array.isArray(remove) && remove.length ? `\nRemoved: ${remove.join(', ')}` : '';
+        const dropped = (Array.isArray(remove) && remove.length ? `\nRemoved: ${remove.join(', ')}` : '')
+          + (Array.isArray(keep) && keep.length ? `\nKept, clock restarted: ${keep.join(', ')}` : '');
         const how = merging ? 'merged — ids you did not mention are untouched' : 'replaced as a whole set';
         return { content: [{ type: 'text', text: `✅ Custom chips ${how}, now ${r.chips.length}: ${names}${dropped}\n(UI refreshed in place; factory-shipped chips remain — they are permanent, pressing them does not dismiss them, explicit clear is required to remove them)` }] };
       }

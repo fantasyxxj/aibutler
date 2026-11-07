@@ -119,6 +119,9 @@
 #emptyState .es-emojis button.on{border-color:var(--brand);background:var(--hover)}
 #emptyState details.es-adv{margin-top:16px;font-size:12px;color:var(--muted)}
 #emptyState details.es-adv summary{cursor:pointer;user-select:none}
+#emptyState details.es-model-adv{font-size:12px;color:var(--muted)}
+#emptyState details.es-model-adv summary{cursor:pointer;user-select:none}
+#emptyState details.es-model-adv[open]{color:var(--text)}
 #emptyState .es-row{display:flex;gap:8px;align-items:center}
 #emptyState .es-path{font-size:12px;word-break:break-all;background:var(--field);color:var(--text);
   border:1px solid var(--line);border-radius:var(--radius-sm);padding:7px 9px;flex:1;min-width:0}
@@ -180,6 +183,14 @@
       <section class="es-s1">
         <h3 data-t="s1Title"></h3><p class="es-lede" data-t="s1Lede"></p>
         <div class="es-opts">
+          <div class="es-opt" data-acc="api">
+            <div class="es-opt-h" data-t="apiTitle"></div><div class="es-opt-d" data-t="apiDesc"></div>
+            <div class="es-opt-s">
+              <span class="es-keys-ok es-ok"></span>
+              <select class="es-cred"></select>
+              <button class="es-setkey"></button>
+            </div>
+          </div>
           <div class="es-opt" data-acc="subscription">
             <div class="es-opt-h" data-t="subTitle"></div><div class="es-opt-d" data-t="subDesc"></div>
             <div class="es-opt-s">
@@ -187,14 +198,6 @@
               <button class="es-login" data-t="login"></button>
               <span class="es-cc-state"></span>
               <button class="es-cc-on"></button><button class="es-cc-relaunch"></button>
-            </div>
-          </div>
-          <div class="es-opt" data-acc="api">
-            <div class="es-opt-h" data-t="apiTitle"></div><div class="es-opt-d" data-t="apiDesc"></div>
-            <div class="es-opt-s">
-              <span class="es-keys-ok es-ok"></span>
-              <select class="es-cred"></select>
-              <button class="es-setkey"></button>
             </div>
           </div>
         </div>
@@ -205,10 +208,13 @@
         <h3 data-t="s2Title"></h3><p class="es-lede" data-t="s2Lede"></p>
         <div class="es-name-row"><span class="pc-avatar es-av"></span><input type="text" class="es-name" maxlength="40"></div>
         <div class="es-emojis"></div>
+        <div class="es-tier"></div>
+        <details class="es-model-adv"><summary class="es-model-sum"></summary>
         <div class="es-field" data-t="modelLabel"></div>
         <select class="es-model"></select>
         <div class="es-model-manual" style="display:none;margin-top:6px"><input type="text" class="es-model-custom"></div>
         <div class="es-note es-model-src"></div>
+        </details>
         <details class="es-adv"><summary data-t="adv"></summary>
           <div class="es-engine-wrap"><div class="es-field" data-t="engineLabel"></div><select class="es-sdk"></select></div>
           <div class="es-field" data-t="dirLabel"></div>
@@ -222,12 +228,18 @@
     </div>`;
     const q = (s) => ov.querySelector(s);
     document.body.appendChild(ov);
+    // 用 key 时先选档(tier-picker.js 在这把 key 上试出能用的型号); 完整清单收进「自己选型号」, 动过它就以它为准
+    const tierT = (k) => (typeof S !== 'undefined' && S[k]) || k;   // 别叫 st: 外层已有带参数替换的 st()(订阅下载文案)
+    const tier = window.TierPicker.create({ t: tierT, credentialId: () => q('.es-cred').value });
+    q('.es-tier').appendChild(tier.el);
+    let manualTouched = false;
 
     let acc = null, chosen = '', avatar = '', step = 1, dirUnsafe = false, ccProg = null, lastKey = '', lastCredSig = '', nameTouched = false;
     const paint = () => {   // 换语言后整屏重刷一遍文字
       ov.querySelectorAll('[data-t]').forEach((e) => { e.textContent = tt(e.dataset.t); });
       q('.es-step').textContent = `${step} / 2`;
       q('.es-model-custom').placeholder = tt('modelPh');
+      q('.es-model-sum').textContent = tierT('tier_manual'); tier.paint();
       if (!nameTouched) q('.es-name').value = tt('defName');
       paintAvatar();
     };
@@ -286,6 +298,12 @@
       const manual = sel.value === MODEL_CUSTOM;   // 清单空着(拉不到)而又必须选: 直接落到手填
       q('.es-model-manual').style.display = manual ? '' : 'none';
       q('.es-model-custom').value = '';
+      // 订阅: 没有档可选, 直接摆清单; 用 key: 先按档试, 清单收起
+      manualTouched = false;
+      q('.es-tier').style.display = useApi() ? '' : 'none';
+      q('.es-model-sum').style.display = useApi() ? '' : 'none';
+      q('.es-model-adv').open = !useApi();
+      if (useApi()) tier.refresh();
     }
 
     // 开源包这次启动没加载 Claude SDK: 跟系统设置一样, 开启 → 下载 → 重启; 重启后登录按钮接手
@@ -325,8 +343,8 @@
         if (keep && acc.creds.some((c) => c.id === keep)) q('.es-cred').value = keep;
       }
       q('.es-cred').style.display = acc.creds.length > 1 ? '' : 'none';
-      // 还没选: 哪条能用就先替他选上(两条都能用时优先订阅); 选了的那条不能用了也换过去
-      if (!chosen || !usable(chosen)) chosen = acc.sub ? 'subscription' : acc.creds.length ? 'api' : chosen;
+      // 默认选 API Key(作者 11-07: key 卡放前面、默认它); 还没存 key 就停在这张上等他去添加, 下一步先灰着
+      if (!chosen || (chosen === 'subscription' && !usable(chosen))) chosen = 'api';
       ov.querySelectorAll('.es-opt').forEach((o) => o.classList.toggle('on', o.dataset.acc === chosen));
       q('.es-next').disabled = !chosen || !usable(chosen);
       // 引擎: 装了 Claude SDK 才有得选, 只在用 key 时出现(订阅固定走 Claude Code)
@@ -335,9 +353,11 @@
         q('.es-sdk').dataset.list = engines.join();
         q('.es-sdk').innerHTML = engines.map((k) => `<option value="${k}">${esc(S[k === 'butler' ? 'mgr_sdk_butler' : 'mgr_sdk_claude_code'] || k)}</option>`).join('');
       }
-      q('.es-engine-wrap').style.display = useApi() && acc.cc ? '' : 'none';
+      q('.es-engine-wrap').style.display = 'none';   // 引擎跟着接入方式定死(作者 11-07)
       // 只在"接入方式/凭据"真的变了才重拉, 否则轮询会把下拉一直重置
-      const key = step === 2 ? `${chosen}:${q('.es-cred').value}` : '';
+      // 同一条 key 改了地址(比如补上少打的 h)也要重拉 —— 只认 id 的话会一直留着地址错时那份空清单
+      const cur = acc.creds.find((c) => c.id === q('.es-cred').value) || {};
+      const key = step === 2 ? `${chosen}:${q('.es-cred').value}:${cur.base_url || ''}` : '';
       if (key && key !== lastKey) { lastKey = key; await refreshModels(); }
     }
     const goStep = async (n) => {
@@ -358,6 +378,7 @@
     q('.es-next').addEventListener('click', () => goStep(2));
     q('.es-back').addEventListener('click', () => goStep(1));
     q('.es-model').addEventListener('change', () => {
+      manualTouched = true;
       const on = q('.es-model').value === MODEL_CUSTOM;
       q('.es-model-manual').style.display = on ? '' : 'none';
       if (on) q('.es-model-custom').focus();
@@ -389,7 +410,7 @@
     q('.es-cc-relaunch').addEventListener('click', () => window.butler.ccSdkRelaunch());
     q('.es-setkey').addEventListener('click', () => {
       chosen = 'api';
-      try { window.butler.openSettingsWindow(); } catch (_) {}
+      try { window.butler.openSettingsWindow('models'); } catch (_) {}
     });
     q('.es-pick').addEventListener('click', async () => {
       try {
@@ -403,7 +424,8 @@
       if (!name) { q('.es-note2').textContent = tt('needName'); q('.es-name').focus(); return; }
       // 「跟随默认」和「其它但没填」都算没选: 订阅交给主进程用默认值, key 不许空着
       const mv = q('.es-model').value;
-      const model = mv === MODEL_CUSTOM ? (q('.es-model-custom').value.trim() || undefined) : (mv || undefined);
+      let model = mv === MODEL_CUSTOM ? (q('.es-model-custom').value.trim() || undefined) : (mv || undefined);
+      if (useApi() && !manualTouched && tier.model()) model = tier.model();   // 没动「自己选型号」就用按档试通的那个
       if (useApi() && !model) { q('.es-note2').textContent = tt('needModel'); return; }
       btn.disabled = true;
       btn.textContent = tt('creating');
@@ -412,7 +434,7 @@
           name, avatar: avatar || undefined, homeDir: dir || undefined, isButler: true,
           accessMode: useApi() ? 'api' : 'subscription',
           credentialId: useApi() ? (q('.es-cred').value || undefined) : undefined,
-          sdk: useApi() ? (q('.es-sdk').value || 'butler') : undefined,
+          sdk: useApi() ? 'butler' : undefined,
           model,
         });
         if (r && r.ok === false) throw new Error(r.error || '');

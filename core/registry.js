@@ -308,6 +308,13 @@ function setLocalApi(patch = {}) {
 //                事情办完该由我撤" —— 我上下文清空重启之后, 屏幕上那颗按钮不会自己解释它是临时的。
 //                没做成程序行为是因为"办完了没有"没有任何程序判据, 谁也算不出来。
 const CHIP_LIFETIMES = ['permanent', 'once', 'until_done'];
+const CHIP_RESIDENT_MAX = 12;
+function _factoryChipIds() {
+  try {
+    const j = require('./host').cfg.json('chips/default');
+    return (j && Array.isArray(j.chips) ? j.chips : []).map((c) => c && c.id).filter(Boolean);
+  } catch (e) { console.error('[registry] 出厂 chip 池读取失败:', e && e.message); return []; }
+}
 
 function _chipState(entry) {
   const c = (entry && entry.chips) || {};
@@ -403,7 +410,9 @@ function chipUsage(id, { staleDays = 14 } = {}) {
 // opts.retireFactory=true → 出厂池也一起退休(全标已用)。用户说「把这些按钮清掉」时他指的是
 // 屏幕上所有按钮, 不分池子 —— 只清 custom 会让他看着原样、以为 AI 没照做(2026-08-09 唐伯虎真踩过)。
 // opts.mode='merge' → 按 id 增量: 传进来的覆盖同 id 的, 没提到的原样留着, 新 id 追加在后面。
-// opts.remove=[id…] → 从自定义池里摘掉这几颗。两者可同用。
+// opts.remove=[id…] → 摘掉这几颗; 出厂的 id 记进 used(单颗退休), 自定义的从池里删。两者可同用。
+// opts.keep=[id…] → 用户看过、说留着: 上架时间重记为现在, 再满 14 天没人点才会再被体检提出来。
+// 🔴 常驻(非 once)最多 CHIP_RESIDENT_MAX 颗, 超了整次不写 —— 便签点完就撤, 不占名额。
 // 🔴 增量模式下"传空 = 全清"那条【不成立】: merge 传空数组的意思是"这次没有要改的",
 //    不是"把屏幕清空"。清空仍走 replace + 空数组这条唯一入口。
 function setCustomChips(id, chips, opts = {}) {
@@ -435,20 +444,27 @@ function setCustomChips(id, chips, opts = {}) {
        ...clean.filter((c) => !_chipState(entry).custom.some((o) => o && o.id === c.id))]
     : clean;
   let used = _chipState(entry).used;
+  const factoryIds = _factoryChipIds();
+  const retireIds = removeIds.filter((x) => factoryIds.includes(x));
+  if (retireIds.length) used = [...new Set([...used, ...retireIds])];
   // 🔴 "传空 = 全清"由这一层保证, 不靠调用方记得传 retireFactory —— 判断散在外面就会
   // 出现"默认值说一套、真实调用做另一套"(行业版那边就这么矛盾了很久)。
   // 传空数组 = 用户要"屏幕上一个按钮都没有"; 只清自定义的话出厂批还亮着, 他会以为没照做。
   const retireFactory = (opts && opts.retireFactory !== undefined) ? !!opts.retireFactory
     : (!merging && clean.length === 0);
-  if (retireFactory) {
-    let factoryIds = [];
-    try {
-      const j = require('./host').cfg.json('chips/default');
-      factoryIds = (j && Array.isArray(j.chips) ? j.chips : []).map((c) => c && c.id).filter(Boolean);
-    } catch (e) { console.error('[registry] 出厂 chip 池读取失败(退休跳过):', e && e.message); }
-    used = [...new Set([...used, ...factoryIds])];
+  if (retireFactory) used = [...new Set([...used, ...factoryIds])];
+  const resident = factoryIds.filter((x) => !used.includes(x)).length
+    + final.filter((c) => c.lifetime !== 'once').length;
+  const st0 = _chipState(entry);
+  const before = factoryIds.filter((x) => !st0.used.includes(x)).length
+    + st0.custom.filter((c) => c && c.lifetime !== 'once').length;
+  if (resident > CHIP_RESIDENT_MAX && resident > before) {   // 老用户已超的不卡减法
+    return { ok: false, error: `resident chips would be ${resident}, max ${CHIP_RESIDENT_MAX} (once notes not counted) — remove some first` };
   }
-  entry.chips = { used, custom: final, stats: _chipState(entry).stats };
+  const stats = { ..._chipState(entry).stats };
+  const keepIds = Array.isArray(opts && opts.keep) ? opts.keep.map(String) : [];
+  for (const k of keepIds) stats[k] = { ...(stats[k] || {}), count: (stats[k] && stats[k].count) || 0, first_seen: nowLocalISO() };
+  entry.chips = { used, custom: final, stats };
   if (!saveRegistry(reg)) return { ok: false, error: '写登记簿失败' };
   return { ok: true, chips: final };
 }

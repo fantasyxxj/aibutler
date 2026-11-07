@@ -13,8 +13,8 @@ body {
   padding: 10px 16px; background: var(--panel); border-bottom: 1px solid var(--line);
   -webkit-app-region: drag;
 }
-#topbar button, #topbar select, #topbar .ctxwrap { -webkit-app-region: no-drag; }
-.brand { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+#topbar button, #topbar select, #topbar .ctxwrap { -webkit-app-region: no-drag; }  #topbar > button { flex: none; white-space: nowrap; }
+.brand { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; flex: 0 1 auto; min-width: 0; }  #personaName { white-space: nowrap; flex: none; }
 .brand .sub { font-weight: 400; font-size: 11px; color: var(--muted); margin-left: 2px; }
 /* 信息条当前人格大头像 */
 .cur-avatar {
@@ -30,7 +30,7 @@ body {
   -webkit-app-region: no-drag;
 }
 #closeCurrentBtn:hover { background: var(--btn-hi); color: var(--text); }
-.ctxwrap { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.ctxwrap { display: flex; align-items: center; gap: 8px; margin-left: auto; flex: none; }
 .ctxbar { width: 180px; height: 10px; background: var(--field); border-radius: 6px; overflow: hidden; }
 #ctxfill { height: 100%; width: 0%; background: linear-gradient(90deg,#4ade80,#22c55e); transition: width .3s, background .3s; }
 #ctxlabel { font-variant-numeric: tabular-nums; font-size: 12px; color: var(--text-2); min-width: 96px; text-align: right; }
@@ -56,9 +56,8 @@ body {
 #tabbar .lang { flex: none; margin-left: auto; }
 #settingsBtn { flex: none; }
 #compactBtn:disabled, #clearBtn:disabled { opacity: .5; cursor: default; }
-#personaDir {
-  max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  display: inline-block; vertical-align: bottom; direction: rtl; text-align: left;
+#personaDir {   /* 放不下时来回滚, 见 path-marquee.js */
+  flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap;
 }
 
 /* ===== 标签栏(MDI: 一窗多文档) ===== */
@@ -288,7 +287,7 @@ mark.search-hit.current { background: #f59e0b; color: #1a1a1a; }
 .msg.tool.pending .tool-mark { color: var(--warn); animation: pulse 1.4s infinite; }
 .msg.tool.done { border-left-color: var(--ok); opacity: 1; }
 .msg.tool.done .tool-mark { color: var(--ok); }
-.msg.tool.done .tool-desc::after { content: ' · 完成'; color: var(--ok); font-size: 11px; }
+.msg.tool.done .tool-desc::after { content: var(--tool-done-label, ''); color: var(--ok); font-size: 11px; }
 
 /* ===== 认证失效横幅: 常驻在最顶, 直到重登成功 (401 不自愈, 用户可能几小时后才回来, 不能用 toast) ===== */
 #authBanner {

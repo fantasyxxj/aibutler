@@ -1,0 +1,6 @@
+{
+  "_": "当天第一条真人消息前垫一段 main/day_opener_text.md(查快到期/没做完的事, 值得提就提一件)。一天一次, 不占常驻。greet: 当天第一次启动或 greet_hour 点人格先开口(main/day_greet_text.md, 只管家, 与前者共用一天一次的名额)。行业版在 industry/config/main/day_opener.json 关掉。",
+  "enabled": true,
+  "greet": true,
+  "greet_hour": 9
+}

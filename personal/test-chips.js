@@ -102,6 +102,11 @@ ok(registry.resolveChips('tester').length === N, '🔴 进了建议清单也【�
 
 // ---- E~F. AI 自定义池 ----
 console.log('\n== update_prompt_chips 写入(清洗 + 与出厂池叠加) ==');
+// 常驻上限 12 颗而出厂就有 N 颗: 要加自定义的先退几颗出厂的腾名额(remove 收出厂 id 即单颗退休)
+const makeRoom = (pid, k) => registry.setCustomChips(pid, [], { mode: 'merge',
+  remove: factory.map((c) => c.id).filter((x) => x !== 'howto').slice(0, k) });
+const ROOM = Math.max(0, N + 4 - 12);   // 后面 merge 还要再加 1 颗
+makeRoom('tester', ROOM);
 const r = registry.setCustomChips('tester', [
   { id: 'daily', icon: '📊', label: '汇总昨天进展', prompt: '把我昨天的进展汇总一下。' },
   { id: 'nolabel', prompt: '缺 label 的应该被丢掉' },
@@ -114,7 +119,7 @@ ok(r.chips.length === 3, `只留下合法的 3 条(实际 ${r.chips.length})`);
 ok(r.chips.every((c) => c.label.length <= 20), 'label 超长被截到 ≤20');
 ok(r.chips.find((c) => c.label === '没给图标').icon === '💡', '缺 icon 补默认 💡');
 const after = registry.resolveChips('tester');
-ok(after.length === N + 3, `出厂 ${N} + 自定义 3(出厂那批不再会被点没)`);
+ok(after.length === N - ROOM + 3, `出厂 ${N - ROOM} + 自定义 3(出厂那批不再会被点没)`);
 
 // 缺省档是 permanent: 不写 lifetime 的自定义 chip 点过也不消失(老行为一个字不能变)
 registry.bumpChip('tester', 'daily');
@@ -154,6 +159,8 @@ console.log('\n== 便签 chip: 点了就作废, 同组一起撤 ==');
 const HOME_N = path.join(TMP, 'persona-note');
 fs.mkdirSync(HOME_N, { recursive: true });
 registry.upsert({ id: 'tester-n', name: '测试人格N', homeDir: HOME_N });
+const ROOM_N = Math.max(0, N + 2 - 12);
+makeRoom('tester-n', ROOM_N);
 const rn = registry.setCustomChips('tester-n', [
   { id: 'cloze29', label: '背单词·改29条', prompt: '背单词填空题改 29 条', lifetime: 'once', group: 'cloze' },
   { id: 'cloze19', label: '背单词·只改19条', prompt: '背单词填空题只改 19 条', lifetime: 'once', group: 'cloze' },
@@ -173,7 +180,7 @@ ok(nAfter.includes('other'), '🔴 别的 group 不受影响');
 ok(nAfter.includes('keep'), '永久档的没被撤');
 ok(nAfter.includes('bogus'), '退回 permanent 的那个也没被撤');
 ok(registry.chipUsage('tester-n').rows.every((x) => x.id !== 'cloze29'), '撤走后不再出现在用量表里');
-ok(nAfter.length === N + 3, `撤掉一组 3 个后剩 出厂${N}+自定义3(实际 ${nAfter.length})`);
+ok(nAfter.length === N - ROOM_N + 3, `撤掉一组 3 个后剩 出厂${N - ROOM_N}+自定义3(实际 ${nAfter.length})`);
 
 // 换新人格互不影响
 const HOME_B = path.join(TMP, 'persona-b');
@@ -181,13 +188,49 @@ fs.mkdirSync(HOME_B, { recursive: true });
 registry.upsert({ id: 'tester-b', name: '测试人格B', homeDir: HOME_B });
 ok(registry.resolveChips('tester-b').length === N, `另一个人格仍是全新 ${N} 个(每人格独立)`);
 
+// ---- E4. 体检换按钮要用的三件: 单颗退休出厂按钮 · 保留重计 14 天 · 常驻上限 12 颗 ----
+console.log('\n== 单颗退休 / keep / 常驻上限 ==');
+const HOME_K = path.join(TMP, 'persona-k');
+fs.mkdirSync(HOME_K, { recursive: true });
+registry.upsert({ id: 'tester-k', name: '测试人格K', homeDir: HOME_K });
+registry.touchChipSeen('tester-k');
+const f0 = factory[0].id, f1 = factory[1].id;
+const rk1 = registry.setCustomChips('tester-k', [], { mode: 'merge', remove: [f0] });
+ok(rk1.ok && !registry.resolveChips('tester-k').some((c) => c.id === f0), 'remove 收出厂 id: 只退这一颗');
+ok(registry.resolveChips('tester-k').length === N - 1, `其余出厂按钮都在(${N - 1})`);
+const fill = (n) => Array.from({ length: n }, (_, i) => ({ id: `p${i}`, label: `常驻${i}`, prompt: `我要第${i}个` }));
+const room = 12 - (N - 1);
+ok(room < 1 || registry.setCustomChips('tester-k', fill(room)).ok, `补到 12 颗正好放得下`);
+const over = registry.setCustomChips('tester-k', fill(room + 1));
+ok(!over.ok && /max 12/.test(over.error || ''), '🔴 第 13 颗常驻被拒, 回执说清上限');
+ok(registry.setCustomChips('tester-k', [...fill(room), { id: 'n1', label: '便签', prompt: '我选这个', lifetime: 'once', group: 'q' }]).ok,
+   '便签不占常驻名额');
+const regK = JSON.parse(fs.readFileSync(TMP_REG, 'utf8'));
+regK.personas.find((p) => p.id === 'tester-k').chips.stats[f1].first_seen = new Date(Date.now() - 30 * 86400000).toISOString();
+fs.writeFileSync(TMP_REG, JSON.stringify(regK, null, 2));
+ok(registry.chipUsage('tester-k').stale.some((x) => x.id === f1), '摆了 30 天没点 → stale');
+registry.setCustomChips('tester-k', [], { mode: 'merge', keep: [f1] });
+ok(!registry.chipUsage('tester-k').stale.some((x) => x.id === f1), '🔴 keep 之后重新计 14 天, 不再是 stale');
+ok(registry.resolveChips('tester-k').some((c) => c.id === f1), 'keep 不动按钮本身');
+{
+  const { staleChipFinding } = require('../core/checkup-gate');
+  const ops = { chipUsage: (o) => registry.chipUsage('tester-k', o) };
+  regK.personas.find((p) => p.id === 'tester-k').chips.stats[f1].first_seen = new Date(Date.now() - 30 * 86400000).toISOString();
+  fs.writeFileSync(TMP_REG, JSON.stringify(regK, null, 2));
+  ok(staleChipFinding(ops, 14) && staleChipFinding(ops, 14).key === 'stale_chips', '体检: 有挂满 14 天没点的 → 报 stale_chips');
+  ok(staleChipFinding(ops, 0) === null, '体检: staleChipDays=0(行业版) → 不查');
+  ok(staleChipFinding({}, 14) === null, '体检: 宿主没接 chipUsage → 不报不炸');
+}
+
 // ---- F2. 全清(retireFactory): 用户说"把按钮清掉"时出厂那批也得退休 ----
 console.log('\n== 全清含出厂池 ==');
 const HOME_C = path.join(TMP, 'persona-c');
 fs.mkdirSync(HOME_C, { recursive: true });
 registry.upsert({ id: 'tester-c', name: '测试人格C', homeDir: HOME_C });
+const ROOM_C = Math.max(0, N + 1 - 12);
+makeRoom('tester-c', ROOM_C);
 registry.setCustomChips('tester-c', [{ id: 'x1', icon: '🔧', label: '自定义一', prompt: '干活' }]);
-ok(registry.resolveChips('tester-c').length === N + 1, `出厂 ${N} + 自定义 1`);
+ok(registry.resolveChips('tester-c').length === N - ROOM_C + 1, `出厂 ${N - ROOM_C} + 自定义 1`);
 // 🔴 "传空 = 全清"由 registry 这一层保证, 不靠调用方记得传 retireFactory。
 // 判断散在调用方就会出现"默认值说一套、真实调用做另一套"(行业版那边正是这么矛盾了很久)。
 registry.setCustomChips('tester-c', []);

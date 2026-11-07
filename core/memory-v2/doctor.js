@@ -1,6 +1,6 @@
 // 体检与冲突仲裁: 候选对 · 裁决 · 僵尸 · doctor 报告
 // 由 memory-v2.js 拆出(内核抽包第 2 步)。方法体逐字搬运, 经 mixin 挂回 MemoryGraphV2.prototype。
-const { todayLocal, nowLocalISO, PINNED_QUOTA } = require('../memory');
+const { todayLocal, nowLocalISO, PINNED_QUOTA, PINNED_MAX_CHARS } = require('../memory');
 const arb = require('../memory-arbitration');
 const { bodyHardTokens, bodySize, estTokens } = require('./consts');
 const { tune } = require('./tuning');
@@ -243,6 +243,8 @@ class DoctorMixin {
     return {
       nodes: nodes.length, edges: idx.edges.length,
       pinned: idx.pinned.size, quota: PINNED_QUOTA,
+      // 上限出来之前钉上的超长常驻: 还钉着就留着, 可一旦被撤下就按上限钉不回 —— 体检趁它还在让人格改短
+      pinned_too_long: [...idx.pinned].filter((id) => [...String((this.store.node(id) || {}).claim || '')].length > PINNED_MAX_CHARS).length,
       isolated: isolated.length, review_due: dueSoon.map((n) => n.slug),
       recall, utterances: this.utteranceCount(),
       problems: opts.raw ? problems : this._dropAcked(problems),

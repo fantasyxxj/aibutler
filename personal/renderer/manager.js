@@ -11,7 +11,7 @@ const F = { name: document.getElementById('f-name'), dir: document.getElementByI
             accSub: document.getElementById('f-acc-sub'), accApi: document.getElementById('f-acc-api'), sdk: document.getElementById('f-sdk'),
             cred: document.getElementById('f-cred'),
             modelSel: document.getElementById('f-model-sel'), modelManual: document.getElementById('f-model-manual'),
-            modelCustom: document.getElementById('f-model-custom'), modelBack: document.getElementById('f-model-back'),
+            modelCustom: document.getElementById('f-model-custom'),
             modelSrc: document.getElementById('f-model-src') };
 
 let S = {};
@@ -35,19 +35,10 @@ const expanded = new Set();
 // 里只有 1 个是 claude-* 命名), 清单拉不回来也必须能手输。
 // 清单跟着**这个人格**选的接入方式走(订阅问 SDK / 用 key 问那个端点), 所以两份分开缓存 ——
 // 同一个窗口里 A 人格走订阅、B 人格走 key 是常态, 一份缓存会串味。
+// 缓存按【接入方式 + 哪条凭据】分桶, 在 model-pick.js 里(主界面顶栏的快速切换共用同一份)。
 let _MODEL_OPTIONS = null, _MODEL_SRC = null;
-const _MODEL_CACHE = {};
-// 缓存按【接入方式 + 哪条凭据】分桶: 两条凭据多半是两个网关, 能开的模型清单不一样,
-// 只按 api/sub 分会让换凭据之后还看着上一条的清单。
 async function ensureModelOptions(useApi, credentialId) {
-  const k = useApi ? `api:${credentialId || ''}` : 'sub';
-  if (_MODEL_CACHE[k]) { ({ options: _MODEL_OPTIONS, src: _MODEL_SRC } = _MODEL_CACHE[k]); return _MODEL_OPTIONS; }
-  try {
-    const r = await window.butler.listModelOptions({ useApi: !!useApi, credentialId: credentialId || '' });
-    _MODEL_OPTIONS = (r && r.options) || [];
-    _MODEL_SRC = r || null;
-  } catch (e) { console.error('[manager] listModelOptions failed:', e && e.message); _MODEL_OPTIONS = []; _MODEL_SRC = null; }
-  _MODEL_CACHE[k] = { options: _MODEL_OPTIONS, src: _MODEL_SRC };
+  ({ options: _MODEL_OPTIONS, src: _MODEL_SRC } = await window.ModelPick.load(useApi, credentialId));
   return _MODEL_OPTIONS;
 }
 // 清单从哪来的一行小字。"只有几个"到底是网关就这么多还是没拉到, 不写出来没人分得清。
@@ -73,8 +64,7 @@ function modelOptionsHtml(cur, { defaultOpt = false, needModel = false } = {}) {
   const list = needModel ? (_MODEL_OPTIONS || []).filter((o) => o.id) : (_MODEL_OPTIONS || []);
   if (needModel) { defaultOpt = false; if (!cur && list.length) cur = list[0].id; }
   const known = list.some((o) => o.id === (cur || ''));
-  // id 不在 label 里就补上 —— 手写清单的 label 只有中文描述, 走网关时 id 才是关键信息
-  const text = (o) => (!o.id || String(o.label || '').includes(o.id) ? (o.label || o.id) : `${o.label || o.id} — ${o.id}`);
+  const text = window.ModelPick.label;
   const rows = defaultOpt ? [`<option value=""${cur ? '' : ' selected'}>${esc(t('mgr_model_inherit'))}</option>`] : [];
   rows.push(...list.map((o) =>
     `<option value="${esc(o.id)}"${o.id === (cur || '') ? ' selected' : ''}>${esc(text(o))}</option>`));
@@ -206,7 +196,7 @@ function makeEditPanel(p) {
         <div class="e-dir-note">${esc(_creds.length ? t('mgr_access_hint') : t('mgr_cred_none'))}</div>
       </div>
     </div>
-    <div class="e-line"${_ccAvail ? '' : ' style="display:none"'}><label>${esc(t('mgr_sdk'))}</label>
+    <div class="e-line" style="display:none"><label>${esc(t('mgr_sdk'))}</label>
       <div>
         <select class="e-sdk" ${p.accessMode === 'api' ? '' : 'disabled'}>${['claude-code', 'butler'].map((k) => `<option value="${k}"${(p.accessMode === 'api' ? (p.sdk || 'claude-code') : 'claude-code') === k ? ' selected' : ''}>${esc(sdkLabel(k))}</option>`).join('')}</select>
         <div class="e-dir-note e-sdk-note">${p.accessMode === 'api' ? '' : esc(t('mgr_sdk_sub_only'))}</div>
@@ -214,12 +204,10 @@ function makeEditPanel(p) {
     </div>
     <div class="e-line"><label>${esc(t('mgr_model'))}</label>
       <div>
-        <select class="e-model-sel" title="${esc(t('mgr_model_hint'))}"
-                style="width:100%;${isKnownModel(p.model) ? '' : 'display:none'}">${modelOptionsHtml(p.model)}</select>
-        <div class="e-model-manual" ${isKnownModel(p.model) ? 'hidden' : ''}>
+        <select class="e-model-sel" title="${esc(t('mgr_model_hint'))}" style="width:100%">${modelOptionsHtml(p.model)}</select>
+        <div class="e-model-manual" style="margin-top:6px" ${isKnownModel(p.model) ? 'hidden' : ''}>
           <input class="e-model-custom" value="${esc(isKnownModel(p.model) ? '' : p.model)}"
-                 placeholder="${esc(t('mgr_model_ph_custom'))}"/>
-          <button type="button" class="m-btn e-model-back">${esc(t('mgr_model_back'))}</button>
+                 placeholder="${esc(t('mgr_model_ph_custom'))}" style="width:100%"/>
         </div>
         <div class="e-dir-note e-model-src">${esc(modelSrcNote())}</div>
       </div>
@@ -317,7 +305,7 @@ function readPluginsFromPanel(box) {
 
 // makeEditPanel 是同步渲染的, 所以渲染前先把全局那两个变量切到这个人格对应的那份缓存。
 function useModelCache(useApi, credentialId) {
-  const c = _MODEL_CACHE[useApi ? `api:${credentialId || ''}` : 'sub'];
+  const c = window.ModelPick.peek(useApi, credentialId);
   // 没拉过 = null: 下拉先只摆当前那一个, 展开编辑时才去拉(开窗就全拉, 每份 0.3-1.4s 串着等, 卡片几秒才出来)
   ({ options: _MODEL_OPTIONS, src: _MODEL_SRC } = c || { options: null, src: null });
 }
@@ -419,15 +407,13 @@ async function refresh() {
       else { toast(t('mgr_voice_save_failed') + r.error); ev.target.checked = !en; }
     });
 
-    // 清单 ⇄ 手输 二选一, 同一个位置换着显示 —— 两个框并排摆着看不出谁管谁
+    // 下拉一直在; 选了末尾「其它」才在下面露出手输框(网关的型号名千奇百怪, 清单里没有的靠它)
     const modelSel = panel.querySelector('.e-model-sel');
     const manual = panel.querySelector('.e-model-manual');
-    const showManual = (on) => {
-      manual.hidden = !on;
-      modelSel.style.display = on ? 'none' : '';
-      if (on) panel.querySelector('.e-model-custom').focus();
-    };
-    modelSel.addEventListener('change', (ev) => { if (ev.target.value === MODEL_CUSTOM) showManual(true); });
+    const customIn = panel.querySelector('.e-model-custom');
+    const showManual = (on, focus = false) => { manual.hidden = !on; if (on && focus) customIn.focus(); };
+    const curModel = () => (modelSel.value === MODEL_CUSTOM ? customIn.value.trim() : modelSel.value);
+    modelSel.addEventListener('change', (ev) => showManual(ev.target.value === MODEL_CUSTOM, true));
 
     // 切接入方式 → 立刻换清单: 订阅和网关能用的模型名几乎没有交集(实测一家网关 46 个模型里
     // 只有 1 个是 claude-* 命名), 还留着上一套的选项只会让人选中一个必然报错的名字。
@@ -437,8 +423,9 @@ async function refresh() {
     const sdkSel = panel.querySelector('.e-sdk');
     const sdkNote = panel.querySelector('.e-sdk-note');
     const baseSdk = p.sdk || 'claude-code';
-    const reloadModels = async () => {
-      const cur = manual.hidden ? modelSel.value : panel.querySelector('.e-model-custom').value.trim();
+    // switched = 刚换了接入方式或 key: 旧 key 的型号名在新端点多半不认, 不留着 ——
+    // 选这把 key 以前用过的(作者 11-07), 没用过就选清单第一个。cur 给了就用它(取消时退回原值)。
+    const reloadModels = async ({ switched = false, cur = curModel() } = {}) => {
       // 凭据下拉只在「用 key」时露面 —— 走订阅时它无处可用, 摆着只会让人以为选了有效
       credSel.style.display = accApi.checked && _creds.length ? '' : 'none';
       // 引擎只对「用 key」有得选: 订阅只有 Claude Code 跑得了(行照样摆着, 置灰并说明); 没装 Claude Code 时整行不出现
@@ -448,10 +435,20 @@ async function refresh() {
       sdkNote.textContent = accApi.checked ? '' : t('mgr_sdk_sub_only');
       await ensureModelOptions(accApi.checked, credSel.value);
       useModelCache(accApi.checked, credSel.value);
+      let probe = false;
+      if (switched) ({ model: cur, probe } = window.ModelPick.choose(p, accApi.checked ? 'api' : 'subscription', accApi.checked ? credSel.value : '', _MODEL_OPTIONS));
       modelSel.innerHTML = modelOptionsHtml(cur, { needModel: accApi.checked });
       panel.querySelector('.e-model-src').textContent = modelSrcNote();
-      // 原来选的那个在新清单里没有 → 自动亮出手输框, 别让它悄悄落到别的模型上
-      if (cur && !isKnownModel(cur)) { panel.querySelector('.e-model-custom').value = cur; showManual(true); }
+      // 存着的型号不在这份清单里 → 停在「其它」并把它填进手输框, 别让它悄悄落到别的模型上
+      const custom = modelSel.value === MODEL_CUSTOM;
+      customIn.value = custom ? cur : '';
+      showManual(custom);
+      if (probe) {
+        const cred = credSel.value;
+        const m = await window.ModelPick.probeDaily(cred);
+        const still = accApi.checked && credSel.value === cred && modelSel.value === cur;   // 等的时候他自己改了就不动
+        if (m && still && [...modelSel.options].some((o) => o.value === m)) modelSel.value = m;
+      }
     };
     // 🔴 切接入方式**只换清单, 不动手** —— 一切在「保存」那一刻才结算 (2026-08-18 作者口述)。
     //    理由: 切完模式用户多半还要接着挑一个新模型, 这时就重启等于按他半截的意图动手。
@@ -464,11 +461,9 @@ async function refresh() {
       (baseAccess === 'api' ? accApi : accSub).checked = true;
       credSel.value = p.credentialId || _defCred || (_creds[0] && _creds[0].id) || '';
       sdkSel.value = baseSdk;
-      showManual(false);
-      modelSel.value = isKnownModel(baseModel) ? baseModel : '';
-      await reloadModels();
+      await reloadModels({ cur: baseModel });
     };
-    const onAccessChange = async () => { await reloadModels(); };
+    const onAccessChange = async () => { await reloadModels({ switched: true }); };
     let modelsLoaded = false;
     const loadModelsIfNeeded = () => { if (!modelsLoaded) { modelsLoaded = true; reloadModels(); } };
     if (expanded.has(p.id)) loadModelsIfNeeded();
@@ -476,21 +471,16 @@ async function refresh() {
     accSub.addEventListener('change', onAccessChange);
     // 换凭据 = 换端点, 能用的模型清单跟着换(同切接入方式那条道理)
     credSel.addEventListener('change', onAccessChange);
-    panel.querySelector('.e-model-back').addEventListener('click', () => {
-      modelSel.value = isKnownModel(p.model) ? (p.model || '') : '';
-      showManual(false);
-    });
 
     panel.querySelector('.e-save').addEventListener('click', async () => {
       const newName = panel.querySelector('.e-name').value.trim();
       const newWake = panel.querySelector('.e-wake').value;   // 允许留空 = 用默认
       const newAvatar = panel.querySelector('.e-avatar-val').value;
       if (!newName) { toast(t('mgr_name_required')); return; }
-      // 手输框正露着 = 用手输的值; 否则用清单选的。'' = 跟随默认
-      const newModel = manual.hidden
-        ? panel.querySelector('.e-model-sel').value
-        : panel.querySelector('.e-model-custom').value.trim();
-      if (accApi.checked && (!newModel || newModel === MODEL_CUSTOM)) { toast(t('mgr_model_required')); return; }
+      // 选了「其它」= 用手输的值; 否则用清单选的。'' = 跟随默认
+      const newModel = curModel();
+      if (accApi.checked && !newModel) { toast(t('mgr_model_required')); return; }
+      window.ModelPick.rememberModel(p, accApi.checked ? 'api' : 'subscription', accApi.checked ? credSel.value : '', newModel);
       const patch = {};
       if (newName !== p.name) patch.name = newName;
       if (newAvatar !== (p.avatar || '')) patch.avatar = newAvatar;
@@ -498,7 +488,7 @@ async function refresh() {
       const newAccess = accApi.checked ? 'api' : 'subscription';
       const newCred = newAccess === 'api' ? credSel.value : (p.credentialId || '');
       // 引擎同接入方式: 建流那刻选定, 换了要重开 —— 一起走下面那条原子路
-      const newSdk = newAccess === 'api' && _ccAvail ? sdkSel.value : baseSdk;
+      const newSdk = window.ModelPick.sdkFor(p, newAccess);
       const accessChanged = newAccess !== baseAccess || newCred !== (p.credentialId || '') || newSdk !== baseSdk;
       if (newSdk !== baseSdk) patch.sdk = newSdk;
       if (newAccess !== baseAccess) patch.accessMode = newAccess;
@@ -608,10 +598,11 @@ F.importBtn.addEventListener('click', async () => {
 // —— 新建表单的接入方式 + 模型 ——
 // 模型清单跟着接入方式走(订阅问 SDK / 用 key 问那个端点), 所以换了单选就得重拉一次, 否则
 // 选的是订阅却在挑网关的模型名。
-const createShowManual = (on) => {
+// 下拉一直在, 选「其它」才在下面露出手输框(同编辑面板)
+const createShowManual = (on, focus = false) => {
   F.modelManual.hidden = !on;
-  F.modelSel.style.display = on ? 'none' : '';
-  if (on) F.modelCustom.focus();
+  if (on) F.modelSel.value = MODEL_CUSTOM;
+  if (on && focus) F.modelCustom.focus();
 };
 async function refreshCreateModelOptions() {
   // 新建时凭据下拉默认落在「默认」那条 —— 这正是设置里那个默认选项的用处
@@ -622,7 +613,8 @@ async function refreshCreateModelOptions() {
     F.sdk.dataset.cc = String(_ccAvail);
     F.sdk.innerHTML = (_ccAvail ? ['claude-code', 'butler'] : ['butler']).map((k) => `<option value="${k}">${esc(sdkLabel(k))}</option>`).join('');
   }
-  F.sdk.style.display = F.accApi.checked && _ccAvail ? '' : 'none';
+  F.sdk.style.display = 'none';   // 引擎跟着接入方式定死: 用 key = Butler 引擎, 订阅 = Claude Code(作者 11-07)
+  document.getElementById('f-tier').style.display = F.accApi.checked ? '' : 'none';
   await ensureModelOptions(F.accApi.checked, F.cred.value);
   F.modelSel.innerHTML = modelOptionsHtml('', { defaultOpt: true, needModel: F.accApi.checked });
   F.modelSrc.textContent = modelSrcNote();
@@ -635,11 +627,32 @@ const createModelValue = () => {
   const v = F.modelSel.value;
   return (!v || v === MODEL_CUSTOM) ? undefined : v;
 };
-F.modelSel.addEventListener('change', (ev) => { if (ev.target.value === MODEL_CUSTOM) createShowManual(true); });
-F.modelBack.addEventListener('click', () => { createShowManual(false); F.modelCustom.value = ''; F.modelSel.value = ''; });
-F.accSub.addEventListener('change', refreshCreateModelOptions);
-F.accApi.addEventListener('change', refreshCreateModelOptions);
-F.cred.addEventListener('change', refreshCreateModelOptions);
+F.modelSel.addEventListener('change', (ev) => createShowManual(ev.target.value === MODEL_CUSTOM, true));
+// 用户换成用 key / 换了一把 key: 按档在新 key 上试出能用的型号, 填进下面的清单(没动之前沿用管家的)
+const tierPick = window.TierPicker.create({ t, tier: null, credentialId: () => F.cred.value, onChange: ({ model, ok }) => {
+  if (!ok) return;
+  if ([...F.modelSel.options].some((o) => o.value === model)) { createShowManual(false); F.modelSel.value = model; }
+  else { createShowManual(true); F.modelCustom.value = model; }
+} });
+document.getElementById('f-tier').appendChild(tierPick.el);
+const onAccessPicked = async () => { await refreshCreateModelOptions(); if (F.accApi.checked) tierPick.refresh(); };
+F.accSub.addEventListener('change', onAccessPicked);
+F.accApi.addEventListener('change', onAccessPicked);
+F.cred.addEventListener('change', onAccessPicked);
+
+// 新建表单默认照抄管家当前的接入方式 · key · 引擎 · 模型(作者 2026-11-07 定): 管家能用, 照抄它就能用; 用户照样可以改。
+async function createFromButler() {
+  let b = null;
+  try { b = ((await window.butler.listPersonas()).personas || []).find((p) => p.isButler) || null; } catch (_) {}
+  const api = b ? b.accessMode === 'api' : !_subLoggedIn;
+  (api || !_subLoggedIn ? F.accApi : F.accSub).checked = true;
+  if (b && b.credentialId) F.cred.innerHTML = credOptionsHtml(b.credentialId);
+  await refreshCreateModelOptions();
+  if (!b) return;
+  if (!b.model) return;
+  if ([...F.modelSel.options].some((o) => o.value === b.model)) F.modelSel.value = b.model;
+  else { createShowManual(true); F.modelCustom.value = b.model; }
+}
 
 // 管理和新建分两个视图(作者 2026-11-05 定): 进管理只看人格列表, 新建由菜单「新建人格」直接进(#create)。
 let _view = 'list';
@@ -665,14 +678,14 @@ F.create.addEventListener('click', async () => {
     avatar: document.getElementById('f-avatar-val').value || undefined,
     accessMode: F.accApi.checked ? 'api' : 'subscription',
     credentialId: F.accApi.checked ? (F.cred.value || undefined) : undefined,
-    sdk: F.accApi.checked ? (F.sdk.value || 'butler') : undefined,
+    sdk: F.accApi.checked ? 'butler' : undefined,
     model: createModelValue(),
   });
   F.create.disabled = false;
   if (r.ok) {
     toast(t('mgr_created', { name: r.name }));
     F.name.value = ''; F.dir.value = ''; F.wake.value = ''; F.butler.checked = false; createSetAvatar('');
-    (_subLoggedIn ? F.accSub : F.accApi).checked = true; await refreshCreateModelOptions();
+    await createFromButler();
     showView('list');
   } else { toast(t('mgr_create_failed') + r.error); }
 });
@@ -687,6 +700,8 @@ function applyStrings(payload) {
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
   document.querySelectorAll('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.dataset.i18nPh); });
+  // 选档按钮建得比文案早(模块一加载就建): 文案一到就重画, 别等后面拉模型清单那趟网络
+  if (typeof tierPick !== 'undefined') tierPick.paint();
 }
 
 window.butler.onRegistryChanged && window.butler.onRegistryChanged(refresh);
@@ -694,6 +709,7 @@ window.butler.onLocaleChanged && window.butler.onLocaleChanged(async (payload) =
   applyStrings(payload);
   await refresh();
   refreshCreateModelOptions();   // 「跟随默认」那条是 t() 拼的, 换语言要重画
+  tierPick.paint();
 });
 
 (async () => {
@@ -703,5 +719,5 @@ window.butler.onLocaleChanged && window.butler.onLocaleChanged(async (payload) =
   await refresh();
   // 排在 refresh 之后: refresh 渲染各人格编辑面板时会把模型清单缓存切来切去,
   // 中途填新建表单会拿到别人的那份。
-  refreshCreateModelOptions();
+  createFromButler();
 })();

@@ -992,5 +992,77 @@
         "en": "Settings → General → Open the user guide covers installing, connecting models, channels and plugins (in Chinese for now). Also, every Copy button in the app silently did nothing before; they work now."
       }
     }
+  ],
+  "1.1.1": [
+    {
+      "title": {
+        "zh-CN": "选模型不用记型号：按「要多聪明」挑一档",
+        "zh-TW": "選模型不用記型號：按「要多聰明」挑一檔",
+        "ja": "モデルは型番でなく「どれくらい賢く」で選べるように",
+        "en": "Pick a model by how smart you need it, not by its name"
+      },
+      "detail": {
+        "zh-CN": "新建人格时在「要多聪明?」里选最强、强、日常或省钱，我们当场在你的 key 上试出这一档能用的型号；这把 key 上已经用着的型号会标「用过」。在系统设置里加 key 时先点厂家，地址自动填好，只贴 key 就行。",
+        "zh-TW": "新建人格時在「要多聰明?」裡選最強、強、日常或省錢，我們當場在你的 key 上試出這一檔能用的型號；這把 key 上已經用著的型號會標「用過」。在系統設定裡加 key 時先點廠商，位址自動填好，只貼 key 就行。",
+        "ja": "人格を作るとき「どれくらい賢く?」で最強・強・普段使い・節約から選ぶと、その段階で使えるモデルをあなたの key でその場で試して決めます。この key ですでに使っているモデルには「使用中」と出ます。システム設定で key を追加するときは先にサービスを選べば、アドレスは自動で入り、key を貼るだけです。",
+        "en": "When you create a persona, choose Top, Strong, Everyday or Budget under \"How smart?\" and we test your key on the spot to find a model in that tier; models already in use on that key are marked as such. When adding a key in Settings, pick the provider first — the address is filled in, you only paste the key."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "管家会自己开口：每天打个招呼，提醒快到期的事",
+        "zh-TW": "管家會自己開口：每天打個招呼，提醒快到期的事",
+        "ja": "管家から声をかけるように：毎日のあいさつと期限が近いことのお知らせ",
+        "en": "Your butler speaks up: a daily hello and a nudge about things coming due"
+      },
+      "detail": {
+        "zh-CN": "管家每天会主动开口一次；你当天第一次找它时，答完正事会顺带提一件快到期或没做完的事。输入框上方的快捷按钮换成了按场景的（比如「到点提醒我」「帮我查查比比」），挂了两周一次没点过的，每周体检会问你要不要换掉。",
+        "zh-TW": "管家每天會主動開口一次；你當天第一次找它時，答完正事會順帶提一件快到期或沒做完的事。輸入框上方的快捷按鈕換成了按情境的（比如「到點提醒我」「幫我查查比比」），掛了兩週一次沒點過的，每週體檢會問你要不要換掉。",
+        "ja": "管家が毎日一度は自分から話しかけます。その日最初に話しかけたときは、用件に答えたあとで期限が近いことや終わっていないことを一つ添えます。入力欄の上のクイックボタンは場面別（「時間になったら知らせて」「調べて比べて」など）になり、2 週間一度も押されていないものは週次の点検で入れ替えを提案します。",
+        "en": "Your butler now opens the conversation once a day, and the first time you talk to it each day it mentions one thing that is due soon or unfinished after answering you. The quick buttons above the input box are now situation-based (\"Remind me on time\", \"Look it up and compare\"), and the weekly checkup offers to swap out any that went untapped for two weeks."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "网络断了会自己重试，不再冒出英文报错",
+        "zh-TW": "網路斷了會自己重試，不再冒出英文報錯",
+        "ja": "接続が切れても自動で再試行、英語のエラーが出なくなりました",
+        "en": "Dropped connections are retried, no more raw English errors"
+      },
+      "detail": {
+        "zh-CN": "模型服务中途断开（包括话说到一半断掉）时，会自动重试最多 6 次，断掉前已经显示的半句话会撤掉，不会重复。6 次都没连上，才显示一句「网络断了」的提示。",
+        "zh-TW": "模型服務中途斷開（包括話說到一半斷掉）時，會自動重試最多 6 次，斷掉前已經顯示的半句話會撤掉，不會重複。6 次都沒連上，才顯示一句「網路斷了」的提示。",
+        "ja": "モデルのサービスが途中で切れたとき（話の途中で切れた場合も含む）は最大 6 回まで自動で再試行し、切れる前に出ていた途中の文は消して重複させません。6 回ともつながらなかったときだけ「接続が切れました」と表示します。",
+        "en": "When the model service drops mid-way (including mid-sentence), it is retried up to 6 times automatically and the half-shown text is removed so nothing repeats. Only if all 6 attempts fail do you see a short \"connection dropped\" notice."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "主界面顶栏可以直接换 key 和模型",
+        "zh-TW": "主介面頂欄可以直接換 key 和模型",
+        "ja": "メイン画面の上部で key とモデルを直接切り替え",
+        "en": "Switch key and model right from the top bar"
+      },
+      "detail": {
+        "zh-CN": "在系统设置 →「通用」里打开「快速切换模型」，人格名字右边就会出现「key · 模型 ▾」，点一下给当前人格换。人格名字再长也不会被挤成竖排，目录放不下时会来回滚动。",
+        "zh-TW": "在系統設定 →「一般」裡開啟「快速切換模型」，人格名字右邊就會出現「key · 模型 ▾」，點一下給目前人格換。人格名字再長也不會被擠成直排，目錄放不下時會來回捲動。",
+        "ja": "システム設定 →「一般」で「モデルのクイック切り替え」をオンにすると、人格名の右に「key · モデル ▾」が出て、今の人格の key とモデルをその場で変えられます。人格名が長くても縦に折り返さず、フォルダーのパスが収まらないときは左右に流れます。",
+        "en": "Turn on \"Quick model switch\" in Settings → General and a \"key · model ▾\" chip appears next to the persona name to change them for the current persona. Long persona names no longer wrap, and a folder path that doesn't fit scrolls back and forth."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "联网搜索去掉了 Bing 和 DuckDuckGo",
+        "zh-TW": "聯網搜尋移除了 Bing 和 DuckDuckGo",
+        "ja": "ウェブ検索から Bing と DuckDuckGo を外しました",
+        "en": "Bing and DuckDuckGo removed from web search"
+      },
+      "detail": {
+        "zh-CN": "实测这两家不用 key 的搜索拿回的多是与问题无关的页面或人机验证页，已经去掉，以前加过的会自动停用。现在可加 Brave、Tavily 或自建的 SearXNG；不加就用模型自带的搜索。系统设置 →「工具」里点「＋ 添加」再选一家，改完关窗时有改动会问你要不要保存。",
+        "zh-TW": "實測這兩家不用 key 的搜尋拿回的多是與問題無關的頁面或人機驗證頁，已經移除，以前加過的會自動停用。現在可加 Brave、Tavily 或自架的 SearXNG；不加就用模型內建的搜尋。系統設定 →「工具」裡點「＋ 新增」再選一家，改完關窗時有改動會問你要不要儲存。",
+        "ja": "key なしで使えるこの 2 つは、試したところ質問と関係ないページやボット確認ページばかり返したので外しました。以前追加していたものは自動で使われなくなります。追加できるのは Brave・Tavily・自前の SearXNG で、何も追加しなければモデル内蔵の検索を使います。システム設定 →「ツール」で「＋ 追加」を押してから選び、変更したまま閉じると保存するか確認します。",
+        "en": "In testing, these two key-free engines mostly returned unrelated pages or bot checks, so they are gone and any you had added stop being used. You can add Brave, Tavily or your own SearXNG; with none added, the model's built-in search is used. In Settings → Tools press \"+ Add\" and then pick one; closing the window with unsaved changes asks whether to save."
+      }
+    }
   ]
 }

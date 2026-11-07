@@ -2,16 +2,16 @@
 //
 // 规则(作者 2026-11-06 定):
 //   · 新装一家都不配 → 只用模型服务端自带的搜索(有就有, 没有就没有)
-//   · 用户在设置里自己加引擎(TYPES 五种), 个数不限, 自己排先后, 排前的先试, 一家不通换下一家
+//   · 用户在设置里自己加引擎(TYPES 三种, 都要 key 或自建地址), 个数不限, 自己排先后, 排前的先试, 一家不通换下一家
 //   · 加了引擎就只用这些, 不再给服务端搜索; 勾「禁用」→ 加过的全部不用、配置留着, 退回服务端自带
 // 存法: settings.search = { engines: [{ id, type, url? }], disabled }, key 只进不出, 真值在
 // secrets['search_key:<id>'](老版本的 brave / tavily 两把 id 恰好就是 'brave' / 'tavily', 迁移不用搬 key)。
 // 运行时由 applyEnv 拼成 env.BUTLER_SEARCH_ENGINES(JSON 数组)交给 agent-sdk/src/tools/search-engines.ts。
 'use strict';
 
+// Bing / DuckDuckGo 11-07 拿掉: 程序抓它们的网页拿不到正经结果(Bing 回凑数的无关页面, DuckDuckGo 回人机验证页)。
+// 老配置里存着的这两家, current() 按 TYPES 过滤时自然丢掉, 不再注入。
 const TYPES = {
-  bing: { name: 'Bing' },
-  duckduckgo: { name: 'DuckDuckGo' },
   brave: { name: 'Brave', key: true },
   tavily: { name: 'Tavily', key: true },
   searxng: { name: 'SearXNG', url: true },

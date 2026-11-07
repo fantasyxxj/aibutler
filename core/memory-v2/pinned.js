@@ -78,11 +78,17 @@ class PinnedMixin {
   }
 
   // 单条字数的盖: 常驻每个会话都整条带着, 超了让写的人当场改短。
-  pinnedTooLong(claim) {
+  // 出厂条目改不了命题, 「改短再钉」走不通 —— 另附一段: 短版存成自己的一条再钉(main/pinned_too_long_factory.md)
+  pinnedTooLong(claim, factorySlug = '') {
     const len = [...String(claim || '')].length;
     if (len <= PINNED_MAX_CHARS) return '';
-    const vars = { max: PINNED_MAX_CHARS, len };
-    try { if (hostCfg()) return hostCfg().render('main/pinned_too_long', vars); }
+    const vars = { max: PINNED_MAX_CHARS, len, slug: factorySlug };
+    try {
+      if (hostCfg()) {
+        const base = hostCfg().render('main/pinned_too_long', vars);
+        return factorySlug ? `${base}\n${hostCfg().render('main/pinned_too_long_factory', vars)}` : base;
+      }
+    }
     catch (e) { console.error('[pinned] too-long copy failed, falling back:', e && e.message); }
     return `Not pinned: a pinned claim rides along with every session, so it is at most ${vars.max} characters (this one is ${vars.len}). Rewrite the claim shorter, then pin again.`;
   }
@@ -91,7 +97,8 @@ class PinnedMixin {
     const id = this.resolve(ref);
     if (!id) throw new Error(`node not found: ${ref}`);
     if (!this.store.isPinned(id)) {
-      const tooLong = this.pinnedTooLong((this.store.node(id) || {}).claim);
+      const n = this.store.node(id) || {};
+      const tooLong = this.pinnedTooLong(n.claim, n.is_factory ? (n.slug || String(ref)) : '');
       if (tooLong) throw new Error(tooLong);
     }
     if (!this.store.isPinned(id) && this.store.pinnedCount() >= PINNED_QUOTA) {

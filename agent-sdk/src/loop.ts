@@ -31,7 +31,7 @@ export async function runTurn(s: Session, batch: any[], signal: AbortSignal): Pr
     const c = classify(s.setupError);
     s.emit({ type: 'system', subtype: 'api_retry', attempt: 1, max_retries: 1, retry_delay_ms: 0, error_status: c.status, error: c.kind, session_id: s.sessionId, uuid: uuid() });
     lastText = `API Error: ${c.message}`;
-    emitAssistant(s, [{ type: 'text', text: lastText }], total, 'end_turn');
+    emitAssistant(s, [{ type: 'text', text: lastText }], total, 'end_turn', c.kind);
     isError = true;
   }
 
@@ -71,7 +71,7 @@ export async function runTurn(s: Session, batch: any[], signal: AbortSignal): Pr
         s.log(`[api] ${s.modelId} 第 ${attempt} 次失败 status=${c.status} kind=${c.kind}: ${c.message.slice(0, 600)}`);
         if (!retry) {
           lastText = `API Error: ${c.status != null ? c.status + ' ' : ''}${c.message}`;
-          emitAssistant(s, [{ type: 'text', text: lastText }], toCcUsage(null), 'end_turn');
+          emitAssistant(s, [{ type: 'text', text: lastText }], toCcUsage(null), 'end_turn', c.kind);
           isError = true;
           break;
         }
@@ -156,11 +156,13 @@ async function execTool(s: Session, call: StepCall, signal: AbortSignal): Promis
   return out;
 }
 
-function emitAssistant(s: Session, blocks: any[], usage: any, stopReason: string): void {
+// error: 这条是报错不是模型说的话(官方 SDK 的 SDKAssistantMessage.error 同名同义), 宿主据此换成给人看的说法
+function emitAssistant(s: Session, blocks: any[], usage: any, stopReason: string, error?: string): void {
   s.emit({
     type: 'assistant',
     message: { id: `msg_${rid()}`, type: 'message', role: 'assistant', model: s.modelId, content: blocks, stop_reason: stopReason, stop_sequence: null, usage },
     parent_tool_use_id: null, session_id: s.sessionId, uuid: uuid(),
+    ...(error ? { error } : {}),
   });
 }
 

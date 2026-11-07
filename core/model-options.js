@@ -41,7 +41,10 @@ async function modelsFromEndpoint(a, { bearerOnly = false } = {}) {
   const base = (a.base_url || 'https://api.anthropic.com').replace(/\/+$/, '');
   const headers = { authorization: `Bearer ${key}`, 'anthropic-version': '2023-06-01' };
   if (!bearerOnly) headers['x-api-key'] = key;
-  const res = await fetch(`${base}/v1/models?limit=1000`, { headers, signal: AbortSignal.timeout(10000) });
+  // OpenAI 兼容端点的地址自带版本段(…/compatible-mode/v1 · …/api/v3 · …/v1beta/openai), 清单在 /models;
+  // 再拼 /v1/models 就成了 /v1/v1/models, 千问这类一律 404, 下拉只剩手填(11-07 修)
+  const compat = /\/v\d+[a-z]*(\/openai)?$/.test(base);
+  const res = await fetch(compat ? `${base}/models` : `${base}/v1/models?limit=1000`, { headers, signal: AbortSignal.timeout(10000) });
   if (!res.ok) { console.error(`[models] ${base}/v1/models → ${res.status}`); return null; }
   const j = await res.json();
   const rows = Array.isArray(j.data) ? j.data : (Array.isArray(j) ? j : []);
@@ -83,14 +86,21 @@ async function listModelOptions({ builtin = [], access = null } = {}) {
     return { options, source: 'live', from: 'api.anthropic.com' };
   }
 
-  const from = (access.base_url || 'https://api.anthropic.com').replace(/^https?:\/\//, '').replace(/\/+$/, '');
+  // 非 Anthropic 协议的厂家(千问 · 豆包 · OpenAI …): 人格模型名要带协议前缀(compat/… openai/…), 引擎靠它选通道。
+  // 清单里直接给带前缀的 id, 用户从下拉里选的就是能跑的那个; 显示仍是原名(11-07: 原先选了裸名会走错协议)。
+  // 地址空着的 OpenAI 官方 key 也得去 OpenAI 拉, 不能拿它去问 api.anthropic.com。
+  const { vendorFor, personaModel } = require('./model-tier');
+  const v = vendorFor(require('./config/models/vendors.json'), access);
+  const foreign = !!(v && v.protocol && v.protocol !== 'anthropic');
+  const listAccess = foreign && !access.base_url ? { ...access, base_url: v.list_base || v.base_url } : access;
+  const from = (listAccess.base_url || 'https://api.anthropic.com').replace(/^https?:\/\//, '').replace(/\/+$/, '');
   let live = null;
-  try { live = await modelsFromEndpoint(access); }
+  try { live = await modelsFromEndpoint(listAccess); }
   catch (e) { console.error('[models] 现拉失败:', e && e.message); }
 
   // API/网关拉不到 → 只剩「跟随默认」和手输口子。拿官方名去充数, 在网关上一个都打不通, 是误导。
   if (!live || !live.length) return { options: widget, source: 'fallback', from };
-
+  if (foreign) live = live.map((o) => ({ ...o, id: personaModel(v.protocol, o.id) }));
   const options = mergeOptions(widget, live);
   console.log(`[models] ${from} 给了 ${live.length} 个, 下拉共 ${options.length} 条`);
   return { options, source: 'live', from };

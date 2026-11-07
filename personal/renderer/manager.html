@@ -56,10 +56,10 @@
     </div>
     <label data-i18n="mgr_model">模型</label>
     <div>
+      <div id="f-tier"></div>
       <select id="f-model-sel" style="width:100%"></select>
-      <div id="f-model-manual" hidden>
-        <input id="f-model-custom" data-i18n-ph="mgr_model_ph_custom" placeholder="手输模型名(走第三方网关时用)"/>
-        <button type="button" class="m-btn" id="f-model-back" data-i18n="mgr_model_back">⤺ 回清单</button>
+      <div id="f-model-manual" style="margin-top:6px" hidden>
+        <input id="f-model-custom" data-i18n-ph="mgr_model_ph_custom" placeholder="手输模型名(走第三方网关时用)" style="width:100%"/>
       </div>
       <div class="e-dir-note" id="f-model-src"></div>
     </div>
@@ -85,10 +85,13 @@
 
   <div id="toast" class="m-toast"></div>
 
+  <script src="win-close.js"></script>
   <script src="hub-panel.js"></script>
   <script src="persona-card.js"></script>
   <script src="channel-cards.js"></script>
   <script src="edit-tabs.js"></script>
+  <script src="tier-picker.js"></script>
+  <script src="model-pick.js"></script>
   <script src="manager.js"></script>
 </body>
 </html>

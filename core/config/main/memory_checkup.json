@@ -9,5 +9,8 @@
   "fatNodes": 5,
   "isolatedNodes": 20,
   "reviewDue": 3,
-  "noClaim": 10
+  "noClaim": 10,
+
+  "_staleChipDays": "快捷按钮挂满几天、一次没被点过就在体检里提出来(只提醒, 换不换由用户点头)。0 = 不查。",
+  "staleChipDays": 14
 }

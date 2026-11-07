@@ -142,8 +142,9 @@ async function resolveSdkKind({ accessMode, sdk } = {}) {
 // 新建 key 人格时把引擎写死成这一刻会用的那个(作者 11-05: 建人格不许留空)。空着的话装上 Claude SDK
 // 后它会悄悄从 butler 换成 claude-code。只认已探过的结果, 没探过按没有算。
 function sdkForNewPersona(accessMode) {
-  if (accessMode !== 'api') return '';   // 订阅只能跑 claude-code, 不用写
-  return sdkChoice() || (_ccAvail ? SDK_CLAUDE_CODE : SDK_BUTLER);
+  // 引擎跟着接入方式定死, 不让用户选(作者 11-07): 用 key = Butler 引擎, 订阅 = Claude Code(不用写)
+  if (accessMode !== 'api') return '';
+  return SDK_BUTLER;
 }
 // 开发机用 node_modules 那份; 安装包不带, 用用户在系统设置里自己下载的那份(core/cc-sdk-install.js)
 async function importClaudeSdk() {

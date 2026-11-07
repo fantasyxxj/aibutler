@@ -10,7 +10,7 @@ const css = R('theme.css');
 const li = css.indexOf('@media (prefers-color-scheme: light)');
 ok(li > 0, 'theme.css 有浅色媒体查询');
 const dark = vars(css.slice(0, li)), light = vars(css.slice(li));
-const colorKeys = Object.keys(dark).filter((k) => !k.startsWith('--radius'));
+const colorKeys = Object.keys(dark).filter((k) => !k.startsWith('--radius') && !/^['"]/.test(dark[k]));   // 圆角与文字串(如 --tool-done-label)不分深浅
 ok(colorKeys.every((k) => k in light), '🔴 深色里每个颜色 token 浅色都有一份(缺了浅色下就落回深色值)');
 
 // 引用了没定义的变量不报错, 只是取不到值 —— sediment 卡片原先写 var(--fg) 就是这样一直落在兜底色上

@@ -11,6 +11,7 @@
 
 import { streamText } from 'ai';
 import { toCcUsage } from './convert.js';
+import { StreamCut } from './errors.js';
 
 export interface StepCall { id: string; name: string; input: any; invalid?: string }
 
@@ -76,6 +77,7 @@ export async function runStep(a: StepArgs): Promise<StepResult> {
   let stopReason = 'end_turn';
   let text = '';
   let failed: unknown = null;
+  let cut = false;
 
   const open = (key: string, block: any) => {
     const i = blocks.length;
@@ -154,6 +156,8 @@ export async function runStep(a: StepArgs): Promise<StepResult> {
           break;
         }
         case 'finish-step':
+          // 没说完流就断了: 不当这一步说完, 交给 loop 重发(用户自己按停走的是 abort 分片, 不在这里)
+          if (p.finishReason === 'interrupted') { cut = true; break; }
           usage = toCcUsage(p.usage);
           stopReason = p.rawFinishReason === 'pause_turn' ? 'pause_turn' : (STOP[p.finishReason] || p.rawFinishReason || 'end_turn');
           a.emitEvent({ type: 'message_delta', delta: { stop_reason: stopReason }, usage: { output_tokens: usage.output_tokens } });
@@ -171,6 +175,7 @@ export async function runStep(a: StepArgs): Promise<StepResult> {
   }
   if (a.signal.aborted) throw new StepAborted(text);
   if (failed) throw failed;
+  if (cut) throw new StreamCut(text);
 
   let responseMessages: any[] = [];
   try { responseMessages = (await r.response).messages || []; } catch (_) { /* 拿不到就按块重建 */ }

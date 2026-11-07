@@ -32,6 +32,7 @@
     <div class="brand"><span id="personaAvatar" class="cur-avatar"></span><span id="personaName" data-i18n="title">全能管家</span>
       <span class="sub" id="personaDir" data-i18n-title="persona_dir_hint" title="当前人格的目录(记忆体所在)">—</span>
     </div>
+    <button id="modelChip" class="hidden" data-i18n-title="ms_chip_hint" title="换这个人格用的 key 和模型"></button>
     <div class="ctxwrap" data-i18n-title="ctx_hint" title="上下文占用(真 usage)">
       <div class="ctxbar"><div id="ctxfill"></div></div>
       <div id="ctxlabel">— %</div>
@@ -100,9 +101,15 @@
   <script src="board.js"></script>
   <script src="chips.js"></script>
   <script src="hub-firstrun.js"></script>
+  <script src="tier-picker.js"></script>
   <script src="empty-state.js"></script>
   <script src="persona-card.js"></script>
+  <script src="model-pick.js"></script>
+  <!-- renderer.js 之前: 启动时第一次 showPersona 就要找到它; 它用的 t() 只在点开时才调 -->
+  <script src="model-switch.js"></script>
+  <script src="path-marquee.js"></script>
   <script src="renderer.js"></script>
+  <script src="step-retry.js"></script>
   <!-- renderer.js 之后: 关闭遮罩要用那边的 t() -->
   <script src="sediment-overlay.js"></script>
   <!-- renderer.js 之后: 要用 t() -->

@@ -74,6 +74,8 @@ function checkupFindings(report, cfg = {}) {
   // pinned(常驻)超配额: 超 0 就报 —— 每条每轮都付钱, 满着的时候新条目也会被挡在外面
   const over = Math.max(0, (report.pinned || 0) - (report.quota || 0));
   if (over > 0) out.push({ key: 'pinned_over_quota', label: `pinned (resident) set is over quota by ${over}` });
+  // 超长常驻: 超 0 就报 —— 撤下之后按 120 字上限钉不回, 出厂条目又改不了, 只能趁还钉着先换成短版
+  if (report.pinned_too_long > 0) out.push({ key: 'pinned_too_long', label: `${report.pinned_too_long} pinned claims are over the length cap` });
 
   // ── 老记忆欠账: 肥大 + 缺命题 + 孤儿 + 缺归类 合并成一项 ──
   // 作者:「本身没处理的老记忆, 主要就是肥大的记忆, 不符合我们命题的规范的」。
@@ -118,6 +120,16 @@ function checkupFindings(report, cfg = {}) {
   return out;
 }
 
+// 挂满 staleChipDays 天、一次没被点过的快捷按钮 —— 只报颗数; 换哪颗、换成什么由人格自己查
+// get_chip_usage 和记忆里的用户情况再定。0 = 不查(行业版的按钮另有一套, 在 idle.js 里关掉)。
+function staleChipFinding(ops, staleDays) {
+  const days = Number(staleDays) || 0;
+  if (!(days > 0) || !ops || typeof ops.chipUsage !== 'function') return null;
+  const n = ((ops.chipUsage({ staleDays: days }) || {}).stale || []).length;
+  if (!n) return null;
+  return { key: 'stale_chips', label: `${n} quick buttons have sat ${days}+ days with zero taps` };
+}
+
 // 冲突普扫的取样上限 —— 调用处按它取样, 这里按它判"到顶了没有"。
 const CONFLICT_SAMPLE_CAP = 20;
 
@@ -144,6 +156,7 @@ module.exports = {
   checkupGate,
   checkupFindings,
   conflictFinding,
+  staleChipFinding,
   CONFLICT_SAMPLE_CAP,
   CHECKUP_INTERVAL_DAYS,
   CHECKUP_IDLE_MIN,

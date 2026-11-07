@@ -1,0 +1,1 @@
+`{{slug}}` is shipped knowledge, so its claim cannot be edited. Save the short version as your own node — `memory_upsert(id='<new slug>', claim='<≤{{max}} characters>', links='{{slug}}')` — and pin that one instead.

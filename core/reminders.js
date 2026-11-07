@@ -72,6 +72,8 @@ const line = (r) => `#${r.id}${r.paused ? ' · ⏸ paused' : ''} · ${r.at ? `on
 // schedule.json 的条目在工具里叫 sched:<id>。可 pause/resume/cancel, 不可 update —— 改内容归人(见文件头)。
 // 暂停状态记在本登记簿的 pausedSchedules 里, 不碰 schedule.json; 只有 cancel 才真删文件里那一条。
 const SCHED = 'sched:';
+// 内置的定时开口, 不在 schedule.json 里, 但同样能用 sched:<id> 暂停/恢复(用户说「别每天找我」就 pause)。
+const BUILTIN = { day_greet: 'built-in daily check-in: you speak first once a day (first launch or 9:00)' };
 const schedEntries = (home) => {
   if (!home) return [];
   try { const reg = sched.loadRegistry(home); return reg ? reg.entries : []; } catch (_) { return []; }
@@ -138,7 +140,7 @@ function setPaused(book, id, on, home, now) {
   if (id.startsWith(SCHED)) {
     const sid = id.slice(SCHED.length);
     const e = schedEntries(home).find((x) => x.id === sid);
-    if (!e && on) return `⚠️ No schedule.json entry "${sid}". Run op='list' to see them.`;
+    if (!e && on && !BUILTIN[sid]) return `⚠️ No schedule.json entry "${sid}". Run op='list' to see them.`;
     on ? ps.add(sid) : ps.delete(sid);
     book.pausedSchedules = [...ps];
     return `✅ ${verb} ${SCHED}${sid}${e ? ` (cron "${e.cron}")` : ''}.`;
@@ -168,9 +170,11 @@ function reminderOp(memoryDir, op, args, now = new Date(), home = null) {
   if (op === 'list') {
     const ps = new Set(book.pausedSchedules);
     const se = schedEntries(home);
-    if (!book.items.length && !se.length) return '(No reminders registered.)';
+    const pausedBuiltin = Object.keys(BUILTIN).filter((k) => ps.has(k));   // 只在被暂停时列出, 让「恢复」找得到
+    if (!book.items.length && !se.length && !pausedBuiltin.length) return '(No reminders registered.)';
     let out = `${book.items.length} registered (now ${fmt(now)})${book.items.length ? ':\n' + book.items.map(line).join('\n') : '.'}`;
     if (se.length) out += `\n\nschedule.json (hand-written · pause/resume/cancel, no edits):\n` + se.map((e) => schedLine(e, ps.has(e.id), now)).join('\n');
+    if (pausedBuiltin.length) out += '\n\n' + pausedBuiltin.map((k) => `${SCHED}${k} · ⏸ paused · ${BUILTIN[k]}`).join('\n');
     return out;
   }
 

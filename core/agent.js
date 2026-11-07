@@ -29,7 +29,7 @@ const { GATEWAY_MODEL_KEYS, GATEWAY_ENV_KEYS, accessConfig, applyAccessEnv, clas
 //
 // 🔴 onTasks 不在内: 任务清单是状态不是独白, 沉淀轮改了清单界面也得跟上, 掐了就和实际对不上。
 const UI_EVENTS = new Set([
-  'onText', 'onTextDone', 'onTool', 'onToolDone', 'onActivity', 'onResult',
+  'onText', 'onTextDone', 'onStepStart', 'onTextDiscard', 'onTool', 'onToolDone', 'onActivity', 'onResult',
 ]);
 
 class Butler {

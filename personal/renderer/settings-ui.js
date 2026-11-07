@@ -30,14 +30,28 @@ const ACADD = document.getElementById('ac-add');
 
 let _credLast = null;      // 切语言时按快照重画, 不重新读盘(重读会冲掉没保存的输入)
 let _draft = null;         // 正在新增的那条(还没落盘, 没有 id)
+let _picking = false;      // 点了「加一条」、还在选厂家(vendor-cards.js)
 
 function credRender(d) {
   if (d) _credLast = d;
   const s = _credLast; if (!s) return;
   const rows = [...(s.credentials || [])];
   if (_draft) rows.push(_draft);
-  ACL.innerHTML = rows.length ? '' : `<div style="color:var(--muted);font-size:12px">${esc(t('sys_cred_empty'))}</div>`;
+  ACL.innerHTML = rows.length || _picking ? '' : `<div style="color:var(--muted);font-size:12px">${esc(t('sys_cred_empty'))}</div>`;
   for (const c of rows) ACL.appendChild(credRow(c, s.defaultCredentialId));
+  if (_picking) {
+    ACL.appendChild(window.VendorCards.picker(t, (v) => {
+      // 选了厂家: 名字和官方地址带好, 只剩贴 key; 「其他」(v=null)就是自己填地址的空白表单
+      _picking = false;
+      _draft = { id: '', name: v ? v.label : '', base_url: v ? v.base_url : '', vendor: v ? v.id : '', keyState: 'none' };
+      credRender();
+      // 新加的那条在列表最后: 焦点和滚动都落在它上面(ACL.querySelector 拿到的是第一条, 已存的 key 框都是空的, 分不清在填哪条)
+      const row = ACL.lastElementChild;
+      const k = row && row.querySelector(v ? '.c-key' : '.c-name');
+      if (row) row.scrollIntoView({ block: 'nearest' });
+      if (k) k.focus();
+    }, () => { _picking = false; credRender(); }));
+  }
 }
 
 function credRow(c, defId) {
@@ -45,14 +59,17 @@ function credRow(c, defId) {
   box.style.cssText = 'border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px;margin-bottom:8px';
   const isNew = !c.id;
   const stale = c.keyState === 'stale';
+  // 选过厂家卡片的: 地址是那家官方的, 不给改, 只显示是哪家; 「其他」和老凭据照旧自己填地址
+  const vendorName = c.vendor ? (window.VendorCards.label(c.vendor) || c.vendor) : '';
   box.innerHTML = `
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       <input class="c-name" type="text" value="${esc(c.name || '')}" placeholder="${esc(t('sys_cred_name_ph'))}" style="flex:0 0 140px"/>
-      <input class="c-base" type="text" value="${esc(c.base_url || '')}" placeholder="https://api.anthropic.com" style="flex:1;min-width:180px"/>
+      ${vendorName ? `<span class="vc-tag" style="flex:1;min-width:180px">${esc(t('sys_vendor_official', { vendor: vendorName }))}</span>`
+    : `<input class="c-base" type="text" value="${esc(c.base_url || '')}" placeholder="https://api.anthropic.com" style="flex:1;min-width:180px"/>`}
       <label style="font-weight:normal;font-size:12px;white-space:nowrap"><input type="radio" name="cred-def" class="c-def" ${c.id && c.id === defId ? 'checked' : ''} ${isNew ? 'disabled' : ''}> ${esc(t('sys_cred_default'))}</label>
     </div>
     <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap">
-      <input class="c-key" type="password" autocomplete="off" placeholder="${esc(c.keyState === 'ok' ? t('sys_api_key_saved') : (stale ? t('sys_api_key_stale_ph') : 'sk-ant-…'))}" style="flex:1;min-width:180px"/>
+      <input class="c-key" type="password" autocomplete="off" placeholder="${esc(c.keyState === 'ok' ? t('sys_api_key_saved') : (stale ? t('sys_api_key_stale_ph') : (c.vendor && c.vendor !== 'anthropic' ? t('sys_vendor_key_ph') : 'sk-ant-…')))}" style="flex:1;min-width:180px"/>
       <span class="c-status" style="font-size:12px;color:var(--muted)">${stale ? esc(t('sys_api_key_stale')) : ''}</span>
       <span style="flex:1"></span>
       <button class="m-btn c-test">${esc(t('sys_test'))}</button>
@@ -60,8 +77,8 @@ function credRow(c, defId) {
       <button class="m-btn primary c-save">${esc(t('mgr_save'))}</button>
     </div>`;
   const q = (k) => box.querySelector(k);
-  const patch = () => ({ id: c.id || undefined, name: q('.c-name').value.trim(),
-                         base_url: q('.c-base').value.trim(), apiKey: q('.c-key').value });
+  const patch = () => ({ id: c.id || undefined, name: q('.c-name').value.trim(), vendor: c.vendor || '',
+                         base_url: q('.c-base') ? q('.c-base').value.trim() : (c.base_url || ''), apiKey: q('.c-key').value });
   q('.c-save').addEventListener('click', async () => {
     if (!q('.c-name').value.trim()) { toast(t('sys_cred_need_name')); return; }
     // 新增的那条必须当场给 key, 否则存出来一条永远用不了的空壳
@@ -74,7 +91,8 @@ function credRow(c, defId) {
     if (users.length && !confirm(t('sys_cred_restart_confirm', { name: pt.name, personas: users.map((u) => u.name).join('、') }))) return;
     const r = await window.butler.saveCredential(pt);
     if (!r.ok) { toast(r.error === 'encryption_unavailable' ? t('sys_api_no_keychain')
-                     : r.error === 'name_required' ? t('sys_cred_need_name') : t('mgr_save_failed') + (r.error || '')); return; }
+                     : r.error === 'name_required' ? t('sys_cred_need_name')
+                     : r.error === 'bad_url' ? t('sys_cred_bad_url') : t('mgr_save_failed') + (r.error || '')); return; }
     _draft = null;
     const failed = [];
     for (const u of users) {
@@ -97,7 +115,11 @@ function credRow(c, defId) {
     q('.c-status').style.color = 'var(--muted)';
     const r = await window.butler.testCredential(patch());
     q('.c-test').disabled = false;
-    q('.c-status').textContent = (r.ok ? '● ' : '○ ') + (r.detail || (r.error === 'no_key' ? t('sys_api_need_key') : ''));
+    // 厂家卡片那条路回的是 model/reason(core/credentials.js test), 原因文案与建人格选档共用 tier_why_*
+    const why = { auth: 'tier_why_auth', quota: 'tier_why_quota', no_model: 'tier_why_no_model', rate: 'tier_why_rate', upstream: 'tier_why_upstream',
+      network: 'tier_why_network', list_failed: 'tier_why_list_failed', no_models: 'tier_why_no_models' }[r.reason] || (r.reason ? 'tier_why_error' : '');
+    const msg = r.model ? t('sys_vendor_test_ok', { model: r.model.replace(/^[a-z]+\//, '') }) : why ? t(why) : '';
+    q('.c-status').textContent = (r.ok ? '● ' : '○ ') + (msg || r.detail || (r.error === 'no_key' ? t('sys_api_need_key') : ''));
     q('.c-status').style.color = r.ok ? 'var(--ok)' : 'var(--danger)';
   });
   q('.c-def').addEventListener('change', async () => {
@@ -109,13 +131,14 @@ function credRow(c, defId) {
 }
 
 async function credRefresh() {
-  try { credRender(await window.butler.listCredentials()); }
+  try { await window.VendorCards.load(); credRender(await window.butler.listCredentials()); }
   catch (e) { console.error('[settings] listCredentials failed:', e && e.message); }
 }
 
-ACADD.addEventListener('click', () => {
-  if (_draft) return;                       // 一次只让加一条, 免得攒出一堆没存的空行
-  _draft = { id: '', name: '', base_url: '', keyState: 'none' };
+ACADD.addEventListener('click', async () => {
+  if (_draft || _picking) return;           // 一次只让加一条, 免得攒出一堆没存的空行
+  await window.VendorCards.load();          // 先选厂家(vendor-cards.js), 选完才出表单
+  _picking = true;
   credRender();
 });
 
@@ -288,7 +311,12 @@ THEME_SEG.addEventListener('click', async (e) => {
   if (r && r.ok) themeMark(r.theme);
 });
 
+// ---- 快速切换模型: 顶栏那颗「key · 模型 ▾」显不显示 ----
+const QS = document.getElementById('qs-enabled');
+QS.addEventListener('change', () => { window.butler.setQuickSwitch(QS.checked).catch(() => {}); });
+
 (async () => {
+  window.butler.getQuickSwitch().then((r) => { QS.checked = !!(r && r.on); }).catch(() => {});
   window.butler.getTheme().then((r) => themeMark(r && r.theme)).catch(() => {});
   // 先拿语言再画: 状态条是 t() 拼出来的, S 还空着就画会得到一屏空白
   try { applyStrings(await window.butler.getLocale()); }

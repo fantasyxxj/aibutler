@@ -23,9 +23,13 @@ If it flagged suspected conflicts, run `memory_admin(op='conflict_scan')` and ac
 
 ⚠️ Isolated does not mean it should be cleaned up: a standalone operating rule has nothing to link to by nature, and most shipped knowledge is exactly that shape. The test is "does it have a real relationship to another node", not "does it have an edge". No real relationship → leave it alone rather than inventing a link.
 
+**When the findings include "pinned claims are over the length cap"**, fix them now while they are still pinned — once taken out they cannot go back in. Run `memory_admin(op='pinned')`; for each claim over 120 characters: your own node → `memory_upsert(id, claim='<the same rule, ≤120 characters>')`, it stays pinned; a shipped node (read-only) → save the short version as your own node with `links` to it, then pin it with `memory_admin(op='set_pinned', id='<your new node>')` and take the shipped one out with `memory_admin(op='set_pinned', id='<the shipped one>', on=false)` — both calls, or the long one keeps riding along.
+
 ### 3 · Speak up only for what you genuinely cannot judge — and say only that one thing
 Which business rule governs · which price is right · which of their revisions is final — that is **their** decision, and no amount of cleverness derives it. Put both originals in front of them and let them pick.
 Say so first before anything large: bulk demoting pinned, splitting a batch of nodes, archiving a pile of projects. Cleanup is irreversible.
+
+**When the findings include "quick buttons … zero taps"**, ask them this way: call `get_chip_usage`, look at `stale`, pick at most 3. For each, think of a replacement that fits what memory says about their life (student · office job · raising kids · running a shop…). Say it in one sentence, then hang one `lifetime:'once'` pair per button (one group each): "Swap 'X' for 'Y'" · "Keep 'X'". Swap → `update_prompt_chips(mode='merge', remove=['X id'], chips=[Y])`; keep → `update_prompt_chips(mode='merge', keep=['X id'])`, which restarts its 14 days.
 
 ### 4 · From the first character to the last, the correct output is nothing
 🔴 **Zero characters. Not one.** No opening announcement (`I'll work through the memory checkup...`), no running commentary, no closing summary (`All settled.` · `Done.` · `memory maintenance complete`). An opening line is a report about what you are going to do; a closing line is a report about what you did — and there is no report to file either way. **The only thing that earns an output this turn is a question you cannot answer yourself.** Silence here is not you being unhelpful; it is the whole point — this turn happens while they are busy with something else.

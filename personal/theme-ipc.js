@@ -1,4 +1,5 @@
-// theme-ipc.js — 界面深浅色(跟随系统 / 浅色 / 深色)的主进程那一半, 自注册(main.js 只 require 一下)。
+// theme-ipc.js — 外观设置的主进程那一半, 自注册(main.js 只 require 一下): 界面深浅色(跟随系统 / 浅色 / 深色)
+// · 顶栏「key · 模型 ▾」快速切换显不显示(settings.quickModelSwitch, 默认关, 作者 11-07)。
 //
 // 不往页面里挂 class: 改 nativeTheme.themeSource, 所有窗口连同插件 iframe 的
 // prefers-color-scheme 当场跟着变, theme.css 两套 token 靠媒体查询切 —— 新开的窗口、
@@ -24,6 +25,14 @@ ipcMain.handle('set-theme', async (_e, { theme } = {}) => {
   apply(theme);
   for (const w of BrowserWindow.getAllWindows()) { try { w.setBackgroundColor(windowBg()); } catch (_) {} }
   return { ok: true, theme };
+});
+
+// 快速切换默认藏着: 设置里打开才在顶栏出现。改了广播给所有窗口, 主界面当场显隐。
+ipcMain.handle('get-quick-switch', async () => ({ on: settings.read().quickModelSwitch === true }));
+ipcMain.handle('set-quick-switch', async (_e, { on } = {}) => {
+  settings.write({ quickModelSwitch: !!on });
+  for (const w of BrowserWindow.getAllWindows()) { try { w.webContents.send('quick-switch-changed', { on: !!on }); } catch (_) {} }
+  return { ok: true, on: !!on };
 });
 
 module.exports = { windowBg };

@@ -13,13 +13,18 @@ module.exports = (UI) => {
     sys_search_empty: '还没加, 现在只用模型自带的搜索。',
     sys_search_disable: '禁用这些引擎, 只用模型自带的搜索(配置保留)',
     sys_search_add: '＋ 添加',
+    sys_search_pick: '选一家搜索引擎…',
+    sys_search_unsaved: '联网搜索改了还没保存。',
+    sys_search_unsaved_save: '保存',
+    sys_search_unsaved_drop: '不保存',
+    sys_search_unsaved_keep: '继续改',
     sys_search_no_key: '不用 key',
     sys_search_test: '测一下',
     sys_search_testing: '正在搜…',
     sys_search_test_ok: '能用 · {ms}ms · {n} 条 · 第一条: {first}',
     sys_search_test_fail: '不能用: {err}',
     sys_search_need_key: '{name} 要先填 key',
-    sys_search_get_key: '在中国大陆: Bing、Tavily 能直连, DuckDuckGo、Brave 要代理。key 在这里申请: Brave https://brave.com/search/api/ · Tavily https://tavily.com',
+    sys_search_get_key: '在中国大陆: Tavily 能直连, Brave 要代理。key 在这里申请: Brave https://brave.com/search/api/ · Tavily https://tavily.com',
   });
 
   add('zh-TW', {
@@ -32,13 +37,18 @@ module.exports = (UI) => {
     sys_search_empty: '還沒加, 現在只用模型內建的搜尋。',
     sys_search_disable: '停用這些引擎, 只用模型內建的搜尋(設定保留)',
     sys_search_add: '＋ 新增',
+    sys_search_pick: '選一家搜尋引擎…',
+    sys_search_unsaved: '聯網搜尋改了還沒儲存。',
+    sys_search_unsaved_save: '儲存',
+    sys_search_unsaved_drop: '不儲存',
+    sys_search_unsaved_keep: '繼續改',
     sys_search_no_key: '不用 key',
     sys_search_test: '測一下',
     sys_search_testing: '正在搜…',
     sys_search_test_ok: '能用 · {ms}ms · {n} 筆 · 第一筆: {first}',
     sys_search_test_fail: '不能用: {err}',
     sys_search_need_key: '{name} 要先填 key',
-    sys_search_get_key: '在中國大陸: Bing、Tavily 能直連, DuckDuckGo、Brave 要代理。key 在這裡申請: Brave https://brave.com/search/api/ · Tavily https://tavily.com',
+    sys_search_get_key: '在中國大陸: Tavily 能直連, Brave 要代理。key 在這裡申請: Brave https://brave.com/search/api/ · Tavily https://tavily.com',
   });
 
   add('en', {
@@ -51,13 +61,18 @@ module.exports = (UI) => {
     sys_search_empty: 'None added — only the model\'s built-in search is used.',
     sys_search_disable: 'Disable these engines and use only the model\'s built-in search (settings are kept)',
     sys_search_add: '＋ Add',
+    sys_search_pick: 'Pick a search engine…',
+    sys_search_unsaved: 'Your web search changes are not saved.',
+    sys_search_unsaved_save: 'Save',
+    sys_search_unsaved_drop: "Don't save",
+    sys_search_unsaved_keep: 'Keep editing',
     sys_search_no_key: 'no key needed',
     sys_search_test: 'Test',
     sys_search_testing: 'Searching…',
     sys_search_test_ok: 'Works · {ms}ms · {n} results · first: {first}',
     sys_search_test_fail: 'Not working: {err}',
     sys_search_need_key: '{name} needs a key first',
-    sys_search_get_key: 'In mainland China, Bing and Tavily connect directly; DuckDuckGo and Brave need a proxy. Get a key: Brave https://brave.com/search/api/ · Tavily https://tavily.com',
+    sys_search_get_key: 'In mainland China, Tavily connects directly; Brave needs a proxy. Get a key: Brave https://brave.com/search/api/ · Tavily https://tavily.com',
   });
 
   add('ja', {
@@ -70,12 +85,17 @@ module.exports = (UI) => {
     sys_search_empty: 'まだありません。いまはモデル内蔵の検索だけを使います。',
     sys_search_disable: 'これらのエンジンを止めて、モデル内蔵の検索だけを使う(設定は残ります)',
     sys_search_add: '＋ 追加',
+    sys_search_pick: '検索エンジンを選ぶ…',
+    sys_search_unsaved: 'Web 検索の変更がまだ保存されていません。',
+    sys_search_unsaved_save: '保存',
+    sys_search_unsaved_drop: '保存しない',
+    sys_search_unsaved_keep: '編集を続ける',
     sys_search_no_key: 'key 不要',
     sys_search_test: 'テスト',
     sys_search_testing: '検索中…',
     sys_search_test_ok: '使えます · {ms}ms · {n} 件 · 1 件目: {first}',
     sys_search_test_fail: '使えません: {err}',
     sys_search_need_key: '{name} は先に key を入力してください',
-    sys_search_get_key: '中国大陸では Bing と Tavily は直接つながり、DuckDuckGo と Brave はプロキシが必要です。key の取得先: Brave https://brave.com/search/api/ · Tavily https://tavily.com',
+    sys_search_get_key: '中国大陸では Tavily は直接つながり、Brave はプロキシが必要です。key の取得先: Brave https://brave.com/search/api/ · Tavily https://tavily.com',
   });
 };

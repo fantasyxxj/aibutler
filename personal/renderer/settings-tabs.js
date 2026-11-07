@@ -7,5 +7,8 @@
     document.querySelectorAll('.m-form[data-group]').forEach((f) => { f.hidden = f.dataset.group !== g; });
   };
   bar.addEventListener('click', (e) => { const b = e.target.closest('button[data-group]'); if (b) show(b.dataset.group); });
-  show('general');
+  // 首启屏「去添加 Key」带 group=models 进来, 直接停在加 key 那一页
+  const want = new URLSearchParams(location.search).get('group');
+  show(want && bar.querySelector(`button[data-group="${want}"]`) ? want : 'general');
+  if (window.butler && window.butler.onSettingsGroup) window.butler.onSettingsGroup((g) => { if (bar.querySelector(`button[data-group="${g}"]`)) show(g); });
 })();

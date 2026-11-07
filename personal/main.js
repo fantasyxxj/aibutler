@@ -7,7 +7,7 @@ const crypto = require('crypto');
 
 // 🔴 宿主接线必须排在**任何 core 模块之前** —— core 里有模块在加载那一刻就取 paths
 // (如 agent/util.js 的 CLAUDE_BIN), 接线晚一行都会当场抛"宿主没注入"。
-require('./host-wiring'); require('./image-save-ipc'); require('./channels/ipc'); const { windowBg } = require('./theme-ipc'); require('./hub-ipc').onClaimed(async (id, { agent } = {}) => { broadcastRegistry(); const c = registry.get(id); const s = c && sessions.get(sidOf(c.homeDir)); if (!s) return; await installPlugins(s); s.butler.submit(`[hub-connected] You are now connected to the hub as ${agent}. Other agents can reach you there, and their messages arrive in your inbox.`, undefined, { sourceKind: 'auto' }).catch(() => {}); });   // 后者=连公网 hub 的 IPC(自注册, 单开文件因 main.js 撞行数闸); 回调=取到 token 当场起收件循环(否则要重启才收件)、刷新人格页、告诉人格它接上了
+require('./host-wiring'); require('./image-save-ipc'); require('./model-tier-ipc'); require('./channels/ipc'); const { windowBg } = require('./theme-ipc'); require('./hub-ipc').onClaimed(async (id, { agent } = {}) => { broadcastRegistry(); const c = registry.get(id); const s = c && sessions.get(sidOf(c.homeDir)); if (!s) return; await installPlugins(s); s.butler.submit(`[hub-connected] You are now connected to the hub as ${agent}. Other agents can reach you there, and their messages arrive in your inbox.`, undefined, { sourceKind: 'auto' }).catch(() => {}); });   // 后者=连公网 hub 的 IPC(自注册, 单开文件因 main.js 撞行数闸); 回调=取到 token 当场起收件循环(否则要重启才收件)、刷新人格页、告诉人格它接上了
 
 const { Butler, hasUnconsumedCtxLast, accessConfig } = require('../core/agent');
 const store = require('../core/chat-store');
@@ -233,7 +233,7 @@ function openPersona(homeDir, { newborn = false } = {}) {
     // prompt chips: AI 侧读/写自己的快捷按钮池(entry.id 闭包捕获, 不靠 agent.js 认识 registry)
     getChips: () => registry.resolveChips(entry.id),
     // 用量 + 清理建议。AI 拿它判"哪个是死按钮", 然后【问用户】要不要撤 —— 不自己删。
-    chipUsage: () => registry.chipUsage(entry.id),
+    chipUsage: (o) => registry.chipUsage(entry.id, o),
     setChips: (chips, opts) => {
       const r = registry.setCustomChips(entry.id, chips, opts);
       if (r.ok) sendUI('chips-changed', { sid, chips: registry.resolveChips(entry.id) });
@@ -333,7 +333,7 @@ function openPersona(homeDir, { newborn = false } = {}) {
       if (visible) sendUI('assistant-chunk', { sid, text: visible });
     },
     // 文本块收尾 → 让渲染层立刻定稿(md 渲染 + 控件生效), 不必等整轮 result
-    onTextDone: () => { sendUI('assistant-text-done', { sid }); },
+    onTextDone: () => { sendUI('assistant-text-done', { sid }); }, onStepStart: () => sendUI('assistant-step', { sid, phase: 'start' }), onTextDiscard: () => sendUI('assistant-step', { sid, phase: 'discard' }),   // 后两个: 断流重试前撤掉这一步流出的半截字
     onActivity: (text) => { sendUI('activity', { sid, text }); },
     onTool: (tool) => { sendUI('tool-call', { sid, tool }); },   // 每个工具调用→持久条目
     onTasks: (tasks) => sendUI('tasks', { sid, tasks }),   // 任务清单变了→UI 重画那块面板
@@ -452,6 +452,8 @@ const {
   createIdleWatcher, decideActions, markActivity, detectAssistantQuestion, TASK_CONTINUE_MAX, taskContinueDelayMs,
 } = require('../core/idle-watcher');
 
+const BOOT_DAY = require('../core/memory').todayLocal();   // 这次开机那天: 当天第一次启动就开口, 开着过夜的等到点
+const { takeDayGreet, markOpenedToday } = require('../core/agent/day-opener');
 const idleWatcher = createIdleWatcher({
   sessions: () => sessions.values(),
   personaCfg: (butler) => (butler && butler.homeDir && registry.getByDir(butler.homeDir)) || {},
@@ -460,6 +462,14 @@ const idleWatcher = createIdleWatcher({
   appendEvent: (name, event, meta) => appendButlerEvent(name, event, meta),
   // 定时任务(schedule.json)与提醒登记簿(reminders.json)的唯一驱动。只有开着的人格会被巡检到。
   scheduleHome: (butler) => (butler && butler.homeDir) || null,
+  // 每天主动开口只给管家; 出生教育没做完的不插这一嘴; 用户叫停过(reminder pause sched:day_greet)就不开口
+  dayGreet: (s) => {
+    const b = s && s.butler;
+    if (!b || !b.homeDir || !b.memoryDir || s._birthRunning || birth.birthNeedsRetry(b.memoryDir)) return '';
+    const entry = registry.getByDir(b.homeDir);
+    if (!entry || !entry.isButler || require('../core/reminders').pausedSchedules(b.memoryDir).has('day_greet')) return '';
+    return takeDayGreet(b, BOOT_DAY);
+  },
   log: console.log,
 });
 const sendHeartbeat = (sid) => idleWatcher.sendHeartbeat(sessions.get(sid));
@@ -1077,10 +1087,9 @@ function revokePeer(a, b) { const r = registry.revokePeer(a, b); if (r.ok) broad
 // 不依赖会话的那半边全在 birth.js(设计理由、为什么这么改也写在那儿); 这里只做编排:
 // 发消息 / 等这一轮答完 / 出气泡 / 缺项补提一次。
 async function runOnboarding(s, name, extra, opts = {}) {
-  const know = birth.applyBirthKnowledge(s.butler.memory, { name, extra, isButler: !!opts.isButler });
-  birth.writeBirthState(s.butler.memoryDir, { state: 'pending', retries: 0, learned: know.learned, isButler: !!opts.isButler, error: null });
-  s._birthRunning = true;
-  try { await runBirthExperience(s, name); } finally { s._birthRunning = false; }
+  try { const know = birth.applyBirthKnowledge(s.butler.memory, { name, extra, isButler: !!opts.isButler });
+    birth.writeBirthState(s.butler.memoryDir, { state: 'pending', retries: 0, learned: know.learned, isButler: !!opts.isButler, error: null });
+    s._birthRunning = true; await runBirthExperience(s, name); } finally { s._birthRunning = false; }   // 排队前 first-persona 已立起, 失败也在这里放下
 }
 
 // 段② 体验环节。出生时跑一次; 模型报错停下的, 之后由 resumeBirth 补跑(只补这段, 知识早已灌好)。
@@ -1100,7 +1109,7 @@ async function runBirthExperience(s, name) {
   sendUI('user-echo', { sid: s.sid, text });   // 出 user 气泡(像有人在跟它说话)
   try { await s.butler.askOnce(text, undefined, { sourceKind: 'auto' }); }
   catch (e) { return fail('askOnce: ' + (e && e.message)); }
-  const done = (note) => { birth.writeBirthState(dir, { state: 'done', error: null }); console.log(`[birth] ${name} 出生完成${note}`); };
+  const done = (note) => { birth.writeBirthState(dir, { state: 'done', error: null }); if (s.butler) markOpenedToday(s.butler); console.log(`[birth] ${name} 出生完成${note}`); };
   // 用户按了停 = 他接手了, 不再拉回来上课
   if (s.butler && s.butler._lastTurnInterrupted) return done(' (用户中途停止)');
   // 模型报错(500 / key 错 / 额度 / 连不上)时它什么都没做, 补发只是对着坏模型再撞一次 → 停, 报错已经显示给用户
@@ -2507,15 +2516,15 @@ ipcMain.handle('open-manager-window', async (_e, { view } = {}) => {   // view: 
 });
 
 // 开独立系统设置窗口(单例; 再点=前置)
-ipcMain.handle('open-settings-window', async () => {
-  if (settingsWin && !settingsWin.isDestroyed()) { settingsWin.focus(); return { ok: true }; }
+ipcMain.handle('open-settings-window', async (_e, { group } = {}) => {
+  if (settingsWin && !settingsWin.isDestroyed()) { if (group) settingsWin.webContents.send('settings-group', group); settingsWin.focus(); return { ok: true }; }
   settingsWin = new BrowserWindow({
     width: 720, height: 640, title: i18n.uiStrings(currentLocale()).sys_title, backgroundColor: windowBg(), parent: mainWin, fullscreenable: false,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false,
       additionalArguments: [`--butler-version=${app.getVersion()}`] },
   });
   settingsWin.on('closed', () => { settingsWin = null; }); require('./window-guard').attachEscClose(settingsWin); require('./window-guard').attachExternalLinks(settingsWin);   // 全屏下红绿灯会隐藏, Esc 是唯一退路
-  settingsWin.loadFile(path.join(__dirname, 'renderer', 'settings.html'));
+  settingsWin.loadFile(path.join(__dirname, 'renderer', 'settings.html'), group ? { query: { group: String(group) } } : undefined);
   return { ok: true };
 });
 

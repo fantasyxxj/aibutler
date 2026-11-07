@@ -42,7 +42,7 @@ function hasAnyKey({ settings, secrets, defaultName }) {
 
 // key 永远不回渲染层, 只给"存没存过": none / ok / stale
 // (stale = 密文还在但这台机器解不开了。当没存处理, 但得说清为什么要重填。)
-const row = (secrets) => (c) => ({ id: c.id, name: c.name || '', base_url: c.base_url || '',
+const row = (secrets) => (c) => ({ id: c.id, name: c.name || '', base_url: c.base_url || '', vendor: c.vendor || '',
                                    keyState: secrets.status(credSecret(c.id)) });
 
 // 订阅长效 token(`claude setup-token` 产出)。存了它, buildEnv 就把 CLAUDE_CODE_OAUTH_TOKEN
@@ -73,10 +73,23 @@ function list({ settings, secrets, defaultName, subLoggedIn }) {
   };
 }
 
+// 地址规整: 少打 h 的补上, 没写协议的补 https://; 剩下不是 http(s):// 开头的算填错 → null。
+// 不规整的话错地址会照样存下, 到拉清单时只剩一句 fetch failed, 谁也看不出是少了个字母。
+function normalizeBaseUrl(raw) {
+  let u = String(raw || '').trim();
+  if (!u) return '';
+  if (/^ttps?:\/\//i.test(u)) u = 'h' + u;
+  else if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(u) && /^[\w-]+(\.[\w-]+)+(:\d+)?(\/|$)/.test(u)) u = 'https://' + u;
+  try { const p = new URL(u); if (p.protocol !== 'http:' && p.protocol !== 'https:') return null; } catch (_) { return null; }
+  return u;
+}
+
 // 新增或改一条。id 空 = 新增。apiKey 三态: undefined/'' = 不动已存的那把 · null = 删掉 · 串 = 换成这个
 function save({ settings, secrets }, patch = {}) {
   const name = String(patch.name || '').trim();
   if (!name) return { ok: false, error: 'name_required' };
+  const base_url = normalizeBaseUrl(patch.base_url);
+  if (base_url === null) return { ok: false, error: 'bad_url' };
   const s = settings.read();
   const all = [...(s.credentials || [])];
   // 只靠毫秒时间戳的话, 同一毫秒连存两条会撞成同一个 id, 后一条把前一条覆盖掉
@@ -87,7 +100,10 @@ function save({ settings, secrets }, patch = {}) {
     const r = secrets.set(credSecret(id), patch.apiKey);
     if (!r.ok) return r;
   }
-  const next = { id, name, base_url: String(patch.base_url || '').trim() };
+  // vendor = 设置页厂家卡片选的那家(core/config/models/vendors.json 的 id); 空 = 「其他」自己填地址
+  const next = { id, name, base_url };
+  const vendor = patch.vendor !== undefined ? String(patch.vendor || '') : ((all.find((c) => c.id === id) || {}).vendor || '');
+  if (vendor) next.vendor = vendor;
   const at = all.findIndex((c) => c.id === id);
   if (at >= 0) all[at] = next; else all.push(next);
   const write = { credentials: all };
@@ -181,10 +197,21 @@ async function listModels(base, key) {
 async function test({ settings, secrets }, patch = {}) {
   const key = patch.apiKey || (patch.id ? secrets.get(credSecret(patch.id)) : '');
   if (!key) return { ok: false, error: 'no_key' };
-  let base = String(patch.base_url || '').trim();
-  if (!base && patch.id) {
-    const c = (settings.read().credentials || []).find((x) => x.id === patch.id);
-    base = String((c && c.base_url) || '').trim();
+  const saved = patch.id ? (settings.read().credentials || []).find((x) => x.id === patch.id) : null;
+  let base = normalizeBaseUrl(patch.base_url) || '';   // 测之前也补一下少打的 h, 跟保存时同一套
+  if (!base && saved) base = String(saved.base_url || '').trim();
+  // 选了厂家卡片的(Claude 以外): 照建人格时那条路试 —— 在这把 key 上找日常档、真发一条。
+  // 下面的 Anthropic 探针只认 /v1/messages, 拿它测 OpenAI / 千问的 key 必红。
+  // 没记厂家的老凭据按地址认, 地址空着按 key 长相认(认不出 = 网关, 照旧走 Anthropic 探针)
+  const table = require('./host').cfg.json('models/vendors') || { vendors: [] };
+  const modelTier = require('./model-tier');
+  const vendor = (patch.vendor !== undefined ? patch.vendor : (saved && saved.vendor))
+    || (modelTier.vendorFor(table, { base_url: base, key }) || {}).id;
+  if (vendor && vendor !== 'anthropic') {
+    const r = await modelTier.pickForTier({ table, access: { base_url: base, key, vendor }, tier: table.defaultTier || 'daily' });
+    // 整档试不通时, 原因取第一个候选的(多半全是同一个原因: key 没额度 / 没开通)
+    return r.ok ? { ok: true, model: r.model, tier: r.tier }
+      : { ok: false, reason: r.reason === 'tier_unusable' && r.tried[0] ? r.tried[0].reason : r.reason };
   }
   base = (base || 'https://api.anthropic.com').replace(/\/+$/, '');
   const rows = await listModels(base, key);
@@ -409,5 +436,5 @@ function register({ ipcMain, settings, secrets, defaultName, subLoggedIn, claude
   ipcMain.handle('run-setup-token', async () => runSetupToken({ secrets, claudeBin }));
 }
 
-module.exports = { register, migrate, hasAnyKey, list, save, remove, test, API_KEY_SECRET, credSecret,
+module.exports = { register, migrate, hasAnyKey, list, save, remove, test, normalizeBaseUrl, API_KEY_SECRET, credSecret,
                    subTokenState, saveSubToken, runSetupToken, pickSetupToken, ptyWrap, probeToken, SUBSCRIPTION_TOKEN_KEY };

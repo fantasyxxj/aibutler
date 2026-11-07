@@ -172,6 +172,7 @@ function create(spec = {}, deps = {}) {
       if (!spec.skipOnboarding) {
         // 🔴 上面 open 传了 newborn=true 把冷启动唤醒关掉了: 1 秒前才出生的人格没有"压缩前的线程"
         // 可续, 而两条只隔 800ms 会被队列并成一条(实测 9882 字符), 出生教育被埋在整屏脚手架后面。
+        s._birthRunning = true;   // 排队这 800ms 里巡检器就当它在出生, 不先开口(实测「每天主动开口」抢在出生教育前)
         setTimeout(() => {
           Promise.resolve(onboard(s, name, spec.onboardingExtra, { isButler: !!spec.isButler }))
             .catch((e) => console.error('[create] 出生教育串行喂失败:', e && e.message));
@@ -190,6 +191,7 @@ function birth({ session, entry, memDir, gift, onboard, delayMs = 1200 }) {
   if (!session) return;
   const name = (entry && entry.name) || '管家';
   gift(session, name, entry.homeDir, memDir, entry.wakePhrase, 'butler 首启脚手架');
+  session._birthRunning = true;   // 同上: 等的这段里不让「每天主动开口」抢先
   setTimeout(() => {
     Promise.resolve(onboard(session, name, undefined, { isButler: true }))
       .catch((e) => console.error('[first-persona] 出生教育失败:', e && e.message));

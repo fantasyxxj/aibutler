@@ -14,7 +14,7 @@ const {
   COMPACT_HARDCAP_IDLE_MIN,
   COMPACT_HARDCAP_MIN_INTERVAL_MS,
 } = require('./compact-gate');
-const { checkupGate, checkupFindings, conflictFinding,
+const { checkupGate, checkupFindings, conflictFinding, staleChipFinding,
         CONFLICT_SAMPLE_CAP, CHECKUP_IDLE_MIN } = require('./checkup-gate');
 const sched = require('./schedule');
 const reminders = require('./reminders');
@@ -123,6 +123,8 @@ async function runCheckup(s, ck, log) {
   } catch (e) {
     (log || console.error)(`[checkup] ${s.butler.name} 冲突普扫失败: ${e && e.message}`);
   }
+  try { const f = staleChipFinding(s.butler.personaOps, ck.staleChipDays); if (f) findings.push(f); }
+  catch (e) { (log || console.error)(`[checkup] ${s.butler.name} 按钮用量读取失败: ${e && e.message}`); }
   return findings;
 }
 
@@ -248,6 +250,7 @@ function decideActions(s, opts = {}) {
  *   renderSaveNudge(o)    → string             上下文变胖时催人格存记忆/写交接清单的那句话(按 o.tier 取三档正文之一)
  *   muteSaveNudge         → boolean            可选。真 = 存档提醒那一轮静音不上屏(行业版); 不给 = 可见(个人版)
  *   scheduleHome(butler)  → string|null        人格目录(里面找 schedule.json; 提醒登记簿在 butler.memoryDir)。**不给就两样都不跑**
+ *   dayGreet(s)           → string             可选。今天该人格先开口就返回那一轮的正文, 否则 ''(个人版只给管家, 见 core/agent/day-opener.js)
  *   appendEvent(name,t,d) → void               成本/决策事件日志, 可 no-op
  *   log(...)              → void
  */
@@ -357,6 +360,17 @@ function createIdleWatcher(host) {
       appendEvent(name, 'reminder_fired', { id: once.id, at: once.at });
       try { await s.butler.submit(reminders.buildPrompt(once), undefined, { sourceKind: 'auto' }); } catch (e) {
         log(`[reminder] #${once.id} 投递失败: ${e && e.message}`);
+      }
+      return;
+    }
+    // 每天主动开口: 排在到点提醒之后、定时任务之前 —— 它一天才一次, 而定时任务错过一分钟会在下一轮补上。
+    const greet = host.dayGreet ? host.dayGreet(s) : '';
+    if (greet) {
+      log(`[day-greet] ${name} 今天先开口`);
+      appendEvent(name, 'day_greet', {});
+      // _allowEmptyTurn: 没有值得提的就一个字不说, 别让空回合兜底追问
+      try { await s.butler.submit(greet, undefined, { sourceKind: 'auto', _allowEmptyTurn: true }); } catch (e) {
+        log(`[day-greet] ${name} 投递失败: ${e && e.message}`);
       }
       return;
     }

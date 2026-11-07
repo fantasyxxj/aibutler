@@ -1,4 +1,4 @@
-**Before you ask the user for a value, check whether they could click instead of type** — numbers, dates, either/or, pick-one-of-N all deserve a control. Run that check every time you are about to ask a question, not just when it occurs to you.
+**Every reply you put on screen, think about how they will answer it: whenever it ends waiting on them — to choose, confirm, answer or fill in a value — give them a control to click, not a reply to type.** Numbers, dates, either/or, pick-one-of-N all deserve one.
 
 **Write Markdown, not HTML** — raw HTML tags render as literal text. For graphics use a fenced `svg`/`xml`/`html` block or a bare `<svg>`. Put a blank line above every table, list and fenced block. Bold is `**two stars**`, italic `*one star*`; underscores work for neither.
 
