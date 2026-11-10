@@ -43,6 +43,10 @@ export function classify(e: any): ClassifiedError {
     const net = cut || e?.isRetryable === true || /fetch failed|ECONN|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|socket|network|terminated|timeout/i.test(message);
     return { kind: 'unknown', status: null, retryable: net, message };
   }
+  // 2xx 还出错 = 已经开流、读正文时断了(AI SDK 把它包成 statusCode=200 的 "Failed to process successful response"):
+  // 跟没收到结束块一样是断流, 重发。那个 200 是开流时的响应头, 不是这次错误的状态, 报出去只会让人看不懂, 所以记空;
+  // 底层原因(读超时 / 对方关连接)带在消息里进日志。11-10 老黄 glm-5.3-flash 中途 5 分钟没数据被读超时掐断
+  if (status >= 200 && status < 300) return { kind: 'unknown', status: null, retryable: true, message: `reply stream broke off midway (${rootCause(e)})` };
   if (status === 401 || status === 403) return { kind: 'authentication_failed', status, retryable: false, message };
   if (status === 402) return { kind: 'billing_error', status, retryable: false, message };
   if (status === 429) {
@@ -53,6 +57,14 @@ export function classify(e: any): ClassifiedError {
   if (status >= 500) return { kind: 'server_error', status, retryable: true, message };
   if (status === 408 || status === 409) return { kind: 'unknown', status, retryable: true, message };
   return { kind: 'invalid_request', status, retryable: false, message };
+}
+
+// cause 链最底下那个: 读超时是 UND_ERR_BODY_TIMEOUT, 对方关连接多是 UND_ERR_SOCKET / ECONNRESET
+function rootCause(e: any): string {
+  let cur = e?.cause ?? e;
+  for (let i = 0; i < 8 && cur?.cause; i++) cur = cur.cause;
+  const code = typeof cur?.code === 'string' ? `${cur.code}: ` : '';
+  return `${code}${String(cur?.message || cur || 'unknown')}`.slice(0, 200);
 }
 
 // 指数退避: 1s 2s 4s 8s …, 封顶 30s, 加 0~25% 抖动

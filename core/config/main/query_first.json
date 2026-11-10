@@ -1,6 +1,6 @@
 {
-  "_note": "先查后办闸(core/query-first-guard.js): 真人回合里还没 memory_query/memory_section 过, 第一个命中 tool_pattern 的工具调用打回一次, 让人格先用自己的话(事情的类别)查记忆。每回合最多打回一次。2026-10-11 起只拦行业版办事类工具; 个人版那批工具名不在 pattern 里, 不受影响。",
+  "_note": "先查后办闸(core/query-first-guard.js): 真人回合里还没 memory_query/memory_section 过, 第一个命中 tool_pattern 的工具调用打回一次, 让人格先用自己的话(事情的类别)查记忆。每回合最多打回一次。2026-10-11 起只拦行业版办事类工具; 个人版那批工具名不在 pattern 里, 不受影响。 reason 里的 {tool} 换成被打回的工具名。2026-11-08 haiku 被打回后只回一句「我先加载需要的工具」就收工, 所以理由写明回合没完、查完接着调同一个工具。 2026-11-09 plugin_open 移出: 打开画面不读写店里数据, 没有要先查的规矩; 叠上延迟加载那一跳, Haiku 查完记忆不回头开画面(冒烟 A1)。",
   "enabled": true,
-  "tool_pattern": "^mcp__butler__(biz_|plugin_open)",
-  "reason": "(Butler · not from the person you are talking to) Before acting, check memory once: memory_query in your own words — the kind of task this is (changing a setting, moving a booking, a price change), not their exact wording. Rules you were taught are filed that way. Then make this same call again; it will go through."
+  "tool_pattern": "^mcp__butler__biz_",
+  "reason": "(Butler · not from the person you are talking to) {tool} was held once: this turn has not checked memory yet. The turn is not over and they are still waiting for the answer, so write nothing to them yet. Next, in this same turn: memory_query in your own words — the kind of task this is (changing a setting, moving a booking, a price change), not their exact wording; rules you were taught are filed that way. Then make this same call again with the same arguments — it will go through — and answer them from its result."
 }

@@ -237,6 +237,16 @@ console.log('\n[🔴 接入方式只管端点凭据, 不碰模型]');
     eq(gw[k], 'deepseek-v4-pro', `🔴 ${k} 也指到同一个模型(少设一个, 内部小活就去要官方名, 主对话看着好好的半路才炸)`);
   }
   eq(gw.API_TIMEOUT_MS, '600000', '网关慢, 超时放宽');
+  eq(gw.BUTLER_SUBAGENT_MODELS, undefined, '没挑出派活三档 → 不传三档表');
+
+  // 派活三档(core/model-table.js 按同族挑出): 三个默认档换成同家型号, 主对话不变; 挑不出的档仍是主模型
+  const gwT = applyAccessEnv({}, { base_url: 'https://newapi.example/v1', key: 'tok' }, 'claude-opus-5-5', null, { cheap: 'claude-haiku-4-5', strong: 'claude-opus-5-5' });
+  eq(gwT.ANTHROPIC_MODEL, 'claude-opus-5-5', '主对话仍是主模型');
+  eq(gwT.ANTHROPIC_DEFAULT_HAIKU_MODEL, 'claude-haiku-4-5', '🔴 haiku 档 = 同族便宜档(不再全填主模型)');
+  eq(gwT.ANTHROPIC_DEFAULT_SONNET_MODEL, 'claude-opus-5-5', '挑不出的 daily 档退回主模型');
+  eq(JSON.parse(gwT.BUTLER_SUBAGENT_MODELS).cheap, 'claude-haiku-4-5', 'Butler 引擎拿到三档表');
+  const back2 = applyAccessEnv({ ...gwT }, null, null);
+  eq(back2.BUTLER_SUBAGENT_MODELS, undefined, '切回订阅连三档表一起清');
 
   // 人格没选模型 → 宁可不设, 也不猜一个名字(猜错是静默跑在别的模型上)
   const gw0 = applyAccessEnv({}, { base_url: 'https://newapi.example/v1', key: 'tok' }, null);

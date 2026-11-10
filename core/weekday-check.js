@@ -6,7 +6,9 @@
 //    由助手拿 sys(op='date') 重算、连同记录一起改对 —— 日期的计算见 core/sys-tool.js。
 //
 // 认的写法(括号全角半角都认): `10月13日（水）` `2026年10月13日(水曜日)` `10/13（火）`
-//   `10月13日（周三）` `10月13日(星期三)` `10月13日（週三）`。
+//   `10月13日（周三）` `10月13日(星期三)` `10月13日（週三）` `2026-10-13（水）`。
+//   星期不在括号里也认: `10月13日は水曜日` `10月13日 水曜` `10月13日是星期三` `10月13日周三` —— 括号外的日文要带「曜」,
+//   单个「水」字太容易是别的意思。(作者 11-08 批补横杠与括号外两种; 仍是兜底, 写法不在名单上照样漏)
 //   英文: `Friday, October 25th` `Fri 25 Oct` `October 25 (Fri)` —— 10-21 dev 实测助手给客人写了
 //   「Friday, October 25th」(25 日是周日), 只认中日写法时这道闸看不见它。
 // 没写年份时取离今天最近的那一年(跨年的「1月5日」在 12 月说就是明年)。
@@ -18,10 +20,13 @@ const ZH = '日一二三四五六';
 
 const RE = new RegExp(
   '(?:(\\d{4})\\s*年\\s*)?(\\d{1,2})\\s*月\\s*(\\d{1,2})\\s*日'      // 2026年10月13日 / 10月13日
-  + '|(?:(\\d{4})\\/)?(\\d{1,2})\\/(\\d{1,2})',                     // 2026/10/13 / 10/13
+  + '|(?:(\\d{4})\\/)?(\\d{1,2})\\/(\\d{1,2})'                      // 2026/10/13 / 10/13
+  + '|(?<!\\d)(\\d{4})-(\\d{1,2})-(\\d{1,2})(?!\\d)',                     // 2026-10-13
   'g');
-// 日期后紧跟的「（星期）」。只吃一个括号, 中间允许空格。
-const WD = /^\s*[（(]\s*(?:([日月火水木金土])(?:曜日?)?|(?:周|週|星期)([一二三四五六日天]))\s*[）)]/;
+// 日期后紧跟的星期: 括号里的「（水）」, 或括号外的「は水曜日」「 星期三」。只吃一个。
+const WD = new RegExp('^\\s*(?:'
+  + '[（(]\\s*(?:([日月火水木金土])(?:曜日?)?|(?:周|週|星期)([一二三四五六日天]))\\s*[）)]'
+  + '|(?:は|、|，|,|是|为|為)?\\s*(?:([日月火水木金土])曜日?|(?:星期|周|週|礼拜|禮拜)([一二三四五六日天])))');
 
 const MON = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 const WDN = '(sun|mon|tue|wed|thu|fri|sat)[a-z]*\\.?';
@@ -66,14 +71,15 @@ function check(text, now) {
   let m;
   RE.lastIndex = 0;
   while ((m = RE.exec(text))) {
-    const year = m[1] || m[4], month = Number(m[2] || m[5]), day = Number(m[3] || m[6]);
+    const year = m[1] || m[4] || m[7], month = Number(m[2] || m[5] || m[8]), day = Number(m[3] || m[6] || m[9]);
     const end = m.index + m[0].length;
     const w = WD.exec(text.slice(end));
     if (!w || month < 1 || month > 12 || day < 1 || day > 31) continue;
     const y = year ? Number(year) : pickYear(month, day, today);
     const d = new Date(y, month - 1, day);
     if (d.getMonth() !== month - 1) continue;   // 2月30日 这类不存在的日期不碰
-    const said = w[1] ? JA.indexOf(w[1]) : (w[2] === '天' ? 0 : ZH.indexOf(w[2]));
+    const ja = w[1] || w[3], zh = w[2] || w[4];
+    const said = ja ? JA.indexOf(ja) : (zh === '天' ? 0 : ZH.indexOf(zh));
     if (said === d.getDay()) continue;
     const p2 = (n) => String(n).padStart(2, '0');
     out.push({ written: m[0] + w[0], date: `${y}-${p2(month)}-${p2(day)}`, actual: WEEK_EN[d.getDay()] });

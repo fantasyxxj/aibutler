@@ -284,10 +284,15 @@ mark.search-hit.current { background: #f59e0b; color: #1a1a1a; }
   color: var(--text-2); font-size: 12px; font-family: "SF Mono", Menlo, Consolas, monospace;
   padding: 4px 10px; border-radius: 6px; white-space: pre-wrap; word-break: break-word; opacity: .92;
 }
+body:not(.show-tools) .msg.tool { display: none; }   /* 设置里打开「对话里显示工具调用」才画(tool-rows.js) */
 .msg.tool.pending .tool-mark { color: var(--warn); animation: pulse 1.4s infinite; }
 .msg.tool.done { border-left-color: var(--ok); opacity: 1; }
 .msg.tool.done .tool-mark { color: var(--ok); }
 .msg.tool.done .tool-desc::after { content: var(--tool-done-label, ''); color: var(--ok); font-size: 11px; }
+
+/* 工具调用前那句过程话(「我先查一下」): 不是回答, 退成灰色小字, 跟最终回答气泡区分开 */
+.msg.assistant.narration { background: transparent; border: none; box-shadow: none; padding: 0 10px; color: var(--muted); font-size: 12px; }
+.msg.assistant.narration .msg-time { display: none; }
 
 /* ===== 认证失效横幅: 常驻在最顶, 直到重登成功 (401 不自愈, 用户可能几小时后才回来, 不能用 toast) ===== */
 #authBanner {
@@ -579,6 +584,11 @@ mark.search-hit.current { background: #f59e0b; color: #1a1a1a; }
 #taskpanel .in_progress .tp-mark { color: var(--brand-hi); }
 #taskpanel .in_progress .tp-txt { font-weight: 600; }
 #taskpanel .blocked .tp-mark { color: var(--warn); }
+#taskpanel .job .tp-txt { font-weight: 400; }
+#taskpanel .job .tp-detail { flex: 0 1 45%; min-width: 0; opacity: .55; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#taskpanel .job.completed .tp-txt { text-decoration: none; }
+#taskpanel .failed .tp-mark { color: var(--warn); }
+#taskpanel .stopped { opacity: .5; }
 #taskpanel .blocked .tp-txt { opacity: .7; }
 
 /* 分段选择(系统设置 · 外观) */

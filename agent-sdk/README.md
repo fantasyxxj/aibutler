@@ -6,7 +6,7 @@ Its public surface is a drop-in for the subset of `@anthropic-ai/claude-agent-sd
 
 - **Providers**: Anthropic protocol (official or any gateway via `ANTHROPIC_BASE_URL`), OpenAI, DeepSeek, any OpenAI-compatible endpoint. More via AI SDK provider packages.
 - **Portable core**: the main entry uses only `fetch` and standard JS (a test enforces this), so it can run in Electron, React Native, iOS JavaScriptCore or a browser. Desktop-only tools live in `@butler/agent-sdk/node`.
-- **Built-in tools**: `ToolSearch` and `Agent` (sub-agents) in the core; `WebFetch` / `WebSearch` (fetch only, usable on mobile); `Read` `Write` `Edit` `Glob` `Grep` `Bash` `Skill` in the Node entry.
+- **Built-in tools**: `ToolSearch`, `Agent` (sub-agents, foreground or background), `SendMessage` and `TaskStop` in the core; `WebFetch` / `WebSearch` (fetch only, usable on mobile); `Read` `Write` `Edit` `Glob` `Grep` `Bash` `Skill` `Workflow` `Monitor` in the Node entry.
 
 ## Usage
 
@@ -52,6 +52,9 @@ The returned `Query` is an async iterator with `interrupt()` and `getContextUsag
 ## Behaviour notes
 
 - **Agent**: runs a sub-agent with the same model, tools and hooks, a blank history and no further `Agent`; only its final answer comes back as the tool result, its stream is not forwarded. `options.agents[type].prompt` overrides the sub-agent system prompt.
+- **Background tasks**: `Agent` with `run_in_background: true`, `Bash` with `run_in_background: true`, every `Workflow` and every `Monitor` return a task id at once. Like the Claude Agent SDK, the task emits `system/task_started`, `system/task_progress` and `system/task_notification`; when it settles a `<task-notification>` user message is queued, which starts a new turn if the agent is idle. `TaskStop` stops one; closing the query stops them all. `Monitor` also queues a `<task-notification>` with `<status>event</status>` for each batch of output lines while it runs, so outside events wake the agent.
+- **Sub-agent follow-ups**: every `Agent` result carries an `agentId` (and the optional `name`). `SendMessage({to, message})` reaches a running agent between its tool calls, or resumes a finished one in the background with its full history. `isolation: "worktree"` runs the agent in a temporary git worktree on a new branch; it is removed if the agent changed nothing.
+- **Workflow**: same interface as Claude Code's tool — a script starting with `export const meta = {...}` orchestrates sub-agents with `agent()` / `parallel()` / `pipeline()` / `phase()` / `log()` and nested `workflow(nameOrScript, args)` (named scripts come from `.claude/workflows/<name>.js` in the project, then home), run in a `node:vm` context without `require`, `Date.now()` or `Math.random()`. `agent(prompt, {schema})` returns a validated object via a `StructuredOutput` tool. Each run saves `script.js` and `journal.jsonl` under `<tmpdir>/butler-workflows/<session>/<runId>/`; `resumeFromRunId` reuses results of unchanged `agent()` calls. Limits: `BUTLER_WORKFLOW_CONCURRENCY` (default 4) and `BUTLER_WORKFLOW_MAX_AGENTS` (default 50).
 - **Skill**: file-based skills — directories with a `SKILL.md` (YAML front matter `name` / `description`) under `<cwd>/.claude/skills/` and `~/.claude/skills/`; `options.skills` limits the list. The tool is hidden when no skill is found. Skills that ship inside the Claude Code binary are not available.
 - **WebSearch** runs the engines listed in `env.BUTLER_SEARCH_ENGINES` (JSON `[{type, key?, url?}]`, set by the host from the user's settings), first to last, moving on when one fails or times out. With no engines set, `WebSearch` is removed and only the provider's own `web_search` is offered (when the model has one); with engines set, only `WebSearch` is offered. **WebFetch** returns page text; for long pages with a `prompt`, the session model reads the page and answers.
 
@@ -68,7 +71,7 @@ The returned `Query` is an async iterator with `interrupt()` and `getContextUsag
 | `src/index.ts` | public exports |
 | `src/query.ts` | `Query`: lifecycle, turn scheduling, `interrupt()`, `getContextUsage()` |
 | `src/session.ts` | per-query state: model, tools, history, inbox, output channel |
-| `src/loop.ts` | one turn: steps, tool execution, hooks, retries, result |
+| `src/loop.ts` | one turn: steps, tool execution (adjacent read-only calls run together), hooks, retries, result |
 | `src/step.ts` | one model call: AI SDK stream → Claude-style `stream_event`s and content blocks |
 | `src/convert.ts` | message / tool-result / usage format conversion |
 | `src/hooks.ts` | `PreToolUse` hook runner |
@@ -76,13 +79,15 @@ The returned `Query` is an async iterator with `interrupt()` and `getContextUsag
 | `src/preset.ts` | default system prompt used for the `claude_code` preset |
 | `src/context.ts` | context usage breakdown |
 | `src/channel.ts` | async queues |
+| `src/background.ts` | background tasks: task ids, `task_*` messages, the `<task-notification>` that starts the next turn |
 | `src/providers/` | model resolution, model table (context window), prompt caching |
-| `src/tools/registry.ts` | tool list, filtering, deferral, `ToolSearch` |
-| `src/tools/agent.ts` | `Agent` sub-agent tool |
+| `src/tools/registry.ts` | tool list, filtering, deferral, `ToolSearch`, which tools are read-only |
+| `src/tools/agent.ts` | `Agent` sub-agent tool (optional `model`: haiku / sonnet / opus or a full id; `run_in_background`, `name`, `isolation`), `SendMessage` and `TaskStop` |
+| `src/tools/worktree.ts` | temporary git worktree for `isolation: "worktree"` |
 | `src/tools/web.ts` | `WebFetch` / `WebSearch`, HTML → text |
 | `src/tools/search-engines.ts` | local search engines (Bing, DuckDuckGo, Brave, Tavily, SearXNG), tried in the user's order with a per-engine timeout |
 | `src/mcp/` | `tool()` / `createSdkMcpServer()`; connecting MCP servers |
-| `src/node/` | desktop tools (`files.ts`, `shell.ts`, `skills.ts`) and MCP transports (Node only) |
+| `src/node/` | desktop tools (`files.ts`, `shell.ts`, `skills.ts`, `monitor.ts`, `workflow.ts` + `workflow-script.ts`) and MCP transports (Node only) |
 | `test/` | `npm test` |
 | `scripts/live-smoke.mjs` | live test against a real gateway |
 

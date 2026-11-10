@@ -5,12 +5,14 @@ import { Read, Write, Edit, Glob } from './files.js';
 import { Bash, Grep } from './shell.js';
 import { WebFetch, WebSearch } from '../tools/web.js';
 import { Skill } from './skills.js';
+import { Workflow } from './workflow.js';
+import { Monitor } from './monitor.js';
 import type { BuiltinTool } from '../tools/registry.js';
 
-export { Read, Write, Edit, Glob, Bash, Grep, Skill };
+export { Read, Write, Edit, Glob, Bash, Grep, Skill, Workflow, Monitor };
 
 export function nodeTools(): BuiltinTool[] {
-  return [Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, Skill];
+  return [Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch, Skill, Workflow, Monitor];
 }
 
 // 外部 MCP: stdio(command/args/env) · http(type:'http', url, headers) · sse(type:'sse', url, headers)

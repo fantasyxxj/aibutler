@@ -247,7 +247,8 @@ console.log('\n[7] manager.js / renderer.js: t() 引用的键都在字典里');
   // 反向: 字典里的 mgr_*/sys_* 得真有人用, 否则就是改完界面留下的死键。
   // 扫全部窗口的源码 —— 少列一份文件, 那份文件用到的键就会被误判成死键(2026-08-17 加设置窗口时踩过)。
   const uiSrc = ['renderer/manager.js', 'renderer/manager.html', 'renderer/settings-ui.js', 'renderer/search-ui.js', 'renderer/cc-sdk-ui.js', 'renderer/vendor-cards.js', 'renderer/win-close.js',
-                 'renderer/settings.html', 'renderer/index.html', 'renderer/persona-card.js', 'renderer/edit-tabs.js', 'main.js', 'cc-sdk-boot.js']
+                 'renderer/settings.html', 'renderer/index.html', 'renderer/persona-card.js', 'renderer/edit-tabs.js', 'main.js', 'cc-sdk-boot.js',
+                 'renderer/data-dir-ui.js', 'renderer/quick-create-ui.js', 'quick-create.js']
     .map((f) => fs.readFileSync(path.join(__dirname, f), 'utf8')).join('\n');
   for (const [prefix, min] of [['mgr_', 60], ['sys_', 20]]) {
     const keys = Object.keys(i18n.UI['zh-CN']).filter((k) => k.startsWith(prefix));

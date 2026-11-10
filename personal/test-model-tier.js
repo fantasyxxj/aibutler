@@ -39,6 +39,20 @@ const V = (id) => table.vendors.find((v) => v.id === id);
   ok(mt.vendorFor(table, { base_url: 'http://wucur.com:6543' }) === null, '不认识的网关返回 null');
 }
 
+// ── 凭据带协议 ──
+{
+  ok(mt.protocolOf(table, { base_url: 'http://wucur.com:6543' }) === 'anthropic', '没定协议的未知网关照旧 Anthropic');
+  ok(mt.protocolOf(table, { base_url: 'https://open.bigmodel.cn/api/paas/v4' }) === 'compat', '智谱 OpenAI 口按厂家表 compat');
+  ok(mt.protocolOf(table, { base_url: 'https://open.bigmodel.cn/api/anthropic' }) === 'anthropic', '同域名的 /anthropic 口认 Anthropic');
+  ok(mt.protocolOf(table, { vendor: 'glm', base_url: 'https://open.bigmodel.cn/api/anthropic' }) === 'anthropic', '选了厂家卡片也按 /anthropic 路径认');
+  const g = mt.vendorFor(table, { base_url: 'https://open.bigmodel.cn/api/anthropic/' });
+  ok(g && g.id === 'glm' && g.protocol === 'anthropic', `厂家照认、协议换成 Anthropic: ${g && g.id}/${g && g.protocol}`);
+  const gw = mt.vendorFor(table, { base_url: 'https://oneapi.example/v1', protocol: 'compat' });
+  ok(gw && gw.id === 'gateway' && gw.protocol === 'compat', '未知网关定了 compat → 不分档的网关厂家');
+  ok(mt.vendorFor(table, { base_url: 'https://oneapi.example', protocol: 'anthropic' }) === null, '未知网关定了 anthropic → 照旧 null');
+  ok(mt.explicitProtocol({ protocol: 'bogus', base_url: 'https://x.example' }) === '', '不认识的协议值不算');
+}
+
 // ── 主入口: 清单 → 真试 → 第一个通的 ──
 function fakeFetch(models, okSet, status = 500) {
   const calls = [];
@@ -75,6 +89,20 @@ function fakeFetch(models, okSet, status = 500) {
     const f = fakeFetch(['claude-opus-5-5'], new Set(['claude-opus-5-5']));
     const r = await mt.pickForTier({ table, access: { base_url: '', key: 'k' }, tier: 'strong', fetchImpl: f });
     ok(r.ok && r.model === 'claude-opus-5-5' && f.calls[0].url === 'https://api.anthropic.com/v1/models?limit=1000', 'Claude 官方: 裸型号 + 官方清单地址');
+  }
+  {
+    // 豆包(manual): 不分档, 先回清单(剔掉图像/视频/3D 等, 代卖的别家留着), 选中只试那一个; 没开通 → not_open
+    const DB = 'https://ark.cn-beijing.volces.com/api/v3';
+    const ids = ['doubao-seed-2-0-pro-260215', 'doubao-seed-2-1-pro-260915', 'deepseek-v4-pro-260425', 'doubao-seedance-2-0-260128', 'hyper3d-gen2-260112', 'doubao-smart-router-250928'];
+    const notOpen = async (url, init = {}) => !init.method ? new Response(JSON.stringify({ data: ids.map((id) => ({ id })) }), { status: 200 })
+      : JSON.parse(init.body).model === 'doubao-seed-2-0-pro-260215' ? new Response('{}', { status: 200 })
+      : new Response('{"error":{"code":"ModelNotOpen","message":"Your account has not activated the model"}}', { status: 404 });
+    const l = await mt.pickManual({ table, access: { base_url: DB, key: 'k' }, fetchImpl: notOpen });
+    ok(l.manual && l.reason === 'pick' && l.ids.includes('deepseek-v4-pro-260425') && !l.ids.some((x) => /seedance|3d|smart-router/.test(x)), `豆包先回清单让用户选: ${l.ids.join(',')}`);
+    const bad = await mt.pickManual({ table, access: { base_url: DB, key: 'k' }, id: 'doubao-seed-2-1-pro-260915', fetchImpl: notOpen });
+    ok(!bad.ok && bad.reason === 'not_open', '选了没开通的 → not_open');
+    const good = await mt.pickManual({ table, access: { base_url: DB, key: 'k' }, id: 'doubao-seed-2-0-pro-260215', fetchImpl: notOpen });
+    ok(good.ok && good.model === 'compat/doubao-seed-2-0-pro-260215', `选了开通的 → 能用: ${good.model}`);
   }
   ok(mt.reasonOf(401, '') === 'auth' && mt.reasonOf(402, '') === 'quota' && mt.reasonOf(503, '无可用渠道') === 'no_model', '失败原因归类');
 

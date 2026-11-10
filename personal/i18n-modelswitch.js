@@ -1,8 +1,13 @@
-// i18n-modelswitch.js — 主界面顶栏「key · 模型 ▾」快速切换和系统设置里它的开关(sys_qs*)的文案(四种语言)。
+// i18n-modelswitch.js — 主界面顶栏「key · 模型 ▾」快速切换和系统设置里它的开关(sys_qs*)的文案(四种语言),
+// 以及建人格时自选型号厂家(豆包)的下拉文案(tier_manual_* · tier_why_not_open)。
 //
 // 单独成文件是因为 i18n.js 已过 500 行上限的行数门禁, 跟 i18n-theme.js 拆出去是同一个理由。
 module.exports = (UI) => {
   const add = (loc, s) => { if (UI[loc]) Object.assign(UI[loc], s); };
+  add('zh-CN', { tier_manual_label: '用哪个模型?', tier_manual_hint: '这家的模型要先在它官网逐个开通。在下面的模型里选一个你开通了的, 我们在你的 key 上试一下。', tier_manual_fail: '这个模型用不了: {why}', tier_why_not_open: '这个模型你还没在官网开通' });
+  add('zh-TW', { tier_manual_label: '用哪個模型?', tier_manual_hint: '這家的模型要先在它官網逐個開通。在下面的模型裡選一個你開通了的, 我們在你的 key 上試一下。', tier_manual_fail: '這個模型用不了: {why}', tier_why_not_open: '這個模型你還沒在官網開通' });
+  add('en', { tier_manual_label: 'Which model?', tier_manual_hint: 'This provider makes you activate each model on its website first. Pick one you activated in the model list below and we will try it on your key.', tier_manual_fail: 'This model can’t be used: {why}', tier_why_not_open: 'you have not activated this model on the provider’s website' });
+  add('ja', { tier_manual_label: 'どのモデルを使いますか?', tier_manual_hint: 'このサービスはモデルを公式サイトで一つずつ有効化する必要があります。下のモデル一覧から有効化したものを選んでください。あなたの Key で試します。', tier_manual_fail: 'このモデルは使えません: {why}', tier_why_not_open: 'このモデルは公式サイトでまだ有効化されていません' });
   add('zh-CN', { sys_qs: '快速切换模型', sys_qs_enable: '在顶栏显示', sys_qs_hint: '打开后, 主界面人格名字右边会出现「key · 模型 ▾」, 点开就能给当前人格换 key 和模型。', ms_chip_hint: '换这个人格用的 key 和模型', ms_access: '接入', ms_model: '模型', ms_apply: '切换', ms_cancel: '取消', ms_sub: 'Claude 订阅', ms_loading: '正在拉模型清单…', ms_same: '没有改动', ms_restart_confirm: '换 key 要重开「{name}」:\n\n{from} → {to}\n\n确定 = 先用现在这套把手头对话存进记忆, 再换过去重开(上下文会清空, 聊天记录和记忆都在)。' });
   add('zh-TW', { sys_qs: '快速切換模型', sys_qs_enable: '在頂欄顯示', sys_qs_hint: '開啟後, 主介面人格名字右邊會出現「key · 模型 ▾」, 點開就能給目前的人格換 key 和模型。', ms_chip_hint: '換這個人格用的 key 和模型', ms_access: '接入', ms_model: '模型', ms_apply: '切換', ms_cancel: '取消', ms_sub: 'Claude 訂閱', ms_loading: '正在拉模型清單…', ms_same: '沒有改動', ms_restart_confirm: '換 key 要重開「{name}」:\n\n{from} → {to}\n\n確定 = 先用現在這套把手頭對話存進記憶, 再換過去重開(上下文會清空, 聊天記錄和記憶都在)。' });
   add('en', { sys_qs: 'Quick model switch', sys_qs_enable: 'Show in the top bar', sys_qs_hint: 'When on, a “key · model ▾” chip appears next to the persona name on the main screen; click it to change the current persona’s key and model.', ms_chip_hint: 'Change the key and model this persona uses', ms_access: 'Access', ms_model: 'Model', ms_apply: 'Switch', ms_cancel: 'Cancel', ms_sub: 'Claude subscription', ms_loading: 'Loading models…', ms_same: 'Nothing changed', ms_restart_confirm: 'Switching keys reopens “{name}”:\n\n{from} → {to}\n\nOK = save the current conversation into memory with the current setup first, then reopen on the new one (the context is cleared; chat history and memory stay).' });

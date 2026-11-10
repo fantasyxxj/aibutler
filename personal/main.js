@@ -7,14 +7,14 @@ const crypto = require('crypto');
 
 // 🔴 宿主接线必须排在**任何 core 模块之前** —— core 里有模块在加载那一刻就取 paths
 // (如 agent/util.js 的 CLAUDE_BIN), 接线晚一行都会当场抛"宿主没注入"。
-require('./host-wiring'); require('./image-save-ipc'); require('./model-tier-ipc'); require('./channels/ipc'); const { windowBg } = require('./theme-ipc'); require('./hub-ipc').onClaimed(async (id, { agent } = {}) => { broadcastRegistry(); const c = registry.get(id); const s = c && sessions.get(sidOf(c.homeDir)); if (!s) return; await installPlugins(s); s.butler.submit(`[hub-connected] You are now connected to the hub as ${agent}. Other agents can reach you there, and their messages arrive in your inbox.`, undefined, { sourceKind: 'auto' }).catch(() => {}); });   // 后者=连公网 hub 的 IPC(自注册, 单开文件因 main.js 撞行数闸); 回调=取到 token 当场起收件循环(否则要重启才收件)、刷新人格页、告诉人格它接上了
+require('./host-wiring'); require('./image-save-ipc'); require('./model-tier-ipc'); require('./quick-create').init(() => ({ openPersonaByRef, sessionFor, sidOf, sendUI, markActivity, currentLocale, mainWin: () => mainWin })); require('./channels/ipc'); const { windowBg } = require('./theme-ipc'); require('./hub-ipc').onClaimed(async (id, { agent } = {}) => { broadcastRegistry(); const c = registry.get(id); const s = c && sessions.get(sidOf(c.homeDir)); if (!s) return; await installPlugins(s); s.butler.submit(`[hub-connected] You are now connected to the hub as ${agent}. Other agents can reach you there, and their messages arrive in your inbox.`, undefined, { sourceKind: 'auto' }).catch(() => {}); });   // 后者=连公网 hub 的 IPC(自注册, 单开文件因 main.js 撞行数闸); 回调=取到 token 当场起收件循环(否则要重启才收件)、刷新人格页、告诉人格它接上了
 
 const { Butler, hasUnconsumedCtxLast, accessConfig } = require('../core/agent');
 const store = require('../core/chat-store');
 const registry = require('../core/registry');
 const persona = require('../core/persona');
 const personaTransfer = require('./persona-transfer'); const firstPersona = require('./first-persona');   // 人格搬家(换机器) · 第一个人格的诞生(没接 AI 就不建, 见 first-persona.js)
-const paths = require('./paths'); const modelOptions = require('../core/model-options');   // 后者=模型下拉清单现拉(订阅/网关两条路) + 登录态凭证读取
+const paths = require('./paths'); require('./single-instance').claim(() => { if (mainWin && !mainWin.isDestroyed()) { if (mainWin.isMinimized()) mainWin.restore(); mainWin.show(); mainWin.focus(); } }); const modelOptions = require('../core/model-options');   // 后者=模型下拉清单现拉(订阅/网关两条路) + 登录态凭证读取
 const { TgPlugin } = require('./plugins/tg');
 const { BothubPlugin } = require('./plugins/bothub');
 const { LineRelayChannel } = require('./plugins/line-relay');
@@ -165,10 +165,14 @@ function saveImageAttachment(homeDir, a) {
 const sendUI = (ch, payload) => { if (mainWin && !mainWin.isDestroyed()) mainWin.webContents.send(ch, payload); };
 // 提醒由主进程统一盯, 到点挂横幅(personal/reminder-center.js); 人点「处理」才打开人格。
 const reminderCenter = require('./reminder-center').create({ registry, persona, sendUI, log: (m) => console.log(m) });
+// 没打开的人格守着收件通道, 来消息就打开它(personal/dormant-wake.js); 开关在人格配置 wakeOnMessage
+const dormantWake = require('./dormant-wake').create({ registry, log: pluginLog, isOpen: (d) => sessions.has(sidOf(d)),
+  wake: (d) => { if (sessions.has(sidOf(d))) return; const s = openPersona(d); sendUI('persona-opened', { meta: metaOf(s) }); } });
 // 登记簿有变(建/改/删) → 主窗 + 管理窗口都刷列表
 const broadcastRegistry = () => {
   if (mainWin && !mainWin.isDestroyed()) mainWin.webContents.send('registry-changed');
   if (managerWin && !managerWin.isDestroyed()) managerWin.webContents.send('registry-changed');
+  if (startupDone) dormantWake.sync();   // 配置 / 开关改了, 守候跟着换
 };
 const personaOf = (b) => ({ name: b.name, avatar: b.avatar || '', homeDir: b.homeDir, memoryDir: b.memoryDir, isButler: !!b.openedAsButler });
 
@@ -216,6 +220,7 @@ function listPersonas() {
 function openPersona(homeDir, { newborn = false } = {}) {
   const sid = sidOf(homeDir);
   if (sessions.has(sid)) return sessions.get(sid);
+  dormantWake.release(homeDir);   // 守候先让位, 免得和下面 installPlugins 起的正式插件抢同一条消息
 
   const entry = registry.ensureEntry(homeDir);   // 登记簿(不在则迁移建条): 名字/唤醒语/是否管家 以它为准
   const butler = new Butler(homeDir, {
@@ -616,7 +621,7 @@ async function installPlugins(s) {
   };
   s.tgPlugin = new TgPlugin(plugins.tg, s.butler.name, pluginLog, s.butler.memoryDir, tgOnMessage);
   // v2: 把 bot_token 注入 butler, 供 MCP send_tg 工具用 (每次 installPlugins 都刷, 支持热切换 token)
-  s.butler.setTgConfig(plugins.tg || {}); require('./channels/wire').wireChannels(s, entry, { cfg, log: pluginLog }).catch((e) => console.error('[channels]', e && e.message));   // 统一通道(飞书/钉钉/群机器人…, personal/channels/)
+  s.butler.setTgConfig(plugins.tg || {}); require('./channels/wire').wireChannels(s, entry, { cfg, log: pluginLog, handoff: dormantWake.takeChannelHost(s.butler.homeDir) }).catch((e) => console.error('[channels]', e && e.message));   // 统一通道(飞书/钉钉/群机器人…, personal/channels/)
   const rTg = s.tgPlugin.start(s.butler.homeDir);
   if (!rTg.ok) pluginLog(`[tg:${s.butler.name}] 启动失败: ${rTg.error}`);
   else if (rTg.mode === 'native') pluginLog(`[tg:${s.butler.name}] ✅ native long polling 启动`);
@@ -1686,7 +1691,7 @@ app.whenReady().then(async () => {
     // 干净启动: 不带任何数据种子; 没有人格时渲染层显示空状态屏, 用户建了才有。
     const firstRunLocale = require('./first-run').run();   // 现在恒为 null(见 first-run.js), 留着这条落盘口子
     if (firstRunLocale) settings.write({ language: firstRunLocale });
-    require('./data-dir-guard').checkAll(firstRunLocale); migrateControlLayout();   // 指针丢了 / 数据在安装目录 → 先问清楚; 再把总控数据挪进 app/(都在任何登记簿读写前)
+    require('./data-move').applyPending({ relaunch: () => relaunchApp() }); require('./data-dir-guard').checkAll(firstRunLocale); migrateControlLayout();   // 设置里点过搬家先搬; 指针丢了 / 数据在安装目录 → 先问清楚; 再把总控数据挪进 app/(都在任何登记簿读写前)
     // 代理: 必须早于任何出网动作(下面 ensureClaudeAuth 就要连 Anthropic)。
     // 依赖数据目录, 所以只能排在首启那两个框之后。
     try {
@@ -1722,6 +1727,7 @@ app.whenReady().then(async () => {
     }
     createWindow();
     startupDone = true;
+    dormantWake.sync();
     if (pendingLoginFlight) attachPendingLoginBanner(pendingLoginFlight);
     kickSemanticModel();
     if (butlerNewborn) {
@@ -1745,6 +1751,7 @@ app.on('before-quit', () => {
   console.log('[quit] before-quit');
   idleWatcher.stop();
   try { localApiServer && localApiServer.stop(); } catch (_) {}
+  try { dormantWake.stopAll(); } catch (_) {}
   for (const s of sessions.values()) {
     try { s.tgPlugin && s.tgPlugin.stop(); } catch (_) {}
     try { s.bothubPlugin && s.bothubPlugin.stop(); } catch (_) {}  try { s.channels && s.channels.stopAll(); } catch (_) {}
@@ -2558,6 +2565,7 @@ ipcMain.handle('close-session', async (_e, { sid } = {}) => {
   try { await s.butler.dispose(); } catch (_) {}
   sessions.delete(sid);
   saveOpenTabs();
+  dormantWake.sync();   // 关了标签 = 回到没打开, 接着守它的收件通道
   return { ok: true, remaining: [...sessions.keys()] };
 });
 

@@ -57,16 +57,27 @@ contextBridge.exposeInMainWorld('butler', {
   getQuickSwitch: () => ipcRenderer.invoke('get-quick-switch'),               // 顶栏「key · 模型 ▾」开没开 { on }(默认关)
   setQuickSwitch: (on) => ipcRenderer.invoke('set-quick-switch', { on }),     // 开关它 → 所有窗口收 quick-switch-changed
   onQuickSwitchChanged: (cb) => ipcRenderer.on('quick-switch-changed', (_e, d) => cb(d)),
+  getTips: () => ipcRenderer.invoke('get-tips'),                              // 启动小贴士 { on, seen } · on=打开时弹, seen=看过第一条
+  setTips: (patch) => ipcRenderer.invoke('set-tips', patch),                  // { on?, seen? }
+  showTips: () => ipcRenderer.invoke('show-tips'),                            // 主窗口当场弹一张(系统设置里点)
+  onTipsShow: (cb) => ipcRenderer.on('tips-show', () => cb()),
+  quickCreatePersona: (text) => ipcRenderer.invoke('quick-create-persona', { text }),   // 一句话建人格: 交给管家去建 { ok, butler?, error? }
+  dataDirInfo: () => ipcRenderer.invoke('data-dir-info'),                     // 数据位置 { dir, canMove } · canMove=有指针可改(打包版)
+  dataDirOpen: () => ipcRenderer.invoke('data-dir-open'),                     // 在访达 / 资源管理器里打开数据目录
+  dataDirMove: () => ipcRenderer.invoke('data-dir-move'),                     // 选目录 → 确认 → 重启后搬; 返回 { ok, error? }
+  getToolRows: () => ipcRenderer.invoke('get-tool-rows'),                     // 对话里显不显示工具调用条 { on }(默认关)
+  setToolRows: (on) => ipcRenderer.invoke('set-tool-rows', { on }),           // 开关它 → 所有窗口收 tool-rows-changed
+  onToolRowsChanged: (cb) => ipcRenderer.on('tool-rows-changed', (_e, d) => cb(d)),
   getSettings: () => ipcRenderer.invoke('get-settings'),                      // 用户设置 { proxy:{enabled,url,no_proxy}, _file }
   setSettings: (patch) => ipcRenderer.invoke('set-settings', patch),          // 存盘 + 立即应用代理
   testProxy: (patch) => ipcRenderer.invoke('test-proxy', patch),              // 用待验证的配置试连 → { ok, detail }
   // 凭据仓库(多条)。key 真值一律不回传, 只给 keyState: none/ok/stale
   listCredentials: () => ipcRenderer.invoke('list-credentials'),              // { credentials:[{id,name,base_url,vendor,keyState}], defaultCredentialId, subLoggedIn, keychain, ccAvailable }
   credentialUsers: (id) => ipcRenderer.invoke('credential-users', { id }),       // { users:[{id,name}] } 开着且正用这条的人格
-  saveCredential: (patch) => ipcRenderer.invoke('save-credential', patch),    // { id?, name, base_url, vendor?, apiKey, makeDefault } · vendor=厂家卡片的 id, 空=其他 · apiKey: 空=不动 / null=删 / 串=换
+  saveCredential: (patch) => ipcRenderer.invoke('save-credential', patch),    // { id?, name, base_url, vendor?, protocol?, apiKey, makeDefault } · vendor=厂家卡片的 id, 空=其他 · protocol: anthropic/compat…, 空=自动 · apiKey: 空=不动 / null=删 / 串=换
   deleteCredential: (id) => ipcRenderer.invoke('delete-credential', { id }),
   setDefaultCredential: (id) => ipcRenderer.invoke('set-default-credential', { id }),
-  testCredential: (patch) => ipcRenderer.invoke('test-credential', patch),    // 拿这条凭据真发一次最小请求 → { ok, detail }
+  testCredential: (patch) => ipcRenderer.invoke('test-credential', patch),    // 拿这条凭据真发一次最小请求 → { ok, detail, protocol?, base_url? } · 自动档测出的协议/补过 /v1 的地址
   listSearchKeys: () => ipcRenderer.invoke('list-search-keys'),               // { engines:[{id,type,url?,key:none|ok|stale}], disabled, types, keychain }
   saveSearchKeys: (patch) => ipcRenderer.invoke('save-search-keys', patch),     // { engines:[{id?,type,url?,key?}], disabled } · 整表替换, 顺序即先后 · key: 空=不动 / null=删 / 串=换
   testSearchEngine: (eng) => ipcRenderer.invoke('test-search-engine', eng),     // { type, id?, url?, key? } → { ok, ms, count?, first?, error? }

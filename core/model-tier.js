@@ -51,8 +51,44 @@ function personaModel(protocol, id) {
   return protocol === 'anthropic' || !protocol ? id : `${protocol}/${id}`;
 }
 
+// 凭据上能写的协议(人格模型前缀与它一一对应, 见 agent-sdk resolveModel)
+const PROTOCOLS = ['anthropic', 'openai', 'compat', 'deepseek'];
+
+// 凭据自己定的协议: 记了 protocol 就用它; 地址路径带 /anthropic 的(智谱 · 千问 · Kimi · DeepSeek 的 Anthropic 口,
+// 跟它们 OpenAI 兼容口同一个域名)认 Anthropic。都没有 = 空, 交给厂家表。
+function explicitProtocol({ protocol, base_url } = {}) {
+  if (PROTOCOLS.includes(protocol)) return protocol;
+  try { if (/\/anthropic(\/|$)/.test(new URL(base_url).pathname)) return 'anthropic'; } catch (_) { /* 地址空或不合法 */ }
+  return '';
+}
+
 // base_url → 厂家。凭据上记了 vendor 就直接用; 老凭据只有地址, 按 host 认。
-function vendorFor(table, { vendor, base_url, key } = {}) {
+// 凭据自己定了协议的, 厂家照认、协议换成凭据的; 认不出厂家又不是 Anthropic 的, 当成一个不分档的网关。
+function vendorFor(table, access = {}) {
+  const v = vendorByAddress(table, access);
+  const p = explicitProtocol(access);
+  if (!p || (v && v.protocol === p)) return v;
+  if (v) return { ...v, protocol: p };
+  return p === 'anthropic' ? null : { id: 'gateway', protocol: p, ...anyVendorRules(table) };
+}
+
+// 认不出是哪家的网关(什么家的型号都可能转): 档位和排除名单借厂家表里所有家的并集,
+// 否则只能拿清单前几个去试, 撞上 tts / realtime / 画图那类型号就全红
+function anyVendorRules(table) {
+  const tiers = {}; const exclude = [];
+  for (const v of (table && table.vendors) || []) {
+    for (const [t, fams] of Object.entries(v.tiers || {})) tiers[t] = [...(tiers[t] || []), ...(fams || [])];
+    exclude.push(...(v.exclude || []));
+  }
+  return { tiers, exclude };
+}
+
+// 协议: 凭据定的 > 厂家表 > Anthropic(老网关)
+function protocolOf(table, access = {}) {
+  return explicitProtocol(access) || (vendorByAddress(table, access) || {}).protocol || 'anthropic';
+}
+
+function vendorByAddress(table, { vendor, base_url, key } = {}) {
   const list = (table && table.vendors) || [];
   if (vendor) { const v = list.find((x) => x.id === vendor); if (v) return v; }
   const host = (u) => { try { return new URL(u).host; } catch (_) { return ''; } };
@@ -90,6 +126,7 @@ async function listIds({ protocol, vendor, base_url, key, fetchImpl = fetch }) {
 function reasonOf(status, text) {
   const s = String(text || '').toLowerCase();
   if (status === 401 || status === 403) return 'auth';
+  if (/modelnotopen|not activated/.test(s)) return 'not_open';
   if (status === 402 || /quota|insufficient|balance|余额|额度|billing|credit/.test(s)) return 'quota';
   if (status === 404 || /model.*(not|does not) exist|not found|no such model|unknown model|无可用渠道|no available channel/.test(s)) return 'no_model';
   if (status === 429) return 'rate';
@@ -141,4 +178,19 @@ async function pickForTier({ table, access, tier, fetchImpl = fetch }) {
   return { ok: false, reason: 'tier_unusable', vendor: vendor.id, tier: t, fallback, tried, listed: listed.ids.length };
 }
 
-module.exports = { pickForTier, candidatesForTier, vendorFor, personaModel, byNewest, reasonOf, listIds, probe };
+// 出厂表标 manual 的厂家(豆包)不分档: 不带 id → 回这把 key 能聊天的型号清单让用户自己选; 带 id → 只试这一个。
+async function pickManual({ table, access, id = '', fetchImpl = fetch }) {
+  const vendor = vendorFor(table, access);
+  const protocol = vendor.protocol || 'anthropic';
+  const base_url = access.base_url || vendor.base_url || '';
+  const listed = await listIds({ protocol, vendor, base_url, key: access.key, fetchImpl }).catch(() => ({ ok: false, ids: [] }));
+  if (!listed.ok) return { ok: false, manual: true, reason: listed.status === 401 || listed.status === 403 ? 'auth' : 'list_failed', vendor: vendor.id, ids: [], tried: [] };
+  const ex = (vendor.exclude || []).map(rx);
+  const ids = listed.ids.filter((x) => !ex.some((r) => r.test(x))).sort(byNewest);
+  if (!id) return { ok: false, manual: true, reason: 'pick', vendor: vendor.id, ids, tried: [] };
+  const r = await probe({ protocol, vendor, base_url, key: access.key, id, fetchImpl });
+  return r.ok ? { ok: true, manual: true, id, model: personaModel(protocol, id), vendor: vendor.id, ids, tried: [r] }
+    : { ok: false, manual: true, reason: r.reason, vendor: vendor.id, ids, tried: [r] };
+}
+
+module.exports = { pickManual, pickForTier, candidatesForTier, vendorFor, protocolOf, explicitProtocol, PROTOCOLS, personaModel, byNewest, reasonOf, listIds, probe };

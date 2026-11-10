@@ -9,6 +9,9 @@
 // 经 util.mixin 挂回 Butler.prototype(见 agent.js 末尾)。
 const fs = require('fs');
 const path = require('path');
+const bgJobs = require('./bg-jobs');
+// 挂起(blocked)超过这么久就不再算「这件活的步骤」, 而是在等人 —— 挪进待办簿(见 _sweepStaleBlocked)
+const BLOCKED_TO_TODO_MS = 24 * 3600 * 1000;
 // ── 参数表与枚举 ────────────────────────────────────────────────────────────────
 // status 枚举。`blocked` 是**第五态且不在这份枚举里**: 它只能由 taskOp 的 blocked 参数派生 ——
 // 允许直接传 status:'blocked' 的话"挂起理由"就会缺, 而没有理由的挂起等于永久沉默
@@ -116,8 +119,11 @@ class TasksMixin {
     if (a.blocked !== undefined) {
       if (a.blocked === null || a.blocked === '') {
         if (t.status === 'blocked') t.status = 'pending';
-        delete t.blockedReason;
-      } else { t.status = 'blocked'; t.blockedReason = String(a.blocked); }
+        delete t.blockedReason; delete t.blockedAt;
+      } else {
+        if (t.status !== 'blocked') t.blockedAt = Date.now();   // 挂起起算点: 超一天挪进待办簿
+        t.status = 'blocked'; t.blockedReason = String(a.blocked);
+      }
     }
     if (t.status === 'deleted') this._tasks = this._tasks.filter((x) => x !== t);
     // 整件活的步骤全打勾了 → 一起清掉
@@ -137,8 +143,50 @@ class TasksMixin {
   // 清单变了 → 推界面 + 落盘。🔴 两件事必须成对: 只推不落, 重启就回到旧清单;
   // 只落不推, 用户屏幕上那份是假的。
   _flushTasks() {
-    this._emit('onTasks', (this._tasks || []).map((t) => ({ ...t })));
+    this._emit('onTasks', this._panelRows());
     this._saveTasks();
+  }
+
+  // 任务面板 = 模型列的步骤 + 程序跑着的后台作业(bg-jobs.js, 带 job:true)。推面板一律走这里, 两种行才不会互相冲掉
+  _panelRows() {
+    return [...(this._tasks || []).map((t) => ({ ...t })), ...bgJobs.rows(this)];
+  }
+
+  // 挂起超一天的步骤挪进待办簿: 那是在等人, 不是这件活的步骤(11-09 实查: 挂着不清的全是「等谁交东西」)。
+  // 挪成功才从清单拿掉; 没有待办簿(行业版等没有插件命令执行器)就原样留着。告知攒在 _taskSweepNote, 下一条消息带给模型。
+  async _sweepStaleBlocked() {
+    const run = this.personaOps && this.personaOps.runPluginCommand;
+    const list = this._tasks || [];
+    if (typeof run !== 'function' || !list.some((t) => t.status === 'blocked')) return;
+    if (this._sweeping) return;
+    this._sweeping = true;
+    try {
+      const now = Date.now();
+      const moved = [];
+      for (const t of list) {
+        if (t.status !== 'blocked') continue;
+        if (!t.blockedAt) { t.blockedAt = now; this._saveTasks(); continue; }   // 老清单没记起算点: 从现在算
+        if (now - t.blockedAt < BLOCKED_TO_TODO_MS) continue;
+        const r = await run('todo.add', { title: t.subject, note: t.blockedReason || '', who: this.name }).catch((e) => ({ ok: false, message: e && e.message }));
+        if (r && r.ok) moved.push(t);
+        else console.error(`[tasks] ${this.name} #${t.id} 挪待办簿失败: ${(r && (r.message || r.code)) || 'no result'}`);
+      }
+      if (!moved.length) return;
+      this._tasks = (this._tasks || []).filter((t) => !moved.includes(t));
+      this._flushTasks();
+      console.log(`[tasks] ${this.name} 挂起超一天的 ${moved.map((t) => '#' + t.id).join(' ')} 挪进待办簿`);
+      this._taskSweepNote = (this._taskSweepNote || '') + `<system-reminder>\n这几条在 task 里挂起超过一天, 已挪进待办簿(plugin_call id='todo'): `
+        + moved.map((t) => `#${t.id} ${t.subject}${t.blockedReason ? `(等: ${t.blockedReason})` : ''}`).join(' · ')
+        + `。task 只放手上这件活的步骤; 等人、等结果的事在待办簿里跟。\n</system-reminder>\n`;
+    } finally { this._sweeping = false; }
+  }
+
+  // 每条提交取一次: 顺手再扫一遍(结果下一条带上), 把攒下的告知交出去
+  _takeTaskSweepNote() {
+    this._sweepStaleBlocked().catch((e) => console.error(`[tasks] ${this.name} 扫挂起出错: ${e && e.message}`));
+    const n = this._taskSweepNote || '';
+    this._taskSweepNote = '';
+    return n;
   }
 
   // 清单落盘 —— 作者 2026-09-25: 「任务一旦压缩了就没了, 这个不行」。

@@ -2,11 +2,16 @@
 // 由 agent.js 拆出(内核抽包第 1 步)。方法体逐字搬运, 经 util.mixin 挂回 Butler.prototype。
 const { cfg } = require('../host');
 const { hasCjkEscape } = require('../escape-guard');
-const { FORCE_SEDIMENT_TOOLS, MEMORY_WRITE_TOOLS, sumInput } = require('./util');
+const { FORCE_SEDIMENT_TOOLS, MEMORY_WRITE_TOOLS, sumInput, deliveredText } = require('./util');
 const { classifyAccessError, classifySdkError, dropSubscriptionToken } = require('./env');
 const { detectLostToolCall } = require('./lost-toolcall');
+// 界面命令目录的名字: 用来分开合法按钮 `{{cmd:biz_do|…}}` 和写成按钮的工具调用。取不到就不判那种漏法。
+const commandNameSet = () => { try { return new Set(Object.keys(require('../commands').catalog() || {})); } catch (_) { return null; } };
 const { retryOrReleaseTurn } = require('./turn-release');
 const turnMute = require('./turn-mute');
+const toolLog = require('./tool-log');
+const { onSubagentMsg } = require('./subagent-feed');
+const bgJobs = require('./bg-jobs');
 
 class ConsumeMixin {
   // 消费循环: 路由消息到全局回调。一个 result = 一段回复 settle(软插话下, 一段可吸收多条用户消息)。
@@ -27,6 +32,12 @@ class ConsumeMixin {
         }
         // CLI 回放 = 这条提交进了当前这一轮 → 静音按它对账(见 turn-mute.js)。回放不是工具结果, 别往下走。
         if (msg.type === 'user' && msg.isReplay) { turnMute.onReplay(this, msg.uuid); continue; }
+        // 子代理的过程(cc 引擎带 parent_tool_use_id)不算主代理的话 / 工具 / 占用, 只露一行动态
+        if (msg.parent_tool_use_id) { onSubagentMsg(this, msg); continue; }
+        // 后台作业(task_*)由程序列进任务面板, 见 bg-jobs.js
+        if (msg.type === 'system' && bgJobs.onSystemMsg(this, msg)) continue;
+        // 工具结果回来了 → 配上它的 tool_use 落一行 logs/tool_calls(两种引擎都走这里, 见 tool-log.js)
+        if (msg.type === 'user' && Array.isArray(msg.message?.content)) for (const b of msg.message.content) if (b && b.type === 'tool_result') toolLog.finish(b);
         if (msg.type === 'system' && msg.subtype === 'init') {
           this.sessionId = msg.session_id || this.sessionId;
           // 🔴 window 是 model 的函数, 不是一个自己累积的状态。病史两次, 形式不同根子一样
@@ -141,6 +152,8 @@ class ConsumeMixin {
             if (b.type === 'text' && b.text) { outChars += b.text.length; if (!this._deltaText || msg.error) { this._cur += b.text; this._emit('onText', b.text); } }
             // 每个工具调用抛成一条持久条目(而非挤成一条转瞬 activity), 渲染层排进消息流、不清除
             else if (b.type === 'tool_use') {
+              // 段落边界: 到这里为止说的话是过程, 交出去的回复从下一段算起(deliveredText)
+              if (this._cur.length > (this._segStart || 0)) { this._prevSegStart = this._segStart || 0; this._segStart = this._cur.length; }
               argChars += JSON.stringify(b.input || {}).length;
               // 入参空不空只有这条组装后的消息说了算。SDK 的 assistant 消息可能先于 content_block_stop 到达,
               // 那时分片还没收全, 落盘会存下一截假的半成品 —— 所以没 stop 就只打标记, 交给 stop 那边落。
@@ -150,6 +163,7 @@ class ConsumeMixin {
                 if (b.input && Object.keys(b.input).length) { if (frag.stopped) this._argFrags.delete(b.id); else frag.inputOk = true; }
                 else { frag.emptyInput = true; if (frag.stopped) this._dumpLostArgs(frag, frag.raw ? 'assembled_but_dropped' : 'no_fragments'); }
               }
+              toolLog.start(this.name, b);
               this._emit('onTool', { desc: this._describeTool(b), name: b.name });
               // 🔴 存在实例上而不是走事件: 沉淀轮是自言自语, `onTool` 在 UI_EVENTS 里被静音掐掉,
               // 退出遮罩靠事件永远收不到"它正在干什么"。这里记的是状态, 静音管不着。
@@ -161,7 +175,7 @@ class ConsumeMixin {
               // 只记开跑不记结束: SDK 的任务回执走 user 消息, 这里根本收不到, 所以是"到期自动放行"而非计数归零。
               // 🔴 不限 Bash: Agent(子代理) 和别的工具同样能挂后台。原先写死 `b.name === 'Bash'`,
               // 于是用 Agent 挂活的人格照压不误 —— 判据是"这次调用要不要在后台跑", 跟哪个工具无关。
-              if (b.input && b.input.run_in_background === true) {
+              if ((b.input && b.input.run_in_background === true) || b.name === 'Workflow') {   // 工作流一律在后台跑
                 this.lastBgLaunchTs = Date.now();
                 console.log(`[bg-hold] ${this.name} 后台任务开跑(${b.name}), 暂缓压缩`);
               }
@@ -194,7 +208,9 @@ class ConsumeMixin {
             else if (b.type === 'thinking' || b.type === 'redacted_thinking') this._turnHadThinking = true;
           }
           this._deltaText = '';   // 本条 assistant 消息处理完, 重置 delta 累积(下条重新判)
-          const inTok = sumInput(msg.message?.usage);
+          // Butler 引擎随 usage 带来按请求体的自估(ctx_estimate): 网关回报偶发虚高, 占用取两者小的
+          const u0 = msg.message?.usage;
+          const inTok = u0 && u0.ctx_estimate > 0 ? Math.min(sumInput(u0) || u0.ctx_estimate, u0.ctx_estimate) : sumInput(u0);
           this._pendChars.out += outChars;
           this._pendChars.arg += argChars;
           if (inTok) {
@@ -260,7 +276,8 @@ class ConsumeMixin {
             this._emit('onCtxSample', { kind: 'wake_base', seq: this._ctxSeq, ctx: this.lastInput, base: this.wakeCtxBase, delta: null, tools: [], model: this.model });
           }
           this._emit('onUsage', this.usage());
-          const finalText = this._cur;
+          const finalText = deliveredText(this._cur, this._segStart, this._prevSegStart);
+          this._segStart = 0; this._prevSegStart = 0;
           // 🔴 这段文本是模型逐字产出的, 还是 CLI 整块塞进来的 —— 判认证失效只认后者。
           // 模型开口必然走 stream_event/text_delta(_deltaText 累积); CLI 注入的 401 不经过模型、
           // 没有 token 流, _deltaText 必空。这是结构性事实, 比"文本长得像不像报错"可靠:
@@ -390,10 +407,10 @@ class ConsumeMixin {
           if (!interrupted && finalText && !this._lostToolRetried) {
             let ltCfg = null;
             try { ltCfg = cfg.json('main/lost_toolcall_retry'); } catch (_) {}
-            const lost = (ltCfg && ltCfg.enabled) ? detectLostToolCall(finalText, this._knownToolNames) : null;
+            const lost = (ltCfg && ltCfg.enabled) ? detectLostToolCall(finalText, this._knownToolNames, commandNameSet()) : null;
             if (lost) {
               this._lostToolRetried = true;
-              console.error(`[lost-toolcall] ${this.name} 对「${lost.name}」的调用漏成了正文, 从未发出 → 不放行, 让它重调`);
+              console.error(`[lost-toolcall] ${this.name} 对「${lost.name}」的调用漏成了正文(${lost.via}), 从未发出 → 不放行, 让它重调`);
               this._emit('onActivity', '(上一轮有个工具没真调出去, 正在让它重调)');
               retryOrReleaseTurn(this, 'lost-toolcall',
                 () => this.submit(String(ltCfg.template || '').replaceAll('{tool}', lost.name), null, { sourceKind: 'auto', _lostToolRetry: true }),
@@ -460,7 +477,7 @@ class ConsumeMixin {
       // 只有还持牌的那一代才有资格清全局状态。老流(已被拆/已易主)在这儿清, 清掉的是**新流**的
       // _q/_queue/_busy —— 新流从此没人认得它, 下一条 submit 又建一条, 分身越滚越多。
       if (this._q === q) {
-        this._q = null; this._queue = null; this._busy = false; this._cur = ''; this._deltaText = '';
+        this._q = null; this._queue = null; this._busy = false; this._cur = ''; this._deltaText = ''; this._segStart = 0; this._prevSegStart = 0;
         this._turnStreamed = false;
       }
       // 流【死】了(子进程自己退了/管道断了)= 等在它上面的 askOnce 再也等不到 result。不放行,

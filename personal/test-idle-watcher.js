@@ -342,7 +342,7 @@ console.log('\n[记时间戳那一侧 · 不能只认 Bash]');
   const fs = require('fs');
   const path = require('path');
   const src = fs.readFileSync(path.join(__dirname, '..', 'core', 'agent', 'consume.js'), 'utf8');
-  const setter = /if \(b\.input && b\.input\.run_in_background === true\)[\s\S]{0,120}?lastBgLaunchTs = Date\.now\(\)/;
+  const setter = /if \(\(?b\.input && b\.input\.run_in_background === true\)[\s\S]{0,200}?lastBgLaunchTs = Date\.now\(\)/;   // 11-10 起工作流(一律后台)也算
   if (setter.test(src)) { console.log('  ✓ 判据是"这次调用要不要后台跑", 不挑工具名'); pass++; }
   else { console.log('  ✗ consume.js 里 lastBgLaunchTs 的设置条件变了 —— 确认 Agent 挂后台时也记得上'); fail++; }
   if (!/b\.name === ['"]Bash['"] && b\.input && b\.input\.run_in_background/.test(src)) {

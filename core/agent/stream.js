@@ -4,7 +4,7 @@ const gateSubmit = require('../rate-gate').gateSubmit;
 const CancelToken = require('../rate-gate').CancelToken;
 const { CLAUDE_BIN, HAS_EXTERNAL_TEXT, nowStamp, loadSdk, resolveSdkKind, makeMsgQueue, withTimeout } = require('./util');
 const { takeDayOpener } = require('./day-opener');
-const { buildEnv } = require('./env');
+const { buildEnv, modelForAccess } = require('./env');
 const crypto = require('crypto');
 const turnMute = require('./turn-mute');
 const { cfg } = require('../host');
@@ -90,13 +90,14 @@ class StreamMixin {
     // 模型端"续线程"改靠 systemPrompt (persona.md + MEMORY.md 索引) + memory_hot/query 工具.
     // 注: doCompact 仍需 resume 旧 session (那次是刻意 resume 生成摘要), 不受此改动影响.
     const model = this.preferredModel;       // 模型只由人格自己定, 接入方式不参与
+    const wire = modelForAccess(model, this.accessMode === 'api', this.gateway, this.credentialId);   // 同一型号, 只是协议前缀跟凭据
     const options = {
       resume: undefined,   // v3: 恒空. sessionId 只用于 doCompact 那次刻意续接.
       cwd: this.homeDir,
       pathToClaudeCodeExecutable: CLAUDE_BIN, // 捆绑/解析后的 claude, 免 PATH 依赖
       abortController: this._ac,             // teardown 拆不动时的硬中止句柄
-      env: buildEnv(model, this.accessMode === 'api', this.gateway, this.credentialId),   // 恒传: 订阅模式靠它显式清掉外部 ANTHROPIC_* 防劫持
-      ...(model ? { model } : {}),           // 空=跟随 Claude Code 默认
+      env: buildEnv(wire, this.accessMode === 'api', this.gateway, this.credentialId),   // 恒传: 订阅模式靠它显式清掉外部 ANTHROPIC_* 防劫持
+      ...(wire ? { model: wire } : {}),           // 空=跟随 Claude Code 默认
       permissionMode: 'bypassPermissions',
       // 关掉 SDK auto-memory: 它会在 ~/.claude/projects/<cwd>/memory/ 自建一份 MEMORY.md 并把**它的**
       // 绝对路径注进 claudeMd, 而唤醒读的是人格 memoryDir 那份 —— 模型改便条时眼前只有前者的路径,
@@ -285,7 +286,7 @@ class StreamMixin {
     // 于是每条 Local API 消息都在误触发记忆提醒 —— 跟消息内容毫无关系, 纯粹是子串撞上了。
     const _userText = opts.rawText !== undefined ? opts.rawText : text;
     this._turnUserText = (HAS_EXTERNAL_TEXT(_srcKind) && !isHeartbeatPing && typeof _userText === 'string') ? _userText : null;
-    const _nudge = this._takeMemoryNudge(_srcKind);
+    const _nudge = this._takeMemoryNudge(_srcKind) + this._takeTaskSweepNote();   // 后者: 挂起超一天挪进待办簿的告知(tasks.js)
     // 每轮查一次: 够得上高档的把【主键 + 命题行】拼进来, 够不上的只留流水不注入。详见 _auditRecall。
     //
     // 🔴 查的是 `opts.rawText`(没套信封的原文), 不是即将提交的 text。bus/TG/LINE/Local API

@@ -12,12 +12,20 @@
 //    ① invoke 标签**紧跟着** parameter 标签(连续的完整调用体, 不是文中各自出现)
 //    ② 工具名在本轮真实注册的工具表里
 //    ③ 不在反引号 / ``` 代码块里(讨论它必然带反引号)
+//
+// 第二种漏法(2026-11-09 行业版 C1/H1 实测 haiku): 把工具调用写成界面按钮标记 `{{cmd:plugin_open|name=…}}`。
+// 界面只认命令目录里的名字, 于是报「不认识的命令」, 工具也从没调出去。判据同样只看硬事实:
+//    ① 标记名(或补上 mcp__butler__ 前缀)在本轮真实注册的工具表里
+//    ② 标记名不在命令目录里 —— `{{cmd:biz_do|op=…}}` 这类名字同时是工具和命令的, 是合法按钮
+//    ③ 不在反引号 / ``` 代码块里
 
 'use strict';
 
 // 命名空间前缀可有可无、可以坏掉, 所以只要求它长得像个前缀, 不认具体是哪个词。
 // 两个标签之间只允许空白 —— 中间一旦插进人话, 那就是在讨论而不是在调用。
 const CALL_BODY = /<(?:[A-Za-z][\w.-]*:)?invoke\s+name\s*=\s*"([^"\n]{1,120})"\s*>\s*<(?:[A-Za-z][\w.-]*:)?parameter\s+name\s*=/g;
+
+const CMD_MARK = /\{\{cmd:([A-Za-z][\w.-]{0,80})\s*(?:\||\}\})/g;
 
 // 成对的 ``` 块和行内反引号整段挖掉; 剩下一个落单的 ``` 说明后面整段都在未闭合的块里。
 function stripCode(text) {
@@ -27,16 +35,25 @@ function stripCode(text) {
   return s.replace(/`[^`\n]*`/g, ' ');
 }
 
-// 命中返回 { name }(第一个能对上注册表的工具名), 否则 null。
+// 命中返回 { name, via }(第一个能对上注册表的工具名; via = 'xml' | 'cmd'), 否则 null。
 // knownTools 传不进来(建流前/测试桩)就一律不判 —— 没有注册表就没有条件②。
-function detectLostToolCall(text, knownTools) {
+// commandNames 是界面命令目录的名字集合; 传不进来就不判 cmd 那种漏法(分不开合法按钮)。
+function detectLostToolCall(text, knownTools, commandNames) {
   if (!text || !knownTools || !knownTools.size) return null;
   const body = stripCode(text);
   CALL_BODY.lastIndex = 0;
   let m;
   while ((m = CALL_BODY.exec(body))) {
     const name = m[1].trim();
-    if (knownTools.has(name)) return { name };
+    if (knownTools.has(name)) return { name, via: 'xml' };
+  }
+  if (!commandNames) return null;
+  CMD_MARK.lastIndex = 0;
+  while ((m = CMD_MARK.exec(body))) {
+    const bare = m[1];
+    if (commandNames.has(bare)) continue;
+    const name = knownTools.has(bare) ? bare : (knownTools.has(`mcp__butler__${bare}`) ? `mcp__butler__${bare}` : null);
+    if (name) return { name, via: 'cmd' };
   }
   return null;
 }

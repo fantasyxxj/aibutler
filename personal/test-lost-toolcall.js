@@ -70,6 +70,21 @@ console.log('\n[2] 构造样本: 三条硬条件各自都要能单独挡住');
   ok(detectLostToolCall('', TOOLS) === null && detectLostToolCall(null, TOOLS) === null, '空正文 → 不判');
 }
 
+console.log('\n[2b] 写成按钮标记的调用: {{cmd:工具名|…}}');
+{
+  const T = new Set(['mcp__butler__plugin_open', 'mcp__butler__biz_do', 'Read']);
+  const CMDS = new Set(['biz_do', 'wf_go', 'menu-book.item_new']);
+  const real = '加菜界面を開きます。\n\n{{cmd:plugin_open|name=刺身盛り合わせ|price=1200}}';
+  ok(detectLostToolCall(real, T, CMDS)?.name === 'mcp__butler__plugin_open', '🔴 11-09 C1 原文: 工具名写成按钮 → 抓, 报全名');
+  ok(detectLostToolCall(real, T, CMDS)?.via === 'cmd', '命中来源标成 cmd');
+  ok(detectLostToolCall('{{cmd:plugin_open}}', T, CMDS) !== null, '不带参数的也抓');
+  ok(detectLostToolCall('{{cmd:biz_do|op=item_new|label=加菜}}', T, CMDS) === null, '名字同时是命令的(biz_do) → 合法按钮, 放过');
+  ok(detectLostToolCall('{{cmd:wf_go|wf=line_setup}} {{cmd:menu-book.item_new}}', T, CMDS) === null, '命令目录里的按钮 → 放过');
+  ok(detectLostToolCall('{{cmd:not_a_tool|x=1}}', T, CMDS) === null, '既不是工具也不是命令 → 不归这里管, 放过');
+  ok(detectLostToolCall('写法是 `{{cmd:plugin_open|name=…}}`', T, CMDS) === null, '反引号里讨论 → 放过');
+  ok(detectLostToolCall(real, T) === null, '命令目录没传 → 不判这种漏法(分不开合法按钮)');
+}
+
 console.log('\n[3] 接进消费循环: 命中就不放行, 追一条补提让它重调');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'butler-lost-tool-'));
 fs.mkdirSync(path.join(tmp, 'memory'), { recursive: true });

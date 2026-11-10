@@ -55,6 +55,7 @@ const mkAgent = (dir) => ({
   _emit(ev, payload) { this._emitted.push([ev, payload]); },
   taskOp: TasksMixin.prototype.taskOp,
   _flushTasks: TasksMixin.prototype._flushTasks,
+  _panelRows: TasksMixin.prototype._panelRows,
   _saveTasks: TasksMixin.prototype._saveTasks,
   _loadTasks: TasksMixin.prototype._loadTasks,
   _tasksFile: TasksMixin.prototype._tasksFile,

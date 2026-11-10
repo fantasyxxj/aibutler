@@ -22,6 +22,7 @@ const ROOT = path.join(__dirname, '..');
 const SHIPPED = [
   'core/config/onboarding/knowledge/leaf_core.json',
   'core/config/onboarding/knowledge/butler_extra.json',
+  'core/config/onboarding/knowledge/personal_common.json',
   'industry/platform/shelf/common/pack.common.json',
 ];
 

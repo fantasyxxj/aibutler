@@ -24,6 +24,7 @@ const { cfg, paths } = require('./host');
 const { canon } = require('./memory');
 // 译文的字段清单只有一份真源, 在引擎的语言机制里 —— 同步器跟着它走, 不另开一张表。
 const { TR_FIELDS } = require('./memory-v2/lang');
+const { cmpVersion } = require('./capability-update');
 
 // 人格独有、不由知识包管辖的出厂节点。它是造人时填的"领域", 每个人格都不一样,
 // 不在任何知识包的清单里 —— 不豁免的话第一次升级就会被当成"这版删掉的"归档掉。
@@ -93,11 +94,13 @@ function allBundles(isButler, packs = []) {
     if (!p || !p.knowledge) continue;
     // 下发包带的 bundle 与配置层那份同名时(核心记忆的下发副本 pack.core, 其 bundle_id 就是
     // leaf_core)**替换而不是追加** —— 两份是同一批知识的新旧两版。都留着的话每条要处理两遍,
-    // 同步日志的计数凭空翻倍; 而且谁说了算取决于数组顺序这种看不见的东西。下发那份更新, 它赢。
+    // 同步日志的计数凭空翻倍; 而且谁说了算取决于数组顺序这种看不见的东西。版本号新的那份赢:
+    // 货架上还是旧版时, 新安装包自带的那份不能被它盖掉(同版本仍取下发那份)。
     const dup = out.findIndex((e) => e.bundle && e.bundle.bundle_id
                                      && e.bundle.bundle_id === p.knowledge.bundle_id);
     const entry = { name: `pack:${p.id}`, bundle: p.knowledge };
-    if (dup >= 0) out[dup] = entry; else out.push(entry);
+    if (dup < 0) out.push(entry);
+    else if (cmpVersion(p.knowledge.version, out[dup].bundle.version) >= 0) out[dup] = entry;
   }
   return { bundles: out, failed };
 }

@@ -38,7 +38,11 @@ export class Query implements AsyncIterableIterator<any> {
       const oneShotMode = !!(src as any).__oneShot;
       while (!this.outer.signal.aborted) {
         const first = await this.s.inbox.take(this.outer.signal);
-        if (first == null) break;
+        if (first == null) {
+          // 宿主不再发话了, 但还有后台任务在跑: 等它们交差, 通知进来再跑一轮
+          if (this.s.bg.running && !oneShotMode && !this.outer.signal.aborted) { await this.s.bg.idle(); continue; }
+          break;
+        }
         const batch = [first, ...this.s.inbox.drain()];
         this.turnAc = new AbortController();
         const turnSignal = this.turnAc.signal;

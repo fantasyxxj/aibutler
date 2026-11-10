@@ -54,6 +54,9 @@ function credRender(d) {
   }
 }
 
+// 「其他」那种自己填地址的凭据可选的协议; 空 = 自动
+const PROTO_LABEL = { '': 'sys_proto_auto', anthropic: 'sys_proto_anthropic', compat: 'sys_proto_compat' };
+
 function credRow(c, defId) {
   const box = document.createElement('div');
   box.style.cssText = 'border:1px solid var(--line);border-radius:var(--radius-sm);padding:10px;margin-bottom:8px';
@@ -65,7 +68,8 @@ function credRow(c, defId) {
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       <input class="c-name" type="text" value="${esc(c.name || '')}" placeholder="${esc(t('sys_cred_name_ph'))}" style="flex:0 0 140px"/>
       ${vendorName ? `<span class="vc-tag" style="flex:1;min-width:180px">${esc(t('sys_vendor_official', { vendor: vendorName }))}</span>`
-    : `<input class="c-base" type="text" value="${esc(c.base_url || '')}" placeholder="https://api.anthropic.com" style="flex:1;min-width:180px"/>`}
+    : `<input class="c-base" type="text" value="${esc(c.base_url || '')}" placeholder="https://api.anthropic.com" style="flex:1;min-width:180px"/>
+      <select class="c-proto" style="flex:0 0 auto">${Object.entries(PROTO_LABEL).map(([p, k]) => `<option value="${p}" ${(c.protocol || '') === p ? 'selected' : ''}>${esc(t(k))}</option>`).join('')}</select>`}
       <label style="font-weight:normal;font-size:12px;white-space:nowrap"><input type="radio" name="cred-def" class="c-def" ${c.id && c.id === defId ? 'checked' : ''} ${isNew ? 'disabled' : ''}> ${esc(t('sys_cred_default'))}</label>
     </div>
     <div style="display:flex;gap:6px;align-items:center;margin-top:6px;flex-wrap:wrap">
@@ -77,8 +81,10 @@ function credRow(c, defId) {
       <button class="m-btn primary c-save">${esc(t('mgr_save'))}</button>
     </div>`;
   const q = (k) => box.querySelector(k);
+  // 协议只给「其他」那种自己填地址的选; 厂家卡片那条跟着厂家表走
   const patch = () => ({ id: c.id || undefined, name: q('.c-name').value.trim(), vendor: c.vendor || '',
-                         base_url: q('.c-base') ? q('.c-base').value.trim() : (c.base_url || ''), apiKey: q('.c-key').value });
+                         base_url: q('.c-base') ? q('.c-base').value.trim() : (c.base_url || ''), apiKey: q('.c-key').value,
+                         protocol: q('.c-proto') ? q('.c-proto').value : (c.protocol || '') });
   q('.c-save').addEventListener('click', async () => {
     if (!q('.c-name').value.trim()) { toast(t('sys_cred_need_name')); return; }
     // 新增的那条必须当场给 key, 否则存出来一条永远用不了的空壳
@@ -86,7 +92,7 @@ function credRow(c, defId) {
     const pt = patch();
     // 新加的、只改名字的、没人在用的: 存了就完。改了正在用的端点或 key: 先问, 确定才存并重启那些人格;
     // 取消 = 什么都不存, 表单留着用户改到一半的样子
-    const touches = !isNew && (pt.base_url !== (c.base_url || '') || !!pt.apiKey.trim());
+    const touches = !isNew && (pt.base_url !== (c.base_url || '') || pt.protocol !== (c.protocol || '') || !!pt.apiKey.trim());
     const users = touches ? ((await window.butler.credentialUsers(c.id)).users || []) : [];
     if (users.length && !confirm(t('sys_cred_restart_confirm', { name: pt.name, personas: users.map((u) => u.name).join('、') }))) return;
     const r = await window.butler.saveCredential(pt);
@@ -119,7 +125,14 @@ function credRow(c, defId) {
     const why = { auth: 'tier_why_auth', quota: 'tier_why_quota', no_model: 'tier_why_no_model', rate: 'tier_why_rate', upstream: 'tier_why_upstream',
       network: 'tier_why_network', list_failed: 'tier_why_list_failed', no_models: 'tier_why_no_models' }[r.reason] || (r.reason ? 'tier_why_error' : '');
     const msg = r.model ? t('sys_vendor_test_ok', { model: r.model.replace(/^[a-z]+\//, '') }) : why ? t(why) : '';
-    q('.c-status').textContent = (r.ok ? '● ' : '○ ') + (msg || r.detail || (r.error === 'no_key' ? t('sys_api_need_key') : ''));
+    // 自动档测出了协议(OpenAI 兼容的还可能补上 /v1): 填回表单, 保存时一起存
+    let found = '';
+    if (r.ok && r.protocol && q('.c-proto') && !q('.c-proto').value) {
+      q('.c-proto').value = r.protocol;
+      if (r.base_url && q('.c-base')) q('.c-base').value = r.base_url;
+      found = ' · ' + t('sys_proto_detected', { proto: t(PROTO_LABEL[r.protocol] || 'sys_proto_auto') });
+    }
+    q('.c-status').textContent = (r.ok ? '● ' : '○ ') + (msg || r.detail || (r.error === 'no_key' ? t('sys_api_need_key') : '')) + found;
     q('.c-status').style.color = r.ok ? 'var(--ok)' : 'var(--danger)';
   });
   q('.c-def').addEventListener('change', async () => {
@@ -286,8 +299,15 @@ PX.save.addEventListener('click', pxSave);
 PX.test.addEventListener('click', pxTest);
 
 // ---- 界面语言 ----
+// 使用文档开本版那份冻结文档(docs-versions/v<版本>/), 中文界面看中文, 其余看英文; 版本号取不到时开最新版
+function docsHref(locale) {
+  const v = window.butler.version, en = /^zh/.test(locale || '') ? '' : 'en/';
+  const base = /^\d+\.\d+\.\d+$/.test(v || '') ? `docs-versions/v${v}/` : 'docs/';
+  return `https://fantasyxxj.github.io/aibutler/${base}${en}`;
+}
 function applyStrings(payload) {
   S = (payload && payload.strings) || S;
+  const dl = document.getElementById('docs-link'); if (dl && payload && payload.locale) dl.href = docsHref(payload.locale);
   document.title = t('sys_title');
   document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-title]').forEach((el) => { el.title = t(el.dataset.i18nTitle); });
@@ -314,9 +334,19 @@ THEME_SEG.addEventListener('click', async (e) => {
 // ---- 快速切换模型: 顶栏那颗「key · 模型 ▾」显不显示 ----
 const QS = document.getElementById('qs-enabled');
 QS.addEventListener('change', () => { window.butler.setQuickSwitch(QS.checked).catch(() => {}); });
+// ---- 工具调用条: 对话里显不显示 ----
+const TR = document.getElementById('tool-rows');
+TR.addEventListener('change', () => { window.butler.setToolRows(TR.checked).catch(() => {}); });
+
+// ---- 启动小贴士: 打开时弹不弹 / 当场看一条 ----
+const TIPS = document.getElementById('tips-on');
+TIPS.addEventListener('change', () => { window.butler.setTips({ on: TIPS.checked }).catch(() => {}); });
+document.getElementById('tips-now').addEventListener('click', () => { window.butler.showTips().catch(() => {}); });
 
 (async () => {
+  window.butler.getTips().then((r) => { TIPS.checked = !!(r && r.on); }).catch(() => {});
   window.butler.getQuickSwitch().then((r) => { QS.checked = !!(r && r.on); }).catch(() => {});
+  window.butler.getToolRows().then((r) => { TR.checked = !!(r && r.on); }).catch(() => {});
   window.butler.getTheme().then((r) => themeMark(r && r.theme)).catch(() => {});
   // 先拿语言再画: 状态条是 t() 拼出来的, S 还空着就画会得到一屏空白
   try { applyStrings(await window.butler.getLocale()); }

@@ -271,24 +271,24 @@
       "type": "reference",
       "importance": "med",
       "title": "工具 persona_admin(op='create') —— 造一个新人格",
-      "claim": "造一个新人格用 persona_admin(op='create', name=…, homeDir=…, wakePhrase=…, dev=…, isButler=…, onboardingExtra=…), 只有 name 必填, 建完会顺手把它打开。**建之前要问用户两件事**: ① 名字让他定 ② 要不要写代码的能力(要就传 dev:true, 不传只给基本那几样)。🔴 **onboardingExtra 这段话必须把「这个人格是干什么的」写清楚** —— 通用知识出生时会自动灌一遍, 但领域定位全靠这段话, 写得越具体新人格定型越快。homeDir 不传就用默认的 personas/ 目录。只有管家能用。",
-      "keywords": "persona_admin op create 造人格 新建人格 建一个 create_persona 原命令 isButler",
-      "body": "## 建之前先问清三件事\n\n1. **它管什么** —— 决定怎么写它的身份\n2. **叫什么名字**\n3. **要不要写代码的能力** —— 要就传 `dev:true`\n\n第三件最容易漏。不问的话, 建出来的人格干到一半发现不会改代码, 那时再补要重来一遍。\n\n## ⚠️ isButler 是顶替, 不是新增\n\n传 `isButler:true` 会让新人格**接替现在的管家**, 不是「多一个管家」。\n\n一台机器上管家只有一个。传这个之前先确认用户真的是要换掉现在这个。\n\n## 建完之后告诉用户什么\n\n- 怎么切过去找它说话(`persona_admin(op='open')`, 或者直接叫它的名字)\n- 它管哪一摊, 跟你怎么分工\n",
+      "claim": "造一个新人格用 persona_admin(op='create', name=…, avatar=…, onboardingExtra=…, dev=…, homeDir=…, wakePhrase=…, isButler=…), 只有 name 必填, 建完会顺手把它打开。用户说清了它是干什么的、名字和要不要写代码没说时: 名字按用途起一个, avatar 挑一个贴切的 emoji, 涉及写代码就传 dev:true, 直接建, 建完告诉用户你定了什么、想改随时说。🔴 **onboardingExtra 把「这个人格是干什么的」写具体** —— 领域定位全靠这段话。homeDir 不传就用默认的 personas/ 目录。只有管家能用。",
+      "keywords": "persona_admin op create 造人格 新建人格 建一个 create_persona 原命令 isButler 一句话建人格 帮我建一个人格 头像 avatar",
+      "body": "## 三件事: 它管什么 · 叫什么 · 要不要写代码\n\n1. **它管什么** —— 用户没说就问; 说了就写进 onboardingExtra\n2. **叫什么名字** —— 用户没给就按用途起一个, avatar 配一个 emoji\n3. **要不要写代码的能力** —— 按用途判断, 涉及代码就传 `dev:true`\n\n人格管理「新建」那一屏的「一句话建人格」会把用户的一句描述以「帮我建一个人格: …」交到这里, 照上面三条直接建。\n\n## ⚠️ isButler 是顶替, 不是新增\n\n传 `isButler:true` 会让新人格**接替现在的管家**, 不是「多一个管家」。\n\n一台机器上管家只有一个。传这个之前先确认用户真的是要换掉现在这个。\n\n## 建完之后告诉用户什么\n\n- 怎么切过去找它说话(`persona_admin(op='open')`, 或者直接叫它的名字)\n- 它管哪一摊, 跟你怎么分工\n",
       "translations": {
         "ja": {
           "title": "ツール persona_admin(op='create') —— 新しいペルソナを作成する",
-          "claim": "新しいペルソナを作成するには persona_admin(op='create', name=…, homeDir=…, wakePhrase=…, dev=…, isButler=…, onboardingExtra=…) を使う。必須は name のみ。作成後は自動的にそのペルソナが開かれる。**作成前にユーザーへ必ず2点確認すること**: ① 名前をユーザーに決めてもらう ② コーディング能力が必要かどうか（必要なら dev:true を渡す、渡さなければ基本機能のみ）。🔴 **onboardingExtra には「このペルソナが何をするものか」を必ず明記すること** —— 汎用知識は起動時に自動注入されるが、ドメイン定義はこの記述のみに依存する。具体的に書くほど新ペルソナの定着が早くなる。homeDir を渡さない場合はデフォルトの personas/ ディレクトリが使われる。バトラーのみ使用可能。",
-          "keywords": "persona_admin op create ペルソナ作成 新しいペルソナ 新規ペルソナ 作る 新規作成 create_persona isButler バトラー"
+          "claim": "新しいペルソナは persona_admin(op='create', name=…, avatar=…, onboardingExtra=…, dev=…, homeDir=…, wakePhrase=…, isButler=…) で作成する。必須は name のみで、作成後は自動で開かれる。ユーザーが何をするペルソナかを伝え、名前やコーディング能力の要否を言っていないとき: 名前は用途に合わせて付け、avatar にはふさわしい絵文字をひとつ選び、コーディングに関わるなら dev:true を渡して、そのまま作成する。作成後は何を決めたかを伝え、いつでも変えられると添える。🔴 **onboardingExtra には「このペルソナが何をするか」を具体的に書く** —— ドメインの位置づけはこの文だけで決まる。homeDir を渡さなければデフォルトの personas/ が使われる。バトラーのみ使用可能。",
+          "keywords": "persona_admin op create ペルソナ作成 新しいペルソナ 新規ペルソナ 作る 新規作成 create_persona isButler バトラー ひとことで人格を作る 人格をひとつ作って アイコン"
         },
         "en": {
           "title": "Tool persona_admin(op='create') —— Create a new persona",
-          "claim": "To create a new persona, use persona_admin(op='create', name=…, homeDir=…, wakePhrase=…, dev=…, isButler=…, onboardingExtra=…). Only name is required. The persona is automatically opened after creation. **Before creating, always ask the user two things**: ① Let the user choose the name ② Whether coding capability is needed (pass dev:true if yes; omitting it gives only basic capabilities). 🔴 **onboardingExtra must clearly describe 'what this persona is for'** —— general knowledge is injected automatically at birth, but domain positioning depends entirely on this text; the more specific it is, the faster the new persona takes shape. If homeDir is omitted, the default personas/ directory is used. Butler use only.",
-          "keywords": "persona_admin op create new persona create persona build persona make persona coding capability dev isButler butler create_persona"
+          "claim": "Create a new persona with persona_admin(op='create', name=…, avatar=…, onboardingExtra=…, dev=…, homeDir=…, wakePhrase=…, isButler=…). Only name is required; the new persona opens automatically. When the user has said what it is for but not its name or whether it needs coding: pick a name that fits the purpose, choose one fitting emoji as avatar, pass dev:true if the work involves code, and create it right away; afterwards tell the user what you chose and that they can change it any time. 🔴 **Make onboardingExtra say concretely what this persona is for** —— its domain is defined by this text alone. Without homeDir the default personas/ directory is used. Butler only.",
+          "keywords": "persona_admin op create new persona create persona build persona make persona coding capability dev isButler butler create_persona one-line persona create a persona for me avatar emoji"
         },
         "zh-TW": {
           "title": "工具 persona_admin(op='create') —— 建立一個新人格",
-          "claim": "建立新人格請使用 persona_admin(op='create', name=…, homeDir=…, wakePhrase=…, dev=…, isButler=…, onboardingExtra=…)，只有 name 必填，建完會自動將其開啟。**建立前必須先問使用者兩件事**：① 名字讓他決定 ② 是否需要寫程式的能力（需要就傳 dev:true，不傳只給基本幾樣）。🔴 **onboardingExtra 這段話必須清楚說明「這個人格是做什麼的」** —— 通用知識在誕生時會自動注入，但領域定位完全靠這段話，寫得越具體新人格定型越快。homeDir 不傳就使用預設的 personas/ 目錄。僅管家可使用。",
-          "keywords": "persona_admin op create 建立人格 新增人格 新建人格 建一個 create_persona isButler 管家 寫程式能力"
+          "claim": "建立新人格請使用 persona_admin(op='create', name=…, avatar=…, onboardingExtra=…, dev=…, homeDir=…, wakePhrase=…, isButler=…)，只有 name 必填，建完會自動將其開啟。使用者說清楚它是做什麼的、但沒說名字和要不要寫程式時：名字按用途取一個，avatar 挑一個貼切的 emoji，涉及寫程式就傳 dev:true，直接建，建完告訴使用者你定了什麼、想改隨時說。🔴 **onboardingExtra 把「這個人格是做什麼的」寫具體** —— 領域定位全靠這段話。homeDir 不傳就使用預設的 personas/ 目錄。僅管家可使用。",
+          "keywords": "persona_admin op create 建立人格 新增人格 新建人格 建一個 create_persona isButler 管家 寫程式能力 一句話建人格 幫我建一個人格 頭像"
         }
       },
       "body_i18n": {
@@ -359,23 +359,23 @@
       "type": "reference",
       "importance": "med",
       "title": "工具 persona_admin(op='open') —— 把某个人格开起来",
-      "claim": "把某个人格开起来用 persona_admin(op='open', ref=…), ref 填它的名字(id 或目录路径也认)。**没开着的人格收不到消息** —— 投给它的东西要等它开了才会被处理, 所以「明明发过去了却没动静」第一个要查的就是它开没开。只有管家能用。",
+      "claim": "把某个人格开起来用 persona_admin(op='open', ref=…), ref 填它的名字(id 或目录路径也认)。关着的人格: 别的人格投来的消息会先把它打开; Telegram 等通道和 AIHUB 来的消息, 在它「通道」页「没打开时…自动唤醒」两个勾开着(默认开)时也会把它叫起来, 勾掉的那路要等它开了才处理 —— 「明明发过去了却没动静」先查它开没开、那个勾开没开。只有管家能用。",
       "keywords": "persona_admin op open 打开人格 启动人格 开起来 没生效 open_persona 原命令",
       "body": "找不到那个人格时:\n\n```\n⚠️ Open failed: persona not found: 阿美\n```\n\n名字打错了。先用 `persona_admin(op='list')` 看一眼名单, 照着抄。\n\n## 开着和没开着差在哪\n\n**没开着的人格收不到消息。** 别人投给它的东西会一直放着, 要等它开起来才被处理。\n\n所以遇到「消息发过去了, 那边没反应」「配置都设好了却不生效」这类问题, **先查它开没开** —— 用 `op='list'`, 名字后面有 `(open)` 的才是开着的。\n\n## 什么时候该调\n\n- 用户点名要找某个人格说话\n- 要给某个人格投消息之前, 先确认它开着\n- 排查「那边没反应」的问题时, 第一步\n",
       "translations": {
         "ja": {
           "title": "ツール persona_admin(op='open') —— ペルソナを起動する",
-          "claim": "ペルソナを起動するには persona_admin(op='open', ref=…) を使い、ref にはその名前を入れる（id またはディレクトリパスでも可）。**起動していないペルソナはメッセージを受け取れない** —— 送ったものは起動するまで処理されないため、「明らかに送ったのに何も反応しない」場合にまず確認すべきなのは起動しているかどうか。執事だけが使える。",
+          "claim": "ペルソナを開くには persona_admin(op='open', ref=…)。ref は名前（id やディレクトリのパスでも可）。閉じているペルソナは、ほかのペルソナからのメッセージで先に開かれる。Telegram などのチャネルや AIHUB からのメッセージも、その「チャネル」ページの「閉じているとき…起こす」二つのチェックがオン（既定オン）なら起こされる。オフにした経路は開くまで処理されない —— 「送ったのに反応がない」ときは開いているかとそのチェックを先に確かめる。バトラーのみ使用可能。",
           "keywords": "persona_admin op open ペルソナ 人格 開く 起動 オープン 有効化 反応なし 返事がない 動かない open_persona 元コマンド"
         },
         "en": {
           "title": "Tool persona_admin(op='open') —— Turn on a persona",
-          "claim": "To turn on a persona, use persona_admin(op='open', ref=…) and fill ref with its name (an id or directory path is also accepted). **A persona that is not open cannot receive messages** — anything sent to it will not be processed until it is opened, so when you clearly sent something but nothing happened, the first thing to check is whether it is open. Only the butler can use it.",
+          "claim": "Open a persona with persona_admin(op='open', ref=…); ref is its name (id or directory path also work). A closed persona is opened by messages from other personas; messages from Telegram and other channels or from AIHUB also wake it while the two \"wake … while it is closed\" boxes on its Channels page are checked (on by default) — a route whose box is cleared waits until it is opened. When \"I sent it but nothing happened\", first check whether it is open and whether that box is checked. Butler only.",
           "keywords": "persona_admin op open persona personas open turn on start activate not working no response unresponsive doesn't respond open_persona original command"
         },
         "zh-TW": {
           "title": "工具 persona_admin(op='open') —— 把某個人格開起來",
-          "claim": "要把某個人格開起來，請使用 persona_admin(op='open', ref=…)，ref 填它的名字（id 或目錄路徑也可以）。**沒開著的人格收不到訊息** —— 投給它的東西要等它開了才會被處理，所以「明明發過去了卻沒動靜」時，第一個要查的就是它有沒有開。只有管家能用。",
+          "claim": "把某個人格開起來用 persona_admin(op='open', ref=…)，ref 填它的名字（id 或目錄路徑也認）。關著的人格：別的人格投來的訊息會先把它打開；Telegram 等通道和 AIHUB 來的訊息，在它「通道」頁「沒開啟時…自動喚醒」兩個勾開著（預設開）時也會把它叫起來，勾掉的那路要等它開了才處理 —— 「明明發過去了卻沒動靜」先查它開沒開、那個勾開沒開。僅管家可使用。",
           "keywords": "persona_admin op open 打開人格 啟動人格 開起來 沒生效 沒反應 沒有反應 open_persona 原命令"
         }
       },

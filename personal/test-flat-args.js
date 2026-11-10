@@ -48,7 +48,9 @@ const t = (name, ok, extra = '') => { if (ok) { pass++; console.log(`  ✅ ${nam
     t(`${n}: 没有嵌套对象参数, 收顶层其余键`, !nested.length && s.additionalProperties !== false, nested.join(','));
   }
 
-  const call = async (n, a) => String(((await handlers.get('tools/call')({ method: 'tools/call', params: { name: n, arguments: a } }, sig)).content || [{}])[0].text || '');
+  // 拼全部文本段: 结果里有日期时, 出口会在最前另加一段星期(core/agent/tool-dates.js)
+  const call = async (n, a) => ((await handlers.get('tools/call')({ method: 'tools/call', params: { name: n, arguments: a } }, sig)).content || [])
+    .filter((c) => c && c.type === 'text').map((c) => c.text).join('\n');
 
   console.log('\n[3] 平铺调用到达执行处, 中日文原样');
   const r1 = await call('plugin_call', { id: 'todo-test', command: 'add', title: '牛乳を買う' });

@@ -507,6 +507,7 @@ async function refresh() {
       // 写成 bothub 时它恒为 undefined —— 面板里配的 bus 一条都进不了 patch, 表现是「按了保存什么都没发生」,
       // 而且不报错(2026-08-25 作者在 dev 上撞到)。这是 plugins.bothub 改名 plugins.buses 时漏改的一行。
       patch.plugins = { ...oldPlugins, tg: newPlugins.tg, buses: newPlugins.buses, channels: window.ChannelCards.read(panel, p) };
+      patch.wakeOnMessage = window.ChannelCards.readWake(panel, p);
 
       // ── 🔴 模式变了: 走「沉淀 → 拆流 → 才写盘 → 重开」那条原子路, 不走 updatePersona ──
       // 顺序是死的。早一步写盘, update-persona 会把新模型 setModel 热切进**旧端点**的会话,
@@ -627,9 +628,10 @@ const createModelValue = () => {
   const v = F.modelSel.value;
   return (!v || v === MODEL_CUSTOM) ? undefined : v;
 };
-F.modelSel.addEventListener('change', (ev) => createShowManual(ev.target.value === MODEL_CUSTOM, true));
+F.modelSel.addEventListener('change', (ev) => { createShowManual(ev.target.value === MODEL_CUSTOM, true); tierPick.check(createModelValue()); });
+F.modelCustom.addEventListener('change', () => tierPick.check(createModelValue()));
 // 用户换成用 key / 换了一把 key: 按档在新 key 上试出能用的型号, 填进下面的清单(没动之前沿用管家的)
-const tierPick = window.TierPicker.create({ t, tier: null, credentialId: () => F.cred.value, onChange: ({ model, ok }) => {
+const tierPick = window.TierPicker.create({ t, tier: null, credentialId: () => F.cred.value, currentModel: () => createModelValue() || '', onChange: ({ model, ok }) => {
   if (!ok) return;
   if ([...F.modelSel.options].some((o) => o.value === model)) { createShowManual(false); F.modelSel.value = model; }
   else { createShowManual(true); F.modelCustom.value = model; }

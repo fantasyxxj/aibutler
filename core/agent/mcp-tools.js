@@ -234,8 +234,8 @@ class McpToolsMixin {
           const r = await this.personaOps.open(a.ref);
           return r && r.ok ? `✅ Opened persona "${r.name}" (${r.homeDir})` : `⚠️ Open failed: ${(r && r.error) || 'persona not found: ' + a.ref}`;
         } },
-      create: { butlerOnly: true, req: ['name'], opt: ['homeDir', 'wakePhrase', 'isButler', 'dev', 'accessMode', 'credentialId', 'model', 'sdk'],
-        hint: `homeDir 缺省=数据目录/personas/<slug>; isButler=true 会顶替当前管家。\ndev=true 给写代码那批技能; 缺省只给 ${BASE_SKILLS.join('/')} —— 建人格时问一句用户要不要开发能力。\naccessMode / credentialId / model / sdk 缺省沿用你自己的。`,
+      create: { butlerOnly: true, req: ['name'], opt: ['avatar', 'onboardingExtra', 'homeDir', 'wakePhrase', 'isButler', 'dev', 'accessMode', 'credentialId', 'model', 'sdk'],
+        hint: `avatar 收一个 emoji; onboardingExtra 写这个人格是干什么的(出生时落成它的领域记忆)。homeDir 缺省=数据目录/personas/<slug>; isButler=true 会顶替当前管家。\ndev=true 给写代码那批技能; 缺省只给 ${BASE_SKILLS.join('/')} —— 建人格时问一句用户要不要开发能力。\naccessMode / credentialId / model / sdk 缺省沿用你自己的。`,
         run: async (a) => {
           if (!this.personaOps || !this.personaOps.create) return '⚠️ Create-persona capability not ready';
           // 接入方式 / 凭据 / 模型 / 引擎缺省沿用创建者: 不给的话新人格落成「订阅 + 空模型」,

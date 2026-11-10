@@ -287,7 +287,7 @@ class CompactMixin {
     // 已完成的本来就在 _trackTask 里移出去了, 所以这里留下的全是真还欠着的事。
     // _taskSeq 也必须留着 —— 归零会发出和盘上重复的 id, 后续 TaskUpdate 改到错的那条上。
     this._saveTasks();
-    this._emit('onTasks', (this._tasks || []).map((t) => ({ ...t })));
+    this._emit('onTasks', this._panelRows());
     this._cur = ''; this._deltaText = ''; this._busy = false;
     this._emit('onUsage', this.usage());
     this._emit('onCompact', { phase: 'done' });

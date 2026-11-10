@@ -28,6 +28,28 @@ has('从指定日起算', 'date', { from: '2026-12-30', days: 3 }, '2027-01-02 S
 has('到某天还有几天', 'date', { to: '2026-12-24' }, '71 days');
 has('不存在的日期拒收', 'date', { date: '2026-02-30' }, '⚠️');
 
+console.log('\n[2b] date: 按月推, 月末不溢出 (作者 11-08: 一切计算交给工具)');
+has('三个月后', 'date', { months: 3 }, '2027-01-14 Thu');
+has('1-31 加一个月 → 2 月末', 'date', { from: '2027-01-31', months: 1 }, '2027-02-28 Sun');
+has('月末那句说明', 'date', { from: '2027-01-31', months: 1 }, 'last day');
+has('往回推', 'date', { from: '2026-03-31', months: -1 }, '2026-02-28 Sat');
+has('月和天一起', 'date', { months: 1, days: 2 }, '2026-11-16 Mon');
+has('date + months 当起点 (11-08 dev 撞过)', 'date', { date: '2027-01-31', months: 1 }, '2027-02-28 Sun');
+has('date + days 当起点', 'date', { date: '2026-12-30', days: 3 }, '2027-01-02 Sat');
+has('date + to 仍是间隔', 'date', { date: '2026-10-14', to: '2026-10-21' }, '7 days');
+
+console.log('\n[2c] time: 时刻 ± 时长, 两个时刻相隔多久');
+has('18:30 过 90 分钟', 'time', { at: '18:30', minutes: 90 }, '= 20:00');
+has('小时可带小数', 'time', { at: '10:00', hours: 1.5 }, '= 11:30');
+has('跨午夜标出来', 'time', { at: '22:30', hours: 2 }, '= 00:30 (next day)');
+has('往前推', 'time', { at: '9時', minutes: -30 }, '= 08:30');
+has('离打烊还多久', 'time', { at: '18:30', until: '22:00' }, '3 h 30 min (210 min)');
+has('until 更早 = 第二天', 'time', { at: '23:00', until: '01:30' }, '(next day) = 2 h 30 min');
+has('at 默认现在', 'time', { until: '08:00' }, '07:30 → 08:00 = 30 min');
+has('24:00 认作打烊', 'time', { at: '18:00', until: '24:00' }, '6 h (360 min)');
+has('不是时刻就拒', 'time', { at: '25:00' }, '⚠️');
+has('什么都没给 → 回用法', 'time', {}, "sys(op='time', at='18:30', minutes=90)");
+
 console.log('\n[3] math');
 has('浮点尾巴去掉', 'math', { expr: '1000*1.1' }, '= 1100');
 has('千分位与 ×', 'math', { expr: '3×1,200 + 2*800' }, '= 5200');
@@ -38,7 +60,7 @@ has('不是算式就拒', 'math', { expr: 'process.exit()' }, '⚠️');
 has('除以零', 'math', { expr: '5/0' }, '⚠️');
 
 console.log('\n[4] 参数校验');
-has('未知 op', 'nope', {}, 'Available: date / math');
+has('未知 op', 'nope', {}, 'Available: date / time / math');
 has('未知参数', 'date', { foo: 1 }, 'Unknown args: foo');
 has('缺 expr 给参数表', 'math', {}, 'Missing: expr');
 
@@ -49,7 +71,7 @@ console.log('\n[4b] MCP 壳: 参数平放(10-21 dev: 外层写 query= 被丢, �
   const z = { enum: (v) => ({ enum: v }), any: () => anyOpt };
   let shape, handler;
   mcpTool((name, desc, sh, fn) => { shape = sh; handler = fn; }, z, '');
-  ok('date / math 的参数都在第一层', ['weekday', 'week', 'date', 'days', 'to', 'expr', 'round'].every((k) => k in shape));
+  ok('date / time / math 的参数都在第一层', ['weekday', 'week', 'date', 'days', 'months', 'to', 'at', 'minutes', 'hours', 'until', 'expr', 'round'].every((k) => k in shape));
   ok('不再收 args', !('args' in shape));
   return Promise.all([
     handler({ op: 'date', weekday: 'Tue', week: 'next' }).then((r) => ok('平放调用算出日期', /\d{4}-\d{2}-\d{2} Tue/.test(r.content[0].text), r.content[0].text)),

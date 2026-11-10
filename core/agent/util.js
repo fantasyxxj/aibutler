@@ -1,6 +1,7 @@
 // agent 内核的模块级工具: 纯函数 + 常量, 不依赖 Butler 实例。
 // 由 agent.js 拆出(内核抽包第 1 步), 逐字搬运。
 const { paths } = require('../host');
+const { annotate: annotateDates } = require('./tool-dates');
 
 // 记忆工具的多值参数一律收字符串再在这里切: 带 z.array 的参数会让模型的 tool 入参整个丢成 {}
 // (记忆 #1305, 88k 次调用普查 —— 只有 links/ids 这两个数组参数在丢, 纯标量工具全零)。
@@ -63,7 +64,8 @@ function guardEmptyArgs(mcp, tools) {
         + (n > 1 ? ` 这是连续第 ${n} 次。` : '') }] });
     }
     if (p) streak.delete(p.name);
-    return orig(request, extra);
+    // 同一个落点顺带: 结果里的日期附一行星期(见 tool-dates.js), 所有 butler 工具一处管到
+    return Promise.resolve(orig(request, extra)).then((r) => annotateDates(p && p.name, r));
   });
   return mcp;
 }
@@ -83,12 +85,13 @@ const HAS_EXTERNAL_TEXT = (kind) => kind === 'user' || kind === 'inbox';
 // harness 只给到"今天是哪天", 到不了小时 —— 而"现在几点"是判断该不该打扰人、离打烊还有多久这类事的前提。
 // 🔴 英文: 这一行只有模型读得到, 用户在窗口里看不见 —— 内部文本一律英文, 不跟界面语言。
 // (它每一轮都盖一次, 是全仓出现频率最高的那段引擎文本。)
-// 第二行要求日期、星期、天数一律调 sys 算: 模型自己往后数会系统性错一天, 由程序算才对。
+// 第二行要求所有推算出来的数(日期·星期·天数·时刻·时长·金额)一律调 sys 算: 模型自己往后数会系统性错一天, 由程序算才对。
+// 作者 11-08: 不只日期, 两版的一切计算都交给工具。
 const WEEK_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 function nowStamp(d = new Date()) {
   const p = (n) => String(n).padStart(2, '0');
   return `(Now ${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())} ${WEEK_EN[d.getDay()]})\n`
-    + `(Every date, weekday and day count — "来週の火曜", "3 days later", "what day is the 25th" — compute it with sys(op='date') before you say it or write it.)\n`;
+    + `(Compute every derived number with sys before you say or write it, never in your head: dates, weekdays, day counts ("来週の火曜", "3 days later") → op='date'; times of day and durations ("90 min after 18:30") → op='time'; totals, prices, tax, conversions → op='math'.)\n`;
 }
 
 // 冲突候选对渲染。只给 id/摘要/路径 + 圈中理由 —— **不替 AI 摘正文**:
@@ -312,4 +315,17 @@ function mixin(target, ...fragments) {
   return target;
 }
 
-module.exports = { memSplitIds, CLAUDE_BIN, FORCE_SEDIMENT_TOOLS, MEMORY_WRITE_TOOLS, guardEmptyArgs, HAS_EXTERNAL_TEXT, WEEK_EN, nowStamp, renderConflictPairs, loadSdk, ccAvailable, resolveSdkKind, sdkForNewPersona, isSdkKind, SDK_CLAUDE_CODE, SDK_BUTLER, stripSsmlForPlainText, makeMsgQueue, windowFor, W_TIER, tierName, sumInput, withTimeout, WAKE_MEMORY_INDEX_MAX_BYTES, mixin };
+// 交出去的回复只取最后一步的话, 跟 Claude Code CLI 的 result 一样: 中间几步是边做边说的过程, 屏幕上照画,
+// 但不进回复、聊天记录和发给别的人格的答话。唯一例外: 最后一步去掉控件后没有一句话(只放了个按钮),
+// 那句说明在前一步, 一起带上(11-08 统计 273 轮里仅 1 轮如此)。cur 是整轮累加的正文, segStart 是最后一次
+// 工具调用时 cur 的长度, prevStart 是再前一次。
+function deliveredText(cur, segStart = 0, prevStart = 0) {
+  const s = String(cur || '');
+  const at = Math.min(segStart || 0, s.length);
+  const last = s.slice(at).trim();
+  if (last.replace(/\{\{[^}]*\}\}/g, '').trim()) return last;
+  const prev = s.slice(Math.min(prevStart || 0, at), at).trim();
+  return [prev, last].filter(Boolean).join('\n\n') || s.trim();   // 都取不到(重试撤回了半截)宁可整段交, 空回复更糟
+}
+
+module.exports = { deliveredText, memSplitIds, CLAUDE_BIN, FORCE_SEDIMENT_TOOLS, MEMORY_WRITE_TOOLS, guardEmptyArgs, HAS_EXTERNAL_TEXT, WEEK_EN, nowStamp, renderConflictPairs, loadSdk, ccAvailable, resolveSdkKind, sdkForNewPersona, isSdkKind, SDK_CLAUDE_CODE, SDK_BUTLER, stripSsmlForPlainText, makeMsgQueue, windowFor, W_TIER, tierName, sumInput, withTimeout, WAKE_MEMORY_INDEX_MAX_BYTES, mixin };

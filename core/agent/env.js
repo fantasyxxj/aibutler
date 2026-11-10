@@ -49,8 +49,20 @@ function accessConfig(useApi, gateway, credentialId) {
     if (!key) return null;         // 选了 API 却没存 key: 退回订阅继续能用, 不让人格整个起不来
     // 🔴 别去尾斜杠。2026-08-17 我按"`//v1/messages` 会返回网页 HTML"的推断顺手去了一次,
     // 结果作者实测: 带斜杠(去之前)api+重启可用, 去掉之后连重启都起不来。推断没验证过, 实测说了算。
-    return { base_url: String(c.base_url || '').trim(), key };
+    return { base_url: String(c.base_url || '').trim(), key, protocol: c.protocol || '', vendor: c.vendor || '' };
   } catch (_) { return null; }
+}
+
+// 凭据自己定了协议(设置页选的/测试探出的, 或地址带 /anthropic)时, 人格模型的协议前缀跟凭据走:
+// 换了凭据的协议不用逐个人格重选型号。没定的老凭据原样, 前缀仍由选型号那一刻定。
+function modelForAccess(model, useApi, gateway, credentialId) {
+  if (!model) return model;
+  const a = accessConfig(useApi, gateway, credentialId);
+  if (!a) return model;
+  const mt = require('../model-tier');
+  const p = mt.explicitProtocol(a);
+  if (!p) return model;
+  return mt.personaModel(p, String(model).replace(/^(deepseek|openai|compat|anthropic)\//, ''));
 }
 
 // 每次 spawn 现拼一个新 env, 绝不写 process.env —— 写了的话开过网关再关, 变量赖在进程里,
@@ -59,7 +71,8 @@ function accessConfig(useApi, gateway, credentialId) {
 // 订阅模式**也显式清**那 8 个键, 不是"不设=随缘": 机器上本来就有 ANTHROPIC_API_KEY 的话
 // 会静默劫持, 走了谁的 key 我们发现不了。
 function buildEnv(preferredModel, useApi, gateway, credentialId) {
-  const env = applyAccessEnv({ ...process.env }, accessConfig(useApi, gateway, credentialId), preferredModel, subscriptionToken());
+  const a = accessConfig(useApi, gateway, credentialId);
+  const env = applyAccessEnv({ ...process.env }, a, preferredModel, subscriptionToken(), subagentTiers(a, preferredModel));
   // 🔴 关掉 harness 自带的那套任务清单: `CLAUDE_CODE_ENABLE_TASKS` 是 CLI 的 tasks 功能位,
   //    它同时是 TaskCreate/TaskGet/TaskList/TaskUpdate 四件套的 isEnabled() **和**每轮那条
   //    "The task tools haven't been used recently" 提醒的闸(源码 `if(!E5())return[]`)。
@@ -73,6 +86,19 @@ function buildEnv(preferredModel, useApi, gateway, credentialId) {
   env.CLAUDE_CODE_ENABLE_TASKS = 'false';
   // 用户自加的联网搜索引擎(只有 Butler 引擎的本机 WebSearch 读), 见 core/search-keys.js
   return require('../search-keys').applyEnv(env);
+}
+
+// 派活三档(cheap / daily / strong)→ 同族的具体型号, 读模型定义扩展表 + 这把 key 的型号清单缓存(core/model-table.js)。
+// 订阅不管(CC 自带官方默认); 认不出或清单还没拉到 → 空, 三个变量照旧填主模型。
+function subagentTiers(a, model) {
+  if (!a || !model) return null;
+  try {
+    const mt = require('../model-table');
+    const table = mt.load();
+    const t = mt.tierModels(table, model, require('../model-list-cache').get(a, table), a);
+    console.log(`[subagent-tiers] ${model} → ${Object.keys(t).length ? JSON.stringify(t) : '认不出或清单未到, 三档照旧填主模型'}`);
+    return t;
+  } catch (e) { console.error('[subagent-tiers]', e && e.message); return null; }
 }
 
 // 订阅模式下的长效 token(`claude setup-token` 产出)。没配返回 null, 一切照旧走 keychain。
@@ -105,8 +131,11 @@ const PROVIDER_ENV = {
 };
 const PROVIDER_ENV_KEYS = [...new Set(Object.values(PROVIDER_ENV).flat())];
 
-function applyAccessEnv(env, a, preferredModel, subToken) {
+function applyAccessEnv(env, a, preferredModel, subToken, tiers) {
   for (const k of GATEWAY_ENV_KEYS) delete env[k];
+  delete env.BUTLER_SUBAGENT_MODELS;
+  // Butler 引擎派活按档取型号读这一个(带协议前缀, 别家也能用); cc 引擎读下面那三个 ANTHROPIC_DEFAULT_*
+  if (tiers && Object.keys(tiers).length) env.BUTLER_SUBAGENT_MODELS = JSON.stringify(tiers);
   for (const k of PROVIDER_ENV_KEYS) delete env[k];
   // 🔴 跟那 8 个键同一条原则: 显式清, 不继承机器上本来就有的。继承的话谁的订阅在付钱都说不清,
   // 而且"在 butler 里取消配置"会变成假的 —— 变量还在 process.env 里赖着。
@@ -134,9 +163,16 @@ function applyAccessEnv(env, a, preferredModel, subToken) {
   env.ANTHROPIC_API_KEY = a.key;
   // CLI 内部按用途分档取模型(标题生成、工具检索这类小活走 haiku 档), 只设主模型的话
   // 那些内部调用会去要一个网关根本没有的官方模型名 → 半路报错, 而主对话看着是好的。
-  // 所以五个档位全指到同一个模型。空 = 人格没选模型, 这时**宁可不设**让它去打官方名当场
-  // 失败, 也不猜一个名字 —— 猜错了是静默跑在别的模型上。
-  if (preferredModel) { for (const k of GATEWAY_MODEL_KEYS) env[k] = preferredModel; }
+  // 所以五个档位先全指到主模型, 再把三档换成这把 key 清单里同族的型号(cheap → haiku · daily → sonnet ·
+  // strong → opus, 都是这个网关自己列出来的名字), 挑不出的那档仍是主模型; 主对话不变(作者 11-09)。
+  // 空 = 人格没选模型, 这时**宁可不设**让它去打官方名当场失败, 也不猜一个名字 —— 猜错了是静默跑在别的模型上。
+  if (preferredModel) {
+    for (const k of GATEWAY_MODEL_KEYS) env[k] = preferredModel;
+    const t = tiers || {};
+    if (t.cheap) env.ANTHROPIC_DEFAULT_HAIKU_MODEL = t.cheap;
+    if (t.daily) env.ANTHROPIC_DEFAULT_SONNET_MODEL = t.daily;
+    if (t.strong) env.ANTHROPIC_DEFAULT_OPUS_MODEL = t.strong;
+  }
   else console.error('[gateway] ⚠ 走网关但人格没选模型, 内部小任务会去要官方模型名');
   env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = '1';
   // 网关比官方慢一截, 用官方的超时会在长回合中途被判死
@@ -225,7 +261,7 @@ function classifyAccessError(s, mode) {
 }
 
 module.exports = {
-  GATEWAY_MODEL_KEYS, GATEWAY_ENV_KEYS, accessConfig, pickCredential, buildEnv, applyAccessEnv,
+  GATEWAY_MODEL_KEYS, GATEWAY_ENV_KEYS, accessConfig, pickCredential, buildEnv, applyAccessEnv, modelForAccess,
   ACCESS_ERR_KINDS, classifyAccessError, SDK_ERR_KIND, classifySdkError,
   SUBSCRIPTION_TOKEN_ENV, SUBSCRIPTION_TOKEN_KEY, subscriptionToken, dropSubscriptionToken,
 };

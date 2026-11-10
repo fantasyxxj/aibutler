@@ -186,7 +186,12 @@ export async function runStep(a: StepArgs): Promise<StepResult> {
   responseMessages = responseMessages
     .map((m) => m.role !== 'tool' ? m : { ...m, content: (m.content || []).filter((p: any) => !(p.type === 'tool-result' && ours.has(p.toolCallId))) })
     .filter((m) => m.role !== 'tool' || m.content.length);
-  return { blocks, calls, usage, stopReason, responseMessages, text };
+  // 只有空白的正文块(模型调工具前常先吐一个「\n\n」)跟 Claude Code CLI 一样不进整条消息, 也不进历史。
+  const blank = (p: any) => p && p.type === 'text' && !String(p.text || '').trim();
+  responseMessages = responseMessages
+    .map((m) => m.role !== 'assistant' || !Array.isArray(m.content) ? m : { ...m, content: m.content.filter((p: any) => !blank(p)) })
+    .filter((m) => m.role !== 'assistant' || !Array.isArray(m.content) || m.content.length);
+  return { blocks: blocks.filter((b) => !blank(b)), calls, usage, stopReason, responseMessages, text };
 }
 
 function rebuildAssistant(blocks: any[]): any {

@@ -15,7 +15,7 @@ ok(colorKeys.every((k) => k in light), '🔴 深色里每个颜色 token 浅色�
 
 // 引用了没定义的变量不报错, 只是取不到值 —— sediment 卡片原先写 var(--fg) 就是这样一直落在兜底色上
 const defined = new Set(Object.keys(dark));
-for (const f of ['style.css', 'settings.html', 'manager.js', 'settings-ui.js', 'renderer.js', 'image-save.js', 'hub-firstrun.js', 'empty-state.js', 'persona-card.js', 'persona-card.css', 'edit-tabs.js', 'channel-cards.js']) {
+for (const f of ['style.css', 'settings.html', 'manager.js', 'settings-ui.js', 'renderer.js', 'image-save.js', 'hub-firstrun.js', 'tips.js', 'empty-state.js', 'persona-card.js', 'persona-card.css', 'edit-tabs.js', 'channel-cards.js']) {
   const used = [...R(f).replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '').matchAll(/var\((--[a-z0-9-]+)/g)].map((m) => m[1]);
   const bad = [...new Set(used.filter((v) => !defined.has(v)))];
   ok(!bad.length, `${f} 引用的变量都在 theme.css 里定义` + (bad.length ? ': 缺 ' + bad.join(' ') : ''));
@@ -23,7 +23,7 @@ for (const f of ['style.css', 'settings.html', 'manager.js', 'settings-ui.js', '
 
 // 彩色底上的字要自己定色: 继承来的 var(--text) 深色时碰巧是白字, 浅色下就成了蓝底黑字 —— 管理窗「创建并打开」就是这么看不清的
 const tinted = /background(?:-color)?:\s*var\(--(brand|user|danger|ok|accent|warn)\)/;
-const tintSrc = { 'style.css': R('style.css'), 'persona-card.css': R('persona-card.css'), 'hub-firstrun.js': R('hub-firstrun.js'), 'empty-state.js': R('empty-state.js'), 'reminder-banner.js': R('reminder-banner.js'), 'todo.json': fs.readFileSync(path.join(__dirname, '..', 'core', 'config', 'plugins', 'todo.json'), 'utf8') };
+const tintSrc = { 'style.css': R('style.css'), 'persona-card.css': R('persona-card.css'), 'hub-firstrun.js': R('hub-firstrun.js'), 'tips.js': R('tips.js'), 'empty-state.js': R('empty-state.js'), 'reminder-banner.js': R('reminder-banner.js'), 'todo.json': fs.readFileSync(path.join(__dirname, '..', 'core', 'config', 'plugins', 'todo.json'), 'utf8') };
 for (const [f, src] of Object.entries(tintSrc)) {
   const bad = [...src.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]*)\{([^{}]*)\}/g)]
     .filter(([, sel, d]) => tinted.test(d) && !/:hover|dot|badge/.test(sel) && !/(^|[;{\s])color:\s*(#[0-9a-f]{3,8}|var\(--panel\))/i.test(d))

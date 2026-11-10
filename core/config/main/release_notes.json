@@ -1005,7 +1005,7 @@
         "zh-CN": "新建人格时在「要多聪明?」里选最强、强、日常或省钱，我们当场在你的 key 上试出这一档能用的型号；这把 key 上已经用着的型号会标「用过」。在系统设置里加 key 时先点厂家，地址自动填好，只贴 key 就行。",
         "zh-TW": "新建人格時在「要多聰明?」裡選最強、強、日常或省錢，我們當場在你的 key 上試出這一檔能用的型號；這把 key 上已經用著的型號會標「用過」。在系統設定裡加 key 時先點廠商，位址自動填好，只貼 key 就行。",
         "ja": "人格を作るとき「どれくらい賢く?」で最強・強・普段使い・節約から選ぶと、その段階で使えるモデルをあなたの key でその場で試して決めます。この key ですでに使っているモデルには「使用中」と出ます。システム設定で key を追加するときは先にサービスを選べば、アドレスは自動で入り、key を貼るだけです。",
-        "en": "When you create a persona, choose Top, Strong, Everyday or Budget under \"How smart?\" and we test your key on the spot to find a model in that tier; models already in use on that key are marked as such. When adding a key in Settings, pick the provider first — the address is filled in, you only paste the key."
+        "en": "When you create a persona, choose Top, Strong, Everyday or Budget under \"How capable?\" and we test your key on the spot to find a model in that tier; models already in use on that key are marked as such. When adding a key in Settings, pick the provider first — the address is filled in, you only paste the key."
       }
     },
     {
@@ -1062,6 +1062,106 @@
         "zh-TW": "實測這兩家不用 key 的搜尋拿回的多是與問題無關的頁面或人機驗證頁，已經移除，以前加過的會自動停用。現在可加 Brave、Tavily 或自架的 SearXNG；不加就用模型內建的搜尋。系統設定 →「工具」裡點「＋ 新增」再選一家，改完關窗時有改動會問你要不要儲存。",
         "ja": "key なしで使えるこの 2 つは、試したところ質問と関係ないページやボット確認ページばかり返したので外しました。以前追加していたものは自動で使われなくなります。追加できるのは Brave・Tavily・自前の SearXNG で、何も追加しなければモデル内蔵の検索を使います。システム設定 →「ツール」で「＋ 追加」を押してから選び、変更したまま閉じると保存するか確認します。",
         "en": "In testing, these two key-free engines mostly returned unrelated pages or bot checks, so they are gone and any you had added stop being used. You can add Brave, Tavily or your own SearXNG; with none added, the model's built-in search is used. In Settings → Tools press \"+ Add\" and then pick one; closing the window with unsaved changes asks whether to save."
+      }
+    }
+  ],
+  "1.1.2": [
+    {
+      "title": {
+        "zh-CN": "一句话建人格",
+        "zh-TW": "一句話建人格",
+        "ja": "ひとことで人格を作る",
+        "en": "Create a persona in one sentence"
+      },
+      "detail": {
+        "zh-CN": "在新建人格页顶上写一句它要干什么（比如「教我做家常菜的厨师」），点「让管家去建」，管家会定好名字、头像和定位直接建出来，建完告诉你它定了什么。",
+        "zh-TW": "在新建人格頁頂上寫一句它要做什麼（比如「教我做家常菜的廚師」），點「讓管家去建」，管家會定好名字、頭像和定位直接建出來，建完告訴你它定了什麼。",
+        "ja": "人格の新規作成ページの一番上に、何をしてほしいかを一文で書いて（例:「家庭料理を教えてくれる料理人」）「執事に作ってもらう」を押すと、執事が名前・アイコン・役割を決めてそのまま作り、何を決めたかを教えてくれます。",
+        "en": "At the top of the new-persona page, write one sentence about what it should do (e.g. \"a cook who teaches me simple home dishes\") and click \"Ask the butler to build it\". The butler picks a name, avatar and role, creates it, and tells you what it decided."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "数据可以搬到别的盘",
+        "zh-TW": "資料可以搬到別的磁碟",
+        "ja": "データを別のドライブへ移せるように",
+        "en": "Move your data to another drive"
+      },
+      "detail": {
+        "zh-CN": "系统设置 →「高级」→「数据位置」能看到数据放在哪、一键打开文件夹，也能「搬到别处…」。重启后整份复制过去，复制成功才切换，旧文件夹原样保留，确认没问题再自己删。",
+        "zh-TW": "系統設定 →「進階」→「資料位置」能看到資料放在哪、一鍵開啟資料夾，也能「搬到別處…」。重新啟動後整份複製過去，複製成功才切換，舊資料夾原樣保留，確認沒問題再自己刪。",
+        "ja": "システム設定 →「詳細設定」→「データの保存先」で、保存場所の確認とフォルダーを開くことができ、「別の場所へ移動…」もできます。再起動時に丸ごとコピーし、成功したときだけ切り替えます。元のフォルダーはそのまま残るので、問題ないことを確かめてから削除してください。",
+        "en": "Settings → Advanced → Data folder shows where your data lives, opens the folder, and can \"Move elsewhere…\". On restart everything is copied over and the switch happens only if the copy succeeds; the old folder is kept so you can delete it once you're sure."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "人格能把活派到后台去做",
+        "zh-TW": "人格能把活派到背景去做",
+        "ja": "人格が仕事をバックグラウンドに回せるように",
+        "en": "Personas can hand work off to run in the background"
+      },
+      "detail": {
+        "zh-CN": "人格可以派出一个或一组帮手在后台查资料、跑命令，自己接着跟你聊，做完自动回来报结果。正在跑的后台活会显示在任务面板上。帮手默认用跟主模型同一家的便宜型号，省钱。",
+        "zh-TW": "人格可以派出一個或一組幫手在背景查資料、跑指令，自己接著跟你聊，做完自動回來報結果。正在跑的背景工作會顯示在任務面板上。幫手預設用跟主模型同一家的便宜型號，省錢。",
+        "ja": "人格は手伝い役を一人または複数バックグラウンドで動かして調べものやコマンド実行を任せ、その間もあなたと話を続けられます。終わると自動で結果を報告します。動いている作業はタスクパネルに表示されます。手伝い役には既定でメインモデルと同じメーカーの安いモデルを使うので節約になります。",
+        "en": "A persona can send one or several helpers to look things up or run commands in the background while it keeps talking with you, and reports back when they finish. Running jobs show in the task panel. Helpers default to a cheaper model from the same provider as the main one."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "窗口关着也能回消息",
+        "zh-TW": "視窗關著也能回訊息",
+        "ja": "ウィンドウを閉じていても返信",
+        "en": "Replies even when its window is closed"
+      },
+      "detail": {
+        "zh-CN": "人格接了 Telegram、Discord 等通道时，窗口关着也会被来消息叫起来回复。同一个数据文件夹现在只能开一个全能管家，避免两份同时写坏数据。",
+        "zh-TW": "人格接了 Telegram、Discord 等通道時，視窗關著也會被來訊息叫起來回覆。同一個資料夾現在只能開一個全能管家，避免兩份同時寫壞資料。",
+        "ja": "Telegram や Discord などにつないだ人格は、ウィンドウを閉じていてもメッセージが届くと起きて返信します。また、同じデータフォルダーで全能管家を二つ同時に開けなくなり、データが壊れるのを防ぎます。",
+        "en": "Personas connected to Telegram, Discord and other channels now wake up and reply when a message arrives, even with their window closed. Only one copy of the app can run on the same data folder, so two copies can't corrupt each other's data."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "加 key、选模型更省事",
+        "zh-TW": "加 key、選模型更省事",
+        "ja": "key の追加とモデル選びがもっと簡単に",
+        "en": "Easier keys and model picking"
+      },
+      "detail": {
+        "zh-CN": "自己填地址的 key 会自动试出该用哪种接口；豆包可以自己选型号；人格的模型下拉里只留能聊天的模型，不再混进画图、视频模型；英文界面里千问、豆包、智谱显示英文名。",
+        "zh-TW": "自己填位址的 key 會自動試出該用哪種介面；豆包可以自己選型號；人格的模型下拉裡只留能聊天的模型，不再混進畫圖、影片模型；英文介面裡千問、豆包、智譜顯示英文名。",
+        "ja": "アドレスを自分で入れる key は、どの方式で接続するかを自動で判別します。豆包（Doubao）はモデルを自分で選べます。人格のモデル一覧には会話できるモデルだけが残り、画像・動画用は出なくなりました。英語表示では Qwen・Doubao・Zhipu の英語名を表示します。",
+        "en": "Keys with a custom address now auto-detect which API to use; you can pick Doubao models yourself; the persona model list shows only chat models, no image or video ones; and the English interface shows Qwen, Doubao and Zhipu by their English names."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "对话更清爽，打开有小贴士",
+        "zh-TW": "對話更清爽，開啟有小提示",
+        "ja": "会話がすっきり、起動時にヒント",
+        "en": "A cleaner chat, and a tip at startup"
+      },
+      "detail": {
+        "zh-CN": "对话里默认不再一行行列出工具调用，正在做什么看底部状态栏；想看可在系统设置 →「通用」→「工具调用」里打开。每次打开会弹一条用法小贴士，同样在「通用」里可以关掉或现在看一条。",
+        "zh-TW": "對話裡預設不再一行行列出工具呼叫，正在做什麼看底部狀態列；想看可在系統設定 →「一般」→「工具呼叫」裡開啟。每次開啟會跳出一則用法小提示，同樣在「一般」裡可以關掉或現在看一則。",
+        "ja": "会話にツール呼び出しを一行ずつ並べるのを既定でやめ、実行中の内容は下のステータスバーに出します。見たいときはシステム設定 →「一般」→「ツール呼び出し」でオンにできます。起動するたびに使い方のヒントをひとつ表示します。これも「一般」でオフにしたり、今すぐ見たりできます。",
+        "en": "Tool calls are no longer listed line by line in the chat by default; the status bar at the bottom shows what's running. Turn them back on in Settings → General → Tool calls. A usage tip appears at each startup; you can turn it off or see one now, also under General."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "回答中途断掉也会重发",
+        "zh-TW": "回答中途斷掉也會重發",
+        "ja": "返答が途中で切れても再送",
+        "en": "Retries when a reply cuts off mid-way"
+      },
+      "detail": {
+        "zh-CN": "模型服务已经开始回话、却在中途断掉时，现在也会自动重发，不会只留下半句话。",
+        "zh-TW": "模型服務已經開始回話、卻在中途斷掉時，現在也會自動重發，不會只留下半句話。",
+        "ja": "モデルのサービスが返答を始めたあと途中で切れた場合も、自動で送り直すようになり、文が途中で止まったままになりません。",
+        "en": "If the model service starts replying and then drops mid-way, the request is now sent again automatically instead of leaving you with half a sentence."
       }
     }
   ]

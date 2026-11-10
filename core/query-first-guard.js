@@ -37,7 +37,7 @@ class QueryFirstGuard {
     if (!HAS_EXTERNAL_TEXT(this.sourceKindOf())) return null;
     if (!new RegExp(c.tool_pattern).test(name)) return null;
     this._blocked = true;
-    return c.reason || 'Query memory first.';
+    return String(c.reason || 'Query memory first.').split('{tool}').join(name);
   }
 
   hook() {

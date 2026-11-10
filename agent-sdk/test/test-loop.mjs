@@ -199,7 +199,7 @@ test('bypassPermissions 时 allowedTools 不收紧(同 CC)', async () => {
   const q = query({ prompt: p, options: { model: 'm', env: GATEWAY_ENV, fetch: f, permissionMode: 'bypassPermissions', allowedTools: ['mcp__butler__echo'], mcpServers: { butler: butlerServer([]) } } });
   p.push(userMsg('x'));
   await take(q, isResult);
-  assert.deepEqual(f.calls[0].body.tools.map((t) => t.name).sort(), ['Agent', 'mcp__butler__echo', 'mcp__butler__later']);
+  assert.deepEqual(f.calls[0].body.tools.map((t) => t.name).sort(), ['Agent', 'SendMessage', 'TaskStop', 'mcp__butler__echo', 'mcp__butler__later']);
   p.close(); await q.return();
 });
 
@@ -262,12 +262,42 @@ test('回复说到一半流断了(finishReason=interrupted): 重发, 半截不�
   p.close(); await q.return();
 });
 
+test('200 开流后读正文断了(读超时 / 连接被掐): 重发, 不当成请求不合法', async () => {
+  // 11-10 老黄 glm-5.3-flash: 流开了 5 分钟没数据被读超时掐断, AI SDK 报 status=200「Failed to process successful response」
+  const half = sse([
+    { type: 'message_start', message: { id: 'm', type: 'message', role: 'assistant', model: 'x', content: [], usage: { input_tokens: 1, output_tokens: 1 } } },
+    { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
+    { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: '说到一半' } },
+  ]);
+  const broken = () => new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode(half)); setTimeout(() => c.error(new TypeError('terminated')), 5); } });
+  const f = fakeFetch([broken, anthropicStep([{ text: '完整回复' }])]);
+  const p = queue();
+  const q = query({ prompt: p, options: { model: 'm', env: GATEWAY_ENV, fetch: f } });
+  p.push(userMsg('a'));
+  const m = await take(q, isResult);
+  const retry = m.find((x) => x.subtype === 'api_retry');
+  assert.ok(retry && retry.retry_delay_ms > 0, '要真重试');
+  assert.equal(retry.error_status, null, '不报 200');
+  assert.equal(f.calls.length, 2);
+  assert.equal(m.at(-1).result, '完整回复');
+  assert.ok(!m.at(-1).is_error);
+  p.close(); await q.return();
+});
+
 test('OpenAI 兼容协议没收到结束原因就断: InvalidResponseDataError 按类型判可重试', async () => {
   const { classify, StreamCut } = await import('../dist/errors.js');
-  const { InvalidResponseDataError, NoOutputGeneratedError } = await import('ai');
+  const { InvalidResponseDataError, NoOutputGeneratedError, APICallError } = await import('ai');
   assert.equal(classify(new InvalidResponseDataError({ data: undefined, message: 'Response stream ended without a finish reason.' })).retryable, true);
   assert.equal(classify(new NoOutputGeneratedError()).retryable, true);
   assert.equal(classify(new StreamCut('x')).retryable, true);
+  // 开流后读正文断了: AI SDK 包成 statusCode=200 的 APICallError(provider-utils wrapResponseBodyStream)
+  const body = Object.assign(new Error('Body Timeout Error'), { code: 'UND_ERR_BODY_TIMEOUT' });
+  const mid = new APICallError({ message: 'Failed to process successful response', url: 'u', requestBodyValues: {}, statusCode: 200, cause: Object.assign(new TypeError('terminated'), { cause: body }) });
+  const c = classify(mid);
+  assert.equal(c.retryable, true, '200 读到一半断 = 断流, 重发');
+  assert.notEqual(c.kind, 'invalid_request');
+  assert.equal(c.status, null, '开流时那个 200 不当这次错误的状态');
+  assert.match(c.message, /broke off midway \(UND_ERR_BODY_TIMEOUT: Body Timeout Error\)/, '底层原因带进消息');
   assert.equal(classify(new Error('No output generated. The model stream ended without a finish chunk.')).retryable, false, '只看类型: 普通 Error 带同样的字也不算');
 });
 

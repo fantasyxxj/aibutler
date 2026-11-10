@@ -595,7 +595,7 @@ function settleBubble(tab, bub, text) {
 function finalizeAssistantBubble(tab) {
   const bub = tab.activeBubble;
   if (!bub) return;
-  settleBubble(tab, bub);
+  tab.settledBubble = settleBubble(tab, bub) === false ? null : bub;   // 紧接着来工具调用的话, 它就是过程话
   tab.activeBubble = null;
 }
 
@@ -1005,6 +1005,7 @@ window.butler.onTextDone((sid) => {
 window.butler.onResult((sid, { finalText, interrupted }) => {
   const tab = tabs.get(sid);
   if (!tab) return;
+  tab.settledBubble = null;   // 这一轮说完了: 最后那段是回答, 下一轮的工具调用不能回头把它标成过程话
   clearActivity(tab);   // 一段回复收尾, 撤活动状态行
   if (tab.activeBubble) {
     const body = bodyOf(tab.activeBubble);
@@ -1050,7 +1051,9 @@ window.butler.onTool((sid, tool) => {
   const tab = tabs.get(sid);
   if (!tab) return;
   if (sid === activeSid) setStatus('tool', tool && tool.desc ? `🟡 ${tool.desc}` : null);
-  finalizeAssistantBubble(tab);   // 工具前收尾当前文本气泡 → 顺序: 文本→工具→后续文本
+  finalizeAssistantBubble(tab);
+  // 工具前说的话是边做边说的过程, 不是回答: 画成过程行(同 Claude Code), 交出去的回复只取最后一步
+  if (tab.settledBubble) { tab.settledBubble.classList.add('narration'); tab.settledBubble = null; }   // 工具前收尾当前文本气泡 → 顺序: 文本→工具→后续文本
   addToolMsgTo(tab, tool);        // 持久条目, 不清除
   markUnread(tab);
 });
@@ -1063,29 +1066,7 @@ window.butler.onTasks((sid, tasks) => {
   if (sid === activeSid) renderTasks(tab);
 });
 
-function renderTasks(tab) {
-  let box = document.getElementById('taskpanel');
-  if (!box) {
-    box = document.createElement('div');
-    box.id = 'taskpanel';
-    const strip = document.getElementById('attachstrip');
-    strip.parentNode.insertBefore(box, strip);
-  }
-  const list = tab.tasks || [];
-  const left = list.filter((t) => t.status !== 'completed').length;
-  if (!list.length) { box.classList.add('hidden'); box.innerHTML = ''; return; }
-  box.classList.remove('hidden');
-  // blocked = 卡在别人身上(task 的 blocked 参数派生的第五态), 不标出来就跟没开始的 ○ 混在一起
-  const MARK = { completed: '✔', in_progress: '▶', pending: '○', blocked: '⏸' };
-  box.innerHTML = `<div class="tp-head">${t('tasks_left').replace('{n}', left).replace('{total}', list.length)}</div>`
-    + list.map((t) => `<div class="tp-row ${t.status}"><span class="tp-mark">${MARK[t.status] || '○'}</span>`
-        + `<span class="tp-txt"></span></div>`).join('');
-  // 文本用 textContent 落, 不拼进 HTML —— 任务标题是模型写的, 拼字符串就是一个 XSS 口子
-  box.querySelectorAll('.tp-txt').forEach((el, i) => {
-    el.textContent = list[i].subject || '';
-    if (list[i].blockedReason) el.title = list[i].blockedReason;   // 悬停看在等什么
-  });
-}
+// renderTasks 在 task-panel.js
 
 window.butler.onCompacting((sid, s) => {
   const tab = tabs.get(sid);

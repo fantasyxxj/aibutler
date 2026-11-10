@@ -56,6 +56,8 @@ const UI = {
     status_tool: '🟡 工具执行中 (可插话)',
     thinking: '思考中',
     tasks_left: '任务 · 还剩 {n}/{total}',
+    tasks_bg_running: '后台 · {n} 个在跑',
+    tasks_bg_done: '后台 · 已收尾',
     tasks_auto_continue: '任务没做完(还剩 {n} 件), 自动接着做…',
 
     // —— 关闭前沉淀 ——
@@ -424,6 +426,8 @@ const UI = {
     status_tool: '🟡 Running a tool (you may interject)',
     thinking: 'Thinking',
     tasks_left: 'Tasks · {n}/{total} left',
+    tasks_bg_running: 'Background · {n} running',
+    tasks_bg_done: 'Background · finished',
     tasks_auto_continue: 'Tasks unfinished ({n} left) — carrying on…',
 
     sediment_title: 'Filing away what we were doing…',
@@ -779,6 +783,8 @@ const UI = {
     status_tool: '🟡 ツール実行中 (話しかけて大丈夫)',
     thinking: '考えています',
     tasks_left: 'タスク · 残り {n}/{total}',
+    tasks_bg_running: 'バックグラウンド · {n} 件実行中',
+    tasks_bg_done: 'バックグラウンド · 完了',
     tasks_auto_continue: 'タスクが残っています(あと {n} 件) — そのまま続けます…',
 
     sediment_title: '手元の作業を保存しています…',

@@ -230,7 +230,10 @@
     document.body.appendChild(ov);
     // 用 key 时先选档(tier-picker.js 在这把 key 上试出能用的型号); 完整清单收进「自己选型号」, 动过它就以它为准
     const tierT = (k) => (typeof S !== 'undefined' && S[k]) || k;   // 别叫 st: 外层已有带参数替换的 st()(订阅下载文案)
-    const tier = window.TierPicker.create({ t: tierT, credentialId: () => q('.es-cred').value });
+    const esModel = () => { const v = q('.es-model').value; return v === MODEL_CUSTOM ? q('.es-model-custom').value.trim() : v; };
+    // 自选型号的厂家(豆包): 没有档可选, 把「自己选型号」展开, 选中哪个就试哪个
+    const tier = window.TierPicker.create({ t: tierT, credentialId: () => q('.es-cred').value, currentModel: esModel,
+      onManual: (on) => { q('.es-model-adv').open = on; } });
     q('.es-tier').appendChild(tier.el);
     let manualTouched = false;
 
@@ -382,7 +385,9 @@
       const on = q('.es-model').value === MODEL_CUSTOM;
       q('.es-model-manual').style.display = on ? '' : 'none';
       if (on) q('.es-model-custom').focus();
+      tier.check(esModel());
     });
+    q('.es-model-custom').addEventListener('change', () => tier.check(esModel()));
     // 配 key 发生在另一个窗口里, 这边收不到通知 —— 轮询是这里唯一靠得住的办法。
     const timer = setInterval(refresh, 2000);
 

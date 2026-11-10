@@ -13,6 +13,8 @@ import { createDeepSeek } from '@ai-sdk/deepseek';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { apiModelId } from './models.js';
 import { AccessError } from '../errors.js';
+import { withMessageStartDedupe } from './sse-dedupe.js';
+import { withStreamToolOrder } from './tool-order.js';
 
 export type Family = 'anthropic' | 'openai' | 'deepseek' | 'compat';
 
@@ -85,7 +87,9 @@ export function resolveModel(modelOpt: string | undefined, env: Env, fetchImpl?:
     ...(env.ANTHROPIC_BASE_URL ? { baseURL: withV1(env.ANTHROPIC_BASE_URL) } : {}),
     ...(apiKey ? { apiKey } : { authToken }),
     headers,
-    ...f,
+    // 开头连发多个 message_start 的网关: 只留最后一个, 与 Claude Code CLI 一致(见 sse-dedupe.ts)
+    // 非 Claude 模型(DeepSeek 等)要按流出顺序回传, 撤回 AI SDK 把 tool_use 挪到最后的那一下(见 tool-order.ts)
+    fetch: withMessageStartDedupe(/claude|fable|opus|sonnet|haiku/i.test(rest) ? fetchImpl : withStreamToolOrder(fetchImpl || fetch)),
   });
   // 用最早那版 20250305: 网关转发的大多只认它
   return { model: p(apiModelId(rest)), id, family: 'anthropic', serverSearch: () => p.tools.webSearch_20250305({}) };

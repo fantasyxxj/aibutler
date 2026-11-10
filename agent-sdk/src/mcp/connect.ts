@@ -14,6 +14,7 @@ export interface McpToolInfo {
   inputSchema: Record<string, any>;   // JSON Schema
   alwaysLoad: boolean;
   searchHint?: string;
+  readOnly: boolean;       // 服务声明了 annotations.readOnlyHint —— 同一步里可以和别的只读调用一起跑
 }
 
 export interface McpConnection {
@@ -57,6 +58,7 @@ export async function connectServers(
         inputSchema: t.inputSchema || { type: 'object', properties: {} },
         alwaysLoad: !!(meta && meta.get(t.name)?.alwaysLoad),
         searchHint: meta && meta.get(t.name)?.searchHint,
+        readOnly: !!(t.annotations && t.annotations.readOnlyHint),
       }));
       out.push({
         server: key,

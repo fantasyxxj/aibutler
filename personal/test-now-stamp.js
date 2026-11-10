@@ -33,7 +33,9 @@ console.log('\n[3b] 第二行要求调 sys 算日期, 不列日历表');
 {
   const lines = s.split('\n');
   t('只有两行', lines.length === 3 && lines[2] === '', JSON.stringify(s));
-  t('要求用 sys 算', lines[1].includes("sys(op='date')"));
+  t('要求用 sys 算', /with sys\b/.test(lines[1]) && lines[1].includes("op='date'"));
+  // 作者 11-08: 一切计算都交给工具, 不只日期 —— 时刻/时长、金额各有去处
+  t('时刻时长 → time, 金额 → math', lines[1].includes("op='time'") && lines[1].includes("op='math'"));
   t('不列日历', !/\d\d-\d\d \w{3}/.test(lines[1]));
 }
 

@@ -38,6 +38,8 @@
 .ch-form { border-top:1px solid var(--line); padding-top:8px; margin-top:4px; }
 .ch-form[hidden] { display:none; }
 .ch-hint { font-size:11.5px; color:var(--muted); margin:2px 0 6px; }
+.ch-wake { display:flex; flex-direction:column; gap:4px; margin:2px 0 10px; font-size:12.5px; }
+.ch-wake label { font-weight:normal; display:flex; align-items:center; gap:6px; }
 `;
   if (!document.getElementById('channel-cards-css')) {
     const st = document.createElement('style'); st.id = 'channel-cards-css'; st.textContent = CSS;
@@ -129,8 +131,13 @@
     panel._chRead = () => chans.filter((c) => KINDS[c.type] && KINDS[c.type].ready(c));
 
     const box = document.createElement('div');
-    box.innerHTML = `<div class="ch-grid"></div><div class="ch-hint">${esc(t('ch_save_hint'))}</div>`;
+    // 没打开时来消息要不要叫醒它(dormant-wake.js): 外部平台一个开关, AIHUB 单独一个 —— 那是 AI 之间的往来, 想不想被叫醒因人而异
+    const wk = p.wakeOnMessage || {};
+    box.innerHTML = `<div class="ch-wake"><label><input type="checkbox" class="ch-wake-ch" ${wk.channels === false ? '' : 'checked'}> ${esc(t('ch_wake_channels'))}</label>`
+      + `<label><input type="checkbox" class="ch-wake-hub" ${wk.bothub === false ? '' : 'checked'}> ${esc(t('ch_wake_hub'))}</label></div>`
+      + `<div class="ch-grid"></div><div class="ch-hint">${esc(t('ch_save_hint'))}</div>`;
     plug.insertBefore(box, plug.firstChild);
+    panel._wakeRead = () => ({ channels: box.querySelector('.ch-wake-ch').checked, bothub: box.querySelector('.ch-wake-hub').checked });
     const grid = box.querySelector('.ch-grid');
     let openId = null;
     const show = (id) => {
@@ -214,5 +221,6 @@
 
   // 保存时 manager.js 用它读回 plugins.channels; 面板没经过 apply 就原样交回
   const read = (panel, p) => (panel._chRead ? panel._chRead() : ((p && p.plugins && p.plugins.channels) || []));
-  window.ChannelCards = { apply, read };
+  const readWake = (panel, p) => (panel._wakeRead ? panel._wakeRead() : (p && p.wakeOnMessage));
+  window.ChannelCards = { apply, read, readWake };
 })();

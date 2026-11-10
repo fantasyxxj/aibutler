@@ -8,8 +8,12 @@ import { classify, backoffMs } from './errors.js';
 import { userToModel, toolOutputToModel, toolOutputToBlock, errorOutput, toCcUsage } from './convert.js';
 import { runPreToolUse } from './hooks.js';
 import { systemMessages, markMessages } from './providers/cache.js';
-import type { ToolOutput } from './tools/registry.js';
-import { Session } from './session.js';
+import type { ToolOutput, BuiltinTool, SubagentOpts, SubagentResult } from './tools/registry.js';
+import type { BgStart } from './background.js';
+import { STRUCTURED_OUTPUT } from './tools/agent.js';
+import { Session, synthetic, type AgentRec } from './session.js';
+import { Channel } from './channel.js';
+import { est } from './context.js';
 
 const MAX_RETRIES = 6;
 const INTERRUPTED_NOTE = '[Request interrupted by user]';
@@ -82,9 +86,15 @@ export async function runTurn(s: Session, batch: any[], signal: AbortSignal): Pr
     steps++;
     addUsage(total, step.usage);
     if (step.text) lastText = step.text;
-    emitAssistant(s, step.blocks, step.usage, step.stopReason);
+    // 网关回报的输入数会偶发虚高(同一请求体报过 14458 也报过 24160), 占用按回报与自估取小;
+    // 自估随 usage 带给宿主(ctx_estimate), 宿主的压缩 / 保活门槛同样取小。计费仍按回报原数。
+    const reqEst = est(system) + est(JSON.stringify(Object.values(tools).map((t: any) => [t.description, t.inputSchema && t.inputSchema.jsonSchema]))) + est(JSON.stringify(messages));
+    emitAssistant(s, step.blocks, { ...step.usage, ctx_estimate: reqEst }, step.stopReason);
     s.history.push(...step.responseMessages);
-    s.lastInput = step.usage.input_tokens + step.usage.cache_read_input_tokens + step.usage.cache_creation_input_tokens;
+    const reported = step.usage.input_tokens + step.usage.cache_read_input_tokens + step.usage.cache_creation_input_tokens;
+    s.lastInput = reported ? Math.min(reported, reqEst) : reqEst;
+    // 占用诊断: 这一步实际送了多少(token)、各块多大(字符), 查「开局偏高」时看涨在哪块
+    s.log(`[usage] ${s.modelId}${s.isChild ? ' (sub-agent)' : ''} step ${steps} in=${s.lastInput} reported=${reported} est=${reqEst} (new=${step.usage.input_tokens} read=${step.usage.cache_read_input_tokens} write=${step.usage.cache_creation_input_tokens}) system=${system.length}c tools=${Object.keys(tools).length}/${JSON.stringify(Object.values(tools).map((t: any) => [t.description, t.inputSchema && t.inputSchema.jsonSchema])).length}c history=${s.history.length}msg/${JSON.stringify(s.history).length}c`);
 
     if (!step.calls.length) {
       // 服务端工具跑太久时 Anthropic 回 pause_turn: 原样把历史再发一次让它接着跑
@@ -92,11 +102,7 @@ export async function runTurn(s: Session, batch: any[], signal: AbortSignal): Pr
       break;
     }
 
-    const results: Array<{ call: StepCall; out: ToolOutput }> = [];
-    for (const call of step.calls) {
-      const out = signal.aborted ? errorOutput(INTERRUPTED_NOTE) : await execTool(s, call, signal);
-      results.push({ call, out });
-    }
+    const results = await runCalls(s, step.calls, signal);
     s.history.push({ role: 'tool', content: results.map(({ call, out }) => ({ type: 'tool-result', toolCallId: call.id, toolName: call.name, output: toolOutputToModel(out) })) });
     s.emit({ type: 'user', message: { role: 'user', content: results.map(({ call, out }) => toolOutputToBlock(call.id, out)) }, parent_tool_use_id: null, session_id: s.sessionId, uuid: uuid() });
 
@@ -120,7 +126,22 @@ export async function runTurn(s: Session, batch: any[], signal: AbortSignal): Pr
 
 function admitUser(s: Session, m: any): void {
   s.history.push(userToModel(m));
-  if (s.replay) s.emit({ type: 'user', message: m.message, parent_tool_use_id: null, session_id: s.sessionId, uuid: m.uuid || uuid(), isReplay: true });
+  if (s.replay && !m.isSynthetic) s.emit({ type: 'user', message: m.message, parent_tool_use_id: null, session_id: s.sessionId, uuid: m.uuid || uuid(), isReplay: true });
+}
+
+// 同一步里相邻的只读调用一起跑, 碰到会改东西的就等前面跑完再一个一个来(和 Claude Code 一样);
+// 结果按原调用顺序回填, 历史和前缀缓存跟串行时一模一样。
+async function runCalls(s: Session, calls: StepCall[], signal: AbortSignal): Promise<Array<{ call: StepCall; out: ToolOutput }>> {
+  const run = (call: StepCall) => (signal.aborted ? Promise.resolve(errorOutput(INTERRUPTED_NOTE)) : execTool(s, call, signal));
+  const outs: ToolOutput[] = [];
+  for (let i = 0; i < calls.length;) {
+    let j = i;
+    while (j < calls.length && s.registry!.isReadOnly(calls[j].name)) j++;
+    if (j === i) { outs.push(await run(calls[i])); i++; continue; }
+    outs.push(...await Promise.all(calls.slice(i, j).map(run)));
+    i = j;
+  }
+  return calls.map((call, k) => ({ call, out: outs[k] }));
 }
 
 async function execTool(s: Session, call: StepCall, signal: AbortSignal): Promise<ToolOutput> {
@@ -137,16 +158,11 @@ async function execTool(s: Session, call: StepCall, signal: AbortSignal): Promis
     const complete = async (system: string, user: string) => (await generateText({
       model: s.model, instructions: system, messages: [{ role: 'user', content: user }], maxOutputTokens: 2000, abortSignal: signal, maxRetries: 2,
     })).text;
-    const runSubagent = s.isChild ? undefined : async (prompt: string, o: { type?: string }) => {
-      const c = Session.child(s, o.type);
-      let result: any = null;
-      const drain = (async () => { for await (const m of c.out) if (m.type === 'result') result = m; })();
-      await runTurn(c, [{ type: 'user', message: { role: 'user', content: [{ type: 'text', text: prompt }] } }], signal);
-      c.out.close();
-      await drain;
-      return { text: result ? String(result.result || '') : '', isError: !result || !!result.is_error || result.subtype !== 'success' };
-    };
-    out = await entry.run(v.input, { cwd: s.cwd, signal, env: s.env, complete, runSubagent });
+    const runSubagent = s.isChild ? undefined : (prompt: string, o: SubagentOpts) => runChild(s, prompt, o, signal);
+    const startBackground = s.isChild ? undefined : (o: BgStart) => s.bg.start({ ...o, toolUseId: call.id });
+    const sendToAgent = s.isChild ? undefined : (to: string, message: string) => sendToChild(s, to, message, call.id);
+    out = await entry.run(v.input, { cwd: s.cwd, signal, env: s.env, complete, runSubagent, startBackground, sendToAgent,
+      stopBackground: s.isChild ? undefined : (id: string) => s.bg.stop(id), sessionId: s.sessionId, toolUseId: call.id });
   } catch (e: any) {
     out = errorOutput(`<tool_use_error>${e && e.message ? e.message : String(e)}</tool_use_error>`);
   }
@@ -154,6 +170,84 @@ async function execTool(s: Session, call: StepCall, signal: AbortSignal): Promis
     out = { ...out, content: [...out.content, ...v.notes.map((n) => ({ type: 'text', text: `<system-reminder>\nPreToolUse hook additional context: ${n}\n</system-reminder>` }))] };
   }
   return out;
+}
+
+// 起一个子代理跑完 prompt。o.signal 给了就跟它走(后台子代理随会话, 不随这一轮);
+// o.schema 给了就多一个 StructuredOutput 工具, 子代理把结果按 schema 交进来, 拿回的是那个对象。
+// o.agentId 给了就把子代理留下, SendMessage 能找回来续聊。
+async function runChild(s: Session, prompt: string, o: SubagentOpts, turnSignal: AbortSignal): Promise<SubagentResult> {
+  let structured: any;
+  const extra = o.schema ? [structuredOutputTool(o.schema, (v) => { structured = v; })] : [];
+  const c = Session.child(s, o.type, o.model, extra, o.cwd);
+  const rec: AgentRec = { id: o.agentId || '', name: o.name, child: c, running: true };
+  if (o.agentId) s.rememberAgent(rec);
+  const r = await childRound(rec, [userText(prompt)], o.signal || turnSignal, o.onProgress);
+  if (o.schema && structured === undefined && !r.isError) structured = parseJsonLoose(r.text);
+  return { ...r, ...(o.schema ? { structured: structured === undefined ? null : structured } : {}) };
+}
+
+// 在子代理上跑一轮; 跑的期间 SendMessage 投进来、而它最后一步没工具调用所以没读到的, 接着再跑一轮读掉
+async function childRound(rec: AgentRec, batch: any[], signal: AbortSignal, onProgress?: (name: string) => void): Promise<SubagentResult> {
+  const c = rec.child;
+  rec.running = true;
+  let result: any = null;
+  try {
+    while (batch.length && !signal.aborted) {
+      c.out = new Channel<any>();
+      const drain = (async () => {
+        for await (const m of c.out) {
+          if (m.type === 'result') result = m;
+          else if (onProgress && m.type === 'assistant') {
+            for (const b of m.message?.content || []) if (b && b.type === 'tool_use') onProgress(b.name);
+          }
+        }
+      })();
+      await runTurn(c, batch, signal);
+      c.out.close();
+      await drain;
+      batch = c.inbox.drain();
+    }
+  } finally { rec.running = false; }
+  const text = result ? String(result.result || '') : '';
+  const isError = !result || !!result.is_error || result.subtype !== 'success';
+  return { text, isError };
+}
+
+function userText(text: string): any {
+  return { type: 'user', message: { role: 'user', content: [{ type: 'text', text }] } };
+}
+
+// SendMessage: 正在跑 → 投进它的收件箱(工具间歇读到); 停着 → 后台续跑一轮, 跑完照常通知主代理
+function sendToChild(s: Session, to: string, message: string, toolUseId: string): { status: 'queued' | 'resumed' | 'missing'; taskId?: string; agentId?: string } {
+  const rec = s.agents.get(to);
+  if (!rec) return { status: 'missing' };
+  if (rec.running) { rec.child.inbox.push(synthetic(message)); return { status: 'queued', agentId: rec.id }; }
+  const label = rec.name || rec.id;
+  rec.running = true;   // 后台任务真正开跑前就占住, 紧接着的第二条 SendMessage 走排队
+  const taskId = s.bg.start({ description: `continue ${label}`, kind: 'local_agent', toolUseId, prompt: message,
+    run: async (signal, progress) => {
+      const r = await childRound(rec, [userText(message), ...rec.child.inbox.drain()], signal, (n) => progress(`using ${n}`, n));
+      return { text: `${r.text || '(the agent returned no text)'}\n\nagentId: ${rec.id}${rec.name ? ` (name: ${rec.name})` : ''}`, isError: r.isError };
+    } });
+  return { status: 'resumed', taskId, agentId: rec.id };
+}
+
+function structuredOutputTool(schema: any, take: (v: any) => void): BuiltinTool {
+  return {
+    name: STRUCTURED_OUTPUT,
+    description: 'Return your final result as structured data matching this schema. Call it exactly once, as your last action.',
+    inputSchema: schema && schema.type === 'object' ? schema : { type: 'object', properties: {} },
+    async run(input) {
+      take(input);
+      return { content: [{ type: 'text', text: 'Structured output received. Reply with one short line and stop.' }] };
+    },
+  };
+}
+
+function parseJsonLoose(text: string): any {
+  const m = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  const raw = (m ? m[1] : text).trim();
+  try { return JSON.parse(raw); } catch (_) { return undefined; }
 }
 
 // error: 这条是报错不是模型说的话(官方 SDK 的 SDKAssistantMessage.error 同名同义), 宿主据此换成给人看的说法

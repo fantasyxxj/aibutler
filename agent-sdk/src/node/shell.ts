@@ -23,10 +23,19 @@ function cleanEnv(env: Record<string, string | undefined>): Record<string, strin
 
 let bgSeq = 0;
 
+// 后台命令收尾时带给模型看的输出尾巴
+async function tailOf(file: string, max = 4000): Promise<string> {
+  try {
+    const t = (await fs.readFile(file, 'utf8')).replace(/\s+$/, '');
+    return t.length > max ? `…${t.slice(-max)}` : t;
+  } catch (_) { return ''; }
+}
+
 export const Bash: BuiltinTool = {
   name: 'Bash',
   description: 'Executes a shell command and returns its output (stdout and stderr combined). Default timeout 120000 ms, max 600000. '
-    + 'Set run_in_background to start a long-running command without waiting; its output is written to a file you can Read later.',
+    + 'Set run_in_background to start a long-running command without waiting; its output is written to a file you can Read later, '
+    + 'and you are notified when it exits. To act on each line of output as it appears, use Monitor instead.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -45,10 +54,30 @@ export const Bash: BuiltinTool = {
       const id = `bg${Date.now().toString(36)}${++bgSeq}`;
       const file = path.join(os.tmpdir(), `agent-sdk-${id}.log`);
       const fh = await fs.open(file, 'w');
-      const child = spawn(sh, args, { cwd: ctx.cwd, env, detached: true, stdio: ['ignore', fh.fd, fh.fd] });
-      child.unref();
-      child.on('exit', () => { fh.close().catch(() => {}); });
-      return ok(`Command running in background with ID: ${id}. Output is being written to: ${file}`);
+      const posix = process.platform !== 'win32';
+      // 主会话: 挂成后台任务, 跑完自动通知(同 CC); 子代理里没有后台任务, 只能起了不管
+      if (!ctx.startBackground) {
+        const child = spawn(sh, args, { cwd: ctx.cwd, env, detached: true, stdio: ['ignore', fh.fd, fh.fd] });
+        child.unref();
+        child.on('exit', () => { fh.close().catch(() => {}); });
+        return ok(`Command running in background with ID: ${id}. Output is being written to: ${file}`);
+      }
+      const description = String(input.description || command).slice(0, 80);
+      const task = ctx.startBackground({ description, kind: 'local_bash', outputFile: file, run: (signal) => new Promise((resolve) => {
+        const child = spawn(sh, args, { cwd: ctx.cwd, env, detached: posix, stdio: ['ignore', fh.fd, fh.fd] });
+        const kill = () => { try { if (posix && child.pid) process.kill(-child.pid, 'SIGTERM'); else child.kill('SIGTERM'); } catch (_) { /* 已经退了 */ } };
+        signal.addEventListener('abort', kill, { once: true });
+        const done = async (code: number | null, err?: string) => {
+          signal.removeEventListener('abort', kill);
+          await fh.close().catch(() => {});
+          const tail = await tailOf(file);
+          resolve({ text: `${err || (code === 0 ? 'Exit code 0' : `Exit code ${code}`)}\nOutput file: ${file}${tail ? `\n--- last lines ---\n${tail}` : ''}`, isError: !!err || code !== 0 });
+        };
+        child.on('error', (e) => { done(null, e.message); });
+        child.on('exit', (code) => { done(code); });
+      }) });
+      return ok(`Command running in background with ID: ${task}. Output is being written to: ${file}\n`
+        + 'You will be notified automatically when it finishes — do not poll or sleep waiting for it. Read the output file to check progress.');
     }
     const timeout = Math.min(600_000, Number(input.timeout) > 0 ? Number(input.timeout) : 120_000);
     return await new Promise<ToolOutput>((resolve) => {

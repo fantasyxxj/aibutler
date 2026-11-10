@@ -3,7 +3,7 @@
 
 import type { Session } from './session.js';
 
-function est(s: string): number {
+export function est(s: string): number {
   let cjk = 0;
   for (const ch of s) if (ch.charCodeAt(0) > 0x2e80) cjk++;
   return Math.ceil((s.length - cjk) / 4) + cjk;

@@ -1,7 +1,7 @@
 {
   "_": "出生知识包 · 个人版共用。个人版每个人格都灌(含初始人格); 行业版不灌 —— 行业版 manifest 的 knowledge 数组里没有它。可用变量: {{name}}",
   "bundle_id": "personal_common",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "items": [
     {
       "slug": "reference_one_persona_one_domain",
@@ -1326,12 +1326,12 @@
       "translations": {
         "ja": {
           "title": "プラグインで録音・発音評価をするには record と pron のコマンドを使い、ホストが代わりに録音・評価する",
-          "claim": "プラグインのサンドボックスにはマイクがないので、録音はホストが代行する: `{\"primitive\":\"record\",\"op\":\"warm\"}`(画面表示時に呼び、先にマイクを開く)· `{\"primitive\":\"record\",\"op\":\"start\",\"max_sec\":120}` · `{\"primitive\":\"record\",\"op\":\"stop\"}`(`data.id` / `data.path` / `data.duration_sec` が返る)· `{\"primitive\":\"record\",\"op\":\"play\",\"params\":{\"id\":{\"required\":true}}}` を宣言する。画面で pointerdown に start、pointerup に stop を当てれば押して話す方式になる。発音評価は `{\"primitive\":\"pron\",\"op\":\"assess\",\"params\":{\"id\":{\"required\":true},\"text\":{},\"lang\":{}}}` を宣言し、録音 id・原文(省くと自由回答)・言語(en-GB / ja-JP など)を渡すと、総合・正確さ・流暢さ・完全性・韻律と単語ごとの点が返る。Azure キーは op key_set / status でプラグイン画面から保存する。完成例はプラグイン pron-check。",
+          "claim": "プラグインのサンドボックスにはマイクがないので、録音はホストが代行する: `{\"primitive\":\"record\",\"op\":\"warm\"}`(画面表示時に呼ぶ)· `{\"primitive\":\"record\",\"op\":\"start\",\"max_sec\":120}` · `{\"primitive\":\"record\",\"op\":\"stop\"}`(`data.id` / `data.path` / `data.duration_sec` が返る)· `{\"primitive\":\"record\",\"op\":\"play\",\"params\":{\"id\":{\"required\":true}}}` を宣言する。画面で pointerdown に start、pointerup に stop を当てれば押して話す方式になる。発音評価は `{\"primitive\":\"pron\",\"op\":\"assess\",\"params\":{\"id\":{\"required\":true},\"text\":{},\"lang\":{}}}` を宣言し、録音 id・原文(省くと自由回答)・言語(en-GB / ja-JP など)を渡すと、総合・正確さ・流暢さ・完全性・韻律と単語ごとの点が返る。Azure キーは op key_set / status でプラグイン画面から保存する。完成例はプラグイン pron-check。",
           "keywords": "プラグイン 録音 マイク 押して話す 再生 スピーキング 音読 発音 採点 評価 IELTS 日本語 発音練習 Azure キー record pron 録音できる?"
         },
         "en": {
           "title": "Plugins record audio and score pronunciation with record and pron commands; the host does both",
-          "claim": "The plugin sandbox has no microphone, so the host records for it: declare `{\"primitive\":\"record\",\"op\":\"warm\"}` (call it as soon as the screen shows, to open the mic early) · `{\"primitive\":\"record\",\"op\":\"start\",\"max_sec\":120}` · `{\"primitive\":\"record\",\"op\":\"stop\"}` (returns `data.id` / `data.path` / `data.duration_sec`) · `{\"primitive\":\"record\",\"op\":\"play\",\"params\":{\"id\":{\"required\":true}}}`; wire start to pointerdown and stop to pointerup for hold-to-talk. To score pronunciation declare `{\"primitive\":\"pron\",\"op\":\"assess\",\"params\":{\"id\":{\"required\":true},\"text\":{},\"lang\":{}}}` and pass the recording id, the reference text (omit it for a free answer) and the language (e.g. en-GB / ja-JP); it returns overall, accuracy, fluency, completeness and prosody plus a score per word. The Azure key is stored from the plugin screen with op key_set / status. The full working example is the pron-check plugin.",
+          "claim": "The plugin sandbox has no microphone, so the host records for it: declare `{\"primitive\":\"record\",\"op\":\"warm\"}` (call it when the screen shows) · `{\"primitive\":\"record\",\"op\":\"start\",\"max_sec\":120}` · `{\"primitive\":\"record\",\"op\":\"stop\"}` (returns `data.id` / `data.path` / `data.duration_sec`) · `{\"primitive\":\"record\",\"op\":\"play\",\"params\":{\"id\":{\"required\":true}}}`; wire start to pointerdown and stop to pointerup for hold-to-talk. To score pronunciation declare `{\"primitive\":\"pron\",\"op\":\"assess\",\"params\":{\"id\":{\"required\":true},\"text\":{},\"lang\":{}}}` and pass the recording id, the reference text (omit it for a free answer) and the language (e.g. en-GB / ja-JP); it returns overall, accuracy, fluency, completeness and prosody plus a score per word. The Azure key is stored from the plugin screen with op key_set / status. Full example: pron-check.",
           "keywords": "plugin record recording microphone mic hold to talk playback speaking read aloud pronunciation score assessment ielts japanese practice azure key record pron can it record"
         },
         "zh-TW": {
@@ -1358,12 +1358,12 @@
       "translations": {
         "ja": {
           "title": "プラグインはローカルの画像・音声・動画を表示・再生できる。asset 命令で URL を取る",
-          "claim": "プラグインはローカルの画像(png jpg gif webp)・音声(mp3 wav m4a aac ogg flac opus)・動画(mp4 webm m4v mov)を表示・再生できる: 素材はデータディレクトリの `plugin-assets/<包id>/`(packages.local と並び、サブフォルダ可)に置き、`{\"primitive\":\"asset\",\"op\":\"list\"}`(`data.assets` 素材一覧と `data.picked` ユーザーが選んだファイルを返す) · `{\"primitive\":\"asset\",\"op\":\"url\",\"params\":{\"name\":{},\"ref\":{}}}`(素材の相対名 name か選んだファイルの ref を渡し、`data.url` と `data.kind` を返す) · `{\"primitive\":\"asset\",\"op\":\"pick\",\"kinds\":[\"video\"]}`(OS のファイル選択を開いてユーザーに選ばせる。kinds は省略可。`data.picked` に各 ref) · `{\"primitive\":\"asset\",\"op\":\"forget\",\"params\":{\"ref\":{\"required\":true}}}` を宣言する; url を画面の `<img>` `<audio controls>` `<video controls>` の src に入れ、再生・一時停止・シーク・速度・ループはタグ自身の機能で行う。大きな動画もシークできる。",
+          "claim": "プラグインはローカルの画像(png jpg gif webp)・音声(mp3 wav m4a aac ogg flac opus)・動画(mp4 webm m4v mov)を表示・再生できる: 素材はデータディレクトリの `plugin-assets/<包id>/`(packages.local と並び、サブフォルダ可)に置き、`{\"primitive\":\"asset\",\"op\":\"list\"}`(`data.assets` と `data.picked` を返す) · `{\"primitive\":\"asset\",\"op\":\"url\",\"params\":{\"name\":{},\"ref\":{}}}`(name か ref を渡すと `data.url` を返す) · `{\"primitive\":\"asset\",\"op\":\"pick\",\"kinds\":[\"video\"]}`(OS のファイル選択を開く。kinds は省略可) · `{\"primitive\":\"asset\",\"op\":\"forget\",\"params\":{\"ref\":{\"required\":true}}}` を宣言する; url を画面の `<img>` `<audio controls>` `<video controls>` の src に入れ、再生・一時停止・シーク・速度・ループはタグ自身の機能で行う。大きな動画もシークできる。",
           "keywords": "プラグイン 画像 写真 音声 音楽 リスニング 再生 動画 映画 講座 ローカルファイル 素材 画像表示 動画再生 プレーヤー ファイル選択 asset できるか"
         },
         "en": {
           "title": "Plugins can show and play local images, audio and video; get the address with an asset command",
-          "claim": "A plugin can show and play local images (png jpg gif webp), audio (mp3 wav m4a aac ogg flac opus) and video (mp4 webm m4v mov): put the files in `plugin-assets/<package id>/` under the data directory (next to packages.local; subfolders allowed) and declare `{\"primitive\":\"asset\",\"op\":\"list\"}` (returns `data.assets`, the bundled files, and `data.picked`, files the user chose) · `{\"primitive\":\"asset\",\"op\":\"url\",\"params\":{\"name\":{},\"ref\":{}}}` (pass a bundled file's relative name or a chosen file's ref; returns `data.url` and `data.kind`) · `{\"primitive\":\"asset\",\"op\":\"pick\",\"kinds\":[\"video\"]}` (opens the system file picker for the user; kinds optional; returns `data.picked`, each with a ref) · `{\"primitive\":\"asset\",\"op\":\"forget\",\"params\":{\"ref\":{\"required\":true}}}`; put the url into the src of the screen's own `<img>`, `<audio controls>` or `<video controls>`, and use those tags' built-in play, pause, seek, speed and loop. Large videos seek fine.",
+          "claim": "A plugin can show and play local images (png jpg gif webp), audio (mp3 wav m4a aac ogg flac opus) and video (mp4 webm m4v mov): put the files in `plugin-assets/<package id>/` under the data directory (next to packages.local; subfolders allowed) and declare `{\"primitive\":\"asset\",\"op\":\"list\"}` (returns `data.assets`, the bundled files, and `data.picked`, files the user chose) · `{\"primitive\":\"asset\",\"op\":\"url\",\"params\":{\"name\":{},\"ref\":{}}}` (pass a bundled file's relative name or a chosen file's ref; returns `data.url` and `data.kind`) · `{\"primitive\":\"asset\",\"op\":\"pick\",\"kinds\":[\"video\"]}` (opens the system file picker; kinds optional) · `{\"primitive\":\"asset\",\"op\":\"forget\",\"params\":{\"ref\":{\"required\":true}}}`; put the url into the src of the screen's own `<img>`, `<audio controls>` or `<video controls>`, and use those tags' built-in play, pause, seek, speed and loop.",
           "keywords": "plugin image photo audio music listening play video movie lesson local file media show picture video player choose file open file asset can it play"
         },
         "zh-TW": {
@@ -1818,6 +1818,242 @@
         {
           "rel": "relates",
           "to": "reference_widgets_only_work_as_dsl_never_raw_html"
+        }
+      ]
+    },
+    {
+      "slug": "reference_set_subagent_model_per_tier",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "派活换某一档的模型 —— 写 vendors.local.json 那一格, 再请用户重开人格",
+      "claim": "用户说「派活用 X」「便宜的活用 X」或「这个网关的便宜档叫 X」时, 编辑数据目录的 `app/config/models/vendors.local.json`(没有就新建), 只写他点到的那一格: `{\"vendors\":[{\"id\":\"<主模型那一家, Claude 是 anthropic>\",\"tiers\":{\"<strong|daily|cheap>\":[\"^X$\"]}}]}`。强 / 日常 / 便宜对应 strong / daily / cheap, top 只给建人格。写了的格整格替换出厂, 没写的格照用出厂。写完告诉用户: 关掉这个人格的标签再打开才生效。",
+      "keywords": "派活 子代理 模型 换模型 便宜 便宜档 日常 强 档 cheap daily strong haiku sonnet opus vendors.local.json 数据目录 网关 型号名 改名 叫什么 重开人格 太弱 太贵 换成",
+      "translations": {
+        "ja": {
+          "title": "サブエージェントのある段のモデルを変える —— vendors.local.json のその一マスを書き、ペルソナを開き直してもらう",
+          "claim": "ユーザーが「下請けは X で」「安い作業は X で」「このゲートウェイの安い段は X という名前」と言ったら、データディレクトリの `app/config/models/vendors.local.json`(無ければ新規)を編集し、言われた一マスだけ書く: `{\"vendors\":[{\"id\":\"<メインモデルの会社、Claude は anthropic>\",\"tiers\":{\"<strong|daily|cheap>\":[\"^X$\"]}}]}`。強い / 普段 / 安いは strong / daily / cheap、top はペルソナ作成専用。書いたマスは出荷時のものを丸ごと置き換え、書いていないマスは出荷時のまま。書いたらユーザーに伝える: このペルソナのタブを閉じて開き直すと反映される。",
+          "keywords": "下請け サブエージェント モデル 変更 安い 段 cheap daily strong haiku sonnet opus vendors.local.json データディレクトリ ゲートウェイ モデル名 開き直す 弱い 高い"
+        },
+        "en": {
+          "title": "Change the model for one sub-agent tier — write that cell in vendors.local.json, then ask the user to reopen the persona",
+          "claim": "When the user says \"use X for delegated work\", \"use X for the cheap jobs\" or \"this gateway calls its cheap model X\", edit `app/config/models/vendors.local.json` in the data directory (create it if missing) and write only the cell they named: `{\"vendors\":[{\"id\":\"<your main model's vendor; Claude is anthropic>\",\"tiers\":{\"<strong|daily|cheap>\":[\"^X$\"]}}]}`. Strong / everyday / cheap map to strong / daily / cheap; top is only for creating personas. A cell you write replaces the factory cell whole; cells you leave out keep the factory value. Afterwards tell the user: close and reopen this persona's tab for it to take effect.",
+          "keywords": "sub-agent delegate model change cheap tier daily strong haiku sonnet opus vendors.local.json data directory gateway model name reopen persona too weak too expensive"
+        },
+        "zh-TW": {
+          "title": "派活換某一檔的模型 —— 寫 vendors.local.json 那一格, 再請使用者重開人格",
+          "claim": "使用者說「派活用 X」「便宜的活用 X」或「這個閘道的便宜檔叫 X」時, 編輯資料目錄的 `app/config/models/vendors.local.json`(沒有就新建), 只寫他點到的那一格: `{\"vendors\":[{\"id\":\"<主模型那一家, Claude 是 anthropic>\",\"tiers\":{\"<strong|daily|cheap>\":[\"^X$\"]}}]}`。強 / 日常 / 便宜對應 strong / daily / cheap, top 只給建人格。寫了的格整格替換出廠, 沒寫的格照用出廠。寫完告訴使用者: 關掉這個人格的標籤再打開才生效。",
+          "keywords": "派活 子代理 模型 換模型 便宜 檔 cheap daily strong haiku sonnet opus vendors.local.json 資料目錄 閘道 型號名 重開人格 太弱 太貴"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_change_a_model_context_limit"
+        }
+      ]
+    },
+    {
+      "slug": "reference_move_data_folder_in_settings",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "换数据保存位置 —— 系统设置「高级 → 数据位置 → 搬到别处…」",
+      "claim": "用户想把人格、记忆和设置换个地方存(比如挪到 D 盘或外接盘)时, 告诉他点系统设置「高级 → 数据位置 → 搬到别处…」, 选一个空文件夹并确认: app 会先重启, 把数据整份复制过去, 复制成功才切换, 原来那份留着, 确认没问题后他自己删。同一栏的「打开文件夹」能直接打开现在的数据目录。搬家由 app 在重启时完成, 你自己不复制也不移动数据目录。",
+      "keywords": "数据位置 数据目录 换位置 搬家 迁移 挪到D盘 存哪 存在哪里 C盘满了 外接硬盘 打开数据文件夹 系统设置 高级 搬到别处",
+      "translations": {
+        "zh-TW": {
+          "title": "換資料儲存位置 —— 系統設定「進階 → 資料位置 → 搬到別處…」",
+          "claim": "使用者想把人格、記憶和設定換個地方存（比如移到 D 槽或外接硬碟）時，告訴他點系統設定「進階 → 資料位置 → 搬到別處…」，選一個空資料夾並確認：app 會先重新啟動，把資料整份複製過去，複製成功才切換，原來那份留著，確認沒問題後他自己刪。同一欄的「開啟資料夾」能直接打開現在的資料目錄。搬移由 app 在重新啟動時完成，你自己不複製也不移動資料目錄。",
+          "keywords": "資料位置 資料目錄 換位置 搬移 遷移 移到D槽 存哪 C槽滿了 外接硬碟 開啟資料夾 系統設定 進階 搬到別處"
+        },
+        "ja": {
+          "title": "データの保存先を変える —— システム設定「詳細設定 → データの保存先 → 別の場所へ移動…」",
+          "claim": "ユーザーが人格・記憶・設定の保存場所を変えたいとき（D ドライブや外付けディスクへ移すなど）は、システム設定「詳細設定 → データの保存先 → 別の場所へ移動…」で空のフォルダを選んで確認するよう伝える。アプリはまず再起動し、データを丸ごとコピーして、成功してから切り替える。元のデータは残るので、問題がないと確かめてから本人が削除する。同じ欄の「フォルダを開く」で今の保存先を開ける。移動は再起動時にアプリが行うので、あなた自身はデータディレクトリをコピーも移動もしない。",
+          "keywords": "データの保存先 データディレクトリ 場所を変える 移動 移行 Dドライブ どこに保存 容量不足 外付け フォルダを開く システム設定 詳細 別の場所へ移動"
+        },
+        "en": {
+          "title": "Change where data is stored — Settings › Advanced › Data folder › Move elsewhere…",
+          "claim": "When the user wants personas, memories and settings stored somewhere else (another drive, an external disk), tell them to open Settings › Advanced › Data folder › Move elsewhere…, pick an empty folder and confirm: the app restarts, copies everything over and switches only after the copy succeeds; the old copy stays, and they delete it once all looks right. Open folder in the same row opens the current data folder. The app does the move while restarting, so you neither copy nor move the data folder yourself.",
+          "keywords": "data folder data directory change location move migrate other drive where is my data disk full external drive open folder settings advanced move elsewhere"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_change_a_model_context_limit"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_each_persona_has_its_own_memory"
+        }
+      ]
+    },
+    {
+      "slug": "reference_dispatch_a_subagent_with_agent",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "派子代理 —— Agent, 可后台跑, SendMessage 接着问, TaskStop 叫停",
+      "claim": "一件自成一体的活(翻很多文件、长时间调查、查资料)交给子代理: Agent(description=3-5 字, prompt=把要做的事和背景写全 —— 它看不到我们的对话, model=cheap 找东西 / daily 照稿做 / strong 要判断)。不用等结果就加 run_in_background:true, 它做完会自动通知你开新的一轮, 不用轮询; 要接着问同一个子代理用 SendMessage(to=返回的 agentId 或 name); 不要了用 TaskStop(task_id)。后台在跑的作业用户在任务面板「后台作业」那几行看得到。",
+      "keywords": "子代理 派活 派agent 并行 后台 分头查 交给别人做 Agent run_in_background SendMessage TaskStop 叫停 后台作业 subagent",
+      "translations": {
+        "zh-TW": {
+          "title": "派子代理 —— Agent, 可在背景跑, SendMessage 接著問, TaskStop 叫停",
+          "claim": "一件自成一體的活（翻很多檔案、長時間調查、查資料）交給子代理：Agent(description=3-5 字, prompt=把要做的事和背景寫全 —— 它看不到我們的對話, model=cheap 找東西 / daily 照稿做 / strong 要判斷)。不用等結果就加 run_in_background:true，它做完會自動通知你開新的一輪，不用輪詢；要接著問同一個子代理用 SendMessage(to=回傳的 agentId 或 name)；不要了用 TaskStop(task_id)。背景在跑的作業使用者在任務面板「背景作業」那幾行看得到。",
+          "keywords": "子代理 派活 派agent 並行 背景 分頭查 Agent run_in_background SendMessage TaskStop 叫停 背景作業"
+        },
+        "ja": {
+          "title": "サブエージェントに任せる —— Agent、バックグラウンド実行、SendMessage で続き、TaskStop で停止",
+          "claim": "まとまった作業（多数のファイル調査・長い調べもの）はサブエージェントに任せる: Agent(description=短い説明, prompt=やることと背景を全部書く —— 会話は見えない, model=cheap 探し物 / daily 指示通り / strong 判断が要る)。結果を待たないなら run_in_background:true。終わると自動で通知が来て次のターンが始まるので、ポーリング不要。同じサブエージェントに続けて頼むときは SendMessage(to=返ってきた agentId か name)、不要になったら TaskStop(task_id)。動いているバックグラウンド作業はタスクパネルの行でユーザーにも見える。",
+          "keywords": "サブエージェント 任せる 並行 バックグラウンド 手分け Agent run_in_background SendMessage TaskStop 停止 subagent"
+        },
+        "en": {
+          "title": "Delegate to a sub-agent — Agent, background runs, SendMessage to continue, TaskStop to stop",
+          "claim": "Hand a self-contained job (searching many files, a long investigation, research) to a sub-agent: Agent(description=3-5 words, prompt=the whole task and context — it cannot see our conversation, model=cheap for lookups / daily for following a spec / strong when it must judge). If you need not wait, add run_in_background:true; you are notified automatically when it finishes and a new turn starts, so do not poll. To follow up with the same sub-agent use SendMessage(to=the returned agentId or name); to cancel use TaskStop(task_id). Running background jobs appear as rows in the user's task panel.",
+          "keywords": "sub-agent delegate dispatch agent parallel background Agent run_in_background SendMessage TaskStop cancel background job subagent"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_set_subagent_model_per_tier"
+        }
+      ]
+    },
+    {
+      "slug": "reference_workflow_tool_orchestrates_subagents",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "Workflow 工具 —— 用脚本按固定流程编排多个子代理",
+      "claim": "要按固定流程编排几个子代理(先并行查几样、再汇总、分阶段推进)时用 Workflow(script=…): 脚本以 `export const meta = { name, description, phases }` 开头, 里面用 agent() 派一个、parallel() 同时派几个、pipeline() 前一个的结果喂给后一个、phase() 标阶段; 它在后台跑, 跑完通知你。中途断了用 resumeFromRunId 续跑, 没改过的 agent() 直接复用上次结果。插件里 type:'workflow' 的多步插件是一串给用户翻的屏幕, 跟这个工具无关。",
+      "keywords": "Workflow 工作流 编排 流程 多个子代理 并行 分阶段 脚本 续跑 resumeFromRunId agent parallel pipeline phase 自动化流程",
+      "translations": {
+        "zh-TW": {
+          "title": "Workflow 工具 —— 用腳本按固定流程編排多個子代理",
+          "claim": "要按固定流程編排幾個子代理（先並行查幾樣、再彙總、分階段推進）時用 Workflow(script=…)：腳本以 `export const meta = { name, description, phases }` 開頭，裡面用 agent() 派一個、parallel() 同時派幾個、pipeline() 前一個的結果餵給後一個、phase() 標階段；它在背景跑，跑完通知你。中途斷了用 resumeFromRunId 續跑，沒改過的 agent() 直接沿用上次結果。外掛裡 type:'workflow' 的多步外掛是一串給使用者翻的畫面，跟這個工具無關。",
+          "keywords": "Workflow 工作流 編排 流程 多個子代理 並行 分階段 腳本 續跑 resumeFromRunId"
+        },
+        "ja": {
+          "title": "Workflow ツール —— スクリプトで複数のサブエージェントを決まった流れで動かす",
+          "claim": "複数のサブエージェントを決まった流れで動かすとき（並行で調べてからまとめる、段階を分けて進める）は Workflow(script=…) を使う。スクリプトは `export const meta = { name, description, phases }` で始め、agent() で一つ、parallel() で同時に複数、pipeline() で前の結果を次へ渡し、phase() で段階を区切る。バックグラウンドで動き、終わると通知が来る。途中で切れたら resumeFromRunId で再開でき、変えていない agent() は前回の結果を使い回す。プラグインの type:'workflow'（ユーザーがめくる複数画面）とは別物。",
+          "keywords": "Workflow ワークフロー 段取り 流れ 複数のサブエージェント 並行 段階 スクリプト 再開 resumeFromRunId"
+        },
+        "en": {
+          "title": "The Workflow tool — orchestrate several sub-agents with a script",
+          "claim": "To run several sub-agents in a fixed flow (research in parallel, then merge, or proceed in phases) use Workflow(script=…): the script starts with `export const meta = { name, description, phases }` and uses agent() for one, parallel() for several at once, pipeline() to feed one result into the next, phase() to mark stages. It runs in the background and notifies you when done. If it stops midway, resumeFromRunId continues it, reusing results of unchanged agent() calls. A plugin of type 'workflow' is a series of screens for the user and has nothing to do with this tool.",
+          "keywords": "Workflow orchestrate flow multiple sub-agents parallel phases script resume resumeFromRunId pipeline automation"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_dispatch_a_subagent_with_agent"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_how_to_write_a_workflow_package"
+        }
+      ]
+    },
+    {
+      "slug": "reference_background_command_and_monitor",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "跑很久的命令放后台, 盯持续输出用 Monitor",
+      "claim": "命令要跑很久(装依赖、构建、长测试)就 Bash(command=…, run_in_background:true), 它结束时会自动通知你退出码和最后几行输出, 这期间你照常干别的, 不用轮询。要盯一条持续出东西的命令或一个 WebSocket、每来新内容就醒来处理, 用 Monitor(description=…, command=… 或 ws=…, timeout_ms=…), 每批新行会开新的一轮交给你; 到时限它会通知你, 需要就再开一个。",
+      "keywords": "后台 后台命令 跑很久 长任务 不用等 run_in_background 监控 盯着 日志 持续输出 Monitor WebSocket 通知 构建 安装",
+      "translations": {
+        "zh-TW": {
+          "title": "跑很久的命令放背景, 盯持續輸出用 Monitor",
+          "claim": "命令要跑很久（裝相依套件、建置、長測試）就 Bash(command=…, run_in_background:true)，它結束時會自動通知你結束碼和最後幾行輸出，這期間你照常做別的，不用輪詢。要盯一條持續輸出的命令或一個 WebSocket、每來新內容就醒來處理，用 Monitor(description=…, command=… 或 ws=…, timeout_ms=…)，每批新行會開新的一輪交給你；到時限它會通知你，需要就再開一個。",
+          "keywords": "背景 背景命令 跑很久 長任務 run_in_background 監控 盯著 日誌 持續輸出 Monitor WebSocket 通知"
+        },
+        "ja": {
+          "title": "時間のかかるコマンドはバックグラウンドへ、出力を見張るなら Monitor",
+          "claim": "時間のかかるコマンド（依存のインストール、ビルド、長いテスト）は Bash(command=…, run_in_background:true) で流す。終わると終了コードと最後の数行が自動で通知されるので、その間はほかの作業を続け、ポーリングしない。出力が続くコマンドや WebSocket を見張り、新しい内容が来るたびに対応するなら Monitor(description=…, command=… か ws=…, timeout_ms=…)。新しい行がまとまるごとに次のターンが始まる。期限が来たら通知されるので、必要ならもう一度張る。",
+          "keywords": "バックグラウンド 長時間 コマンド run_in_background 見張る 監視 ログ Monitor WebSocket 通知 ビルド"
+        },
+        "en": {
+          "title": "Long commands go to the background; use Monitor to watch ongoing output",
+          "claim": "For a long command (installing dependencies, a build, a long test run) use Bash(command=…, run_in_background:true); when it exits you are notified with the exit code and the last lines, so keep working and do not poll. To watch a command that keeps printing, or a WebSocket, and act on each new batch, use Monitor(description=…, command=… or ws=…, timeout_ms=…); each batch of new lines starts a new turn for you. You are notified when it times out and can start another.",
+          "keywords": "background long running command run_in_background watch monitor logs ongoing output Monitor WebSocket notification build install"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_dispatch_a_subagent_with_agent"
+        }
+      ]
+    },
+    {
+      "slug": "reference_deferred_tools_load_via_toolsearch",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "只列了名字的工具 —— 先 ToolSearch 取参数再调",
+      "claim": "工具清单里有些只给了名字、没给参数(如 Workflow · Monitor · TaskStop · SendMessage), 要用时先调 ToolSearch(query='select:名字1,名字2') 取回它们的完整参数说明, 再照常调用; 不确定叫什么就用关键词搜, 如 ToolSearch(query='后台 停止')。",
+      "keywords": "ToolSearch 按需加载 只有名字 没有参数 找不到工具 工具不存在 加载工具 deferred select",
+      "translations": {
+        "zh-TW": {
+          "title": "只列了名字的工具 —— 先 ToolSearch 取參數再呼叫",
+          "claim": "工具清單裡有些只給了名字、沒給參數（如 Workflow · Monitor · TaskStop · SendMessage），要用時先呼叫 ToolSearch(query='select:名字1,名字2') 取回它們的完整參數說明，再照常呼叫；不確定叫什麼就用關鍵詞搜，如 ToolSearch(query='背景 停止')。",
+          "keywords": "ToolSearch 按需載入 只有名字 沒有參數 找不到工具 載入工具 deferred select"
+        },
+        "ja": {
+          "title": "名前だけのツール —— 先に ToolSearch で引数を取ってから呼ぶ",
+          "claim": "ツール一覧には名前だけで引数のないもの（Workflow・Monitor・TaskStop・SendMessage など）がある。使うときは先に ToolSearch(query='select:名前1,名前2') で引数の説明を取り込み、それから普通に呼ぶ。名前が分からなければキーワードで探す（例: ToolSearch(query='background stop')）。",
+          "keywords": "ToolSearch 必要時に読み込む 名前だけ 引数がない ツールが見つからない deferred select"
+        },
+        "en": {
+          "title": "Tools listed by name only — load them with ToolSearch first",
+          "claim": "Some tools in your list show only a name and no parameters (e.g. Workflow, Monitor, TaskStop, SendMessage). Before using one, call ToolSearch(query='select:Name1,Name2') to load their full parameter schemas, then call them normally; if unsure of the name, search by keyword, e.g. ToolSearch(query='background stop').",
+          "keywords": "ToolSearch deferred tools name only no parameters tool not found load tool select"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_dispatch_a_subagent_with_agent"
+        },
+        {
+          "rel": "relates",
+          "to": "reference_workflow_tool_orchestrates_subagents"
+        }
+      ]
+    },
+    {
+      "slug": "reference_general_settings_tips_and_tool_rows",
+      "seed_use_count": 1,
+      "type": "reference",
+      "importance": "med",
+      "title": "系统设置「通用」里的小贴士和工具调用行开关",
+      "claim": "用户问启动时弹的小卡片、或对话里「✔ 🔧 工具名 · 完成」那几行时, 告诉他都在系统设置「通用」: 「小贴士」勾「打开时显示」决定开 app 时弹不弹, 点「现在看一条」当场弹一张; 「工具调用」勾「在对话里显示」就每调一次工具多一行, 不勾时只在底部状态栏显示正在做什么。",
+      "keywords": "小贴士 提示卡片 启动弹窗 不再显示 关掉提示 工具调用 工具行 对话里显示 隐藏工具 系统设置 通用 tips tool calls",
+      "translations": {
+        "zh-TW": {
+          "title": "系統設定「一般」裡的小提示和工具呼叫行開關",
+          "claim": "使用者問啟動時跳出的小卡片、或對話裡「✔ 🔧 工具名 · 完成」那幾行時，告訴他都在系統設定「一般」：「小提示」勾「開啟時顯示」決定開 app 時跳不跳，點「現在看一則」當場跳一張；「工具呼叫」勾「在對話裡顯示」就每呼叫一次工具多一行，不勾時只在底部狀態列顯示正在做什麼。",
+          "keywords": "小提示 提示卡片 啟動彈窗 不再顯示 工具呼叫 工具行 隱藏工具 系統設定 一般"
+        },
+        "ja": {
+          "title": "システム設定「一般」のヒントとツール呼び出し行のスイッチ",
+          "claim": "起動時に出る小さなカードや、会話の「✔ 🔧 ツール名 · 完了」の行についてユーザーに聞かれたら、どちらもシステム設定「一般」にあると伝える。「ヒント」の「起動時に表示」で起動時に出すかを決め、「今すぐ見る」でその場で一枚出せる。「ツール呼び出し」の「会話に表示」をオンにすると呼び出しごとに一行増え、オフだと下のステータスバーに今の作業だけが出る。",
+          "keywords": "ヒント カード 起動時 表示しない ツール呼び出し 行 会話に表示 隠す システム設定 一般"
+        },
+        "en": {
+          "title": "Tips and tool-call rows switches in Settings › General",
+          "claim": "When the user asks about the small card shown at startup, or the \"✔ 🔧 tool · Done\" rows in the chat, tell them both are in Settings › General: under Tips, \"Show on startup\" decides whether the card appears and \"Show one now\" shows one immediately; under Tool calls, \"Show in the conversation\" adds a row per tool call, and when it is off only the status bar at the bottom shows what is happening.",
+          "keywords": "tips startup card hide tips tool calls tool rows show in conversation hide tools settings general"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_move_data_folder_in_settings"
         }
       ]
     }

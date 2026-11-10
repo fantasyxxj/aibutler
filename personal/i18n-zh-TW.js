@@ -46,6 +46,8 @@ module.exports = {
   status_tool: '🟡 工具執行中 (可插話)',
   thinking: '思考中',
   tasks_left: '任務 · 還剩 {n}/{total}',
+  tasks_bg_running: '背景 · {n} 個在跑',
+  tasks_bg_done: '背景 · 已收尾',
   tasks_auto_continue: '任務沒做完(還剩 {n} 件), 自動接著做…',
 
   // —— 關閉前沉澱 ——

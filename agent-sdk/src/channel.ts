@@ -75,6 +75,9 @@ export class Inbox<T> {
     return this.buf.length ? (this.buf.shift() as T) : null;
   }
 
+  // 引擎自己投的消息(后台任务收尾通知): 跟宿主发来的排在一起, 空闲时开新的一轮
+  push(m: T): void { this.buf.push(m); this.wake(); }
+
   drain(): T[] { const out = this.buf; this.buf = []; return out; }
 
   get pending(): number { return this.buf.length; }

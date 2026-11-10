@@ -19,6 +19,17 @@
 
   <div id="v-create" hidden>
   <h1><button id="v-back" class="m-btn" data-i18n-title="mgr_back" title="返回人格列表">←</button> <span data-i18n="mgr_new_persona">新建人格</span></h1>
+  <!-- 一句话建人格(quick-create-ui.js → personal/quick-create.js): 交给管家, 它定名字头像领域直接建 -->
+  <div class="m-form" id="qc">
+    <label data-i18n="mgr_quick">一句话建人格</label>
+    <div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input id="qc-text" type="text" style="flex:1;min-width:200px" data-i18n-ph="mgr_quick_ph" />
+        <button id="qc-go" class="m-btn primary" data-i18n="mgr_quick_go">让管家去建</button>
+      </div>
+      <div style="color:var(--muted);font-size:12px;margin-top:4px;" data-i18n="mgr_quick_hint"></div>
+    </div>
+  </div>
   <div class="m-form">
     <label data-i18n="mgr_name">名字</label><input id="f-name" data-i18n-ph="mgr_name_ph" placeholder="如: 小画" />
     <label data-i18n="mgr_avatar">头像</label>
@@ -93,5 +104,6 @@
   <script src="tier-picker.js"></script>
   <script src="model-pick.js"></script>
   <script src="manager.js"></script>
+  <script src="quick-create-ui.js"></script>
 </body>
 </html>

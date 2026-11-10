@@ -155,5 +155,19 @@ ok(/factory\.syncFactory/.test(birthSrc), '出生走同一个同步器(不留第
   ok(/this\.runFactorySync\(\)/.test(wakeSeg), 'buildWakePayload 从缓存取结果');
 }
 
+// 下发的核心记忆副本(bundle_id 同为 leaf_core)只在版本号不旧于随包那份时才替换它:
+// 货架还停在旧版时, 新安装包自带的那份不能被盖掉(11-08)。
+{
+  console.log('\n[下发包与随包核心记忆: 版本新的赢]');
+  const factory = require('../core/factory-sync');
+  const mine = factory.loadFactoryItems({}).items.find((x) => x.bundle === 'leaf_core');
+  const shipped = mine ? mine.version : '0.0.0';
+  const pack = (v) => [{ id: 'core', knowledge: { bundle_id: 'leaf_core', version: v, items: [{ slug: 'probe_pack_only_x', claim: 'x' }] } }];
+  const has = (r) => r.items.some((x) => x.item.slug === 'probe_pack_only_x');
+  ok(!has(factory.loadFactoryItems({ packs: pack('0.0.1') })), `旧版下发包(0.0.1)不盖随包 ${shipped}`);
+  ok(has(factory.loadFactoryItems({ packs: pack(shipped) })), '同版本取下发那份');
+  ok(has(factory.loadFactoryItems({ packs: pack('99.0.0') })), '新版下发包替换随包那份');
+}
+
 console.log(`\n${fail === 0 ? 'PASS' : 'FAIL'} ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

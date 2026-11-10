@@ -42,7 +42,7 @@ function hasAnyKey({ settings, secrets, defaultName }) {
 
 // key 永远不回渲染层, 只给"存没存过": none / ok / stale
 // (stale = 密文还在但这台机器解不开了。当没存处理, 但得说清为什么要重填。)
-const row = (secrets) => (c) => ({ id: c.id, name: c.name || '', base_url: c.base_url || '', vendor: c.vendor || '',
+const row = (secrets) => (c) => ({ id: c.id, name: c.name || '', base_url: c.base_url || '', vendor: c.vendor || '', protocol: c.protocol || '',
                                    keyState: secrets.status(credSecret(c.id)) });
 
 // 订阅长效 token(`claude setup-token` 产出)。存了它, buildEnv 就把 CLAUDE_CODE_OAUTH_TOKEN
@@ -104,6 +104,9 @@ function save({ settings, secrets }, patch = {}) {
   const next = { id, name, base_url };
   const vendor = patch.vendor !== undefined ? String(patch.vendor || '') : ((all.find((c) => c.id === id) || {}).vendor || '');
   if (vendor) next.vendor = vendor;
+  // protocol = 这条走什么 API 协议(anthropic / compat …); 空 = 自动(厂家表, 认不出按 Anthropic)。三态同 vendor
+  const protocol = patch.protocol !== undefined ? String(patch.protocol || '') : ((all.find((c) => c.id === id) || {}).protocol || '');
+  if (protocol) next.protocol = protocol;
   const at = all.findIndex((c) => c.id === id);
   if (at >= 0) all[at] = next; else all.push(next);
   const write = { credentials: all };
@@ -160,10 +163,10 @@ async function probeMessages(base, key, model, nModels) {
                  'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
       body: JSON.stringify({ model, max_tokens: 1, messages: [{ role: 'user', content: 'hi' }] }),
     });
-    if (res.ok) return { ok: true, detail: `${nModels} 个模型 · ${model} 真发通过` };
+    if (res.ok) return { ok: true, sent: true, detail: `${nModels} 个模型 · ${model} 真发通过` };
     const body = briefErr(await res.text().catch(() => ''));
     if (res.status === 401 || res.status === 403) return { ok: false, detail: `key 被拒: ${res.status} ${body}` };
-    return { ok: true, detail: `key 没被拒(${res.status}), 但 ${model} 发不出来: ${body}` };
+    return { ok: true, status: res.status, detail: `key 没被拒(${res.status}), 但 ${model} 发不出来: ${body}` };
   } catch (e) {
     return { ok: true, detail: e.name === 'AbortError' ? `${model} 25s 没返回 —— 慢, 但不是 key 的问题` : `探测出错: ${String(e.message || e)}` };
   } finally { clearTimeout(timer); }
@@ -203,12 +206,21 @@ async function test({ settings, secrets }, patch = {}) {
   // 选了厂家卡片的(Claude 以外): 照建人格时那条路试 —— 在这把 key 上找日常档、真发一条。
   // 下面的 Anthropic 探针只认 /v1/messages, 拿它测 OpenAI / 千问的 key 必红。
   // 没记厂家的老凭据按地址认, 地址空着按 key 长相认(认不出 = 网关, 照旧走 Anthropic 探针)
-  const table = require('./host').cfg.json('models/vendors') || { vendors: [] };
+  const table = require('./model-table').load();   // 出厂表 + 本机表逐格拼好的那张
   const modelTier = require('./model-tier');
+  const protocol = patch.protocol !== undefined ? String(patch.protocol || '') : ((saved && saved.protocol) || '');
   const vendor = (patch.vendor !== undefined ? patch.vendor : (saved && saved.vendor))
-    || (modelTier.vendorFor(table, { base_url: base, key }) || {}).id;
+    || (modelTier.vendorFor(table, { base_url: base, key, protocol }) || {}).id;
   if (vendor && vendor !== 'anthropic') {
-    const r = await modelTier.pickForTier({ table, access: { base_url: base, key, vendor }, tier: table.defaultTier || 'daily' });
+    // 出厂表里标了 manual 的厂家(豆包: 模型要用户逐个开通, 拿哪个真发都可能撞上没开通的):
+    // 清单那一跳就验 key —— 对的 key 回清单, 错的回 401/403, 不选模型也不真发
+    const v = table.vendors.find((x) => x.id === vendor);
+    if (v && v.manual) {
+      const l = await modelTier.listIds({ protocol: v.protocol, vendor: v, base_url: base || v.base_url, key }).catch(() => ({ ok: false, status: 0 }));
+      return l.ok ? { ok: true, detail: `key 有效, 列出 ${l.ids.length} 个模型` }
+        : { ok: false, reason: l.status === 401 || l.status === 403 ? 'auth' : 'list_failed' };
+    }
+    const r = await modelTier.pickForTier({ table, access: { base_url: base, key, vendor, protocol }, tier: table.defaultTier || 'daily' });
     // 整档试不通时, 原因取第一个候选的(多半全是同一个原因: key 没额度 / 没开通)
     return r.ok ? { ok: true, model: r.model, tier: r.tier }
       : { ok: false, reason: r.reason === 'tier_unusable' && r.tried[0] ? r.tried[0].reason : r.reason };
@@ -219,8 +231,17 @@ async function test({ settings, secrets }, patch = {}) {
   // 🔴 两种形状都拿不到清单也**不判红**: 这一跳本来就证明不了 key(opencode / gptproto 实测
   //    拿现编的 `sk-fake-nonsense-123` 照样返 200 + 完整清单), 既然证明不了成功, 就更不配
   //    拿来证明失败。端点有没有 models 是各家自己的事, 跟这把 key 有没有效无关。
-  if (!model) return { ok: true, detail: '这个端点不给模型清单 —— 自动验不了, 发条消息看看通不通' };
-  return await probeMessages(base, key, model, rows.length);
+  const a = model ? await probeMessages(base, key, model, rows.length) : { ok: true, detail: '这个端点不给模型清单 —— 自动验不了, 发条消息看看通不通' };
+  if (a.sent) return { ...a, protocol: 'anthropic' };
+  // 没定协议、且 Anthropic 那个口压根不存在(404/405): 再按 OpenAI 兼容试(地址不带 /v1 的顺带试加上), 通了把协议和地址带回去存。
+  // 拉不到清单 / 超时 / 5xx 不算 —— 可能只是这一下慢, 不能因此把一个 Anthropic 网关改成别的协议
+  if (protocol || !a.ok || !model || ![404, 405].includes(a.status)) return a;
+  for (const b of /\/v1$/.test(base) ? [base] : [base, `${base}/v1`]) {
+    const c = await modelTier.pickForTier({ table, access: { base_url: b, key, protocol: 'compat' }, tier: table.defaultTier || 'daily' }).catch(() => ({ ok: false }));
+    console.log(`[cred] Anthropic 口 ${a.status} · 探 OpenAI 兼容 ${b} → ${c.ok ? c.model : c.reason} (试 ${(c.tried || []).map((x) => `${x.id}:${x.ok ? 'ok' : `${x.status} ${x.detail || x.reason}`}`).join(' | ') || '无'})`);
+    if (c.ok) return { ok: true, model: c.model, protocol: 'compat', base_url: b };
+  }
+  return a;
 }
 
 // —— 跑一次 `claude setup-token`, 把结果自己收好 ——

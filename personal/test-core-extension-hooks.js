@@ -57,10 +57,10 @@ ok('宿主覆盖成纯字符串时, 调用点原样交给 SDK(不再包 preset)'
 ok('_toolsOption 默认读 config 名单(个人版也不再吃 CLI 全量), 宿主可覆盖', () => {
   const d = stub()._toolsOption();
   assert.ok(Array.isArray(d), '默认应是 config/main/builtin_tools 那份名单');
-  for (const t of ['ToolSearch', 'Read', 'Bash', 'Agent', 'Skill']) {
+  for (const t of ['ToolSearch', 'Read', 'Bash', 'Agent', 'Workflow', 'Skill']) {
     assert.ok(d.includes(t), `名单里少了在用的 ${t}`);
   }
-  assert.ok(!d.includes('Workflow'), '用不上的内置工具不该留在名单里(schema 每轮照发)');
+  assert.ok(!d.includes('CronCreate'), '用不上的内置工具不该留在名单里(schema 每轮照发)');
   const b = stub({ _toolsOption: () => ['Read'] });
   assert.deepStrictEqual(b._toolsOption(), ['Read']);
 });

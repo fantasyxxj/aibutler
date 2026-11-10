@@ -40,10 +40,27 @@
     <div style="color:var(--muted);font-size:12px;" data-i18n="sys_qs_hint">打开后, 主界面人格名字右边会出现「key · 模型 ▾」, 点开就能给当前人格换 key 和模型。</div>
   </div>
 
-  <!-- 使用文档: 在系统浏览器里打开文档站(window-guard.attachExternalLinks 接住 target=_blank) -->
+  <!-- 工具调用条: 默认不在对话里画, 状态栏照常显示正在跑的工具(作者 11-09) -->
+  <div class="m-form" data-group="general">
+    <label data-i18n="sys_tools">工具调用</label>
+    <div class="m-checkline"><input type="checkbox" id="tool-rows"/><label for="tool-rows" data-i18n="sys_tools_enable">在对话里显示</label></div>
+    <div></div>
+    <div style="color:var(--muted);font-size:12px;" data-i18n="sys_tools_hint">打开后, 人格每调用一次工具, 对话里就多一行「✔ 🔧 工具名 · 完成」。关着时只在底部状态栏显示正在做什么。</div>
+  </div>
+
+  <!-- 启动小贴士(renderer/tips.js): 打开时弹不弹 + 当场看一条 -->
+  <div class="m-form" data-group="general">
+    <label data-i18n="sys_tips">小贴士</label>
+    <div class="m-checkline"><input type="checkbox" id="tips-on"/><label for="tips-on" data-i18n="sys_tips_enable">打开时显示</label>
+      <button type="button" class="m-btn" id="tips-now" style="margin-left:12px" data-i18n="sys_tips_now">现在看一条</button></div>
+    <div></div>
+    <div style="color:var(--muted);font-size:12px;" data-i18n="sys_tips_hint">每次打开随机一条用法提示。</div>
+  </div>
+
+  <!-- 使用文档: 在系统浏览器里打开文档站(window-guard.attachExternalLinks 接住 target=_blank); href 由 settings-ui.js docsHref 按版本和语言改写 -->
   <div class="m-form" data-group="general">
     <label data-i18n="sys_docs">使用文档</label>
-    <div><a href="https://fantasyxxj.github.io/aibutler/docs/" target="_blank" style="color:var(--brand-hi)" data-i18n="sys_docs_link">打开使用文档 ↗</a></div>
+    <div><a id="docs-link" href="https://fantasyxxj.github.io/aibutler/docs/" target="_blank" style="color:var(--brand-hi)" data-i18n="sys_docs_link">打开使用文档 ↗</a></div>
     <div></div>
     <div style="color:var(--muted);font-size:12px;" data-i18n="sys_docs_hint">安装、接模型、配通道都在里面。不想翻文档, 直接问人格也行。</div>
   </div>
@@ -96,6 +113,20 @@
       <span style="flex:1"></span>
       <button id="st-clear" class="m-btn" data-i18n="sys_subtok_clear">清除</button>
       <button id="st-get" class="m-btn primary" data-i18n="sys_subtok_get">获取 / 更换</button>
+    </div>
+  </div>
+
+  <!-- 数据位置(personal/data-move.js): 显示路径 · 打开 · 搬到别处(重启后整份复制成功才切换) -->
+  <div class="m-form" data-group="adv">
+    <label data-i18n="sys_datadir">数据位置</label><div style="color:var(--muted);font-size:12px;" data-i18n="sys_datadir_hint"></div>
+    <div></div>
+    <div>
+      <div id="dd-path" style="font:12.5px ui-monospace,Menlo,monospace;word-break:break-all;margin-bottom:6px;"></div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <button id="dd-open" class="m-btn" data-i18n="sys_datadir_open">打开文件夹</button>
+        <button id="dd-move" class="m-btn" data-i18n="sys_datadir_move">搬到别处…</button>
+        <span id="dd-state" style="font-size:12px;color:var(--muted)"></span>
+      </div>
     </div>
   </div>
 
@@ -152,5 +183,6 @@
   <script src="settings-tabs.js"></script>
   <script src="search-ui.js"></script>
   <script src="cc-sdk-ui.js"></script>
+  <script src="data-dir-ui.js"></script>
 </body>
 </html>

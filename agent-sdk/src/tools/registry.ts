@@ -11,6 +11,7 @@
 
 import { jsonSchema } from 'ai';
 import type { McpConnection } from '../mcp/connect.js';
+import type { BgStart } from '../background.js';
 
 export interface ToolContent { type: string; text?: string; data?: string; mimeType?: string }
 export interface ToolOutput { content: ToolContent[]; isError?: boolean }
@@ -20,14 +21,35 @@ export interface ToolContext {
   env: Record<string, string | undefined>;
   // 让工具借当前会话的模型做一次无工具的补全(WebFetch 读长页面用)
   complete?: (system: string, user: string) => Promise<string>;
-  // 起一个子代理把 prompt 做完, 拿回它的最终答复(Agent 工具用)
-  runSubagent?: (prompt: string, o: { type?: string }) => Promise<{ text: string; isError: boolean }>;
+  // 起一个子代理把 prompt 做完, 拿回它的最终答复(Agent / Workflow 工具用)
+  runSubagent?: (prompt: string, o: SubagentOpts) => Promise<SubagentResult>;
+  // 挂一个后台任务, 立即拿回任务号; 收尾时引擎自己通知主代理(见 background.ts)。子代理里没有
+  startBackground?: (o: BgStart) => string;
+  stopBackground?: (id: string) => boolean;
+  // 给一个留着的子代理(Agent 起的, 按 agentId 或 name 找)发消息: 正在跑就并进它下一步, 跑完了就接着上下文在后台再跑一轮
+  sendToAgent?: (to: string, message: string) => { status: 'queued' | 'resumed' | 'missing'; taskId?: string; agentId?: string };
+  sessionId?: string;
+  toolUseId?: string;
 }
+
+export interface SubagentOpts {
+  type?: string;
+  model?: string;
+  schema?: Record<string, any>;   // 给了就要子代理按这个 JSON Schema 交结构化结果
+  signal?: AbortSignal;           // 不给就跟这一轮走
+  onProgress?: (toolName: string) => void;
+  cwd?: string;                   // 子代理换个工作目录(isolation: worktree)
+  agentId?: string;               // 给了就把这个子代理留着, 以后 SendMessage 能按它(或 name)续聊
+  name?: string;
+}
+export interface SubagentResult { text: string; isError: boolean; structured?: any }
 
 export interface BuiltinTool {
   name: string;
   description: string;
   inputSchema: Record<string, any>;   // JSON Schema
+  // 冷门工具: 开了 ToolSearch 时只报名字, 用到才拉 schema(和 MCP 工具一样)
+  deferred?: boolean;
   run(input: any, ctx: ToolContext): Promise<ToolOutput>;
   // 按会话定制(例如按 cwd 现找技能写进描述); 返回 null = 这个会话不开这个工具
   prepare?(opts: any): BuiltinTool | null;
@@ -40,10 +62,14 @@ export interface ToolEntry {
   kind: 'builtin' | 'mcp';
   deferred: boolean;
   searchHint?: string;
+  readOnly?: boolean;
   run(input: any, ctx: ToolContext): Promise<ToolOutput>;
 }
 
 export const TOOL_SEARCH = 'ToolSearch';
+
+// 只读的内置工具: 同一步里相邻的可以一起跑(和 Claude Code 一样)。Agent 也算 —— 子代理之间互不相干。
+const READ_ONLY_BUILTINS = new Set(['Read', 'Glob', 'Grep', 'WebFetch', 'WebSearch', 'Agent', TOOL_SEARCH]);
 
 export class ToolRegistry {
   readonly entries: ToolEntry[] = [];
@@ -66,7 +92,7 @@ export class ToolRegistry {
     for (const n of order) {
       const b = pool.get(n);
       if (!b || !builtinVisible(n)) continue;
-      this.add({ name: b.name, description: b.description, inputSchema: b.inputSchema, kind: 'builtin', deferred: false, run: (i, c) => b.run(i, c) });
+      this.add({ name: b.name, description: b.description, inputSchema: b.inputSchema, kind: 'builtin', deferred: this.deferralOn && !!b.deferred, run: (i, c) => b.run(i, c) });
     }
     if (this.deferralOn) this.add(this.toolSearchEntry());
 
@@ -76,7 +102,7 @@ export class ToolRegistry {
       if (!visible(t.fullName)) continue;
       this.add({
         name: t.fullName, description: t.description, inputSchema: t.inputSchema, kind: 'mcp',
-        deferred: this.deferralOn && !t.alwaysLoad, searchHint: t.searchHint,
+        deferred: this.deferralOn && !t.alwaysLoad, searchHint: t.searchHint, readOnly: t.readOnly,
         run: (input, ctx) => c.call(t.name, input || {}, ctx.signal),
       });
     }
@@ -89,6 +115,11 @@ export class ToolRegistry {
   }
 
   get(name: string): ToolEntry | undefined { return this.byName.get(name); }
+
+  isReadOnly(name: string): boolean {
+    const e = this.byName.get(name);
+    return !!e && (e.kind === 'builtin' ? READ_ONLY_BUILTINS.has(e.name) : !!e.readOnly);
+  }
 
   isLoaded(e: ToolEntry): boolean { return !e.deferred || this.loaded.has(e.name); }
 

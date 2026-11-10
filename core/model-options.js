@@ -90,7 +90,7 @@ async function listModelOptions({ builtin = [], access = null } = {}) {
   // 清单里直接给带前缀的 id, 用户从下拉里选的就是能跑的那个; 显示仍是原名(11-07: 原先选了裸名会走错协议)。
   // 地址空着的 OpenAI 官方 key 也得去 OpenAI 拉, 不能拿它去问 api.anthropic.com。
   const { vendorFor, personaModel } = require('./model-tier');
-  const v = vendorFor(require('./config/models/vendors.json'), access);
+  const v = vendorFor(require('./model-table').load(), access);
   const foreign = !!(v && v.protocol && v.protocol !== 'anthropic');
   const listAccess = foreign && !access.base_url ? { ...access, base_url: v.list_base || v.base_url } : access;
   const from = (listAccess.base_url || 'https://api.anthropic.com').replace(/^https?:\/\//, '').replace(/\/+$/, '');
@@ -100,6 +100,11 @@ async function listModelOptions({ builtin = [], access = null } = {}) {
 
   // API/网关拉不到 → 只剩「跟随默认」和手输口子。拿官方名去充数, 在网关上一个都打不通, 是误导。
   if (!live || !live.length) return { options: widget, source: 'fallback', from };
+  // 认得出的厂家按出厂表 exclude 剔掉不能聊天的(图像 · 视频 · 向量 · 语音 …), 跟按档挑型号同一份名单
+  if (v && Array.isArray(v.exclude) && v.exclude.length) {
+    const ex = v.exclude.map((r) => new RegExp(r, 'i'));
+    live = live.filter((o) => !ex.some((r) => r.test(o.id)));
+  }
   if (foreign) live = live.map((o) => ({ ...o, id: personaModel(v.protocol, o.id) }));
   const options = mergeOptions(widget, live);
   console.log(`[models] ${from} 给了 ${live.length} 个, 下拉共 ${options.length} 条`);

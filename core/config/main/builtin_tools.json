@@ -9,5 +9,9 @@
   "WebSearch",
   "WebFetch",
   "Agent",
+  "Workflow",
+  "TaskStop",
+  "SendMessage",
+  "Monitor",
   "Skill"
 ]

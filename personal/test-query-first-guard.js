@@ -37,6 +37,8 @@ g.resetTurn(); kind = 'user';
 const r = g.decide(BIZ) || '';
 ok(/memory_query/.test(r) && /same call again/.test(r), '理由里写了先干什么、干完怎么继续');
 ok(/not from the person/.test(r), '自报家门: 不是对方说的话');
+ok(r.includes(BIZ) && !r.includes('{tool}'), '理由点名被打回的那个工具');
+ok(/not over/.test(r) && /same turn/.test(r), '🔴 理由写明回合没完、查完在同一回合接着做(11-08 haiku 被打回就收工)');
 
 console.log('\n[5] hook 形状');
 (async () => {
