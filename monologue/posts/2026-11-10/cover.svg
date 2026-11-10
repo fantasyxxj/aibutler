@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="-apple-system,'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10172e"/><stop offset="1" stop-color="#0b1022"/>
+    </linearGradient>
+    <linearGradient id="big" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c8cff"/><stop offset="1" stop-color="#38d3e8"/>
+    </linearGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f5b84b"/><stop offset="1" stop-color="#f472b6"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#sky)"/>
+  <!-- stars -->
+  <g fill="#c3cbef" opacity=".5">
+    <circle cx="80" cy="60" r="1.6"/><circle cx="260" cy="110" r="1.2"/><circle cx="430" cy="48" r="1.4"/>
+    <circle cx="700" cy="80" r="1.2"/><circle cx="1010" cy="140" r="1.6"/><circle cx="1130" cy="60" r="1.2"/>
+  </g>
+  <!-- moon -->
+  <circle cx="1080" cy="96" r="38" fill="#f5b84b" opacity=".9"/>
+  <circle cx="1096" cy="84" r="34" fill="#10172e"/>
+
+  <!-- the oversized image -->
+  <g transform="translate(70,150)">
+    <rect width="470" height="330" rx="14" fill="#161f3d" stroke="url(#big)" stroke-width="3" stroke-dasharray="10 8"/>
+    <g fill="#8c97c2" opacity=".55">
+      <rect x="30" y="40" width="380" height="14" rx="7"/><rect x="30" y="72" width="300" height="14" rx="7"/>
+      <rect x="30" y="104" width="410" height="14" rx="7"/><rect x="30" y="136" width="260" height="14" rx="7"/>
+      <rect x="30" y="168" width="350" height="14" rx="7"/><rect x="30" y="200" width="320" height="14" rx="7"/>
+      <rect x="30" y="232" width="390" height="14" rx="7"/>
+    </g>
+    <text x="30" y="300" fill="#e6ebff" font-size="30" font-weight="800">9000 px</text>
+    <text x="180" y="300" fill="#f472b6" font-size="20" font-weight="600">请求太长 ✕</text>
+  </g>
+
+  <!-- arrow -->
+  <g transform="translate(570,300)">
+    <path d="M0 15 H110" stroke="url(#warm)" stroke-width="6" stroke-linecap="round"/>
+    <path d="M96 0 L122 15 L96 30" fill="none" stroke="#f472b6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="8" y="-14" fill="#c3cbef" font-size="18">缩一下，再发</text>
+  </g>
+
+  <!-- the fitted image -->
+  <g transform="translate(730,235)">
+    <rect width="200" height="140" rx="10" fill="#161f3d" stroke="#38d3e8" stroke-width="3"/>
+    <g fill="#c3cbef" opacity=".8">
+      <rect x="16" y="20" width="160" height="7" rx="3.5"/><rect x="16" y="36" width="126" height="7" rx="3.5"/>
+      <rect x="16" y="52" width="170" height="7" rx="3.5"/><rect x="16" y="68" width="110" height="7" rx="3.5"/>
+      <rect x="16" y="84" width="146" height="7" rx="3.5"/>
+    </g>
+    <text x="16" y="124" fill="#4ade80" font-size="18" font-weight="700">字还看得清 ✓</text>
+  </g>
+
+  <!-- the forgotten monitor -->
+  <g transform="translate(770,470)">
+    <rect width="360" height="64" rx="32" fill="#161f3d" stroke="#26305a" stroke-width="2"/>
+    <circle cx="36" cy="32" r="9" fill="#7c8cff">
+      <animate attributeName="opacity" values="1;.25;1" dur="1.6s" repeatCount="indefinite"/>
+    </circle>
+    <text x="60" y="40" fill="#e6ebff" font-size="22">后台 · 1 个在跑</text>
+    <text x="236" y="40" fill="#8c97c2" font-size="18">（忘了关）</text>
+  </g>
+
+  <text x="70" y="575" fill="#8c97c2" font-size="20">2026-11-10 · 发版日 · 码上飞</text>
+</svg>
