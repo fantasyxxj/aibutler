@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>命题级图记忆 —— 面向长期运行智能体的记忆表征、检索与治理</title>
+<style>
+  :root{
+    --ink:#1a1a1a;
+    --ink-soft:#4a4a4a;
+    --ink-faint:#767676;
+    --accent:#1c3f6e;
+    --accent-soft:#e8eef6;
+    --rule:#d8d8d8;
+    --rule-soft:#ececec;
+    --bg:#fdfdfc;
+    --code-bg:#f6f6f4;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Songti SC","Source Han Serif SC","Noto Serif CJK SC",Georgia,"Times New Roman",serif;
+    font-size:16.5px; line-height:1.95;
+    text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:790px; margin:0 auto; padding:72px 28px 120px}
+
+  /* ---------- 题头 ---------- */
+  .masthead{border-bottom:2px solid var(--ink); padding-bottom:26px; margin-bottom:44px}
+  .kicker{
+    font-family:-apple-system,"PingFang SC",sans-serif;
+    font-size:12px; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--ink-faint); margin-bottom:20px;
+  }
+  h1{
+    font-size:31px; line-height:1.42; margin:0 0 14px; font-weight:600; letter-spacing:-.01em;
+  }
+  .subtitle{font-size:17px; color:var(--ink-soft); line-height:1.7; margin:0 0 22px}
+  .meta{
+    font-family:-apple-system,"PingFang SC",sans-serif;
+    font-size:12.5px; color:var(--ink-faint); line-height:1.9;
+  }
+  .meta span+span::before{content:"·"; margin:0 9px; color:var(--rule)}
+
+  /* ---------- 摘要 ---------- */
+  .abstract{
+    background:#fff; border:1px solid var(--rule); border-left:3px solid var(--accent);
+    padding:26px 30px; margin:0 0 20px; font-size:15.5px; line-height:1.9;
+  }
+  .abstract h2{
+    font-family:-apple-system,"PingFang SC",sans-serif;
+    font-size:12px; letter-spacing:.2em; color:var(--accent);
+    margin:0 0 14px; font-weight:600;
+  }
+  .abstract p{margin:0 0 12px}
+  .abstract p:last-child{margin-bottom:0}
+  .keywords{
+    font-size:13.5px; color:var(--ink-faint); margin:0 0 52px; padding-left:4px;
+    font-family:-apple-system,"PingFang SC",sans-serif;
+  }
+  .keywords b{color:var(--ink-soft); font-weight:600}
+
+  /* ---------- 目录 ---------- */
+  .toc{
+    border:1px solid var(--rule); background:#fff; padding:24px 30px; margin:0 0 56px;
+    font-family:-apple-system,"PingFang SC",sans-serif; font-size:14px; line-height:2.1;
+  }
+  .toc h2{font-size:12px; letter-spacing:.2em; color:var(--accent); margin:0 0 12px; font-weight:600}
+  .toc ol{margin:0; padding-left:20px; color:var(--ink-soft)}
+  .toc a{color:var(--ink-soft); text-decoration:none; border-bottom:1px solid transparent}
+  .toc a:hover{color:var(--accent); border-bottom-color:var(--accent)}
+
+  /* ---------- 章节 ---------- */
+  h2.sec{
+    font-size:21px; margin:64px 0 8px; font-weight:600; line-height:1.5;
+    padding-top:20px; border-top:1px solid var(--rule);
+  }
+  h2.sec .num{color:var(--accent); font-family:Georgia,serif; margin-right:12px}
+  h3{font-size:17px; margin:38px 0 6px; font-weight:600; line-height:1.6}
+  h3 .num{color:var(--ink-faint); font-family:Georgia,serif; margin-right:10px; font-weight:400}
+  h4{font-size:15.5px; margin:26px 0 4px; font-weight:600; color:var(--ink-soft)}
+  p{margin:0 0 17px; text-align:justify}
+  em{font-style:normal; font-weight:600}
+  strong{font-weight:600}
+  .lead{font-size:17px; color:var(--ink-soft)}
+
+  ul,ol{margin:0 0 17px; padding-left:26px}
+  li{margin-bottom:9px; text-align:justify}
+  li::marker{color:var(--ink-faint)}
+
+  /* ---------- 引用与要点 ---------- */
+  blockquote{
+    margin:24px 0; padding:2px 0 2px 22px; border-left:3px solid var(--accent-soft);
+    color:var(--ink-soft); font-size:16px;
+  }
+  blockquote p:last-child{margin-bottom:0}
+  .claim{
+    background:var(--accent-soft); border:1px solid #cfdcec;
+    padding:20px 24px; margin:26px 0; font-size:16px; line-height:1.85;
+  }
+  .claim .tag{
+    display:block; font-family:-apple-system,"PingFang SC",sans-serif;
+    font-size:11px; letter-spacing:.18em; color:var(--accent); margin-bottom:9px; font-weight:600;
+  }
+  .claim p:last-child{margin-bottom:0}
+
+  /* ---------- 公式 ---------- */
+  .formula{
+    background:var(--code-bg); border:1px solid var(--rule-soft);
+    padding:20px 24px; margin:24px 0; overflow-x:auto;
+    font-family:"SF Mono",Menlo,Consolas,monospace; font-size:14px; line-height:2;
+    color:var(--ink); white-space:pre-wrap;
+  }
+  .formula .note{
+    display:block; margin-top:12px; padding-top:12px; border-top:1px dashed var(--rule);
+    font-family:-apple-system,"PingFang SC",sans-serif; font-size:12.5px;
+    color:var(--ink-faint); line-height:1.85; white-space:normal;
+  }
+  code{
+    font-family:"SF Mono",Menlo,Consolas,monospace; font-size:.88em;
+    background:var(--code-bg); padding:1px 5px; border-radius:2px; color:#0f3d2e;
+  }
+
+  /* ---------- 表格 ---------- */
+  table{
+    width:100%; border-collapse:collapse; margin:26px 0; font-size:14.5px;
+    font-family:-apple-system,"PingFang SC",sans-serif; line-height:1.7;
+  }
+  caption{
+    caption-side:top; text-align:left; font-size:12.5px; color:var(--ink-faint);
+    margin-bottom:9px; font-family:-apple-system,"PingFang SC",sans-serif;
+  }
+  th{
+    text-align:left; font-weight:600; font-size:13px; color:var(--accent);
+    border-bottom:1.5px solid var(--accent); padding:9px 12px 9px 0; vertical-align:bottom;
+  }
+  td{border-bottom:1px solid var(--rule-soft); padding:11px 12px 11px 0; vertical-align:top}
+  tr:last-child td{border-bottom:1px solid var(--rule)}
+  td:first-child,th:first-child{padding-left:2px}
+
+  /* ---------- 脚注引用 ---------- */
+  sup.ref{
+    font-size:11px; color:var(--accent); vertical-align:super; line-height:0;
+    font-family:Georgia,serif; padding:0 1px;
+  }
+  sup.ref a{color:inherit; text-decoration:none}
+  sup.ref a:hover{text-decoration:underline}
+
+  /* ---------- 参考文献 ---------- */
+  .bib{font-size:14px; line-height:1.85; font-family:-apple-system,"PingFang SC",sans-serif}
+  .bib ol{padding-left:30px}
+  .bib li{margin-bottom:12px; color:var(--ink-soft); text-align:left}
+  .bib .en{font-style:italic}
+
+  /* ---------- 杂项 ---------- */
+  .divider{border:0; border-top:1px solid var(--rule); margin:56px 0}
+  .footnote{
+    font-size:13.5px; color:var(--ink-faint); line-height:1.85;
+    border-top:1px solid var(--rule-soft); padding-top:14px; margin-top:30px;
+    font-family:-apple-system,"PingFang SC",sans-serif;
+  }
+  .colophon{
+    margin-top:80px; padding-top:26px; border-top:2px solid var(--ink);
+    font-size:13px; color:var(--ink-faint); line-height:1.9;
+    font-family:-apple-system,"PingFang SC",sans-serif;
+  }
+  .fignum{
+    font-family:-apple-system,"PingFang SC",sans-serif; font-size:12.5px;
+    color:var(--ink-faint); text-align:center; margin:-8px 0 26px;
+  }
+
+  @media (max-width:640px){
+    body{font-size:16px; line-height:1.9}
+    .wrap{padding:44px 20px 80px}
+    h1{font-size:25px}
+    h2.sec{font-size:19px}
+    table{font-size:13.5px}
+    td,th{padding-right:8px}
+  }
+  @media print{
+    body{background:#fff; font-size:11pt}
+    .wrap{max-width:100%; padding:0}
+    h2.sec{page-break-after:avoid}
+    table,.formula,.claim{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="masthead">
+  <div class="kicker">Technical Report · Theory Foundation</div>
+  <h1>命题级图记忆<br>—— 面向长期运行智能体的记忆表征、检索与治理</h1>
+  <p class="subtitle">Proposition-level Graph Memory: Representation, Retrieval and Governance for Long-running Agents</p>
+  <div class="meta">
+    <span>理论基础报告 v1.0 · 公开版</span><span>2026 年 8 月</span><span>约 11,000 字</span>
+  </div>
+</header>
+
+<section class="abstract">
+  <h2>摘 要</h2>
+  <p>当前面向智能体的记忆系统，绝大多数把问题定义为<strong>存储与召回</strong>：如何把对话与文档切分、向量化、分层存放，并在需要时准确取回。本文认为这一定义遗漏了长期运行场景中真正的困难。当一个智能体连续运行数月，写入的不再是彼此独立的片段，而是<strong>会互相矛盾、会随时间失效、会被后续事实推翻</strong>的结论集合。此时系统的质量不再由召回率决定，而由三个此前很少被形式化的问题决定：两条记忆冲突时依据什么裁决；被推翻的结论如何处置才不损失可追溯性；以及——什么样的记忆才应当被遗忘。</p>
+  <p>本文提出并论证一套以<strong>命题</strong>为最小单元、以<strong>扩散激活</strong>为召回机制、以<strong>可撤销仲裁</strong>为治理内核的记忆模型。四项主张构成其理论骨架：(1)<strong>存—再—判</strong>，写入端不设价值过滤器，代价不对称使"先存后判"严格优于"判后再存"；(2)<strong>低提取强度不等于低价值</strong>，据 Bjork 新失用理论区分存储强度与提取强度，从而论证遗忘的唯一合法判据是命题被证伪，而非久未使用；(3)<strong>冲突四分类与事实优先仲裁</strong>，多数所谓冲突实为作用域差异，真正的二选一是少数，且裁决必须以可核验的客观事实为最高依据；(4)<strong>失效不删除</strong>，被推翻的结论降权保留并记录推翻关系，使"当时为何如此判断"始终可追溯。</p>
+  <p>本文同时给出该模型的完整形式化定义（强度函数、扩散规则、枢纽抑制、剪枝阈值）与一个长期运行实例的观察数据，并明确交代模型的边界：它<strong>刻意不做</strong>形式化本体与逻辑推理——本文将论证在需要审计的场景中，这不是能力缺失，而是必要的路线选择。</p>
+</section>
+<p class="keywords"><b>关键词：</b>智能体记忆 · 命题级索引 · 扩散激活 · 组织记忆 · 记忆治理 · 可撤销仲裁 · 知识连续性 · 数据血缘</p>
+
+<nav class="toc">
+  <h2>目 次</h2>
+  <ol>
+    <li><a href="#s1">问题的重新定义：记忆不是更大的上下文</a></li>
+    <li><a href="#s2">相关工作与本文的位置</a></li>
+    <li><a href="#s3">表征：为什么最小单元必须是命题</a></li>
+    <li><a href="#s4">检索：扩散激活及其工程约束</a></li>
+    <li><a href="#s5">强度：遗忘曲线、提取练习与需求概率</a></li>
+    <li><a href="#s6">沉淀动力学：存—再—判的代价不对称论证</a></li>
+    <li><a href="#s7">遗忘理论：为什么不能按热度淘汰</a></li>
+    <li><a href="#s8">治理：冲突的分类学与可撤销仲裁</a></li>
+    <li><a href="#s9">上下文与存储的分离</a></li>
+    <li><a href="#s10">长期运行观察</a></li>
+    <li><a href="#s11">边界、局限与未决问题</a></li>
+    <li><a href="#s12">结论</a></li>
+  </ol>
+</nav>
+
+<!-- ================= 1 ================= -->
+<h2 class="sec" id="s1"><span class="num">1</span>问题的重新定义：记忆不是更大的上下文</h2>
+
+<h3><span class="num">1.1</span>三个被反复混淆的概念</h3>
+<p>在关于"AI 记忆"的讨论中，三种性质完全不同的东西经常共用同一个词，这是许多设计分歧的真正来源。</p>
+
+<table>
+  <caption>表 1　三个层面的区分</caption>
+  <thead>
+    <tr><th style="width:22%">层面</th><th style="width:30%">承载物</th><th>失效方式</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>上下文窗口</strong></td>
+      <td>本次推理可见的 token 序列</td>
+      <td>会话结束即全部消失；扩大窗口只是推迟消失</td>
+    </tr>
+    <tr>
+      <td><strong>检索增强</strong></td>
+      <td>外部语料的向量索引</td>
+      <td>不消失，但<strong>不演化</strong>——文档写下时是什么，一年后仍是什么</td>
+    </tr>
+    <tr>
+      <td><strong>记忆</strong></td>
+      <td>系统自己得出、并会自己修正的结论</td>
+      <td>会互相矛盾、会过期、会被推翻——<strong>需要治理</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>把上下文窗口做大，解决的是第一层；把语料切得更细、索引做得更好，解决的是第二层。检索增强的原始工作<sup class="ref"><a href="#r1">[1]</a></sup>把外部索引称为<em>非参数记忆</em>（non-parametric memory）——这一技术路线从命名起就与"记忆"相关，本文并非借用新词。但需要指出的是，非参数记忆解决的是<strong>知识的可及性</strong>，而不是<strong>结论的生命周期</strong>。</p>
+
+<p>第三层才是长期运行场景的实际困难所在。一个连续工作数月的智能体，其记忆库中不断累积的是它自己得出的判断：某个做法为什么行不通、某个约定的适用边界在哪里、某项决定当初基于什么前提。这些条目具有三个语料所没有的性质：<strong>它们彼此可能矛盾；它们会因外部世界变化而失效；它们被推翻时，"曾经如此认为"本身仍是有价值的信息。</strong></p>
+
+<h3><span class="num">1.2</span>失败模式：记忆系统特有的两类错误</h3>
+<p>检索系统的错误是召回错了或没召回。记忆系统在此之外还有两类特有错误，且都不会在检索指标上体现：</p>
+<ul>
+  <li><strong>陈旧结论的静默生效。</strong>一条已被现实推翻的记忆仍被正常召回、正常采信。系统的召回率是满分，行为却是错的。检索质量指标对此完全不敏感。</li>
+  <li><strong>正确记忆的静默丢失。</strong>写入时被判为"不重要"而未记录的内容，之后不会以任何形式报错——系统<strong>不知道自己丢过什么</strong>。这类损失是不可观测的，因而也永远不会进入任何评测。</li>
+</ul>
+<p>本文的全部设计取向，可以概括为对这两类不可观测错误的系统性防御。</p>
+
+<div class="claim">
+  <span class="tag">本文主张</span>
+  <p>记忆系统的核心难点不在存储与召回，而在<strong>记忆之间的关系随时间演化时的治理</strong>：冲突如何裁决、失效如何处置、遗忘依据什么。检索质量是入场券，治理机制才是长期运行下的分水岭。</p>
+</div>
+
+<!-- ================= 2 ================= -->
+<h2 class="sec" id="s2"><span class="num">2</span>相关工作与本文的位置</h2>
+
+<h3><span class="num">2.1</span>图结构检索：两条不同的路线</h3>
+<p>在图上做检索增强的工作中，有两条常被混为一谈、实则目标不同的路线。</p>
+<p><strong>其一是面向全局摘要的路线。</strong>该路线<sup class="ref"><a href="#r2">[2]</a></sup>要解决的是"这批语料整体在讲什么"这类查询，手段是先做社区检测、再为每个社区<strong>预生成摘要</strong>，索引期成本很高，回答的是全局性问题。</p>
+<p><strong>其二是面向多跳召回的路线。</strong>该路线<sup class="ref"><a href="#r3">[3]</a></sup>受海马索引理论启发，在<strong>无模式</strong>（schemaless）图上以查询中的概念为种子运行个性化 PageRank，一步完成跨文档的多跳联想召回，索引期成本低。本文的召回机制属于这一路线，但如 §4 所述，采用的是更早的扩散激活形式而非 PageRank。</p>
+
+<h3><span class="num">2.2</span>记忆系统的工程化路线</h3>
+<p>近年出现的"记忆操作系统"类工作，把记忆的生产、组织、分层存储、调度、演化与治理组织为完整生命周期，并提供云端、私有化与端侧的多形态交付。这类工作的贡献主要在<strong>工程分层与调度</strong>：让记忆按场景与时机被合理地调入调出，从而同时改善准确率与 token 成本。</p>
+<p>另有以<strong>时序知识图</strong>为核心的智能体记忆工作，其重要贡献是引入事实的有效期区间，使"这条结论在哪段时间内为真"成为可查询的一等属性，并对被取代的事实采取<strong>标注而非删除</strong>的处理方式。本文 §8.3 的失效处置与之同源。</p>
+
+<h3><span class="num">2.3</span>本文的位置</h3>
+<p>上述工作大多把治理作为生命周期中的<strong>一格</strong>加以罗列（通常表现为权限、隔离、审计三项，以及一个"冲突处理准确率"的整体指标），但较少展开<strong>裁决依据本身</strong>：两条记忆冲突时，凭什么判定谁胜？判错了能否撤回？什么样的信号有资格作为裁决依据，什么样的没有？</p>
+<p>本文的贡献正在此处。§3–§5 描述表征与检索，是与既有工作共享的基础；§6–§8 描述沉淀、遗忘与仲裁，是本文的主要主张所在。</p>
+
+<!-- ================= 3 ================= -->
+<h2 class="sec" id="s3"><span class="num">3</span>表征：为什么最小单元必须是命题</h2>
+
+<h3><span class="num">3.1</span>命题的三条判据</h3>
+<p>本模型中，记忆的最小单元不是文档、不是段落、也不是实体，而是<strong>命题</strong>。这一选择有直接的文献依据：面向检索的密集索引研究<sup class="ref"><a href="#r4">[4]</a></sup>将命题定义为"文本中的原子表达，每个封装一个独立的事实性内容，以简洁、<em>自足</em>的自然语言形式呈现"，并给出三条判据：</p>
+<ol>
+  <li><strong>独立意义单元</strong>——本身即构成一个完整判断；</li>
+  <li><strong>最小不可再分</strong>——再拆分则意义受损；</li>
+  <li><strong>上下文自足</strong>——脱离原文语境仍然成立。</li>
+</ol>
+<p>第三条是关键。它意味着一条记忆被召回时，<strong>不需要连带召回它的原始语境</strong>就能被正确使用。这直接决定了系统能否在数月之后仍然安全地复用早期结论——若一条记忆的含义依赖于当初的会话上下文，而那段上下文早已不存在，则该记忆在被召回的同时就已经失真。</p>
+
+<h3><span class="num">3.2</span>与实体级知识图谱的分野</h3>
+<p>命题级的选择带来一个必须正面交代的结构性差异。传统知识图谱以<strong>实体</strong>为节点，其技术框架<sup class="ref"><a href="#r10">[10]</a></sup>包含数据层与模式层、知识抽取、知识融合、知识存储检索与<strong>知识推理</strong>等环节，通常需要先由领域专家定义本体（类层级、定义域与值域、公理），再做实体对齐，方能支持逻辑推理。</p>
+<p>本模型的节点是<strong>结论级命题而非实体</strong>，因而不做实体对齐；不设形式化本体，其类型系统仅是轻量模式层；在图上做的是<strong>多跳召回而非逻辑推理</strong>。按上述框架的严格定义，本模型不构成完整意义上的知识图谱，准确的表述是<strong>命题级知识图</strong>或<strong>无模式知识图</strong>。</p>
+
+<div class="claim">
+  <span class="tag">这是路线选择，不是能力省略</span>
+  <p><strong>不做本体，换来的是零启动成本与随业务自动生长。</strong>先定本体的路径要求在系统投用之前就穷举清楚知识的结构，而业务知识恰恰是边做边成形的；本体一旦建成即被冻结，业务口径一变就要返工——这是大量知识工程止步于试点的常见原因。</p>
+  <p><strong>不做推理，换来的是可审计性。</strong>本模型只召回图中<em>已显式存在</em>的结论，每一条都能追溯到写入时刻与出处，不会生成任何"由前提推导得出、但从未有人写下"的结论。在监管与审计场景中，<strong>不臆造是必要条件，而非能力缺陷</strong>。</p>
+</div>
+
+<h3><span class="num">3.3</span>类型系统与作用域</h3>
+<p>模式层仅有两项约定。其一是<strong>四类型</strong>，按知识的性质而非主题划分：</p>
+<table>
+  <thead>
+    <tr><th style="width:20%">类型</th><th style="width:34%">承载内容</th><th>时效特征</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>规范类</strong></td><td>应当如何行事的规则与经验</td><td>长期有效，随实践修订</td></tr>
+    <tr><td><strong>知识类</strong></td><td>客观事实、操作程序、外部约定</td><td>随外部世界变化而失效</td></tr>
+    <tr><td><strong>事务类</strong></td><td>进行中的事项、决定与其动机</td><td><strong>快速衰减</strong>，需显式复核</td></tr>
+    <tr><td><strong>主体类</strong></td><td>关于协作对象的画像与偏好</td><td>缓慢演化，很少被推翻</td></tr>
+  </tbody>
+</table>
+<p>其二是<strong>作用域</strong>（scope）：每条规范类命题可声明其适用场景。这一字段的作用在 §8.1 展开——它是消解伪冲突的主要手段，也是本模型不需要频繁做"二选一"裁决的结构性原因。</p>
+
+<!-- ================= 4 ================= -->
+<h2 class="sec" id="s4"><span class="num">4</span>检索：扩散激活及其工程约束</h2>
+
+<h3><span class="num">4.1</span>理论来源</h3>
+<p>本模型的召回机制不是新发明，其理论原型是语义处理中的<strong>扩散激活</strong><sup class="ref"><a href="#r5">[5]</a></sup>：概念在网络中被激活后，激活能量沿连接向邻近概念扩散，强度随距离衰减，并在多条路径汇聚处叠加。该理论提出于 1975 年，本模型所做的是给它补上两个工程约束——枢纽抑制与种子资格——使其在真实规模的图上不至于退化为全图泛滥。</p>
+
+<h3><span class="num">4.2</span>形式化</h3>
+<p>召回分两步：先做扁平匹配得到种子，再沿边扩散。</p>
+
+<div class="formula">
+<strong>第一步 · 扁平打分</strong>
+
+  combined(m) = α · rel(m) + β · hotness(m)          α ≫ β
+  若 status(m) = superseded ：combined(m) ×= ρ       0 &lt; ρ &lt; 1
+
+<span class="note">
+rel 为查询词在标题与摘要上的命中强度；hotness 为强度函数（见 §5）。<br>
+<strong>相关性权重必须显著高于强度权重。</strong>检索要回答的是"与此事相关的是哪些"，不是"最重要的是哪些"；强度在此仅作同分时的次序调节。若二者权重失衡，一条仅蹭到单个词的高重要性记忆会压过标题全中的普通记忆——这是实际发生过的退化。
+</span>
+</div>
+
+<div class="formula">
+<strong>第二步 · 扩散</strong>
+
+  种子集 F₀ = { m ∈ 扁平命中 | rel(m) ≥ 1 }
+  对每一跳 h = 1 … H （H 取较小的常数）：
+      add(n) = energy(m) × λ × hubDamp(deg(n))       m → n 为一条边
+      若 add(n) &lt; θ 则剪枝
+      act(n) += add(n)
+
+  其中   λ ∈ (0, 1)            每跳衰减系数
+         θ &gt; 0                剪枝阈值
+         hubDamp(d) = 1 / (1 + ln(1 + d))            枢纽抑制
+
+<span class="note">
+<strong>枢纽抑制</strong>：节点度数越高，其向外传递的单位能量越低。没有这一项时，少数被大量链接的中枢节点会把能量灌向全图，使召回退化为"总是返回那几个热门节点"。取对数形式而非线性，是为了抑制枢纽但不至于扼杀其正当的桥接作用。
+</span>
+</div>
+
+<h3><span class="num">4.3</span>种子资格：弱信号可以进结果，但不能当传播源</h3>
+<p>扩散机制中最不直观、却最关键的一条约束是：<strong>只有精确命中的节点有资格作为扩散种子。</strong>正文中偶然提及查询词的节点可以出现在结果里，但不得把能量传播给它的所有邻居。</p>
+<p>取消这一约束的后果在真实图上被实测过：允许弱命中作种子时，能量泛滥导致原有结果的前列中有<strong>相当大一部分</strong>被冲掉；而同一份数据在关闭扩散的扁平模式下，结果几乎不变。这说明退化不是来自打分改动本身，而是<strong>来自传播源资格的放宽</strong>——一个"顺嘴提过"的节点没有资格决定它的邻居是否值得被看见。</p>
+
+<!-- ================= 5 ================= -->
+<h2 class="sec" id="s5"><span class="num">5</span>强度：遗忘曲线、提取练习与需求概率</h2>
+
+<h3><span class="num">5.1</span>三项心理学基础</h3>
+<p>强度函数的三个组成部分，各自对应一项已确立的实验发现：</p>
+<ul>
+  <li><strong>遗忘随时间呈负指数衰减。</strong>记忆保持量随间隔时间迅速下降而后趋缓，其形态自 19 世纪的经典实验<sup class="ref"><a href="#r6">[6]</a></sup>起即被反复验证。故本模型的时间项取 <code>exp(−d/hl)</code> 形式。</li>
+  <li><strong>提取本身即强化。</strong>成功的提取比重复学习更能巩固长期保持<sup class="ref"><a href="#r7">[7]</a></sup>。故本模型设有显式的<em>强化</em>操作：当一条记忆被真正用于产生判断时，其使用计数增加、时间项重置。需强调的是<strong>触及不等于使用</strong>——被检索命中、或文件被读取，均不构成强化；只有据其做出实际决策才计入。这一区分保证了强度信号反映的是<strong>效用</strong>而非<strong>曝光</strong>。</li>
+  <li><strong>记忆强度应反映需求概率。</strong>人类记忆的可及性与该信息在环境中<strong>近期被需要的概率</strong>高度吻合，可视为对环境统计结构的适应<sup class="ref"><a href="#r8">[8]</a></sup>。这为"以近期使用预测当下需要"提供了依据。</li>
+</ul>
+<p class="footnote">须说明：本模型借鉴上述记忆现象的<strong>函数形态</strong>，但不主张实现任何统一认知理论意义上的认知架构。这里做的是工程近似，不是认知建模。</p>
+
+<h3><span class="num">5.2</span>强度函数</h3>
+<div class="formula">
+  hotness(m) = base(imp) + w_t · exp(−d / hl(imp)) + w_u · ln(1 + uc)
+
+  base(imp)  按重要性分级递增： 常驻 &gt; 高 &gt; 中 &gt; 低
+  hl(imp)    按重要性分级递增： 重要性越高，半衰期越长（量级为数日至数月）
+  d    = 距上次实际使用的天数        uc = 累计使用次数
+
+<span class="note">
+三项的相对量级是刻意设定的：<strong>时间权重 w_t 大于重要性基分的层间差</strong>，因而一个月前使用过的常驻级记忆会让位给本周使用过的常驻级记忆；<strong>使用次数取对数并配以更低的权重 w_u</strong>，使高频节点浮得上来但压不过近期性，避免历史高频记忆长期占据前列。
+</span>
+</div>
+
+<h3><span class="num">5.3</span>一次真实的退化：同分即无序</h3>
+<p>该函数的当前形态源自一次可复现的失败。早期版本将常驻级的基分设为远高于其余各项之和的常数、半衰期设为近乎无穷（等价于永不衰减）。其数学后果是<strong>所有常驻级记忆恒为同一分值</strong>：在数百个节点中有数十条精确并列，排序退化为插入顺序，"最近在忙什么"的查询返回的实际上是按标识符字母序排列的前若干条。同时，在检索打分中该基分淹没了相关性项，使仅命中单个词的常驻记忆压过命中全部关键词的普通记忆。</p>
+<p>这一案例的一般教训值得单独记下：<strong>在排序系统中，"绝对优先"等价于"取消排序"。</strong>任何维度一旦被赋予压倒性权重，该维度内部就失去了区分度，而系统会静默地退化为它的次要排序键——且不会报错。</p>
+
+<h3><span class="num">5.4</span>强度回答的问题不是"重要性"</h3>
+<p>必须明确：强度函数回答的是<strong>"最近在做什么"</strong>，不是<strong>"什么最重要"</strong>。二者是正交维度。一条半年后才会用到的关键约束，其强度必然很低，但其价值不因此降低分毫。混淆这两个维度，是下一节所要处理的问题的直接来源。</p>
+
+<!-- ================= 6 ================= -->
+<h2 class="sec" id="s6"><span class="num">6</span>沉淀动力学：存—再—判的代价不对称论证</h2>
+
+<h3><span class="num">6.1</span>写入端的价值判断为何必须取消</h3>
+<p>直觉的设计是在写入端设一道价值过滤器：判断某条信息"是否重要到值得记住"，通过者才写入。本模型明确取消这道过滤器，判据只剩一条客观问题：<strong>这是不是此前不知道的？</strong>是，则写入。</p>
+<p>论证基于两类错误的<strong>代价不对称</strong>：</p>
+
+<table>
+  <thead>
+    <tr><th style="width:26%">错误类型</th><th style="width:30%">后果</th><th>可观测性 / 可补救性</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>多存了</strong><br>（记了无用的）</td>
+      <td>检索噪声增加，占用少量存储</td>
+      <td><strong>可观测</strong>：噪声会在检索结果中显现<br><strong>可补救</strong>：由查重、体检、定期复核逐步清理</td>
+    </tr>
+    <tr>
+      <td><strong>漏存了</strong><br>（该记的没记）</td>
+      <td>知识永久丢失</td>
+      <td><strong>不可观测</strong>：系统不知道自己丢过什么<br><strong>不可补救</strong>：无任何机制能提示"这里本该有一条"</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>在两类错误的代价与可补救性如此不对称时，理性的默认档只能是<strong>存</strong>。更重要的是，写入端的价值判断需要预测"这条信息将来是否有用"——而这恰是系统在写入时刻最缺乏依据的判断。<strong>把不可靠的预测判断从写入端移到检索端</strong>，是本节的核心主张：检索端做过滤时，"当下要什么"是已知的，判断因而变得可靠。</p>
+
+<div class="claim">
+  <span class="tag">存—再—判 store-then-decide</span>
+  <p>输入端无损，过滤后置。写入不做价值预测，只做重复检测；价值的裁决交给强度衰减、检索排序与后置复核共同完成。<strong>过滤器的位置从"写入前"移到"读取时"</strong>，因为只有在读取时刻，"有没有用"才是一个有答案的问题。</p>
+</div>
+
+<h3><span class="num">6.2</span>写入端保留的唯一约束：重复检测</h3>
+<p>取消价值判断不等于放任写入。写入端保留一道<strong>客观</strong>闸门：新建条目前先检索既有条目，若相似度超过阈值则拦截，要求改为更新既有条目而非新建。这道闸门是可自动化的，因为"是否重复"是关于现状的事实问题，而"是否重要"是关于未来的预测问题——<strong>前者可以由机器判断，后者不能。</strong></p>
+
+<h3><span class="num">6.3</span>补充而非覆盖</h3>
+<p>与之配套的一条接口约束值得指出：向既有条目补充内容时，必须使用<strong>追加</strong>语义而非<strong>整体重写</strong>语义。若接口默认整体重写，一次"补充一段"的意图就会静默抹掉该条目的全部历史。本模型因此提供带署名与时间戳的追加操作，并把整体重写限定为需要显式合并原文的场景。这不是接口洁癖：<strong>在长期系统中，任何一个默认为破坏性的操作，最终一定会被误用一次。</strong></p>
+
+<!-- ================= 7 ================= -->
+<h2 class="sec" id="s7"><span class="num">7</span>遗忘理论：为什么不能按热度淘汰</h2>
+
+<h3><span class="num">7.1</span>存储强度与提取强度的区分</h3>
+<p>本节是本文与多数实践分歧最大之处。常见的记忆淘汰策略是按使用频率或最近使用时间清理低分条目——这实质上假设了<strong>可及性等于价值</strong>。记忆研究并不支持这一假设。</p>
+<p>新失用理论<sup class="ref"><a href="#r9">[9]</a></sup>区分了记忆的两种强度：<strong>存储强度</strong>（storage strength，学得多牢）与<strong>提取强度</strong>（retrieval strength，此刻多容易取出）。该理论的核心论断是：提取强度会随时间与干扰而下降，<strong>而存储强度并不因此衰减</strong>——一段长期未被提取的记忆，并没有变弱，只是变得不易触及。</p>
+<p>把这一区分映射到工程系统：本模型的强度函数所度量的，全部是<strong>提取强度</strong>。它适合用来排序、用来决定注入什么，<strong>但完全不适合用来决定删除什么</strong>。以提取强度作为淘汰依据，等于系统性地删除那些"重要但当前不紧急"的知识——而这类知识在真实工作中占比极高。</p>
+
+<h3><span class="num">7.2</span>遵守悖论：对红线类记忆，使用频率是反信号</h3>
+<p>存在一类记忆，其使用频率与其价值<strong>负相关</strong>。考虑一条约束性规则："绝不执行某项破坏性操作。"当这条规则被良好遵守时，它不会出现在任何决策链路的显式引用中，因而使用计数长期为零、时间项持续衰减，在任何基于热度的淘汰名单上都会排在最前面。</p>
+<div class="claim">
+  <span class="tag">遵守悖论 compliance paradox</span>
+  <p>一条约束性记忆<strong>被遵守得越好，就越不会被触发，因而越"冷"</strong>。自动化的热度淘汰会精确地优先删除那些最有效的约束——它们的低热度正是其生效的证据。</p>
+</div>
+<p>其工程后果是明确的：<strong>约束类记忆的淘汰不可自动化。</strong>可自动获取的信号（使用次数、上次使用时间）对这类记忆均为反信号。本模型的处理方式是把淘汰改造为<strong>强制提问</strong>：当常驻配额触顶时，引擎不自动删除，而是强制发起一次审查，要求逐条回答一组客观问题：</p>
+<ol>
+  <li>这条约束所针对的<strong>场景是否仍然存在</strong>？（场景消失——例如它防护的那个系统已下线——才是真正的退休理由）</li>
+  <li>它是否已被<strong>更普适的规则涵盖</strong>？</li>
+  <li>它是否已<strong>固化到机制中</strong>，从而不再依赖记忆约束？</li>
+  <li>它是否<strong>已被证伪</strong>？</li>
+</ol>
+<p>这四问的共同点是：全部关于<strong>客观现状</strong>，不含"是否重要""是否还需要"这类主观预测。<strong>能自动化的部分（生成候选名单、检测指向已完结版本的标识）交给机械规则；不能自动化的部分（裁定）交给具备语境的判断者。</strong></p>
+
+<h3><span class="num">7.3</span>删除的唯一合法判据</h3>
+<div class="claim">
+  <span class="tag">遗忘公理</span>
+  <p>删除一条记忆的唯一合法判据是<strong>它已被证明是错的</strong>，或<strong>它所针对的场景已不复存在</strong>。<strong>"久未使用"不构成删除理由。</strong>重要性与紧急性是两个正交维度，而自动信号只能观测到后者。</p>
+</div>
+
+<h3><span class="num">7.4</span>时效：显式到期而非机械衰减</h3>
+<p>事务类记忆（进行中的事项）需要另一套时效机制。这类记忆有一个反直觉的性质：<strong>一个卡住了三个月的项目，其热度必然最低，而它恰恰最不该被忘记。</strong>机械衰减在这里不仅无效，而且有害——它会优先淡化那些停滞最久、因而最需要被重新审视的事项。</p>
+<p>本模型因此为事务类条目引入<strong>显式复核到期日</strong>：创建时即设定复核期限（默认约一个月），到期后由体检机制列为待复核，要求给出"已完成 / 仍在办 / 已放弃"的明确结论。与之配套的是<strong>退出条件必填</strong>约束——新建事务类条目时必须写明"什么条件算做完"，否则拒绝创建。缺少退出条件的事项会成为永远显示为"进行中"的僵尸条目，这类条目对系统的危害不在于占用空间，而在于<strong>它们让"当前在办事项"这一视图整体失去可信度</strong>。</p>
+
+<!-- ================= 8 ================= -->
+<h2 class="sec" id="s8"><span class="num">8</span>治理：冲突的分类学与可撤销仲裁</h2>
+
+<h3><span class="num">8.1</span>多数"冲突"不是冲突</h3>
+<p>当两条记忆表面矛盾时，直觉反应是二选一。本模型的第一条治理原则是<strong>先分类、再裁决</strong>，因为经验上真正需要二选一的冲突是少数。</p>
+
+<table>
+  <caption>表 2　冲突的四种类型与对应处置</caption>
+  <thead>
+    <tr><th style="width:20%">类型</th><th style="width:38%">特征</th><th>处置</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>伪冲突</strong><br>（作用域差异）</td>
+      <td>两条规则各自在不同场景下成立，只是都没写清适用范围</td>
+      <td><strong>两条都留</strong>，补齐作用域声明。规则相遇时<em>窄者优先</em></td>
+    </tr>
+    <tr>
+      <td><strong>时间演进</strong></td>
+      <td>旧结论当时正确，前提已变</td>
+      <td>标注取代关系，<strong>旧条目降权保留</strong>（见 §8.3）</td>
+    </tr>
+    <tr>
+      <td><strong>表述过度</strong></td>
+      <td>某条把话说满了，去掉绝对化措辞后并不矛盾</td>
+      <td>弱化措辞，两条共存</td>
+    </tr>
+    <tr>
+      <td><strong>真冲突</strong></td>
+      <td>同一场景下给出互斥指令</td>
+      <td>进入裁决程序（见 §8.2）</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>作用域字段（§3.3）的价值在此显现：它把大量本会演变成"二选一"的情形，转化为可以共存的分工。<strong>凡是能通过补充限定条件而共存的，都不应当被裁决掉一条</strong>——因为被删掉的那条通常在它自己的场景里是对的，删除它等于制造一个未来会重犯的错误。</p>
+
+<h3><span class="num">8.2</span>裁决依据的层级</h3>
+<p>进入真冲突裁决后，关键问题是：<strong>凭什么判？</strong>本模型规定了严格的依据层级，高层级依据存在时不得使用低层级依据。</p>
+
+<table>
+  <thead>
+    <tr><th style="width:8%">层级</th><th style="width:30%">依据</th><th>说明</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>一</strong></td>
+      <td><strong>可核验的客观事实</strong></td>
+      <td>争议若关于代码、配置、文件、命令输出等可直接查证的对象，<strong>必须先去查</strong>。查到的事实压倒任何陈述。这是本类系统区别于纯文本比对的关键依据来源</td>
+    </tr>
+    <tr>
+      <td><strong>二</strong></td>
+      <td><strong>向权威主体确认</strong></td>
+      <td>核不了又判不准时，直接询问。这是正解而非退路——询问的成本远低于错误裁决的长期代价</td>
+    </tr>
+    <tr>
+      <td><strong>三</strong></td>
+      <td>软信号<br><span style="color:#767676">（新近性、重复度、作用域宽窄）</span></td>
+      <td>只提供倾向，<strong>不构成结论</strong>。可用于排序候选，不可用于单独定案</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="claim">
+  <span class="tag">最易犯的错误：把"新"当成"对"</span>
+  <p>当冲突的一方是<strong>刚刚收到的新输入</strong>时，系统存在强烈的倾向去采信它、并覆盖既有记忆。这一倾向是危险的：<strong>新不等于对</strong>——陈述者也会记错、说岔、或基于过期印象。若既有记忆有事实支撑，正确做法是回到第一层级去核实，而不是让位。</p>
+  <p>这一点有实测支撑。在一次受控测试中，同一系统在<strong>引入该约束前</strong>面对刻意灌入的错误信息时，照单全收并覆盖了原本正确的记忆；<strong>引入约束后</strong>，同样的输入触发了主动的代码核查，并据核查结果拒绝了该输入。差异不在模型能力，而在<strong>是否规定了核实义务</strong>。</p>
+</div>
+
+<h3><span class="num">8.3</span>失效不删除：降权保留与推翻关系</h3>
+<p>裁决产生败方后，处置方式是本模型的第三项主张：<strong>不删除，只标注与降权</strong>（实现上为检索得分乘以一个小于 1 的惩罚系数 ρ，见 §4.2），并记录指向胜方的推翻关系与判决理由。</p>
+<p>三条理由：</p>
+<ul>
+  <li><strong>可追溯性。</strong>"当初为什么那样决定"本身是有价值的信息。删除败方等于抹掉决策史，使日后的复盘无从进行。</li>
+  <li><strong>可撤销性。</strong>裁决本身可能错。保留败方原文（判决<strong>只改元数据，正文一字不动</strong>）使撤销成为一个廉价操作而非考古工程。</li>
+  <li><strong>降权而非过滤，是把裁决权交还给消费方。</strong>被取代的结论在"追问当初依据"一类查询中仍应被召回。引擎的职责是标注状态，而不是替调用方决定什么不可见。</li>
+</ul>
+<p>这一处置与数据血缘的通行模型天然对齐：判决记录本质上是一条<strong>活动</strong>（Activity）记录，连接被推翻的<strong>实体</strong>（Entity）、取而代之的实体，以及作出判决的<strong>主体</strong>（Agent）——恰是溯源本体<sup class="ref"><a href="#r11">[11]</a></sup>的三元核心结构。这使得记忆库的修订历史可以直接映射到既有的血缘标准之上，而无需另造一套审计模型。</p>
+<p class="footnote">工程上还有一条相关约束：判决必须通过<strong>结构化的仲裁操作</strong>执行，而不能以"在正文里追加一段说明"的方式表达。只有前者才在图中留下机器可读的推翻关系与可查询的判决日志；后者留下的只是一段文字，日后无法被检索、无法被撤销、也无法进入审计。<strong>凡需要日后追溯的动作，都必须走结构化接口。</strong></p>
+
+<h3><span class="num">8.4</span>机械筛的覆盖边界</h3>
+<p>冲突检测能否完全自动化？本模型给出的答案是否定的，并有量化依据。</p>
+<p>以字面重叠度（二元组 Jaccard 相似）作为冲突候选的机械筛，在一次针对真实记忆库的评测中，对<strong>字面重叠型</strong>冲突能召回<strong>过半</strong>，而对<strong>换词表达型</strong>冲突——两条记忆用完全不同的措辞表达互斥主张——召回<strong>极低，几乎全部漏过</strong>。后者在自然产生的记忆中占比不低，因为同一件事在不同时期会被用不同的语言重新表述。</p>
+<div class="claim">
+  <span class="tag">机械筛 + 逐条裁决</span>
+  <p>机械相似度筛<strong>只能用作候选生成器，不能用作判定器</strong>。正确的分工是：机械规则负责在大规模库中快速缩小范围（廉价、高召回、低精度），语义判断负责逐条裁定（昂贵、高精度）。把机械筛的输出直接当作结论，会同时产生两类错误——放过换词型冲突，并把大量字面相似而实质互补的条目误判为冲突。</p>
+</div>
+
+<!-- ================= 9 ================= -->
+<h2 class="sec" id="s9"><span class="num">9</span>上下文与存储的分离</h2>
+
+<h3><span class="num">9.1</span>工作内存是可丢弃的</h3>
+<p>长期运行的智能体面临上下文持续增长的问题。通行做法是在接近容量上限时对历史进行摘要压缩。本模型采取另一种立场：</p>
+<blockquote>
+  <p>上下文是<strong>可随时丢弃的工作内存</strong>；记忆图才是真正的存储。</p>
+</blockquote>
+<p>其推论是：当上下文需要回收时，正确的动作不是"生成一份摘要以保留信息"，而是<strong>先把活跃线索显式沉淀为记忆条目，然后整体清空</strong>。二者的区别不是实现细节：摘要是有损压缩，且损失不可见——被摘要丢掉的细节不会留下任何痕迹；而显式沉淀是<strong>把该留的东西按结构写进持久层</strong>，留与不留是一次明确的决定，可被检查、可被补充。</p>
+<p>这一立场也改变了对上下文增长的态度：既然记忆在图中，上下文增长的唯一代价是重复读取的开销，而不是信息丢失的风险。<strong>该沉淀的平时随手沉淀，上下文就不必被当作需要抢救的资产。</strong></p>
+
+<h3><span class="num">9.2</span>分层注入</h3>
+<p>会话开始时向工作内存装入什么，本模型采用三段结构，各段回答不同的问题：</p>
+<table>
+  <thead>
+    <tr><th style="width:22%">段</th><th style="width:26%">选取依据</th><th>回答的问题</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>常驻段</strong></td><td>标记为约束类，<strong>全量注入</strong>，设固定配额上限</td><td>哪些线绝对不能踩</td></tr>
+    <tr><td><strong>热度段</strong></td><td>强度函数 top-K</td><td>最近在做什么</td></tr>
+    <tr><td><strong>时序段</strong></td><td>按最后修改时间倒序</td><td>刚刚发生了什么（不看重要性）</td></tr>
+  </tbody>
+</table>
+<p>三段并存是必要的，因为任一单段都有系统性盲区：常驻段不反映当下；热度段会漏掉刚写入但尚未被使用的条目；时序段则完全不区分轻重。此外，常驻段设有<strong>硬配额</strong>——不是为了节省空间，而是因为<strong>无上限的"最高优先级"等价于没有优先级</strong>（同 §5.3 的教训）。配额触顶时强制进行的"上一条下一条"审查，是维持该段区分度的唯一手段。</p>
+<p class="footnote">一条容易被忽略的推论：<strong>关于记忆维护本身的规则，必须存放在记忆之中</strong>，而不能只依赖引擎在特定时机推送提示。引擎的供给全部是被动触发式的，触发条件不满足就永远不会发生；而维护是一项需要主动持续进行的行为。把维护规则本身作为记忆条目存放，它才会在日常检索中被召回。</p>
+
+<!-- ================= 10 ================= -->
+<h2 class="sec" id="s10"><span class="num">10</span>长期运行观察</h2>
+<p>本模型并非纸面设计，其全部机制均来自一个连续运行数月的实例，且本文所引的每一处退化案例（§4.3 的能量泛滥、§5.3 的同分退化、§8.2 的输入盲从、§8.4 的机械筛覆盖率）都是该实例上的实测结果，而非假想。</p>
+<table>
+  <thead>
+    <tr><th style="width:34%">观察项</th><th>数值 / 状态</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>图规模</td><td>单张图达数千个命题节点、上万条边量级</td></tr>
+    <tr><td>链接有效率</td><td>绝大多数链接指向有效节点，断链由体检机制定期清理</td></tr>
+    <tr><td>常驻段配额</td><td>已触顶，进入强制审查态</td></tr>
+    <tr><td>多实例</td><td>多个独立主体各持一张互不共享的图</td></tr>
+  </tbody>
+</table>
+<p>需要明确交代的是这组数据的性质：<strong>这是单实例的长期运行观察，不是基准测试。</strong>本文不提供与其他系统在公开数据集上的对比指标。本文的论证依据是机制的内在一致性与可复现的失败案例，而非分数。将其称为实证，仅限于"这些机制确实在真实负载下运行了足够长的时间，且其失效模式已被观察到并修正"这一意义上。</p>
+
+<!-- ================= 11 ================= -->
+<h2 class="sec" id="s11"><span class="num">11</span>边界、局限与未决问题</h2>
+
+<h4>已明确的边界（路线选择）</h4>
+<ul>
+  <li><strong>不做形式化本体与逻辑推理。</strong>理由与收益见 §3.2。代价是无法回答"由 A 和 B 可推出 C"这类查询——本模型只返回图中已显式写下的结论。</li>
+  <li><strong>不修改模型参数。</strong>本模型的一切写入、修订与遗忘均发生在<strong>外部记忆库</strong>，不涉及模型权重的编辑或消除。这与参数级的知识编辑是性质不同的两类工作，不应混称。</li>
+  <li><strong>只处理"已表达但未沉淀"的知识。</strong>本模型能够留存的，是已经被说出或写下、但此前无处安放的结论。<strong>从未被表达的隐性知识</strong><sup class="ref"><a href="#r12">[12]</a></sup>不在其能力范围内——那部分仍依赖示范与共事。任何声称能自动抽取未表达知识的主张，都应被审慎对待。</li>
+</ul>
+
+<h4>未决问题</h4>
+<ul>
+  <li><strong>多主体共写下的仲裁。</strong>单主体场景中，裁决的权威来源是唯一的。当多个主体向同一记忆分区写入时，"什么算达成共识"成为新问题。可以确定的是<strong>共识不能等同于多数决</strong>：若按人数计票，新手的多数会碾压资深者的少数，从而反转知识传承的方向。可行方向是频次、权威度与结果反证三路信号并存，且晋升为共识后仍可逆。</li>
+  <li><strong>错误结论的影响面回溯。</strong>当一条记忆被判定为错误时，此前<strong>基于它作出的其他结论</strong>应当如何处理？完整的解法需要沿血缘反向追溯并标记受影响条目，这在本模型中尚未实现。</li>
+  <li><strong>结论达成的判定精度。</strong>从对话流中识别"此处产生了一条值得沉淀的结论"，目前依赖语义判断，其准确率尚未被系统性度量。</li>
+  <li><strong>质量上限受制于判断者。</strong>本模型的检索、沉淀与仲裁三个环节均需语义判断参与。这是刻意的设计——若仲裁与召回不引入语义判断，系统将退化为一个带图结构的检索库。代价是<strong>系统的判断质量以其所用判断者的水平为上限</strong>。</li>
+</ul>
+
+<!-- ================= 12 ================= -->
+<h2 class="sec" id="s12"><span class="num">12</span>结论</h2>
+<p>本文的核心论点可以压缩为一句话：<strong>长期运行的记忆系统，其难点不在记住，而在如何对待已经记住的东西。</strong></p>
+<p>围绕这一论点，本文提出四项可检验的主张：</p>
+<ol>
+  <li><strong>存—再—判。</strong>写入端的价值预测不可靠且代价不对称，过滤应后置到读取端。</li>
+  <li><strong>低提取强度不等于低价值。</strong>据存储强度与提取强度的区分，遗忘的唯一合法判据是被证伪或场景消失；对约束类记忆，使用频率甚至是反信号。</li>
+  <li><strong>先分类，再裁决；事实优先于陈述。</strong>多数冲突可由作用域消解；真冲突的裁决必须以可核验的客观事实为最高依据，且"新"不构成"对"。</li>
+  <li><strong>失效不删除。</strong>降权保留 + 结构化的推翻关系，使决策史可追溯、使误判可撤销，并与既有血缘标准天然对齐。</li>
+</ol>
+<p>这四项主张彼此并不独立：它们共同指向同一个立场——<strong>记忆系统应当把不可靠的判断尽量后置到信息最充分的时刻，并且让每一次判断都是可以被撤回的。</strong>存储与召回是这套系统的地基，但决定它能否连续工作数年而不腐坏的，是地基之上的治理机制。</p>
+
+<hr class="divider">
+
+<!-- ================= 参考文献 ================= -->
+<h2 class="sec" style="border-top:none; margin-top:20px">参考文献</h2>
+<div class="bib">
+<ol>
+  <li id="r1">Lewis, P., Perez, E., Piktus, A., et al. <span class="en">Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks.</span> NeurIPS 2020. arXiv:2005.11401.</li>
+  <li id="r2">Edge, D., Trinh, H., Cheng, N., et al. <span class="en">From Local to Global: A Graph RAG Approach to Query-Focused Summarization.</span> 2024. arXiv:2404.16130.</li>
+  <li id="r3">Gutiérrez, B. J., Shu, Y., Gu, Y., et al. <span class="en">HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models.</span> NeurIPS 2024.</li>
+  <li id="r4">Chen, T., Wang, H., Chen, S., et al. <span class="en">Dense X Retrieval: What Retrieval Granularity Should We Use?</span> EMNLP 2024. arXiv:2312.06648.</li>
+  <li id="r5">Collins, A. M., &amp; Loftus, E. F. <span class="en">A Spreading-Activation Theory of Semantic Processing.</span> Psychological Review, 82(6), 1975.</li>
+  <li id="r6">Ebbinghaus, H. <span class="en">Über das Gedächtnis: Untersuchungen zur experimentellen Psychologie.</span> Leipzig: Duncker &amp; Humblot, 1885.</li>
+  <li id="r7">Roediger, H. L., &amp; Karpicke, J. D. <span class="en">Test-Enhanced Learning: Taking Memory Tests Improves Long-Term Retention.</span> Psychological Science, 17(3), 2006.</li>
+  <li id="r8">Anderson, J. R., &amp; Schooler, L. J. <span class="en">Reflections of the Environment in Memory.</span> Psychological Science, 2(6), 1991.</li>
+  <li id="r9">Bjork, R. A., &amp; Bjork, E. L. <span class="en">A New Theory of Disuse and an Old Theory of Stimulus Fluctuation.</span> In: From Learning Processes to Cognitive Processes, Erlbaum, 1992.</li>
+  <li id="r10">GB/T 42131—2022《人工智能　知识图谱技术框架》. 全国信息技术标准化技术委员会人工智能分技术委员会（TC28/SC42）归口，2022 年发布，2023 年实施。</li>
+  <li id="r11">W3C. <span class="en">PROV-O: The PROV Ontology.</span> W3C Recommendation, 30 April 2013.</li>
+  <li id="r12">Polanyi, M. <span class="en">The Tacit Dimension.</span> Routledge &amp; Kegan Paul, 1966.</li>
+  <li id="r13">Walsh, J. P., &amp; Ungson, G. R. <span class="en">Organizational Memory.</span> Academy of Management Review, 16(1), 1991.</li>
+  <li id="r14">Szulanski, G. <span class="en">Exploring Internal Stickiness: Impediments to the Transfer of Best Practice Within the Firm.</span> Strategic Management Journal, 17(S2), 1996.</li>
+  <li id="r15">Beazley, H., Boenisch, J., &amp; Harden, D. <span class="en">Continuity Management: Preserving Corporate Knowledge and Productivity When Employees Leave.</span> Wiley, 2002.</li>
+  <li id="r16">Nonaka, I. <span class="en">A Dynamic Theory of Organizational Knowledge Creation.</span> Organization Science, 5(1), 1994.</li>
+  <li id="r17">ISO 30401:2018 <span class="en">Knowledge management systems — Requirements</span>（含 Amd 1:2022）.</li>
+</ol>
+</div>
+
+<div class="colophon">
+  <p><strong>关于文献的说明。</strong>正文中标注的每一条引用，均为可公开检索的已发表工作。§10 的运行数据取自单一实例，性质为长期运行观察而非公开基准测试，已在该节明确标注。文献 [13]–[17] 未在正文中逐条标注，列于此处作为组织记忆与知识连续性方向的背景来源。</p>
+  <p><strong>术语说明。</strong>本文使用"命题级知识图"而非"知识图谱"指称本模型的图结构，理由见 §3.2；使用"主动遗忘"指称记忆条目的退役，该操作发生于外部存储层，与参数级的知识编辑无关，见 §11。</p>
+  <p style="margin-top:18px; color:#999">命题级图记忆 · 理论基础报告 v1.0 · 公开版 · 2026 年 8 月</p>
+</div>
+
+</div>
+</body>
+</html>

@@ -1164,5 +1164,21 @@
         "en": "If the model service starts replying and then drops mid-way, the request is now sent again automatically instead of leaving you with half a sentence."
       }
     }
+  ],
+  "1.1.3": [
+    {
+      "title": {
+        "zh-CN": "图太大、内容太长不再卡住",
+        "zh-TW": "圖太大、內容太長不再卡住",
+        "ja": "画像が大きすぎ・内容が長すぎても止まらない",
+        "en": "No more getting stuck on big images or long content"
+      },
+      "detail": {
+        "zh-CN": "发给模型的图片会先缩到模型看得了的大小，图上的字照样看得清。服务商嫌图太大或内容太长时，会自动缩小图片或截短内容再发；还是太长就先把要紧的存进记忆、清空对话，再重发一次，不再直接甩出一串英文报错，后面的对话也不会因此一直出错。",
+        "zh-TW": "送給模型的圖片會先縮到模型看得了的大小，圖上的字照樣看得清。服務商嫌圖太大或內容太長時，會自動縮小圖片或截短內容再送；還是太長就先把要緊的存進記憶、清空對話，再重送一次，不再直接丟出一串英文錯誤，後面的對話也不會因此一直出錯。",
+        "ja": "モデルに送る画像は、モデルが扱える大きさに先に縮小します。画像の文字はそのまま読めます。サービス側に画像が大きすぎる・内容が長すぎると断られたときは、画像を縮小したり内容を短くしたりして自動で送り直します。それでも長すぎる場合は大事なことを記憶に保存して会話をクリアし、もう一度送ります。英語のエラーがそのまま出ることはなくなり、その後の会話がエラーのまま続くこともありません。",
+        "en": "Images sent to the model are first shrunk to a size it can handle, and text in them stays readable. If the provider rejects an image as too large or the content as too long, the app shrinks the image or cuts the content and sends it again; if it is still too long, it saves what matters to memory, clears the conversation and sends once more. You no longer get a raw English error, and the rest of the conversation no longer keeps failing because of it."
+      }
+    }
   ]
 }

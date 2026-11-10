@@ -26,6 +26,23 @@ export interface ClassifiedError {
   status: number | null;
   retryable: boolean;
   message: string;
+  // 服务商因为这次提交的内容拒收(超长 / 图片太大): 改了内容再发能救回来, 跟配置错误分开。limit = 报错里写的上限数字
+  rejected?: 'prompt' | 'image';
+  limit?: number;
+}
+
+// 先凭状态码认定出错(400 / 413), 再看报错说的是哪种内容问题。字串照 Claude Code 认的那几组, 外加各家自己的说法
+// (智谱 1261「Prompt exceeds max length」)。
+const IMAGE_REJECT = /could not process image|image exceeds|image dimensions exceed|image does not match the provided media type|images? (is |are )?too large|exceeds api limit|images exceed the api limit|image size/i;
+const PROMPT_REJECT = /prompt is too long|input is too long|exceeds max(imum)? length|context (window|length)|maximum context|too many (input )?tokens|token limit|prompt exceeds/i;
+
+function rejection(status: number, text: string): { rejected?: 'prompt' | 'image'; limit?: number } {
+  if (IMAGE_REJECT.test(text)) {
+    const px = text.match(/(\d{3,5})\s*(?:x\s*\d{3,5}\s*)?(?:px|pixels)/i);
+    return { rejected: 'image', ...(px ? { limit: Number(px[1]) } : {}) };
+  }
+  if (PROMPT_REJECT.test(text) || status === 413) return { rejected: 'prompt' };
+  return {};
 }
 
 export function classify(e: any): ClassifiedError {
@@ -56,7 +73,7 @@ export function classify(e: any): ClassifiedError {
   }
   if (status >= 500) return { kind: 'server_error', status, retryable: true, message };
   if (status === 408 || status === 409) return { kind: 'unknown', status, retryable: true, message };
-  return { kind: 'invalid_request', status, retryable: false, message };
+  return { kind: 'invalid_request', status, retryable: false, message, ...((status === 400 || status === 413) ? rejection(status, message) : {}) };
 }
 
 // cause 链最底下那个: 读超时是 UND_ERR_BODY_TIMEOUT, 对方关连接多是 UND_ERR_SOCKET / ECONNRESET

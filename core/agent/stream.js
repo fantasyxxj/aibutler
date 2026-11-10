@@ -2,7 +2,8 @@
 // 由 agent.js 拆出(内核抽包第 1 步)。方法体逐字搬运, 经 util.mixin 挂回 Butler.prototype。
 const gateSubmit = require('../rate-gate').gateSubmit;
 const CancelToken = require('../rate-gate').CancelToken;
-const { CLAUDE_BIN, HAS_EXTERNAL_TEXT, nowStamp, loadSdk, resolveSdkKind, makeMsgQueue, withTimeout } = require('./util');
+const { CLAUDE_BIN, HAS_EXTERNAL_TEXT, nowStamp, loadSdk, resolveSdkKind, makeMsgQueue, withTimeout, SDK_BUTLER } = require('./util');
+const imageFit = require('../image-fit');
 const { takeDayOpener } = require('./day-opener');
 const { buildEnv, modelForAccess } = require('./env');
 const crypto = require('crypto');
@@ -25,6 +26,9 @@ class StreamMixin {
      内蔵道具を止められず、そもそも「載せるかどうか」を決めるのはこちらだけ。 */
   _toolsOption() { return cfg.json('main/builtin_tools') || undefined; }
 
+  // 缩图钩子: 记「能过的尺寸」按凭据 + 模型分开
+  _imageFitHook() { return imageFit.hookFor(`${this.accessMode === 'api' ? (this.credentialId || 'api') : 'sub'}|${this.preferredModel || ''}`, this.preferredModel); }
+
   // 一条 SDKUserMessage; content 一律用 block 数组(流式模式下字符串会触发 SDK 报错)
   buildUserMessage(text, attachments) {
     const blocks = [{ type: 'text', text }];
@@ -32,7 +36,9 @@ class StreamMixin {
       const mt = a.mediaType || 'application/octet-stream';
       const name = a.name || 'file';
       if (mt.startsWith('image/')) {
-        blocks.push({ type: 'image', source: { type: 'base64', media_type: mt, data: a.base64 } });
+        // 先缩到模型的原生上限(没超的原样): 服务端反正要缩, 先缩了请求小、也不会因太大被拒
+        const f = imageFit.fit(a.base64, mt, this._imageFitHook().edge());
+        blocks.push({ type: 'image', source: { type: 'base64', media_type: f ? f.mediaType : mt, data: f ? f.data : a.base64 } });
       } else if (mt === 'application/pdf') {
         blocks.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: a.base64 } });
       } else {
@@ -137,6 +143,8 @@ class StreamMixin {
     // 逻辑内联在这儿它就没法 super 调用, 只能整段抄一份(那正是两版漂开的老路)。
     const allow = this.buildAllowedTools(hasExt);
     if (allow) options.allowedTools = allow;
+    // Butler 引擎: 工具读进来的图在发之前缩, 被服务商拒了往下缩(CC 引擎的 CLI 自己会缩, 不传)
+    if (kind === SDK_BUTLER) options.imageFit = this._imageFitHook();
     const q = query({ prompt: this._queue, options });
     this._q = q;
     // _consumerDone 平时没人 await(只有 teardown 会), 所以子进程自己死掉时 _consume 抛出的错
@@ -206,7 +214,7 @@ class StreamMixin {
     // 漏了它的后果是下面那道挂起闸把它当成"真人又发话了"→ 解除挂起 + 清 _authRetried + 摘横幅,
     // 于是「撞上→定罪挂起→重试轮自己解除」每 3.5 秒一圈无限转(实测连转近 4 小时), 横幅只活 1 毫秒,
     // 用户永远点不到那个重登按钮。
-    const _replayable = !isHeartbeatPing && !opts._authRetry && !opts._emptyTurnRetry && !opts._forceSediment && !opts._redlineRetry && !opts._bypassClearGate;
+    const _replayable = !isHeartbeatPing && !opts._authRetry && !opts._rejectRetry && !opts._emptyTurnRetry && !opts._forceSediment && !opts._redlineRetry && !opts._bypassClearGate;
     if (_replayable) this._lastSubmitPayload = { text, attachments, opts };
     // 接入故障挂起中。这道闸只挡【没人在场的自动轮】—— 心跳/自愈轮撞上确定性故障会无限空转烧钱。
     // 🔴 真人/peer 又发话了就必须放行: 他按下回车本身就是重试意愿, 且判定可能一开始就是误判
@@ -282,6 +290,7 @@ class StreamMixin {
     if (!opts._redlineRetry) this._redlineRetried = false;
     if (!opts._lostToolRetry) this._lostToolRetried = false;
     if (!opts._authRetry) this._authRetried = false;
+    if (_replayable) this._rejectRetried = false;   // 真人新发一条, 超长重发的机会还给它
     // 判「该沉没沉」用的也必须是原文。信封里「它不接收回复」这种句子中间就藏着触发词(「收回」),
     // 于是每条 Local API 消息都在误触发记忆提醒 —— 跟消息内容毫无关系, 纯粹是子串撞上了。
     const _userText = opts.rawText !== undefined ? opts.rawText : text;

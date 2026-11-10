@@ -57,7 +57,9 @@ class ConsumeMixin {
           // CLI 从 HTTP 响应里读出来的事实: error_status 是状态码, error 是 SDK 分好的枚举。
           // 在 result 之前到达, 于是 result 那里判故障时可以直接用它, 不必再拿正文猜。
           // 只记不判 —— 重试可能成功, 此刻还不是故障。
-          this._lastApiFault = { sdkErr: msg.error || null, status: msg.error_status != null ? msg.error_status : null, at: Date.now(), seq: this._turnSeq, attempt: msg.attempt, max: msg.max_retries };
+          this._lastApiFault = { sdkErr: msg.error || null, status: msg.error_status != null ? msg.error_status : null, at: Date.now(), seq: this._turnSeq, attempt: msg.attempt, max: msg.max_retries,
+            // Butler 引擎: 服务商因内容拒收(超长 / 图太大); final = 引擎已经改过、不再自己重发了
+            rejected: msg.rejected || null, final: !(msg.retry_delay_ms > 0) };
           console.error(`[api-retry] ${this.name} ${msg.attempt}/${msg.max_retries} status=${this._lastApiFault.status} err=${this._lastApiFault.sdkErr} delay=${msg.retry_delay_ms || 0}`);
           // retry_delay_ms > 0 = 引擎真的要重发这一步。这一步已经流出去的半截字要撤掉, 不然重发后同一句话出现两遍
           if (msg.retry_delay_ms > 0 && this._stepText) {
@@ -144,9 +146,14 @@ class ConsumeMixin {
           let outChars = 0, argChars = 0;   // 成本采样: 本条消息我方产出的量(下一轮起按缓存价重复付)
           const f = this._lastApiFault;
           const cutOut = !!msg.error && f && f.seq === this._turnSeq && f.status == null && f.attempt >= f.max;
+          // 内容被拒、引擎自己改了几次还是不行: 不贴原始报错。超长还能压缩上下文再发一次(见 result 那段), 先说一声
+          const rejOut = !!msg.error && f && f.seq === this._turnSeq && f.rejected && f.final;
+          const rejText = rejOut ? cfg.renderL(f.rejected === 'prompt' && !this._rejectRetried ? 'main/content_rejected_retry' : `main/content_rejected_${f.rejected}`).trim() : '';
+          if (rejOut) console.error(`[api] ${this.name} 内容被拒(${f.rejected}) 引擎改过仍不行 · 原文=${JSON.stringify(String((msg.message?.content || [])[0]?.text || '').slice(0, 300))}`);
           if (cutOut) console.error(`[api] ${this.name} 断流重试 ${f.attempt} 次用尽 · 原文=${JSON.stringify(String((msg.message?.content || [])[0]?.text || '').slice(0, 300))}`);
           for (const b0 of (msg.message?.content || [])) {
-            const b = cutOut && b0.type === 'text' ? { ...b0, text: cfg.renderL('main/stream_cut_failed', { n: f.attempt }).trim() } : b0;
+            const b = cutOut && b0.type === 'text' ? { ...b0, text: cfg.renderL('main/stream_cut_failed', { n: f.attempt }).trim() }
+              : rejOut && b0.type === 'text' ? { ...b0, text: rejText } : b0;
             // 报错消息(msg.error)不管这一步流出过多少半截字都要显示出来, 不然最后只剩半句话
             // text: 已通过 stream_event 逐字发过则跳过(_deltaText 有值=覆盖过); 没发过(流式没覆盖)才补发整块
             if (b.type === 'text' && b.text) { outChars += b.text.length; if (!this._deltaText || msg.error) { this._cur += b.text; this._emit('onText', b.text); } }
@@ -310,6 +317,18 @@ class ConsumeMixin {
             ? classifySdkError(fault.sdkErr, this.accessMode, fault.status)
             : (cliFault ? classifyAccessError(finalText, this.accessMode) : null);
           this._lastApiFault = null;
+          // 超长且引擎截不动: 照 Claude Code 的 reactive compaction —— 沉淀后清空, 再把那条消息重发一次; 只试一次
+          if (!access && fault && fault.seq === this._turnSeq && fault.rejected === 'prompt' && fault.final && !this._rejectRetried && this._lastSubmitPayload) {
+            this._rejectRetried = true;
+            const p = this._lastSubmitPayload;
+            console.error(`[api] ${this.name} 提交超长 → 沉淀后清空, 重发那条消息一次`);
+            setTimeout(() => {
+              (async () => {
+                await this.doClearWithSediment('提交超长');
+                await this.submit(p.text, p.attachments, { ...(p.opts || {}), _rejectRetry: true });
+              })().catch((e) => console.error(`[api] ${this.name} 超长重发失败:`, e && e.message));
+            }, 0);
+          }
           if (access) {
             // 原文必须落盘: 只记人格名的话, 事后分不出这次是真 401 还是误判(2026-08-25 排查实际卡在这)。
             const raw = String(finalText).slice(0, 200);

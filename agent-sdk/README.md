@@ -71,11 +71,11 @@ The returned `Query` is an async iterator with `interrupt()` and `getContextUsag
 | `src/index.ts` | public exports |
 | `src/query.ts` | `Query`: lifecycle, turn scheduling, `interrupt()`, `getContextUsage()` |
 | `src/session.ts` | per-query state: model, tools, history, inbox, output channel |
-| `src/loop.ts` | one turn: steps, tool execution (adjacent read-only calls run together), hooks, retries, result |
+| `src/loop.ts` | one turn: steps, tool execution (adjacent read-only calls run together), hooks, retries, result; new content counts as stored only once the provider accepts it — on a content rejection it downscales images (via the host's `options.imageFit`) or cuts the longest new text, then resends (up to 3 times) |
 | `src/step.ts` | one model call: AI SDK stream → Claude-style `stream_event`s and content blocks |
 | `src/convert.ts` | message / tool-result / usage format conversion |
 | `src/hooks.ts` | `PreToolUse` hook runner |
-| `src/errors.ts` | error classification and backoff |
+| `src/errors.ts` | error classification and backoff; a 400/413 naming an oversized prompt or image is marked `rejected: 'prompt' \| 'image'` (kind stays `invalid_request`) |
 | `src/preset.ts` | default system prompt used for the `claude_code` preset |
 | `src/context.ts` | context usage breakdown |
 | `src/channel.ts` | async queues |
