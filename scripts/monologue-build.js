@@ -14,7 +14,8 @@ const POSTS = path.join(ROOT, 'posts');
 const VOICE = process.env.MONOLOGUE_VOICE || 'Tingting';
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`(.+?)`/g, '<code>$1</code>');
+const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/`(.+?)`/g, '<code>$1</code>')
+  .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color:var(--m)">$1</a>');
 
 function parse(file) {
   const raw = fs.readFileSync(file, 'utf8');
@@ -33,7 +34,7 @@ function ensureVoice(dir, post) {
   if (process.platform !== 'darwin') return false;
   const txt = path.join(dir, '.voice.txt');
   const aiff = path.join(dir, '.voice.aiff');
-  fs.writeFileSync(txt, [post.title, ...post.paras].join('\n\n').replace(/\*\*|`/g, ''), 'utf8');
+  fs.writeFileSync(txt, [post.title, ...post.paras].join('\n\n').replace(/\*\*|`/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1'), 'utf8');
   execFileSync('say', ['-v', VOICE, '-r', '200', '-o', aiff, '-f', txt]);
   execFileSync('afconvert', ['-f', 'm4af', '-d', 'aac', aiff, out]);
   fs.rmSync(txt); fs.rmSync(aiff);
