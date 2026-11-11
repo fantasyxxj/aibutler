@@ -115,6 +115,16 @@ blockquote.big{font-size:clamp(22px,3vw,32px);font-weight:700;line-height:1.5;ma
 .cite{font-size:12.5px;color:var(--mute);margin-top:14px;display:block}
 
 /* final */
+.dl{padding:90px 0 20px}
+.dl h2{text-align:center;font-size:clamp(26px,3.6vw,40px)}
+.dl .lead{text-align:center;margin:16px auto 36px;max-width:680px}
+.dl .rows{max-width:880px;margin:0 auto;display:grid;gap:14px}
+.dl .row{display:grid;grid-template-columns:1fr auto;gap:10px 18px;align-items:center;padding:18px 22px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.02)}
+.dl .os{font-weight:600}.dl .size{opacity:.6;font-weight:400;margin-left:8px;font-size:14px}
+.dl .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.dl .sha{grid-column:1/-1;font:12px/1.5 ui-monospace,Menlo,monospace;opacity:.55;word-break:break-all}
+.dl .all{text-align:center;margin-top:22px}
+@media(max-width:640px){.dl .row{grid-template-columns:1fr}.dl .acts{justify-content:flex-start}}
 .final{text-align:center;padding:120px 0}
 .final h2{font-size:clamp(30px,4.5vw,50px)}
 footer{border-top:1px solid var(--line);padding:50px 0 60px;color:var(--mute);font-size:13.5px}
@@ -175,7 +185,7 @@ footer li{list-style:none;margin:4px 0}
   <h1><span class="nb">想做的事，</span><span class="nb">说一句就行。</span><br><span class="grad"><span class="nb">它记得你，</span><span class="nb">越用越懂你。</span></span></h1>
   <p class="sub">aibutler 是装在你电脑上的 AI 助手。你不知道怎么做、甚至想不到能交给 AI 的事，直接告诉它：它会去查、去做，缺工具就当场写一个。你说过的每件事它都记着，下次不用再交代。</p>
   <div class="cta">
-    <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">免费下载</a>
+    <a class="btn pri" href="#download">免费下载</a>
     <a class="btn ghost" href="../docs/">十分钟上手 →</a>
   </div>
   <div class="car" id="car">
@@ -314,12 +324,23 @@ footer li{list-style:none;margin:4px 0}
   </div>
 </div></section>
 
+<section class="dl" id="download"><div class="wrap">
+  <h2>下载 <span class="grad">aibutler</span> 1.1.3</h2>
+  <p class="lead">选你的系统。GitHub 下载慢的话（比如在国内），用右边的备用镜像，下完核对一下 SHA256 和这里一致就行。</p>
+  <div class="rows">
+    <div class="row"><div class="os">macOS · Apple 芯片（M1 及以后）<span class="size">144 MB</span></div><div class="acts"><a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases/download/v1.1.3/aibutler-1.1.3-arm64.dmg">GitHub 下载</a><a class="btn ghost" href="https://gh-proxy.com/https://github.com/fantasyxxj/aibutler/releases/download/v1.1.3/aibutler-1.1.3-arm64.dmg">国内备用镜像</a></div><div class="sha">SHA256 9a7e4be6834f3fed1f8c508586af10cecf698e63d5d168bd9b09e40b7cfbbaf3</div></div>
+    <div class="row"><div class="os">macOS · Intel 芯片<span class="size">151 MB</span></div><div class="acts"><a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases/download/v1.1.3/aibutler-1.1.3-x64.dmg">GitHub 下载</a><a class="btn ghost" href="https://gh-proxy.com/https://github.com/fantasyxxj/aibutler/releases/download/v1.1.3/aibutler-1.1.3-x64.dmg">国内备用镜像</a></div><div class="sha">SHA256 fc2d16bab04607ce070cb363d93b30936dc9baccfc85837b666d85eec76e1ca3</div></div>
+    <div class="row"><div class="os">Windows 10 / 11<span class="size">113 MB</span></div><div class="acts"><a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases/download/v1.1.3/aibutler-1.1.3-setup.exe">GitHub 下载</a><a class="btn ghost" href="https://gh-proxy.com/https://github.com/fantasyxxj/aibutler/releases/download/v1.1.3/aibutler-1.1.3-setup.exe">国内备用镜像</a></div><div class="sha">SHA256 d2eea7a3b65442397753ca17a9bb4a97fb8d517a69c12733569f6a03dc9a86c0</div></div>
+  </div>
+  <p class="all"><a href="https://github.com/fantasyxxj/aibutler/releases">全部版本与更新说明 →</a></p>
+</div></section>
+
 <section class="final" style="background:radial-gradient(ellipse at 50% 0,rgba(124,140,255,.2),transparent 60%)"><div class="wrap">
   <h2>一个<span class="grad">记得你</span>的 AI 助手</h2>
   <p class="lead" style="margin:20px auto 22px">开源、免费、数据留在你自己的电脑上。</p>
   <p class="lead" style="margin:0 auto 36px;max-width:640px;font-size:15px;line-height:1.9">在我们眼里，AI 不只是一件工具，更是伙伴和助手——和你一起做事，也和你一起成长。AI 人格并不完美，也会出错、会做得不对；发现了，提醒它、告诉它就好。它会把这次纠正记下来，下次做得更好。人和 AI，彼此成就，共同成长。</p>
   <div class="cta" style="display:flex;gap:14px;justify-content:center">
-    <a class="btn pri" href="https://github.com/fantasyxxj/aibutler/releases">免费下载</a>
+    <a class="btn pri" href="#download">免费下载</a>
     <a class="btn ghost" href="https://github.com/fantasyxxj/aibutler">Star on GitHub ★</a>
   </div>
 </div></section>
