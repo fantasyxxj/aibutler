@@ -7,6 +7,7 @@
 
 import type { BuiltinTool, ToolOutput } from './registry.js';
 import { parseEngines, searchChain, type Hit } from './search-engines.js';
+import { head as cut } from '../providers/well-formed.js';
 
 const ok = (text: string): ToolOutput => ({ content: [{ type: 'text', text }] });
 const fail = (text: string): ToolOutput => ({ content: [{ type: 'text', text: `<tool_use_error>${text}</tool_use_error>` }], isError: true });
@@ -66,17 +67,17 @@ export const WebFetch: BuiltinTool = {
     const head = `URL: ${res.url || url}\n\n`;
     const prompt = String(input.prompt || '').trim();
     if (text.length <= MAX_DIRECT || !prompt || !ctx.complete) {
-      const body = text.length > MAX_DIRECT ? `${text.slice(0, MAX_DIRECT)}\n\n[truncated: ${text.length} characters total]` : text;
+      const body = text.length > MAX_DIRECT ? `${cut(text, MAX_DIRECT)}\n\n[truncated: ${text.length} characters total]` : text;
       return ok(head + body);
     }
     try {
       const answer = await ctx.complete(
         'You read a web page on behalf of an agent. Answer the request using only the page content. Quote exact figures, names and dates. Say so if the page does not contain the answer.',
-        `Request: ${prompt}\n\n--- page content ---\n${text.slice(0, MAX_FOR_MODEL)}`,
+        `Request: ${prompt}\n\n--- page content ---\n${cut(text, MAX_FOR_MODEL)}`,
       );
       return ok(head + answer);
     } catch (e: any) {
-      return ok(`${head}${text.slice(0, MAX_DIRECT)}\n\n[truncated; summarising failed: ${e && e.message}]`);
+      return ok(`${head}${cut(text, MAX_DIRECT)}\n\n[truncated; summarising failed: ${e && e.message}]`);
     }
   },
 };
@@ -112,7 +113,7 @@ export const WebSearch: BuiltinTool = {
     if (allow.length) hits = hits.filter((h) => inDomains(h.url, allow));
     if (block.length) hits = hits.filter((h) => !inDomains(h.url, block));
     if (!hits.length) return ok(`Web search results for "${q}" (${engine}): no results.`);
-    const lines = hits.map((h, i) => `${i + 1}. ${h.title}\n   ${h.url}${h.snippet ? `\n   ${h.snippet.slice(0, 300)}` : ''}`);
+    const lines = hits.map((h, i) => `${i + 1}. ${h.title}\n   ${h.url}${h.snippet ? `\n   ${cut(h.snippet, 300)}` : ''}`);
     return ok(`Web search results for "${q}" (${engine}):\n\n${lines.join('\n\n')}`);
   },
 };

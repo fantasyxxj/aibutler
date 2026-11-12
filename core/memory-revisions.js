@@ -12,6 +12,7 @@
 // 白拿: memory.js 的 _mdFiles() 只扫 .md, 所以 .jsonl 天然不进图, 存储层一行代码不用改。
 const fs = require('fs');
 const path = require('path');
+const { head, jsonReplacer } = require('./lone-surrogate'); // 截断不切开 emoji, 落盘不留半个
 
 const DIR_NAME = '_revisions';
 // 硬闸①: 单文件超此条数滚动归档。防无限膨胀。
@@ -41,7 +42,7 @@ function localTs() {
 function truncField(v, max = MAX_BODY) {
   const s = v == null ? '' : String(v);
   if (s.length <= max) return s;
-  return s.slice(0, max) + `\n…[截断 · 原长 ${s.length} 字符]`;
+  return head(s, max) + `\n…[截断 · 原长 ${s.length} 字符]`;
 }
 
 // 硬闸①实现: 留【第一条 + 最近 max 条】。
@@ -78,7 +79,7 @@ function logRevision(memoryDir, entry = {}) {
     // 🔴 事后被作者推翻会被二次写 —— 这条记录不是写完就完。
     overturned: entry.overturned != null ? entry.overturned : null,
   };
-  try { fs.appendFileSync(file, JSON.stringify(rec) + '\n', 'utf8'); } catch (_) { return null; }
+  try { fs.appendFileSync(file, JSON.stringify(rec, jsonReplacer) + '\n', 'utf8'); } catch (_) { return null; }
   rollLog(file);
   return { file, ts: rec.ts, node_id: nid };
 }

@@ -2,7 +2,7 @@
 // plugin-tools.js — 插件三件工具: plugin_find(查装了什么、开放了哪些命令) · plugin_open(摆到眼前) ·
 // plugin_call(跑插件开放给人格的命令)。从 mcp-tools.js 拆出, 那边只负责登记。
 const pluginCatalog = require('../plugin-catalog');
-const { looseShape, gather } = require('./flat-args');
+const { looseShape, paramsField, gather } = require('./flat-args');
 const commands = require('../commands');
 const { getLang: displayLang } = require('../memory-v2/lang');
 
@@ -51,7 +51,8 @@ function registerPluginTools(agent, { tool, z, D }) {
     'plugin_open',
     D.plugin_open,
     looseShape(z, { id: z.string().describe('plugin id (from plugin_find). A single-page plugin\'s starting field values go right after it, e.g. plugin_open(id=…, name=…, price=…) — the person sees them filled in and can edit them'),
-      pin: z.boolean().optional().describe('override where it goes: true = pin to the always-on board, false = inline in the conversation. Omit to use the plugin\'s own default.') }),
+      pin: z.boolean().optional().describe('override where it goes: true = pin to the always-on board, false = inline in the conversation. Omit to use the plugin\'s own default.'),
+      params: paramsField(z) }),
     async (input) => {
       const { id, pin } = input;
       const args = gather(input, ['id', 'pin']);
@@ -80,7 +81,8 @@ function registerPluginTools(agent, { tool, z, D }) {
     'plugin_call',
     D.plugin_call,
     looseShape(z, { id: z.string().describe('plugin id (from plugin_find)'),
-      command: z.string().describe('command name listed under that plugin by plugin_find; its parameters go right after, e.g. plugin_call(id=…, command=…, q=…)') }),
+      command: z.string().describe('command name listed under that plugin by plugin_find; its parameters go right after, e.g. plugin_call(id=…, command=…, q=…)'),
+      params: paramsField(z) }),
     async (input) => {
       const { id, command } = input;
       const args = gather(input, ['id', 'command']);

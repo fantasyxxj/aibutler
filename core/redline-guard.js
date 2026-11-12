@@ -199,7 +199,7 @@ class RedlineGuard {
   }
 
   _note(r, toolName, toolInput, note) {
-    const raw = `[${toolName}] ${haystackOf(toolName, toolInput).slice(0, 500)} — ${note}`;
+    const raw = `[${toolName}] ${require('./lone-surrogate').head(haystackOf(toolName, toolInput), 500)} — ${note}`;   // 截断不切开 emoji
     try {
       if (typeof this.graph.noteViolation === 'function') this.graph.noteViolation(r.node_id);
       if (typeof this.graph.logError === 'function') this.graph.logError({ node_id: r.node_id, raw });

@@ -4,6 +4,7 @@
 // 后台任务不随这一轮结束, 只随整个会话关闭而中止。
 
 import { uuid } from './loop.js';
+import { head } from './providers/well-formed.js';
 
 export interface BgRun {
   text: string;
@@ -67,7 +68,7 @@ export class Background {
       this.emit({ type: 'system', subtype: 'task_notification', ...base(), status, output_file: o.outputFile || '', summary, usage: usage() });
       // 会话关了就没人收, 不投通知; 单个被叫停的照样告诉主代理
       if (!this.closed) {
-        const body = r.text.length > RESULT_CAP ? `${r.text.slice(0, RESULT_CAP)}\n…[truncated: first ${RESULT_CAP} of ${r.text.length} characters]` : r.text;
+        const body = r.text.length > RESULT_CAP ? `${head(r.text, RESULT_CAP)}\n…[truncated: first ${RESULT_CAP} of ${r.text.length} characters]` : r.text;
         this.notify(`<task-notification>\n<task-id>${id}</task-id>\n${o.toolUseId ? `<tool-use-id>${o.toolUseId}</tool-use-id>\n` : ''}`
           + `<status>${status}</status>\n${o.outputFile ? `<output-file>${o.outputFile}</output-file>\n` : ''}<summary>${summary}</summary>\n<result>\n${body}\n</result>\n</task-notification>`);
       }

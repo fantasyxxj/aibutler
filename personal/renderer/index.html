@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="theme.css" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="persona-card.css" />
+  <link rel="stylesheet" href="layout.css" />
 </head>
 <!-- 界面文字一律走 data-i18n / data-i18n-title / data-i18n-ph, renderer.js 的 applyStrings 统一刷。
      这里写的中文只是"没刷之前那一帧"的兜底, 不是真源 —— 真源在 i18n.js。
@@ -37,10 +38,18 @@
       <div class="ctxbar"><div id="ctxfill"></div></div>
       <div id="ctxlabel">— %</div>
     </div>
+    <!-- 布局: 上下 / 左右。左右时侧栏放提醒·任务·chip 和「划重点」(layout.js); 角标=上下布局下新挂了几条 -->
+    <button id="layoutBtn" data-i18n-title="layout_hint" title="切换布局"><span class="lb-ico">◫</span><span id="layoutBadge" class="hidden"></span></button>
     <button id="compactBtn" data-i18n="compact" data-i18n-title="compact_hint" title="清空: 沉淀关键线程到图记忆 → 清空 AI 上下文 → 重启唤醒 (UI 历史保留展示)">清空</button>
     <button id="closeCurrentBtn" data-i18n-title="close_persona" title="关闭当前人格(会话记忆已落盘, 可重开续上)">×</button>
   </header>
 
+  <!-- 外壳: 左栏 | 中间(对话) | 右栏。上下布局或窗口窄时两栏隐藏, 中间就是原来的样子(layout.js / layout.css) -->
+  <div id="shell">
+  <aside id="railL" class="rail">
+    <div class="rail-body" id="railLBody"></div>
+  </aside>
+  <div id="center">
   <!-- 舞台: 每个标签一个面板, 仅活动标签可见 -->
   <main id="stage">
     <div id="searchbar" class="hidden">
@@ -83,6 +92,11 @@
     <button id="sendBtn" data-i18n="send">发送</button>
     <input id="fileInput" type="file" multiple hidden />
   </footer>
+  </div>
+  <aside id="railR" class="rail">
+    <div class="rail-body"><div id="marksBox"></div><div id="railBoard"></div></div>
+  </aside>
+  </div>
 
   <!-- 排在所有库前面: 它自包含无依赖, 越早起覆盖的时间越长(后面那两个库加载本身就要时间)。 -->
   <script src="frame-watchdog.js"></script>
@@ -110,6 +124,7 @@
   <script src="path-marquee.js"></script>
   <script src="tool-rows.js"></script>
   <script src="task-panel.js"></script>
+  <script src="marks.js"></script>
   <script src="renderer.js"></script>
   <script src="step-retry.js"></script>
   <!-- renderer.js 之后: 关闭遮罩要用那边的 t() -->
@@ -118,6 +133,9 @@
   <script src="image-save.js"></script>
   <!-- renderer.js 之后: 要用那边的 curLocale / switchTab / emitUserMessage -->
   <script src="reminder-banner.js"></script>
+  <script src="update-banner.js"></script>
   <script src="tips.js"></script>
+  <!-- 最后: 要搬的提醒条(reminder-banner.js)、任务面板、chip 栏都得先在 -->
+  <script src="layout.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import type { BuiltinTool, ToolOutput } from '../tools/registry.js';
+import { head } from '../providers/well-formed.js';
 
 const ok = (text: string): ToolOutput => ({ content: [{ type: 'text', text }] });
 const fail = (text: string): ToolOutput => ({ content: [{ type: 'text', text: `<tool_use_error>${text}</tool_use_error>` }], isError: true });
@@ -52,7 +53,7 @@ export const Read: BuiltinTool = {
     if (!slice.length) return ok(`<system-reminder>Warning: the file has ${lines.length} lines; offset ${start} is past the end.</system-reminder>`);
     const width = String(start + slice.length - 1).length;
     const body = slice.map((l, i) => {
-      const line = l.length > MAX_LINE_CHARS ? `${l.slice(0, MAX_LINE_CHARS)}… [line truncated]` : l;
+      const line = l.length > MAX_LINE_CHARS ? `${head(l, MAX_LINE_CHARS)}… [line truncated]` : l;
       return `${String(start + i).padStart(Math.max(width, 6))}\t${line}`;
     }).join('\n');
     const more = start - 1 + slice.length < lines.length ? `\n\n(${lines.length - (start - 1 + slice.length)} more lines; use offset to read further)` : '';

@@ -451,11 +451,14 @@ const widgets = window.MdWidgets.create({
 // 把气泡正文按 markdown 整块渲染(收尾时调用; 流式中仍用纯文本逐字, 避免半截 md 抖动)
 function renderMd(body) {
   if (!body || typeof window.renderMarkdown !== 'function') return;
-  const html = window.renderMarkdown(body.textContent);
+  const src = body.textContent;
+  const html = window.renderMarkdown(src);
   if (html) { body.innerHTML = html; body.classList.add('md'); decorateCode(body); widgets.paint(body);
     // {{pin:...}} 的印在 widgets.paint 之后还留在原地(它不认识 pin), 这里把它搬到本标签的常驻板。
     const _tab = tabOf(body);
     if (_tab && _tab.board) _tab.board.harvest(body);
+    // {{mark:标题}} → 这条挂进「划重点」(marks.js)。回放 / 往上翻补页时只认领不新增
+    if (_tab && window.Marks) window.Marks.harvest(_tab.sid, body, src, replayDepth > 0 || !!_tab._insertBefore);
     // md 图片点击走 lightbox (和附件图片一套)
     body.querySelectorAll('img.md-img').forEach(img => { img.onclick = (e) => { e.stopPropagation(); openLightbox(img.src); }; });
     // AI 画的内联 SVG: 点空白处或角标 ⤢ 放大 (交互元素让给它们自己, 见 attachSvgZoom)
@@ -784,8 +787,9 @@ async function switchTab(sid) {
   refreshBusy();
   renderTasks(tab);                                  // 任务清单每人格一份, 切标签换一份
   if (window.chipsUI) window.chipsUI.refresh(sid);   // chip 每人格一套, 切标签换一套
+  if (window.layoutUI) window.layoutUI.sync(sid);    // 布局每人格一份(layout.js)
 
-  if (!tab.loaded) await loadHistory(tab);
+  if (!tab.loaded) { await loadHistory(tab); if (window.Marks) window.Marks.paint(); }   // 原消息上屏后「跳回」才有处可跳
   tab.stick = true; tab.chat.scrollTop = tab.chat.scrollHeight;   // 切到本标签 → 回底并恢复粘底
   input.focus();
 }
@@ -862,6 +866,7 @@ async function loadHistory(tab) {
       tab.board.setRemoved((r && r.removed) || []);
     } catch (_) {}
   }
+  if (window.Marks) await window.Marks.load(tab.sid);   // 回放时要拿它把原消息认回已挂的条目
   const h = await window.butler.getHistory(tab.sid, SCREEN_MSG_CAP);
   if (h && h.persona) { tab.persona = h.persona; if (tab.sid === activeSid) showPersona(h.persona); }
   if (h && h.usage) { tab.usage = h.usage; if (tab.sid === activeSid) renderUsage(h.usage); }

@@ -116,7 +116,7 @@
     </div>
   </div>
 
-  <!-- 数据位置(personal/data-move.js): 显示路径 · 打开 · 搬到别处(重启后整份复制成功才切换) -->
+  <!-- 数据位置(personal/data-move.js): 显示路径 · 打开 · 搬到别处(重启后整份复制成功才切换) · 清理旧数据(搬完才露出) -->
   <div class="m-form" data-group="adv">
     <label data-i18n="sys_datadir">数据位置</label><div style="color:var(--muted);font-size:12px;" data-i18n="sys_datadir_hint"></div>
     <div></div>
@@ -125,6 +125,7 @@
       <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
         <button id="dd-open" class="m-btn" data-i18n="sys_datadir_open">打开文件夹</button>
         <button id="dd-move" class="m-btn" data-i18n="sys_datadir_move">搬到别处…</button>
+        <button id="dd-clean" class="m-btn" data-i18n="sys_datadir_clean" hidden>清理旧数据…</button>
         <span id="dd-state" style="font-size:12px;color:var(--muted)"></span>
       </div>
     </div>

@@ -62,9 +62,10 @@ contextBridge.exposeInMainWorld('butler', {
   showTips: () => ipcRenderer.invoke('show-tips'),                            // 主窗口当场弹一张(系统设置里点)
   onTipsShow: (cb) => ipcRenderer.on('tips-show', () => cb()),
   quickCreatePersona: (text) => ipcRenderer.invoke('quick-create-persona', { text }),   // 一句话建人格: 交给管家去建 { ok, butler?, error? }
-  dataDirInfo: () => ipcRenderer.invoke('data-dir-info'),                     // 数据位置 { dir, canMove } · canMove=有指针可改(打包版)
+  dataDirInfo: () => ipcRenderer.invoke('data-dir-info'),                     // 数据位置 { dir, canMove, oldDir } · canMove=有指针可改(打包版) · oldDir=待清的旧目录
   dataDirOpen: () => ipcRenderer.invoke('data-dir-open'),                     // 在访达 / 资源管理器里打开数据目录
   dataDirMove: () => ipcRenderer.invoke('data-dir-move'),                     // 选目录 → 确认 → 重启后搬; 返回 { ok, error? }
+  dataDirCleanOld: () => ipcRenderer.invoke('data-dir-clean-old'),              // 清理上次搬家留下的旧数据(确认 → 移进回收站); 返回 { ok }
   getToolRows: () => ipcRenderer.invoke('get-tool-rows'),                     // 对话里显不显示工具调用条 { on }(默认关)
   setToolRows: (on) => ipcRenderer.invoke('set-tool-rows', { on }),           // 开关它 → 所有窗口收 tool-rows-changed
   onToolRowsChanged: (cb) => ipcRenderer.on('tool-rows-changed', (_e, d) => cb(d)),
@@ -105,6 +106,11 @@ contextBridge.exposeInMainWorld('butler', {
   uiStateWrite: (id, state) => ipcRenderer.invoke('ui-state-write', { id, state }),  // 替它落盘 → { ok, message? }
   boardStateRead: (sid) => ipcRenderer.invoke('board-state-read', { sid }),          // 常驻板「已撤下槽位」黑名单 → { removed:[slot] }
   boardStateWrite: (sid, removed) => ipcRenderer.invoke('board-state-write', { sid, removed }),  // 撤下/钉上时持久化 → { ok }
+  sideRead: (sid) => ipcRenderer.invoke('side-read', { sid }),                         // 侧栏: { layout:'tb'|'lr', items:[重要输出] }
+  sideLayout: (sid, layout) => ipcRenderer.invoke('side-layout', { sid, layout }),     // 存这个人格选的布局 → 同上
+  markAdd: (sid, title, text, ts) => ipcRenderer.invoke('mark-add', { sid, title, text, ts }),  // 挂一条重要输出 → { item }
+  markDel: (sid, id) => ipcRenderer.invoke('mark-del', { sid, id }),                   // 删一条 → 同 sideRead
+  marksSeen: (sid) => ipcRenderer.invoke('marks-seen', { sid }),                       // 角标清零 → 同 sideRead
   getChips: (sid) => ipcRenderer.invoke('get-chips', { sid }),                        // 输入框上方快捷按钮 { chips:[{id,icon,label,prompt}] }
   bumpChip: (sid, chipId) => ipcRenderer.invoke('chip-bump', { sid, chipId }),       // 点一下=计数+1, 按钮留在原地 → { ok, count, chips }
   onChipsChanged: (cb) => ipcRenderer.on('chips-changed', (_e, d) => cb(d.sid, d.chips)),  // AI 调 update_prompt_chips 后重渲
@@ -134,6 +140,9 @@ contextBridge.exposeInMainWorld('butler', {
   onReminders: (cb) => ipcRenderer.on('reminders', (_e, d) => cb(d)),
   remindersGet: () => ipcRenderer.invoke('reminders-get'),
   reminderAct: (a) => ipcRenderer.invoke('reminder-act', a),   // {homeDir,id,action:'ignore'|'snooze'|'handle',minutes?,until?}
+  onUpdate: (cb) => ipcRenderer.on('update-available', (_e, d) => cb(d)),   // 有新版: {latest, current, page, direct, mirror}; 没有: {latest:null}
+  updateGet: () => ipcRenderer.invoke('update-get'),
+  updateAct: (a) => ipcRenderer.invoke('update-act', a),   // {action:'download'|'mirror'|'ignore'}
   onAuthPending: (cb) => ipcRenderer.on('auth-pending', (_e, d) => cb(d)),   // 首登授权在后台跑: { done, error? }
   relogin: () => ipcRenderer.invoke('relogin'),                              // { ok, error? }
 

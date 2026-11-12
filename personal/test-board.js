@@ -44,8 +44,9 @@ console.log('\n[2] harvest: 三个记号各自去该去的地方');
     strings: () => ({ board_close: '撤', ui_unknown: '没装' }),
     host: () => host,
     uiPackage: (id) => (id === 'resv' ? { id: 'resv' } : null),
-    mountUi: (node, pkg) => { mounted.push(pkg.id); },
+    mountUi: (node, pkg, args) => { mounted.push(pkg.id); margs.push(args || {}); },
   });
+  const margs = [];
 
   const body = document.createElement('div');
   body.innerHTML = renderMarkdown('先看这块 {{pin:预约|ui=resv}} 还有 {{pin:备忘|title=今日备忘}} 撤掉 {{pin:旧表}}');
@@ -54,6 +55,14 @@ console.log('\n[2] harvest: 三个记号各自去该去的地方');
   ok(body.querySelectorAll('.md-widget[data-kind="pin"]').length === 0, '记号从气泡里抹干净(不留第二份)');
   ok(host.querySelectorAll('.board-card').length === 2, '两个钉住的槽位上了板(撤的那个不算)');
   ok(mounted.length === 1 && mounted[0] === 'resv', 'ui= 的那个真调了 mountUi(沙箱长在板上)');
+  ok(JSON.stringify(margs[0]) === '{}', '没带初始值时交给沙箱的是空的');
+  {
+    const b2 = document.createElement('div');
+    b2.innerHTML = renderMarkdown('{{pin:电台|ui=resv|mood=relax|mode=radio}}');
+    board.harvest(b2);
+    const a = margs[margs.length - 1] || {};
+    ok(a.mood === 'relax' && a.mode === 'radio' && !('ui' in a) && !('title' in a), `钉板带的初始值交给沙箱(plugin_open 的参数): ${JSON.stringify(a)}`);
+  }
   const resvCard = host.querySelector('.board-card[data-slot="预约"]');
   ok(resvCard && resvCard.querySelector('.board-title').textContent === '预约', 'ui 板的标题 = 槽名(没给 title 时)');
   ok(resvCard && resvCard.querySelector('.board-x'), '每块都有 ✕ 撤下口');

@@ -386,7 +386,15 @@ console.log('\n[闲了就清空 idleClearMin (行业版店铺助手)]');
          [], '后台任务刚开跑 → 不清');
   assert(decideActions(mock({ idle_min: 1, ctx_tok: 850_000, ctx_pct: 85 })),
          [{ type: 'COMPACT', reason: 'red_line' }], '红线照旧优先走沉淀式压缩');
+  assert(decideActions(mock({ idle_min: 0, ctx_tok: 500_000 })),
+         [{ type: 'IDLE_CLEAR', reason: 'ctx_urgent' }], '最高档 → 直接沉淀清空, 不催一轮(催完它也是自己清, 店主干等)');
+  assert(decideActions(mock({ idle_min: 0, ctx_tok: 500_000, running: true })),
+         [], '最高档但回合进行中 → 不清');
+  assert(decideActions(mock({ idle_min: 0, ctx_tok: 500_000, hasStream: false })),
+         [], '最高档但刚清过 → 不重复清');
   resetCfg();
+  assert(decideActions(mock({ idle_min: 0, ctx_tok: 500_000 })).filter((a) => a.type === 'IDLE_CLEAR'),
+         [], '没开 idleClearMin → 最高档照旧只催(个人版行为不变)');
   assert(decideActions(mock({ idle_min: 6, ctx_tok: 40_000 })).filter((a) => a.type === 'IDLE_CLEAR'),
          [], '没开 idleClearMin → 不会闲时清空(个人版行为不变)');
 }

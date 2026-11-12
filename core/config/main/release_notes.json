@@ -1180,5 +1180,81 @@
         "en": "Images sent to the model are first shrunk to a size it can handle, and text in them stays readable. If the provider rejects an image as too large or the content as too long, the app shrinks the image or cuts the content and sends it again; if it is still too long, it saves what matters to memory, clears the conversation and sends once more. You no longer get a raw English error, and the rest of the conversation no longer keeps failing because of it."
       }
     }
+  ],
+  "1.1.4": [
+    {
+      "title": {
+        "zh-CN": "DeepSeek、智谱不再因为半个表情一直报错",
+        "zh-TW": "DeepSeek、智譜不再因為半個表情一直報錯",
+        "ja": "DeepSeek・智譜が「半分の絵文字」でエラーを繰り返さない",
+        "en": "DeepSeek and Zhipu no longer keep failing over half an emoji"
+      },
+      "detail": {
+        "zh-CN": "长内容被截断时，偶尔会把一个表情从中间切开，留下半个。DeepSeek 和智谱碰到它会拒收整个请求，之后每一轮都报同样的错，清空对话、重启也没用。现在发出去之前会把这种半个表情删掉，记忆和聊天记录里也不再存它，原来存进去的会自动清掉。",
+        "zh-TW": "長內容被截斷時，偶爾會把一個表情從中間切開，留下半個。DeepSeek 和智譜碰到它會拒收整個請求，之後每一輪都報同樣的錯，清空對話、重啟也沒用。現在送出之前會把這種半個表情刪掉，記憶和聊天記錄裡也不再存它，原本存進去的會自動清掉。",
+        "ja": "長い内容を切り詰めるとき、まれに絵文字が途中で切れて半分だけ残ることがありました。DeepSeek と智譜はこれを受け取ると依頼全体を拒否し、その後も毎回同じエラーになり、会話をクリアしても再起動しても直りませんでした。今後は送信前にこの半分の絵文字を取り除き、記憶や会話の記録にも残しません。すでに残っていたものも自動で消します。",
+        "en": "When long content was cut short, an emoji could occasionally be split in half. DeepSeek and Zhipu reject the whole request when they see one, and every later turn failed the same way, even after clearing the conversation or restarting. Half emojis are now removed before anything is sent, memory and chat history no longer keep them, and any already stored are cleaned up automatically."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "有新版本会提示你",
+        "zh-TW": "有新版本會提示你",
+        "ja": "新しいバージョンをお知らせ",
+        "en": "You are told when a new version is out"
+      },
+      "detail": {
+        "zh-CN": "出了新版本，窗口顶上会出现一行提示，点「下载」就开始下载安装包；GitHub 下载慢的话点「备用镜像」。不想装这一版就点「忽略这版」。不会自己下载或安装。",
+        "zh-TW": "出了新版本，視窗頂端會出現一行提示，點「下載」就開始下載安裝包；GitHub 下載慢的話點「備用鏡像」。不想裝這一版就點「略過這版」。不會自己下載或安裝。",
+        "ja": "新しいバージョンが出ると、ウィンドウの上に一行お知らせが出ます。「ダウンロード」でインストーラーを取得、GitHub が遅いときは「ミラー」を使えます。このバージョンを入れないなら「この版をスキップ」。勝手にダウンロードやインストールはしません。",
+        "en": "When a new version is out, a line appears at the top of the window. Click Download to get the installer, or Mirror if GitHub is slow. Click Skip this version if you don't want it. Nothing is downloaded or installed on its own."
+      }
+    },
+    {
+      "title": {
+        "zh-CN": "搬数据目录更清楚",
+        "zh-TW": "搬資料目錄更清楚",
+        "ja": "データの移動がわかりやすく",
+        "en": "Moving the data folder is clearer"
+      },
+      "detail": {
+        "zh-CN": "选的目录不能用时，会弹出对话框说明原因；搬完以后多了一个「清理旧数据」按钮，不用再自己去删旧目录。",
+        "zh-TW": "選的目錄不能用時，會彈出對話框說明原因；搬完以後多了一個「清理舊資料」按鈕，不用再自己去刪舊目錄。",
+        "ja": "選んだフォルダが使えないときは、理由をダイアログで説明します。移動のあとに「古いデータを片付ける」ボタンが出るので、古いフォルダを自分で消す必要はありません。",
+        "en": "If the folder you pick can't be used, a dialog explains why. After the move there is a Clean up old data button, so you don't have to delete the old folder yourself."
+      }
+    }
+  ],
+  "1.1.5": [
+    {
+      "title": {
+        "zh-CN": "智谱等模型调工具不再丢参数",
+        "zh-TW": "智譜等模型呼叫工具不再遺失參數",
+        "ja": "智譜などのモデルでツールの引数が消えなくなりました",
+        "en": "Zhipu and similar models no longer lose tool arguments"
+      },
+      "detail": {
+        "zh-CN": "有些模型（比如智谱的 GLM）调工具时只填工具里写明的参数。以前好几个工具只写明了一个参数，其余的就被它漏掉，发消息、建待办、提醒这类操作会悄悄失败。现在每个工具用到的参数都写明了，插件和脚本的参数也有地方填。",
+        "zh-TW": "有些模型（例如智譜的 GLM）呼叫工具時只填工具裡寫明的參數。以前好幾個工具只寫明了一個參數，其餘的就被它漏掉，傳訊息、建待辦、提醒這類操作會悄悄失敗。現在每個工具用到的參數都寫明了，外掛和腳本的參數也有地方填。",
+        "ja": "一部のモデル（智譜の GLM など）は、ツールに明記された引数しか埋めません。これまでいくつかのツールは引数を一つしか明記しておらず、残りが抜け落ちて、メッセージ送信・ToDo・リマインダーなどが黙って失敗していました。今後は各ツールが使う引数をすべて明記し、プラグインやスクリプトの引数にも書く場所を用意しました。",
+        "en": "Some models (such as Zhipu's GLM) only fill in the arguments a tool spells out. Several tools spelled out just one, so the rest were dropped and sending messages, adding to-dos or setting reminders quietly failed. Every tool now spells out the arguments it uses, and plugins and scripts have a place for theirs too."
+      }
+    }
+  ],
+  "1.1.6": [
+    {
+      "title": {
+        "zh-CN": "可以换成左右布局，重要的输出单独留一份",
+        "zh-TW": "可以換成左右版面，重要的輸出單獨留一份",
+        "ja": "左右レイアウトに切り替えられ、大事な出力は別に残ります",
+        "en": "Side-panel layout, with important outputs kept aside"
+      },
+      "detail": {
+        "zh-CN": "点顶栏的 ◫ 可以在上下、左右两种布局间切换。左右布局时，提醒、待办和快捷按钮放在左栏，右栏是「划重点」：人格觉得重要的输出会挂在这里，对话滚上去了也能点回原消息。窗口太窄时会自动排回上下。",
+        "zh-TW": "點頂欄的 ◫ 可以在上下、左右兩種版面間切換。左右版面時，提醒、待辦和快捷按鈕放在左欄，右欄是「劃重點」：人格覺得重要的輸出會掛在這裡，對話捲上去了也能點回原訊息。視窗太窄時會自動排回上下。",
+        "ja": "上部の ◫ で上下・左右のレイアウトを切り替えられます。左右レイアウトでは、リマインダー・ToDo・クイックボタンが左に、右は「要チェック」になります。ペルソナが大事だと判断した出力がここに残り、会話が流れても元のメッセージへ戻れます。ウィンドウが狭いときは自動で上下に戻ります。",
+        "en": "Click ◫ in the top bar to switch between stacked and side-panel layouts. With side panels, reminders, to-dos and quick buttons sit on the left, and the right holds Highlights: outputs the persona considers important stay there, and you can jump back to the original message after the chat scrolls away. Narrow windows fall back to stacked automatically."
+      }
+    }
   ]
 }

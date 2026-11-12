@@ -36,7 +36,10 @@ function guardEmptyArgs(mcp, tools) {
   // 结果不传参就被这道保护拒了, 人格得改成显式传 keyword="" 才走得通。
   // 讽刺的是上面那段注释早就写过同一个结论(「它们不传参时 input 本来就是 {}, 是合法调用,
   // 按 input 空不空筛会得出 7.7% 的假阳性」)—— 只是当时用在统计口径上, 这道运行时保护没跟着改。
-  const hasRequired = (schema) => Object.values(schema || {}).some((f) => {
+  // 平铺参数的工具传的是整个 zod 对象(agent/flat-args.js looseShape), 字段在 .shape 里 ——
+  // 直接拿对象本身遍历会全认不出、全当必填: run_script 不带 name 列脚本被拒(11-12 dev 实测)。
+  const fieldsOf = (schema) => (schema && schema.shape && typeof schema.shape === 'object') ? schema.shape : (schema || {});
+  const hasRequired = (schema) => Object.values(fieldsOf(schema)).some((f) => {
     try { return typeof f.isOptional === 'function' ? !f.isOptional() : true; }
     catch (_) { return true; }   // 认不出就当必填 —— 保护多罩一个, 好过漏掉真丢参
   });

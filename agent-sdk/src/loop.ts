@@ -14,6 +14,7 @@ import { STRUCTURED_OUTPUT } from './tools/agent.js';
 import { Session, synthetic, type AgentRec } from './session.js';
 import { Channel } from './channel.js';
 import { est } from './context.js';
+import { head, tail } from './providers/well-formed.js';
 
 const MAX_RETRIES = 6;
 const INTERRUPTED_NOTE = '[Request interrupted by user]';
@@ -216,7 +217,7 @@ function rescue(s: Session, from: number, c: { rejected?: string; limit?: number
     }
     if (!best) return null;
     const b: { len: number; set: (t: string) => void; text: string } = best;
-    b.set(`${b.text.slice(0, TRUNC_HEAD)}\n\n[… ${b.len - TRUNC_HEAD - TRUNC_TAIL} characters cut because the request was too long for the provider …]\n\n${b.text.slice(-TRUNC_TAIL)}`);
+    b.set(`${head(b.text, TRUNC_HEAD)}\n\n[… ${b.len - TRUNC_HEAD - TRUNC_TAIL} characters cut because the request was too long for the provider …]\n\n${tail(b.text, TRUNC_TAIL)}`);
     return { did: `the longest new text (${b.len} characters) was cut to its first ${TRUNC_HEAD} and last ${TRUNC_TAIL} characters` };
   }
   return null;

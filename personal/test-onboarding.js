@@ -354,9 +354,10 @@ console.log('\n=== 教的工具调用必须真存在 ===');
   const schema = new Map();
   // (?:\s*\/\/[^\n]*)* = 容忍工具名与参数表之间夹的注释行 —— 少了它 memory_touch 被静默漏解析,
   // 而漏解析的工具在下面的幽灵检查里等于"不存在", 教错它的参数没人拦得住。
-  // memory_admin 的参数平铺(agent/flat-args.js), schema 写成 looseShape(z, {…})。
-  for (const m of toolSrc.matchAll(/tool\('(\w+)',\s*D\.\w+,(?:\s*\/\/[^\n]*)*\s*(?:looseShape\(z,\s*)?\{(.*?)\}\)?\s*,\s*async/gs)) {
-    schema.set(m[1], new Set([...m[2].matchAll(/(\w+)\s*:\s*z\./g)].map((x) => x[1])));
+  // memory_admin 的参数平铺(agent/flat-args.js), schema 写成 opsShape(z, OPS): 顶层只有 op,
+  // 各 op 的参数对着下面的 OP_PARAMS 核。
+  for (const m of toolSrc.matchAll(/tool\('(\w+)',\s*D\.\w+,(?:\s*\/\/[^\n]*)*\s*(?:(?:looseShape\(z,\s*)?\{(.*?)\}\)?|opsShape\(z,\s*\w+\))\s*,\s*async/gs)) {
+    schema.set(m[1], m[2] === undefined ? new Set(['op']) : new Set([...m[2].matchAll(/(\w+)\s*:\s*z\./g)].map((x) => x[1])));
   }
   ok(schema.size >= 7 && schema.has('memory_admin'), `从源码解析出 ${schema.size} 个记忆工具的参数表`);
   // 冷门那批并进 memory_admin 之后, 幽灵从"工具名"变成"op 名" —— 教一个不存在的 op,

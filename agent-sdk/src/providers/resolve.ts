@@ -15,6 +15,7 @@ import { apiModelId } from './models.js';
 import { AccessError } from '../errors.js';
 import { withMessageStartDedupe } from './sse-dedupe.js';
 import { withStreamToolOrder } from './tool-order.js';
+import { withWellFormedBody } from './well-formed.js';
 
 export type Family = 'anthropic' | 'openai' | 'deepseek' | 'compat';
 
@@ -53,7 +54,8 @@ export function resolveModel(modelOpt: string | undefined, env: Env, fetchImpl?:
   const m = /^(deepseek|openai|compat|anthropic)\/(.+)$/.exec(id);
   const prefix = m ? m[1] : null;
   const rest = m ? m[2] : id;
-  const f = fetchImpl ? { fetch: fetchImpl } : {};
+  const base = withWellFormedBody(fetchImpl || fetch);   // 所有协议: 发出前删掉半个 emoji(见 well-formed.ts)
+  const f = { fetch: base };
   const common = { 'User-Agent': USER_AGENT, ...sessionHeaders(sessionId) };
 
   if (prefix === 'deepseek') {
@@ -89,7 +91,7 @@ export function resolveModel(modelOpt: string | undefined, env: Env, fetchImpl?:
     headers,
     // 开头连发多个 message_start 的网关: 只留最后一个, 与 Claude Code CLI 一致(见 sse-dedupe.ts)
     // 非 Claude 模型(DeepSeek 等)要按流出顺序回传, 撤回 AI SDK 把 tool_use 挪到最后的那一下(见 tool-order.ts)
-    fetch: withMessageStartDedupe(/claude|fable|opus|sonnet|haiku/i.test(rest) ? fetchImpl : withStreamToolOrder(fetchImpl || fetch)),
+    fetch: withMessageStartDedupe(/claude|fable|opus|sonnet|haiku/i.test(rest) ? base : withStreamToolOrder(base)),
   });
   // 用最早那版 20250305: 网关转发的大多只认它
   return { model: p(apiModelId(rest)), id, family: 'anthropic', serverSearch: () => p.tools.webSearch_20250305({}) };

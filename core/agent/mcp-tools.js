@@ -12,7 +12,7 @@ const { registerPluginTools } = require('./plugin-tools');
 const { guardEmptyArgs, loadSdk, isSdkKind, withTimeout } = require('./util');
 // 任务清单的参数表 —— 逻辑在 consume.js 的 taskOp 上, 这里只拿参数表拼 schema。
 const { TASK_OPS } = require('./tasks');
-const { looseShape, gather } = require('./flat-args');
+const { looseShape, opsShape, paramsField, gather } = require('./flat-args');
 const { OPS: REMINDER_OPS, reminderOp } = require('../reminders');
 
 // 逐项账的排版。SDK 各组给的是无序全量, 这里一律按 tok 降序 —— 找的是"谁最胖", 不是名录。
@@ -82,7 +82,9 @@ class McpToolsMixin {
         // 提醒放在调用那一刻而不是只写在工具描述里: 描述说的是"该做什么", 这里说的是"现在就做"。
         const noteHint = `\n\n📝 One more thing before clearing: **update the MEMORY.md handoff note to the current state** (what is unfinished / who you are waiting on / where you are stuck).`
           + ` The memory graph requires a query to retrieve; MEMORY.md is the first thing hard-loaded on wake — skipping this update means the next session starts from stale information.`;
-        return { content: [{ type: 'text', text: `✅ Registered — will compact at end of this session.${noteHint}${hint}` }] };
+        // 对人那句只说「整理好了」: 回执里的机制词(本轮结束清空 · 交接便条)曾被原样转述上屏(行业版 11-11「这个會话结束时清空」)
+        const sayHint = `\n\n💬 If you tell the person anything about this, one short line in their own words that it is tidied up; how clearing works (turn end, session, handoff note) stays with you.`;
+        return { content: [{ type: 'text', text: `✅ Registered — will compact at end of this session.${noteHint}${hint}${sayHint}` }] };
       }
       // 刻意**不**加 alwaysLoad: 压缩是低频动作, 触发时机是"上下文已经肥了", 那时多一跳搜索无所谓。
       // 常驻名额只留给"多一跳就会导致我少做"的那四件记忆工具(见 memory-tools-v2.js)。
@@ -193,7 +195,7 @@ class McpToolsMixin {
     const runScript = tool(
       'run_script',
       D.run_script,
-      looseShape(z, { name: z.string().optional().describe('脚本名; 不填就列出这台机器上有哪些能跑。脚本的参数直接写在后面, 如 run_script(name=…, x=…)') }),
+      looseShape(z, { name: z.string().optional().describe('脚本名; 不填就列出这台机器上有哪些能跑。脚本的参数直接写在后面, 如 run_script(name=…, x=…)'), params: paramsField(z) }),
       async (input) => ({ content: [{ type: 'text', text:
         await require('./scripts.js').runScript(input.name, gather(input, ['name']), { homeDir: this.homeDir }) }] })
     );
@@ -292,7 +294,7 @@ class McpToolsMixin {
     const personaAdmin = tool(
       'persona_admin',
       D.persona_admin,
-      looseShape(z, { op: z.enum(Object.keys(PERSONA_OPS)) }),
+      opsShape(z, PERSONA_OPS),
       async (input) => {
         const { op } = input;
         const args = gather(input, ['op']);
@@ -320,7 +322,7 @@ class McpToolsMixin {
     const taskTool = tool(
       'task',
       D.task,
-      looseShape(z, { op: z.enum(Object.keys(TASK_OPS)) }),
+      opsShape(z, TASK_OPS),
       async (input) => ({ content: [{ type: 'text', text: String(this.taskOp(input.op, gather(input, ['op']))) }] })
     );
     tools.push(taskTool);
@@ -329,7 +331,7 @@ class McpToolsMixin {
     const reminderTool = tool(
       'reminder',
       D.reminder,
-      looseShape(z, { op: z.enum(Object.keys(REMINDER_OPS)) }),
+      opsShape(z, REMINDER_OPS),
       async (input) => ({ content: [{ type: 'text', text: String(reminderOp(this.memoryDir, input.op, gather(input, ['op']), new Date(), this.homeDir)) }] })
     );
     tools.push(reminderTool);

@@ -8,6 +8,7 @@
 // 屏幕上还留着几千条(内存里的 convo 不截断), 让人误以为存着, 关掉窗口才发现没了。
 const fs = require('fs');
 const path = require('path');
+const { jsonReplacer, head } = require('./lone-surrogate'); // 落盘不留半个 emoji, 截断不切开 emoji
 
 const MAX_MSGS = 400; // 快照只留最近 N 条, 防文件无限涨(日志那份不截断)
 
@@ -29,7 +30,7 @@ function save(file, state) {
       ...state,
       messages: Array.isArray(state.messages) ? state.messages.slice(-MAX_MSGS) : [],
     };
-    fs.writeFileSync(file, JSON.stringify(trimmed), 'utf8');
+    fs.writeFileSync(file, JSON.stringify(trimmed, jsonReplacer), 'utf8');
     return true;
   } catch (e) {
     return false;
@@ -56,7 +57,7 @@ function appendHistory(dir, msgs) {
       if (!m) continue;
       const day = dayOf(m.ts);
       if (!byDay.has(day)) byDay.set(day, []);
-      byDay.get(day).push(JSON.stringify(m));
+      byDay.get(day).push(JSON.stringify(m, jsonReplacer));
     }
     for (const [day, lines] of byDay) {
       fs.appendFileSync(path.join(dir, day + '.jsonl'), lines.join('\n') + '\n', 'utf8');
@@ -163,7 +164,7 @@ function searchHistory(dir, opts = {}) {
 
   const total = idx.length;
   const take = idx.slice(-limit);            // 最新优先: 同一件事反复聊过, 最近那次通常是最终口径
-  const cut = (t) => (t.length > clip ? t.slice(0, clip) + ` …[+${t.length - clip}]` : t);
+  const cut = (t) => (t.length > clip ? head(t, clip) + ` …[+${t.length - clip}]` : t);
   const hits = take.map((i) => ({
     ts: all[i].ts || 0,
     role: all[i].role,

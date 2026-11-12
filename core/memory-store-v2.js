@@ -43,6 +43,7 @@ mixin(MemoryStoreV2,
   require('./store-v2/pinned'),
   require('./store-v2/logs'),
   require('./store-v2/ops'),
+  require('./store-v2/lone-heal'),
 );
 
 module.exports = { MemoryStoreV2, contentHash, floatsToBlob, blobToFloats, DB_FILE, SCHEMA_VERSION, SCHEMA_FILE };

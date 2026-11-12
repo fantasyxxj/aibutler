@@ -44,6 +44,16 @@ console.log('\n[1] CSP —— 这层唯一挡得住"把屏幕上的东西发出�
 
   const empty = sandbox.buildDoc({ id: 'x', html: '<p>x</p>' });
   ok(/Content-Security-Policy/.test(empty), '没有 css/js 的包照样带 CSP');
+
+  // 包级 media: 只放开 media-src, 别的一字不变
+  const radio = sandbox.cspFor({ media: ['https:'] });
+  ok(/media-src butler-asset: https:(;|$)/.test(radio), `media 写 https: → media-src 放开任意 https: ${radio.match(/media-src[^;]*/)[0]}`);
+  ok(radio.replace(/media-src[^;]*/, '') === sandbox.CSP.replace(/media-src[^;]*/, ''), 'media 只动 media-src, connect-src / img-src 等不变');
+  ok(/media-src butler-asset: https:\/\/\*\.jamendo\.com https:\/\/a\.b\.com:8000/.test(sandbox.cspFor({ media: ['*.jamendo.com', 'a.b.com:8000'] })), '域名 / *.域名 / 带端口 → 只放这些 https 地址');
+  ok(sandbox.cspFor({}) === sandbox.CSP && sandbox.cspFor({ media: ['http:', 'javascript:', "'unsafe-inline'"] }) === sandbox.CSP, '没声明或写了认不出的, CSP 原样');
+  ok(sandbox.buildDoc({ id: 'r', html: '<p>r</p>', media: ['https:'] }).includes('media-src butler-asset: https:'), 'buildDoc 用的是这个包自己的 CSP');
+  ok(/media/.test(sandbox.checkUiPayload({ html: '<p>x</p>', media: ['http:'] }) || '') && /media/.test(sandbox.checkUiPayload({ html: '<p>x</p>', media: 'https:' }) || ''), '登记时 media 写错就拒, 说清哪项认不出');
+  ok(sandbox.checkUiPayload({ html: '<p>x</p>', media: ['https:', '*.somafm.com'] }) === null, '写对的 media 照收');
 }
 
 /* ─────────── [2] iframe 属性: allow-same-origin 一旦混进来这层就白做了 ─────────── */

@@ -1,0 +1,61 @@
+/* layout.css — 上下 / 左右布局与「划重点」(layout.js / marks.js)。style.css 已过 500 行, 侧栏的样式全放这里。 */
+
+/* 外壳: 左栏 | 中间 | 右栏。上下布局时两栏不显示, 中间就是原来那一竖列 */
+#shell { flex: 1; min-height: 0; display: flex; }
+#center { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.rail { display: none; }
+body.lr .rail { display: flex; flex-direction: column; flex: none; min-height: 0; position: relative; background: var(--panel); }
+#railL { width: 260px; border-right: 1px solid var(--line); }
+#railR { width: 360px; border-left: 1px solid var(--line); }
+.rail-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; }
+
+/* 顶栏的布局键 + 角标(上下布局下新挂了几条) */
+#layoutBtn {
+  position: relative; background: var(--btn); color: var(--text); border: 1px solid var(--btn-line);
+  border-radius: var(--radius-sm); padding: 5px 10px; cursor: pointer; font-size: 13px; line-height: 1.2;
+}
+#layoutBtn:hover { background: var(--btn-hi); }
+#layoutBtn.hidden { display: none; }
+#layoutBtn.on { border-color: var(--brand-hi); color: var(--brand-hi); }
+#layoutBadge {
+  position: absolute; top: -6px; right: -6px; min-width: 16px; height: 16px; padding: 0 4px;
+  border-radius: 999px; background: var(--accent); color: #1e1e28; font-size: 10.5px; font-weight: 700;
+  line-height: 16px; text-align: center;
+}
+#layoutBadge.hidden { display: none; }
+
+/* 左栏: 提醒条 / 任务面板 / chip 竖着排, 不再占对话的高度 */
+body.lr #railL #reminderBar { border-left: 0; }
+/* 左栏只有 260px, 一条提醒在自己的格子里折成三行: 人名·时间 / 正文 / 按钮; 分隔线只在两条提醒之间 */
+body.lr #railL #reminderBar .rb-row { flex-wrap: wrap; row-gap: 6px; padding: 8px 12px; }
+body.lr #railL #reminderBar .rb-text { flex: 1 0 100%; white-space: normal; }
+body.lr #railL #taskpanel { border-top: 0; border-bottom: 1px solid var(--line); max-height: none; padding: 10px 12px; }
+body.lr #railL #chipbar { flex-direction: column; flex-wrap: nowrap; align-items: stretch; padding: 10px 12px; background: transparent; }
+body.lr #railL .chip { text-align: left; }
+
+/* 右栏: 「划重点」在上, 常驻板在下(板空着就整块让给「划重点」) */
+#marksBox { flex: 1 1 0; min-height: 160px; overflow-y: auto; }
+#railBoard { flex: 0 1 auto; max-height: 55%; overflow-y: auto; }
+#railBoard .board { display: none; padding: 10px 12px; max-height: none; border-top: 1px solid var(--line); }
+#railBoard .board.on.cur { display: block; }
+
+.mk-head { position: sticky; top: 0; z-index: 1; display: flex; align-items: baseline; gap: 6px; padding: 10px 12px 6px; background: var(--panel); font-weight: 600; font-size: 13px; }
+.mk-n { color: var(--muted); font-weight: 400; font-size: 12px; }
+.mk-list { padding: 0 8px 10px; }
+.mk-empty { color: var(--muted); font-size: 12px; padding: 6px 4px; line-height: 1.6; }
+.mk-item { border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-2); margin: 0 0 6px; padding: 6px 8px; cursor: pointer; }
+.mk-item:hover { border-color: var(--btn-line); }
+.mk-top { display: flex; align-items: baseline; gap: 6px; }
+.mk-time { flex: none; color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.mk-title { flex: 1; min-width: 0; font-weight: 600; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-item.open .mk-title { white-space: normal; }
+.mk-tools { flex: none; display: flex; gap: 2px; }
+.mk-btn { font: inherit; font-size: 12px; line-height: 1; padding: 2px 5px; cursor: pointer; background: transparent; border: 1px solid transparent; border-radius: 4px; color: var(--muted); }
+.mk-btn:hover { color: var(--text); border-color: var(--line); }
+.mk-prev { margin-top: 2px; color: var(--muted); font-size: 12px; line-height: 1.55; white-space: pre-line; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.mk-full { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--line); font-size: 13px; cursor: auto; user-select: text; overflow-x: auto; }
+
+/* 跳回原消息时闪一下, 让眼睛找得到是哪条 */
+.msg.mark-flash { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: var(--radius); }
+
+.mk-full > :first-child { margin-top: 0; }

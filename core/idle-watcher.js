@@ -188,6 +188,12 @@ function decideActions(s, opts = {}) {
     actions.push({ type: 'COMPACT', reason: 'keepalive_maxed', ctx_tier: 'urgent', keepalive_count: kaCount, ...meta });
   } else if (dirty && !running && !bgBusy && tier === 'T2' && ctx_tok >= 30_000 && nudgeDue) {
     actions.push({ type: 'COMPACT', reason: 'tier2_timeout', ctx_tier: 'urgent', ...meta });
+  } else if (idleClearMin > 0 && gate && gate.tier === 'urgent') {
+    // 上下文只是工作内存的人格(开了 idleClearMin): 最高档不催, 直接沉淀清空 —— 催一轮它也是存完再自己清,
+    // 等于存两遍, 店主那句话排在后面干等(11-11 dev: 催 72s + 沉淀 18s + 唤醒 7s = 93s)。
+    if (dirty && !running && !bgBusy && idle_min >= gate.idleMin && s.butler.hasStream && s.butler.hasStream()) {
+      actions.push({ type: 'IDLE_CLEAR', reason: 'ctx_urgent', ...meta });
+    }
   } else if (dirty && !running && !bgBusy && gate && idle_min >= gate.idleMin && nudgeDue) {
     // 🔴 排在两条压缩之后: 提醒抢在前面会把它们 else 掉, 于是 ctx 越胖反而越不压, 正好反了。
     actions.push({ type: 'SAVE_NUDGE', reason: 'ctx_tier', ctx_tier: gate.tier, ...meta });

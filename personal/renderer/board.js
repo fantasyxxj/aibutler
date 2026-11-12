@@ -122,7 +122,7 @@
 
     /* 把一个界面包钉上去。包还是跑在沙箱里(renderer/sandbox.js), 只是宿主从气泡换成了板上的一个框 ——
        能做的事没有变多, 仍是那几扇窗。 */
-    function paintUi(slot, pkgId, title) {
+    function paintUi(slot, pkgId, title, openArgs) {
       unmarkRemoved(slot);
       const pkg = typeof deps.uiPackage === 'function' ? deps.uiPackage(pkgId) : null;
       // 标题: 显式 title= > 包自带的 title > 槽名。槽名是 AI 取的人话, 比机器 id 更该给人看。
@@ -142,7 +142,7 @@
       const holder = doc().createElement('div');
       holder.className = 'board-ui';
       bodyEl.appendChild(holder);
-      deps.mountUi(holder, pkg);
+      deps.mountUi(holder, pkg, openArgs);
     }
 
     /* 没有现成界面包的临时内容 —— 整段正文原样搬上去, 不另学一种写法。 */
@@ -155,7 +155,11 @@
     function pin(spec, sourceBody) {
       const { slot, opts } = parsePin(spec);
       if (!slot) return null;
-      if (opts.ui) paintUi(slot, opts.ui, opts.title);
+      // ui / title 之外的键是打开时的初始值(plugin_open 的参数, 同 {{ui:id|k=v}}), 照样交给沙箱
+      if (opts.ui) {
+        const { ui, title, ...openArgs } = opts;
+        paintUi(slot, ui, title, openArgs);
+      }
       else if (opts.title) paintFree(slot, opts.title, sourceBody);
       else remove(slot);
       return { slot, opts };

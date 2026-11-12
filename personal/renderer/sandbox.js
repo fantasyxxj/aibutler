@@ -60,6 +60,31 @@
     "base-uri 'none'",
   ].join('; ');
 
+  /* 包级 `media`: 这个包的 audio / video 还能从哪些 https 地址播(网络电台、曲库)。
+     只放给 media-src —— 能播, 脚本仍读不到字节(connect-src 照旧回落 'none'), 也开不了网页、调不了接口。
+     写 "https:" = 任意 https 音频(电台的地址列不完, 作者 11-12 定); 写域名 / *.域名(可带 :端口)= 只放这些。
+     没声明的包一字不变。 */
+  const MEDIA_HOST_RE = /^(\*\.)?[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+(:\d{1,5})?$/;
+  function mediaSources(media) {
+    const out = [];
+    for (const raw of Array.isArray(media) ? media : []) {
+      const s = String(raw || '').trim().toLowerCase();
+      if (s === 'https:') out.push('https:');
+      else if (MEDIA_HOST_RE.test(s)) out.push(`https://${s}`);
+    }
+    return out;
+  }
+  function badMedia(media) {
+    if (media === undefined) return null;
+    if (!Array.isArray(media)) return 'media 要写成数组, 如 ["https:"] 或 ["*.example.com"]';
+    const bad = media.filter((x) => mediaSources([x]).length === 0);
+    return bad.length ? `media 里认不出: ${bad.join(', ')}(只收 "https:"、域名、*.域名)` : null;
+  }
+  function cspFor(pkg) {
+    const extra = mediaSources(pkg && pkg.media);
+    return extra.length ? CSP.replace('media-src butler-asset:', `media-src butler-asset: ${extra.join(' ')}`) : CSP;
+  }
+
   // 沙箱里那一小段桥。包的代码只看得见 window.butlerUI 这一个对象。
   // 🔴 这段是**宿主写的**, 不是包写的 —— 包覆盖 window.butlerUI 只能骗到它自己,
   //    真正决定往外发什么的是宿主那侧的 onmessage。
@@ -169,7 +194,7 @@
     // meta 在最前面, 而 CSP 只能叠加收紧不能放宽, 所以包里再写一个 meta 也没用。
     return [
       '<!doctype html><html><head><meta charset="utf-8">',
-      `<meta http-equiv="Content-Security-Policy" content="${CSP}">`,
+      `<meta http-equiv="Content-Security-Policy" content="${cspFor(p)}">`,
       // 🔴 主题 token 注进沙箱, 且**底色与文字色成对给**。
       // 原先这里只有 `color:#222` —— 给了文字色却没给背景: iframe 背景透明 → 露出深色气泡底
       // → 深底深字几乎看不见; 包若自己补个浅底, 又跟周围深色界面割裂。**颜色只给一半就是坑。**
@@ -203,7 +228,7 @@
     for (const k of ['css', 'js']) {
       if (p[k] != null && typeof p[k] !== 'string') return `${k} 不是一段文字`;
     }
-    return null;
+    return badMedia(p.media);
   }
 
   // 存进去的状态: 只收能 JSON 化的, 且有上限。
@@ -352,6 +377,7 @@
               args: cleanOpenArgs(openArgs),
             },
           });
+          clearInterval(beatTimer);   // iframe 被挪位置(换布局)会重载、再喊一次 ready, 别叠出第二个心跳
           beatTimer = setInterval(() => {
             if (missed >= BEAT_MISS_LIMIT) {
               destroy(S().ui_frozen || '这个界面卡住了, 已经把它停掉');
@@ -394,7 +420,7 @@
     return { mount };
   }
 
-  const api = { create, buildDoc, route, checkUiPayload, checkState,
+  const api = { create, buildDoc, cspFor, route, checkUiPayload, checkState,
                 CSP, BRIDGE, MAX_STATE_BYTES, MAX_STRUCT_ARG, READY_TIMEOUT_MS, BEAT_INTERVAL_MS, BEAT_MISS_LIMIT };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.UiSandbox = api;

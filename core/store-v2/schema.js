@@ -3,6 +3,7 @@
 const fs = require('fs');
 const { todayLocal, nowLocalISO } = require('../memory');
 const { SCHEMA_VERSION, SCHEMA_FILE, GRAPH_COLS } = require('./consts');
+const { cleanParams } = require('../lone-surrogate');
 
 // 图索引(nodes/edges/pinned)是否可能变了 —— 引擎层 _fresh() 的缓存靠它作废。
 // 🔴 安全方向是【默认失效】: 认不出的写语句一律当作图变了, 代价只是多重建一次;
@@ -29,6 +30,7 @@ class SchemaMixin {
     this._addMissingColumns();
     const cur = parseInt(this.getMeta('schema_version') || '0', 10);
     if (cur !== SCHEMA_VERSION) this.setMeta('schema_version', String(SCHEMA_VERSION));
+    this._healLoneOnce();   // 写入口挡住之前存进去的半个 emoji, 每个库清一次(store-v2/lone-heal.js)
     return this._db;
   }
 
@@ -45,6 +47,8 @@ class SchemaMixin {
           const s = String(sql);
           if (WRITE_STMT.test(s) && !GRAPH_IRRELEVANT.test(s)) this._graphRev = (this._graphRev || 0) + 1;
           if (VECTOR_WRITE.test(s)) this._vecRev = (this._vecRev || 0) + 1;
+          // 写进库的文字一律删掉半个 emoji(见 lone-surrogate.js): 同样收在这一个口子上
+          if (prop === 'run' && rest.length) rest[0] = cleanParams(rest[0]);
           return v.call(t, sql, ...rest);
         };
       },

@@ -55,6 +55,8 @@ const cipher = { available: () => true, encrypt: (t) => Buffer.from('X' + t), de
     out: { primitive: 'web', http: { url: `${base}/out` } },
     big: { primitive: 'web', http: { url: `${base}/big` } },
     post: { primitive: 'web', http: { method: 'POST', url: `${base}/json`, secret: { name: 'key' } } },
+    viaq: { primitive: 'web', http: { url: `${base}/json`, secret: { name: 'key', query: 'client_id' } } },
+    badq: { primitive: 'web', http: { url: `${base}/json`, secret: { name: 'key', query: 'a b' } } },
     elsewhere: { primitive: 'web', http: { url: 'https://evil.com/x' } },
     hosthole: { primitive: 'web', http: { url: 'http://{host}/x' } },
     badhdr: { primitive: 'web', http: { url: `${base}/json`, headers: { Host: 'evil.com' } } },
@@ -67,6 +69,7 @@ const cipher = { available: () => true, encrypt: (t) => Buffer.from('X' + t), de
   ok(!!rej.elsewhere, `名单外的主机登记就拒: ${rej.elsewhere}`);
   ok(!!rej.hosthole, `主机部分留空被拒: ${rej.hosthole}`);
   ok(!!rej.badhdr, `改 Host 头被拒: ${rej.badhdr}`);
+  ok(!!rej.badq, `secret.query 名字不合法被拒: ${rej.badq}`);
   const r2 = commands.registerPackageCommands('nonet', { get: { primitive: 'web', http: { url: `${base}/json` } } });
   ok(r2.rejected.length === 1, `没声明 net 的包, web 命令全拒: ${r2.rejected[0] && r2.rejected[0].why}`);
 
@@ -98,6 +101,10 @@ const cipher = { available: () => true, encrypt: (t) => Buffer.from('X' + t), de
   x = await commands.run('weather.post', { body: { a: 1 } }, ctx);
   ok(x.ok && seen.at(-1).auth === 'Bearer sk-123' && x.data.body.body === '{"a":1}', '宿主把密钥塞进请求头, body 按 JSON 发');
   ok(JSON.stringify(x).indexOf('sk-123') < 0, '返回给界面的结果里没有密钥');
+  const authBefore = seen.length;
+  x = await commands.run('weather.viaq', { query: { tags: 'chill' } }, ctx);
+  ok(x.ok && seen.at(-1).url === '/json?tags=chill&client_id=sk-123' && !seen.at(-1).auth, `secret.query 把密钥放进地址参数, 不进请求头: ${seen.at(-1).url}`);
+  ok(seen.length === authBefore + 1, 'secret.query 只发一次请求');
   ok(store.get('other', 'key') === '', 'A 包的密钥, 按 B 包取不到');
   ok(fs.readFileSync(path.join(dir, 's.bin')).toString().startsWith('X'), '落盘的是 cipher 加过的');
   ok(commands.notifyAi('weather.get') === false, 'web 默认不唤醒 AI');

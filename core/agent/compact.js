@@ -197,7 +197,7 @@ class CompactMixin {
       // 懒唤醒(闲时清空用): 不立刻戳唤醒轮, 挂标记等下一条消息进门(_awaitWake)。必须在 run 里挂 ——
       // 挂在外面的话, 等着清空的那条消息会先于标记放行, 冷着进新会话。
       if (opts.lazyWake) { this._parkedNeedsWake = true; return res; }
-      this.startWake('clear', { mute: false });   // 照旧上屏; 走 startWake 是为了让紧跟着的原话等它跑完
+      this.startWake('clear', { mute: this._clearWakeMuted() });   // 走 startWake 是为了让紧跟着的原话等它跑完
       return res;
     })();
     this._clearing = run;
@@ -218,6 +218,8 @@ class CompactMixin {
   // 默认静音: 行业版开机不许 AI 先开口(industry/app/boot.js deliverOpening 注释, 作者 08-14 定)。
   // 唤醒那一句。行业版覆盖成中性英文: 店铺设的唤醒词是日语时, 它是新会话的第一句话, 会把整段会话带成日语。
   _wakeGreeting() { return this.wakePhrase || `Wake up, ${this.name}`; }
+  // 清空后那一轮上不上屏。个人版上屏(用户看得见它醒了); 行业版覆盖成静音, 同开机/闲置复活。
+  _clearWakeMuted() { return false; }
 
   startWake(kind, { mute = true } = {}) {
     if (this._waking) return this._waking;

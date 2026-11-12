@@ -164,7 +164,7 @@ function saveImageAttachment(homeDir, a) {
 }
 const sendUI = (ch, payload) => { if (mainWin && !mainWin.isDestroyed()) mainWin.webContents.send(ch, payload); };
 // 提醒由主进程统一盯, 到点挂横幅(personal/reminder-center.js); 人点「处理」才打开人格。
-const reminderCenter = require('./reminder-center').create({ registry, persona, sendUI, log: (m) => console.log(m) });
+const reminderCenter = require('./reminder-center').create({ registry, persona, sendUI, log: (m) => console.log(m) }); const updateCheck = require('./update-check').wire({ ipcMain, sendUI, controlDir: paths.controlDir(), log: (m) => console.log(m) });   // 有新版挂一行提示(personal/update-check.js)
 // 没打开的人格守着收件通道, 来消息就打开它(personal/dormant-wake.js); 开关在人格配置 wakeOnMessage
 const dormantWake = require('./dormant-wake').create({ registry, log: pluginLog, isOpen: (d) => sessions.has(sidOf(d)),
   wake: (d) => { if (sessions.has(sidOf(d))) return; const s = openPersona(d); sendUI('persona-opened', { meta: metaOf(s) }); } });
@@ -1735,7 +1735,7 @@ app.whenReady().then(async () => {
         gift: giftSelfIdentity, onboard: runOnboarding });
     }
     idleWatcher.start();   // spec §1: 每 30s 扫全体 sessions, T1/T2/T3 决策保活/压缩
-    reminderCenter.start();   // 每 30s 扫全部人格的提醒登记簿, 到点挂横幅
+    reminderCenter.start(); updateCheck.start();   // 每 30s 扫全部人格的提醒登记簿, 到点挂横幅; 启动 1 分钟后查一次新版
     restartLocalApi();    // 本机戳醒 API (默认关; 登记簿 localApi.enabled 开了才起端口)
   } catch (e) {
     // 启动链任何一环抛异常, 若不接住 = promise 静默吞掉 → 没有窗口、进程僵在后台("窗口没了但进程还在")。
@@ -1960,6 +1960,9 @@ ipcMain.handle('ui-state-read', async (_e, { id } = {}) =>
   ({ state: uiState.create(paths.controlDir()).read(id) }));
 ipcMain.handle('ui-state-write', async (_e, { id, state } = {}) =>
   uiState.create(paths.controlDir()).write(id, state));
+
+/* 侧栏状态(布局上下/左右 + 人格挂上去的重要输出), 每人格一个文件 → personal/side-state.js */
+require('./side-state').wire({ ipcMain, controlDir: paths.controlDir });
 
 /* 常驻板「已撤下的槽位」黑名单。用户点 ✕ 撤下一个钉住的界面, 下次开窗 loadHistory 重放历史里
    的 {{pin:...}} 印时会把它重新钉回来 —— 这份黑名单让「撤掉」真的记住。**每人格一份**(key=sid),

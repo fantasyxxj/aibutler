@@ -330,7 +330,7 @@
       // 所以"往任意地方提交的界面"在文法上根本写不出来。
       // ui 是第三种: 把一个装好的界面包摆在这儿。它跑在沙箱里(renderer/sandbox.js),
       // 想画多复杂画多复杂, 但能往外做的事仍旧只有 cmd 那一条 —— 去处依然没有变多。
-      s = s.replace(/\{\{(cmd|in|sel|btn|ui|pin|picks|pick):([^}\n]*)\}\}/g, (_m, kind, spec) => {
+      s = s.replace(/\{\{(cmd|in|sel|btn|ui|pin|mark|picks|pick):([^}\n]*)\}\}/g, (_m, kind, spec) => {
         widgetTable.push({ kind, spec: spec.trim() });
         return SOH + 'W' + (widgetTable.length - 1) + STX;
       });

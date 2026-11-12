@@ -18,7 +18,7 @@ const path = require('path');
 const fs = require('fs');
 const { cfg } = require('../host');
 const { stripSsmlForPlainText } = require('./util');
-const { looseShape, gather } = require('./flat-args');
+const { looseShape, opsShape, paramsField, gather } = require('./flat-args');
 
 class McpChannelsMixin {
   _channelTools({ tool, z, D }) {
@@ -169,7 +169,7 @@ class McpChannelsMixin {
     const busAdmin = tool(
       'bus_admin',
       D.bus_admin,
-      looseShape(z, { op: z.enum(Object.keys(BUS_OPS)) }),
+      opsShape(z, BUS_OPS),
       async (input) => {
         const { op } = input;
         const args = gather(input, ['op']);
@@ -198,7 +198,9 @@ class McpChannelsMixin {
       D.bus_exec,
       looseShape(z, { command: z.string().describe('要执行的 command(如 apicall); 这次调用的内容直接写在后面, apicall 是 method=…, path=…, query=…|body=…'),
         bus: z.string().optional().describe('往哪条 bus 发(缺省=第一条)'),
-        correlation_id: z.string().optional().describe('把这次调用跟某件事关联起来; 重试时传同一个值才会被服务端当成同一次') }),
+        correlation_id: z.string().optional().describe('把这次调用跟某件事关联起来; 重试时传同一个值才会被服务端当成同一次'),
+        method: z.any().optional(), path: z.any().optional(), query: z.any().optional(), body: z.any().optional(),
+        params: paramsField(z) }),
       async (input) => {
         const { command, bus, correlation_id } = input;
         // 旧写法 content={…} 照收

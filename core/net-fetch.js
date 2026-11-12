@@ -7,7 +7,7 @@
 // 包级 `net`: ["api.example.com", "*.example.com", "203.0.113.5", "192.168.1.20:8080"]
 //   · 域名精确匹配; `*.x.com` 匹配 x.com 的任意子域(不含 x.com 本身)
 //   · 写了端口就只认那个端口, 没写就只认协议默认端口(80 / 443)
-// 命令声明 `http`: { method, url, headers?, secret?: { name, header?, format? } }
+// 命令声明 `http`: { method, url, headers?, secret?: { name, header?, format?, query? } }
 //   · url 的协议 + 主机 + 端口必须是字面量, {} 只许出现在路径和 query 里 —— 登记那一刻就查
 //   · secret 由宿主从本机金库按名字取出塞进请求头, 包和 AI 都读不到原文
 'use strict';
@@ -72,7 +72,10 @@ function badWebDecl(http, list) {
     return `http.headers 不能写 ${[...BANNED_HEADERS].join(' / ')}`;
   }
   if (http.secret !== undefined && !(http.secret && /^[a-z0-9_-]{1,32}$/.test(String(http.secret.name || '')))) {
-    return 'http.secret 要写成 {name, header?, format?}, name 只许小写字母数字 _ -';
+    return 'http.secret 要写成 {name, header?, format?, query?}, name 只许小写字母数字 _ -';
+  }
+  if (http.secret && http.secret.query !== undefined && !/^[A-Za-z0-9_-]{1,32}$/.test(String(http.secret.query))) {
+    return 'http.secret.query 是地址参数名, 只许字母数字 _ -';
   }
   return null;
 }
@@ -119,7 +122,9 @@ async function request(decl, args = {}, { getSecret, fetchImpl } = {}) {
   if (http.secret) {
     const plain = typeof getSecret === 'function' ? await getSecret(http.secret.name) : '';
     if (!plain) return { ok: false, code: 'no_secret', message: `web: 密钥 ${http.secret.name} 还没设置` };
-    headers[http.secret.header || 'Authorization'] = String(http.secret.format || 'Bearer {}').replace('{}', plain);
+    // query = 放进地址参数的名字(Jamendo 这类只认 ?client_id=… 的接口); 不写就进请求头。
+    if (http.secret.query) u.searchParams.set(String(http.secret.query), plain);
+    else headers[http.secret.header || 'Authorization'] = String(http.secret.format || 'Bearer {}').replace('{}', plain);
   }
   let body;
   if (args.body !== undefined && method !== 'GET') {

@@ -89,8 +89,8 @@ function renderWeak(r) {
 // 代价不对称所以默认给, 但仍要封顶, 无限兜底 = 把全库倒进上下文, 那等于没有检索。
 const { currentTuning } = require('./memory-v2');
 const { msg } = require('./memory-v2/messages');
-const { looseShape, gather } = require('./agent/flat-args');
-const { getLang, langName } = require('./memory-v2/lang');
+const { opsShape, gather } = require('./agent/flat-args');
+const { getLang, langName } = require('./memory-v2/lang'); const { head } = require('./lone-surrogate'); // 截给模型看的文字不切开 emoji
 // 认原话的文字是哪门语言 —— 只用来把退回提示写成人话, 判断本身只看有没有非 ASCII 字。
 const scriptName = (t) => (/[\u3040-\u30ff]/.test(t) ? 'Japanese' : /[\uac00-\ud7af]/.test(t) ? 'Korean'
   : /[\u4e00-\u9fff]/.test(t) ? 'Chinese' : 'their language');
@@ -320,7 +320,7 @@ function registerMemoryToolsV2({ tool, z, graph, descriptions = {}, onHit = () =
           const sims = await g.similarTo(`${a.title || ''} ${a.claim || ''} ${a.keywords || ''}`.trim(),
             { min: T().dup_hint_cos, exclude: r.id });
           if (sims.length) dup = `\n\n${cfg.render('main/memory_dup_hint', {
-            candidates: sims.map((h) => `- [${h.cos}] ${h.slug}: ${h.claim.slice(0, 160)}`).join('\n') })}`;
+            candidates: sims.map((h) => `- [${h.cos}] ${h.slug}: ${head(h.claim, 160)}`).join('\n') })}`;
         } catch (_) { /* 提示坏了不该挡沉淀 */ }
       }
       return txt(`✅ saved to memory: #${r.id} ${r.slug}${r.is_new ? ' (new)' : ' (updated)'}\n` +
@@ -404,7 +404,7 @@ function registerMemoryToolsV2({ tool, z, graph, descriptions = {}, onHit = () =
       const d = G().doctor();
       const ps = d.problems || [];
       return txt([
-        `nodes ${d.nodes} · edges ${d.edges} · pinned ${d.pinned}/${d.quota} · isolated ${d.isolated}`,
+        `nodes ${d.nodes} · edges ${d.edges} · pinned ${d.pinned}/${d.quota} · isolated ${d.isolated}${d.lone_surrogates_fixed ? ` · removed ${d.lone_surrogates_fixed} broken half-emoji character(s) that would make some model APIs reject requests` : ''}`,
         d.review_due.length ? `overdue review ${d.review_due.length}: ${d.review_due.slice(0, 8).join(', ')}` : 'overdue review: none',
         ...ps.map((p) => `⚠️ ${p.kind} ×${p.count}${p.hint ? ` — ${p.hint}` : ''}${p.sample ? ` — e.g.: ${p.sample.join(', ')}` : ''}`),
         // 🔴 每条告警都要有「知道了, 这次不修」的出口, 否则只剩"永远被念叨"和"去乱改"两条路
@@ -441,7 +441,7 @@ function registerMemoryToolsV2({ tool, z, graph, descriptions = {}, onHit = () =
       if (!rows.length) return txt('(no revision history)');
       return txt(rows.map((r) =>
         `${r.at.slice(0, 16).replace('T', ' ')} · ${r.op}/${r.field}${r.actor ? ` · ${r.actor}` : ''}\n` +
-        `    before: ${String(r.before || '').slice(0, 90)}\n    after: ${String(r.after || '').slice(0, 90)}`).join('\n'));
+        `    before: ${head(String(r.before || ''), 90)}\n    after: ${head(String(r.after || ''), 90)}`).join('\n'));
     } },
 
     link: { req: ['from_id', 'to_id'], opt: ['rel'],
@@ -609,9 +609,9 @@ function registerMemoryToolsV2({ tool, z, graph, descriptions = {}, onHit = () =
   };
 
   const memAdmin = tool('memory_admin', D.memory_admin,
-    // 参数平铺在 op 后面(agent/flat-args.js): loose 收下其余顶层键, 不必把十七个 op 的参数并集
-    // 逐个声明把 schema 撑回原样。校验由上面的 req 表在运行时做, 报错里带回该 op 的参数表。
-    looseShape(z, { op: z.enum(Object.keys(OPS)) }),
+    // 参数平铺在 op 后面, 各 op 的参数名并集声明成可选(agent/flat-args.js opsShape)。
+    // 校验由上面的 req 表在运行时做, 报错里带回该 op 的参数表。
+    opsShape(z, OPS),
     async (input) => {
       const { op } = input;
       const args = gather(input, ['op']);

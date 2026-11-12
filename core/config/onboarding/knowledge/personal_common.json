@@ -1,7 +1,7 @@
 {
   "_": "出生知识包 · 个人版共用。个人版每个人格都灌(含初始人格); 行业版不灌 —— 行业版 manifest 的 knowledge 数组里没有它。可用变量: {{name}}",
   "bundle_id": "personal_common",
-  "version": "1.0.15",
+  "version": "1.0.17",
   "items": [
     {
       "slug": "reference_one_persona_one_domain",
@@ -1859,23 +1859,23 @@
       "type": "reference",
       "importance": "med",
       "title": "换数据保存位置 —— 系统设置「高级 → 数据位置 → 搬到别处…」",
-      "claim": "用户想把人格、记忆和设置换个地方存(比如挪到 D 盘或外接盘)时, 告诉他点系统设置「高级 → 数据位置 → 搬到别处…」, 选一个空文件夹并确认: app 会先重启, 把数据整份复制过去, 复制成功才切换, 原来那份留着, 确认没问题后他自己删。同一栏的「打开文件夹」能直接打开现在的数据目录。搬家由 app 在重启时完成, 你自己不复制也不移动数据目录。",
-      "keywords": "数据位置 数据目录 换位置 搬家 迁移 挪到D盘 存哪 存在哪里 C盘满了 外接硬盘 打开数据文件夹 系统设置 高级 搬到别处",
+      "claim": "用户想把人格、记忆和设置换个地方存(比如挪到 D 盘或外接盘)时, 告诉他点系统设置「高级 → 数据位置 → 搬到别处…」, 选一个空文件夹并确认: app 会先重启, 把数据整份复制过去, 复制成功才切换, 原来那份留着; 他确认没问题后, 点同一栏的「清理旧数据…」由 app 把旧数据移进回收站(这个按钮只在搬完重启后出现), 不要让他自己整个删旧文件夹。同一栏的「打开文件夹」能直接打开现在的数据目录。搬家由 app 在重启时完成, 你自己不复制也不移动数据目录。",
+      "keywords": "数据位置 数据目录 换位置 搬家 迁移 挪到D盘 存哪 存在哪里 C盘满了 外接硬盘 打开数据文件夹 系统设置 高级 搬到别处 删旧文件夹 清理旧数据 旧数据删掉",
       "translations": {
         "zh-TW": {
           "title": "換資料儲存位置 —— 系統設定「進階 → 資料位置 → 搬到別處…」",
-          "claim": "使用者想把人格、記憶和設定換個地方存（比如移到 D 槽或外接硬碟）時，告訴他點系統設定「進階 → 資料位置 → 搬到別處…」，選一個空資料夾並確認：app 會先重新啟動，把資料整份複製過去，複製成功才切換，原來那份留著，確認沒問題後他自己刪。同一欄的「開啟資料夾」能直接打開現在的資料目錄。搬移由 app 在重新啟動時完成，你自己不複製也不移動資料目錄。",
-          "keywords": "資料位置 資料目錄 換位置 搬移 遷移 移到D槽 存哪 C槽滿了 外接硬碟 開啟資料夾 系統設定 進階 搬到別處"
+          "claim": "使用者想把人格、記憶和設定換個地方存（比如移到 D 槽或外接硬碟）時，告訴他點系統設定「進階 → 資料位置 → 搬到別處…」，選一個空資料夾並確認：app 會先重新啟動，把資料整份複製過去，複製成功才切換，原來那份留著；他確認沒問題後，點同一欄的「清理舊資料…」由 app 把舊資料移進資源回收筒（這個按鈕只在搬完重新啟動後出現），不要讓他自己整個刪舊資料夾。同一欄的「開啟資料夾」能直接打開現在的資料目錄。搬移由 app 在重新啟動時完成，你自己不複製也不移動資料目錄。",
+          "keywords": "資料位置 資料目錄 換位置 搬移 遷移 移到D槽 存哪 C槽滿了 外接硬碟 開啟資料夾 系統設定 進階 搬到別處 刪舊資料夾 清理舊資料"
         },
         "ja": {
           "title": "データの保存先を変える —— システム設定「詳細設定 → データの保存先 → 別の場所へ移動…」",
-          "claim": "ユーザーが人格・記憶・設定の保存場所を変えたいとき（D ドライブや外付けディスクへ移すなど）は、システム設定「詳細設定 → データの保存先 → 別の場所へ移動…」で空のフォルダを選んで確認するよう伝える。アプリはまず再起動し、データを丸ごとコピーして、成功してから切り替える。元のデータは残るので、問題がないと確かめてから本人が削除する。同じ欄の「フォルダを開く」で今の保存先を開ける。移動は再起動時にアプリが行うので、あなた自身はデータディレクトリをコピーも移動もしない。",
-          "keywords": "データの保存先 データディレクトリ 場所を変える 移動 移行 Dドライブ どこに保存 容量不足 外付け フォルダを開く システム設定 詳細 別の場所へ移動"
+          "claim": "ユーザーが人格・記憶・設定の保存場所を変えたいとき（D ドライブや外付けディスクへ移すなど）は、システム設定「詳細設定 → データの保存先 → 別の場所へ移動…」で空のフォルダを選んで確認するよう伝える。アプリはまず再起動し、データを丸ごとコピーして、成功してから切り替える。元のデータは残る。問題がないと確かめたら、同じ欄の「古いデータを片付ける…」でアプリにゴミ箱へ移してもらう（このボタンは移動後の再起動のあとにだけ出る）。古いフォルダを本人に丸ごと削除させない。同じ欄の「フォルダを開く」で今の保存先を開ける。移動は再起動時にアプリが行うので、あなた自身はデータディレクトリをコピーも移動もしない。",
+          "keywords": "データの保存先 データディレクトリ 場所を変える 移動 移行 Dドライブ どこに保存 容量不足 外付け フォルダを開く システム設定 詳細 別の場所へ移動 古いフォルダ 削除 古いデータを片付ける"
         },
         "en": {
           "title": "Change where data is stored — Settings › Advanced › Data folder › Move elsewhere…",
-          "claim": "When the user wants personas, memories and settings stored somewhere else (another drive, an external disk), tell them to open Settings › Advanced › Data folder › Move elsewhere…, pick an empty folder and confirm: the app restarts, copies everything over and switches only after the copy succeeds; the old copy stays, and they delete it once all looks right. Open folder in the same row opens the current data folder. The app does the move while restarting, so you neither copy nor move the data folder yourself.",
-          "keywords": "data folder data directory change location move migrate other drive where is my data disk full external drive open folder settings advanced move elsewhere"
+          "claim": "When the user wants personas, memories and settings stored somewhere else (another drive, an external disk), tell them to open Settings › Advanced › Data folder › Move elsewhere…, pick an empty folder and confirm: the app restarts, copies everything over and switches only after the copy succeeds; the old copy stays; once all looks right they click Clean up old data… in the same row and the app moves it to the Trash (that button appears only after the move's restart) — do not have them delete the old folder wholesale. Open folder in the same row opens the current data folder. The app does the move while restarting, so you neither copy nor move the data folder yourself.",
+          "keywords": "data folder data directory change location move migrate other drive where is my data disk full external drive open folder settings advanced move elsewhere delete old folder clean up old data"
         }
       },
       "edges": [
@@ -2054,6 +2054,38 @@
         {
           "rel": "relates",
           "to": "reference_move_data_folder_in_settings"
+        }
+      ]
+    },
+    {
+      "slug": "reference_mark_important_output_to_side_panel",
+      "seed_use_count": 2,
+      "type": "reference",
+      "importance": "high",
+      "title": "用户日后要回头找的回复, 写 {{mark:标题}} 挂进侧栏「划重点」",
+      "claim": "回复里有用户日后要回头找的东西 —— 结论、定下的方案、交付的文件路径、等他拍板的事 —— 就在这条回复里写一个 `{{mark:十来个字的标题}}`(不包代码块), 整条回复会存一份挂进界面侧栏「划重点」, 对话滚上去了用户点开就能重看。一条回复写一个; 闲聊、过程汇报、问候不挂。",
+      "keywords": "划重点 重点 重要 挂上去 挂起来 留一份 回头看 回头找 往上翻 滚上去 侧栏 标记 收藏 置顶消息 结论 方案 交付 文件路径 待拍板 mark",
+      "translations": {
+        "ja": {
+          "title": "後で見返したい返信には {{mark:タイトル}} を書いてサイドの「要チェック」に残す",
+          "claim": "ユーザーが後で見返したくなる内容 —— 結論、決まった方針、渡したファイルのパス、判断待ちの事項 —— を含む返信には、その返信の中に `{{mark:十数文字のタイトル}}` を一つ書く(コードブロックに入れない)。返信全体が保存されてサイドの「要チェック」に並び、会話が流れてもクリックで読み返せる。一つの返信に一つ。雑談・途中経過・挨拶には付けない。",
+          "keywords": "要チェック 重要 残す 見返す 後で探す スクロール サイドパネル 印 ブックマーク 固定 結論 方針 納品 ファイルパス 判断待ち mark"
+        },
+        "en": {
+          "title": "Write {{mark:title}} in a reply the user will want to find again, to keep it in the side panel's Highlights",
+          "claim": "When a reply holds something the user will want to look back at — a conclusion, an agreed plan, a delivered file path, a decision waiting on them — write one `{{mark:short title}}` in that reply (not inside a code block). The whole reply is saved into the Highlights side panel, so the user can reopen it after the chat scrolls away. One per reply; never for small talk, progress updates or greetings.",
+          "keywords": "highlights highlight keep save for later look back find again scrolled away side panel bookmark mark pin message conclusion plan deliverable file path decision"
+        },
+        "zh-TW": {
+          "title": "使用者日後要回頭找的回覆, 寫 {{mark:標題}} 掛進側欄「劃重點」",
+          "claim": "回覆裡有使用者日後要回頭找的東西 —— 結論、定下的方案、交付的檔案路徑、等他拍板的事 —— 就在這則回覆裡寫一個 `{{mark:十來個字的標題}}`(不包在程式碼區塊裡), 整則回覆會存一份掛進介面側欄「劃重點」, 對話捲上去了使用者點開就能重看。一則回覆寫一個; 閒聊、過程匯報、問候不掛。",
+          "keywords": "劃重點 重點 重要 掛上去 留一份 回頭看 回頭找 往上翻 捲上去 側欄 標記 收藏 置頂訊息 結論 方案 交付 檔案路徑 待拍板 mark"
+        }
+      },
+      "edges": [
+        {
+          "rel": "relates",
+          "to": "reference_pin_a_plugin_to_the_board"
         }
       ]
     }

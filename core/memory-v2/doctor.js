@@ -245,6 +245,8 @@ class DoctorMixin {
       pinned: idx.pinned.size, quota: PINNED_QUOTA,
       // 上限出来之前钉上的超长常驻: 还钉着就留着, 可一旦被撤下就按上限钉不回 —— 体检趁它还在让人格改短
       pinned_too_long: [...idx.pinned].filter((id) => [...String((this.store.node(id) || {}).claim || '')].length > PINNED_MAX_CHARS).length,
+      // 半个 emoji(孤立代理项)会让 DeepSeek / 智谱拒收整个请求: 体检时查到就当场删, 报删了几处
+      lone_surrogates_fixed: this.store.loneSurrogateScan({ fix: true }).fixed,
       isolated: isolated.length, review_due: dueSoon.map((n) => n.slug),
       recall, utterances: this.utteranceCount(),
       problems: opts.raw ? problems : this._dropAcked(problems),

@@ -42,6 +42,8 @@ function registerPackage(payload) {
     summary: payload.summary || '',
     usage: payload.usage || '',
     keywords: payload.keywords || '',
+    // audio / video 还能从哪些 https 地址播, 沙箱按它放开 media-src(renderer/sandbox.js cspFor)。
+    media: Array.isArray(payload.media) ? payload.media.slice() : undefined,
     html: payload.html,
     css: payload.css || '',
     js: payload.js || '',
