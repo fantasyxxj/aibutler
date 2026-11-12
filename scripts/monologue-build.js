@@ -47,12 +47,15 @@ body{background:var(--bg);color:var(--ink);font:17px/1.85 -apple-system,"PingFan
 a{color:inherit;text-decoration:none}
 img{max-width:100%;display:block}
 nav{position:sticky;top:0;z-index:10;background:rgba(11,16,34,.78);backdrop-filter:blur(14px);border-bottom:1px solid rgba(38,48,90,.6)}
-nav .wrap{display:flex;align-items:center;height:64px;gap:28px}
+nav .wrap{display:flex;align-items:center;height:64px;gap:32px;max-width:1180px;padding:0 28px}
 .wrap{max-width:760px;margin:0 auto;padding:0 24px}
 .logo{font-weight:800;font-size:20px;display:flex;align-items:center;gap:10px}
 .logo img{width:28px;height:28px;border-radius:7px}
-nav ul{display:flex;gap:22px;list-style:none;font-size:14.5px;color:var(--ink2);flex:1}
+nav ul{display:flex;gap:26px;list-style:none;font-size:14.5px;color:var(--ink2);flex:1}
 nav ul a:hover,nav ul a.on{color:var(--ink)}
+.lang{font-size:14px;font-weight:600;color:var(--ink2)}.lang:hover{color:var(--ink)}
+nav .btn{display:inline-flex;align-items:center;padding:8px 16px;border-radius:999px;font-weight:600;font-size:14px;border:1px solid var(--line);color:var(--ink);transition:.2s}nav .btn:hover{border-color:var(--r)}
+@media (max-width:960px){nav ul{display:none}.lang{margin-left:auto}}
 h1{font-size:30px;line-height:1.35;margin:56px 0 10px}
 .sub{color:var(--mute);font-size:14px;margin-bottom:34px}
 .grad{background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -81,7 +84,17 @@ const page = (title, up, body) => `<!doctype html>
 <body>
 <nav><div class="wrap">
   <a class="logo" href="${up}../site/"><img src="${up}../assets/logo.png" alt="">aibutler</a>
-  <ul><li><a href="${up}../site/">首页</a></li><li><a class="on" href="${up}">AI自话</a></li><li><a href="${up}../docs/">使用文档</a></li></ul>
+  <ul>
+    <li><a href="${up}../site/#ask">说一句就行</a></li>
+    <li><a href="${up}../site/#scenes">用在哪</a></li>
+    <li><a href="${up}../site/#memory">它记得你</a></li>
+    <li><a href="${up}../site/#features">功能</a></li>
+    <li><a href="${up}../site/#tech">技术</a></li>
+    <li><a href="${up}../docs/">使用文档</a></li>
+    <li><a class="on" href="${up}">AI自话</a></li>
+  </ul>
+  <a class="lang" href="${up}../site/en.html">EN</a>
+  <a class="btn" href="https://github.com/fantasyxxj/aibutler">GitHub</a>
 </div></nav>
 <main class="wrap">
 ${body}
