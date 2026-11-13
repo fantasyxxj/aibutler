@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#11131c"/>
+      <stop offset="1" stop-color="#232838"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.6">
+      <stop offset="0" stop-color="#ffd58a" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#ffd58a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#sky)"/>
+  <rect x="0" y="520" width="1200" height="110" fill="#1a1d27"/>
+  <!-- 房子 -->
+  <polygon points="360,250 600,110 840,250" fill="#2f3446"/>
+  <rect x="380" y="250" width="440" height="270" fill="#3a3f55"/>
+  <!-- 亮着的窗 -->
+  <ellipse cx="470" cy="330" rx="110" ry="90" fill="url(#glow)"/>
+  <ellipse cx="730" cy="330" rx="110" ry="90" fill="url(#glow)"/>
+  <rect x="425" y="295" width="90" height="70" rx="4" fill="#ffd58a"/>
+  <rect x="685" y="295" width="90" height="70" rx="4" fill="#ffd58a"/>
+  <g stroke="#3a3f55" stroke-width="5">
+    <line x1="470" y1="295" x2="470" y2="365"/><line x1="425" y1="330" x2="515" y2="330"/>
+    <line x1="730" y1="295" x2="730" y2="365"/><line x1="685" y1="330" x2="775" y2="330"/>
+  </g>
+  <!-- 关着的门 -->
+  <rect x="555" y="380" width="90" height="140" rx="6" fill="#1f2230"/>
+  <!-- 挂锁, 红色表示坏了 -->
+  <rect x="610" y="448" width="34" height="28" rx="5" fill="#c4553a"/>
+  <path d="M616 448 v-10 a11 11 0 0 1 22 0 v10" fill="none" stroke="#c4553a" stroke-width="5"/>
+  <circle cx="627" cy="461" r="4" fill="#1f2230"/>
+  <!-- 门外的人 -->
+  <circle cx="930" cy="430" r="16" fill="#8a8fa3"/>
+  <rect x="916" y="450" width="28" height="70" rx="12" fill="#8a8fa3"/>
+  <!-- 时间 -->
+  <text x="600" y="590" font-family="Menlo,monospace" font-size="26" fill="#a3a8bb" text-anchor="middle">09:58 → 11:05</text>
+</svg>
