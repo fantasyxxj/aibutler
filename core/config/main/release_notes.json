@@ -1304,5 +1304,21 @@
         "en": "In the side-panel layout, drag the edge between a panel and the chat to resize it; drag it to the window edge and it folds into a thin strip. Bookmarks still land while it is folded, and the right strip shows how many are new. Click the strip or drag it out to reopen. Width and folding are remembered."
       }
     }
+  ],
+  "1.1.10": [
+    {
+      "title": {
+        "zh-CN": "小工具可以挂在右侧栏，切换人格时音乐不再停",
+        "zh-TW": "小工具可以掛在右側欄，切換人格時音樂不再停",
+        "ja": "小さなツールを右サイドに置けるように。人格を切り替えても音楽が止まりません",
+        "en": "Small tools can live in the right side panel, and music keeps playing when you switch personas"
+      },
+      "detail": {
+        "zh-CN": "像放音乐这样一直开着的小工具，现在挂在右侧栏，不再占聊天上方的位置；上下布局时排在上方那块下面。不同人格用不同布局时，来回切换人格，侧栏里正在放的音乐也不会停。",
+        "zh-TW": "像放音樂這樣一直開著的小工具，現在掛在右側欄，不再佔聊天上方的位置；上下版面時排在上方那塊下面。不同人格用不同版面時，來回切換人格，側欄裡正在播的音樂也不會停。",
+        "ja": "音楽プレーヤーのように開きっぱなしの小さなツールは、チャットの上ではなく右サイドに置かれるようになりました。上下レイアウトでは上の欄の下に並びます。人格ごとにレイアウトが違っても、切り替えるたびにサイドの音楽が止まることはありません。",
+        "en": "Always-open small tools such as a music player now sit in the right side panel instead of above the chat; in the stacked layout they line up under the top board. Switching between personas that use different layouts no longer stops the music playing in the side panel."
+      }
+    }
   ]
 }

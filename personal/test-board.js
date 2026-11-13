@@ -148,5 +148,27 @@ console.log('\n[4] 撤下要记住: 重放历史不把撤掉的钉回');
   ok(host.querySelectorAll('.board-card').length === 1, '实时 pin 照常钉上(只有重放才不钉)');
 }
 
+console.log('\n[side] 包写 display:side 的挂侧板, 别的挂上面那块');
+{
+  const top = document.createElement('div'), side = document.createElement('div');
+  document.body.append(top, side);
+  const pkgs = { radio: { id: 'radio', display: 'side' }, resv: { id: 'resv', display: 'board' } };
+  const board = Board.create({
+    document, strings: () => ({}), host: (where) => (where === 'side' ? side : top),
+    uiPackage: (id) => pkgs[id] || null, mountUi: () => {},
+  });
+  const b = document.createElement('div');
+  b.innerHTML = renderMarkdown('{{pin:radio|ui=radio}} {{pin:resv|ui=resv}} {{pin:memo|title=备忘}}');
+  board.harvest(b);
+  ok(side.querySelectorAll('.board-card').length === 1 && side.querySelector('[data-slot="radio"]'), 'side 包进侧板');
+  ok(top.querySelectorAll('.board-card').length === 2, 'board 包和临时正文进上面那块');
+  ok(top.classList.contains('on') && side.classList.contains('on'), '两块各自亮');
+  board.pin('radio');
+  ok(!side.querySelector('.board-card') && !side.classList.contains('on'), '撤下侧板那张 → 侧板灭');
+  pkgs.resv.display = 'side';
+  board.pin('resv|ui=resv');
+  ok(side.querySelector('[data-slot="resv"]') && !top.querySelector('[data-slot="resv"]'), '同一槽换了摆法 → 搬过去, 不留两份');
+}
+
 console.log(`\n✅ test-board: ${pass} pass / ${fail} fail`);
 process.exit(fail ? 1 : 0);

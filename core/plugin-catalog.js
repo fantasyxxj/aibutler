@@ -55,7 +55,8 @@ function list(locale) {
   }
   for (const u of uiPackages.summary(locale)) {
     // 常驻板行的槽名直接用包 id: 板上显示的标题有回落链(显式 title > 包自带 title > 槽名), 不会露出机器名。
-    const board = u.display === 'board';
+    // 挂上面还是挂侧面由板那头按包的 display 挑, 这里两种都出同一个 pin 印。
+    const board = u.display === 'board' || u.display === 'side';
     out.push({ id: u.id, kind: 'ui', title: u.title, pages: 1, display: u.display,
                summary: u.summary, usage: u.usage, keywords: u.keywords,
                entry: board ? `{{pin:${u.id}|ui=${u.id}}}` : `{{ui:${u.id}}}` });

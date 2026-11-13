@@ -718,6 +718,10 @@ function makeTab(meta, { activate = false } = {}) {
   const boardEl = document.createElement('div');
   boardEl.className = 'board';
   panel.appendChild(boardEl);
+  // 侧板: 包写 display:'side' 的挂这儿。左右排时 layout.js 把它搬进右栏, 没右栏时就排在上面那块板下面。
+  const sideEl = document.createElement('div');
+  sideEl.className = 'board side';
+  panel.appendChild(sideEl);
   const chat = document.createElement('div');
   chat.className = 'chat';
   panel.appendChild(chat);
@@ -726,7 +730,7 @@ function makeTab(meta, { activate = false } = {}) {
   const board = window.Board.create({
     document,
     strings: () => S,
-    host: () => boardEl, locale: () => curLocale,
+    host: (where) => (where === 'side' ? sideEl : boardEl), locale: () => curLocale,
     uiPackage: (id) => uiPkgs[id] || null,
     mountUi,
     // 撤下/钉上的黑名单持久化(写在 board.js 里, 读在 loadHistory 渲染前用 setRemoved 补一次)。
@@ -747,7 +751,7 @@ function makeTab(meta, { activate = false } = {}) {
 
   const tab = {
     sid: meta.sid, persona: meta.persona, usage: meta.usage,
-    panel, chat, board, boardEl, tabEl, avatarEl, dotEl,
+    panel, chat, board, boardEl, sideEl, tabEl, avatarEl, dotEl,
     activeBubble: null, busy: false, stick: true, attachments: [], draft: '', loaded: false, unread: false,
     msgEls: [],
   };

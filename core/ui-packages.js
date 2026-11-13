@@ -33,8 +33,8 @@ function registerPackage(payload) {
     id,
     version: payload.version || '',
     title: payload.title || id,
-    // 认得的只有 'board' 一个值。别的一律当没写(随对话流) —— 拼错的字面量不该悄悄变成第三种行为。
-    display: payload.display === 'board' ? 'board' : undefined,
+    // 认得的只有 'board'(挂聊天面板上面) / 'side'(挂右侧栏) 两个值。别的一律当没写(随对话流) —— 拼错的字面量不该悄悄变成第四种行为。
+    display: payload.display === 'board' || payload.display === 'side' ? payload.display : undefined,
     // 切界面语言时能不能推一条 {locale} 进去让它自己重画。不声明的宿主只能整个重挂, 会冲掉没保存的输入。
     locale_push: payload.locale_push === true || undefined,
     // 给人格读的说明跟包放在一起: summary 一句话(plugin_find 每条都带), usage 完整用法(要用时才读)。
@@ -68,7 +68,7 @@ function loadFromPackages(loaded) {
 // 🔴 只给 id 和标题, **不给 html/js**: 界面的代码没有一个字该进模型的上下文,
 // 那既是白烧的钱, 也是让 AI 有机会"照着改一份"的口子。
 function summary(locale) {
-  // display = 包自己声明的默认摆法(`board` = 钉常驻板 / 不写 = 随对话流走)。**摆法是包的属性, 不是调用方式**:
+  // display = 包自己声明的默认摆法(`board` = 钉在聊天面板上面 / `side` = 挂右侧栏 / 不写 = 随对话流走)。**摆法是包的属性, 不是调用方式**:
   // 「营业中一直点」(预约名单/待办板)还是「偶尔用一次」由写包的人知道, 让 AI 每次现猜, 猜错了也没人反馈。
   return all().map((p) => ({ id: p.id, title: pickTitle(p.title, locale), version: p.version, display: p.display,
     summary: pickLang(p.summary, locale) || '', usage: pickLang(p.usage, locale) || '', keywords: pickLang(p.keywords, locale) || '' }));

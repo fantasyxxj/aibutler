@@ -1,15 +1,16 @@
 // layout.js — 上下 / 左右两种布局, 由用户在顶栏切(每人格记住, 存在 side-state 里)。
 //
 // 上下 = 原来的样子, 侧栏不出现。人格划的重点照样存, 顶栏按钮上出角标告诉用户新挂了几条。
-// 左右 = 宽屏用法: 左栏放提醒条、任务面板、chip(不再占对话的高度), 右栏放「收藏夹」和常驻板。
+// 左右 = 宽屏用法: 左栏放提醒条、任务面板、chip(不再占对话的高度), 右栏放「收藏夹」和侧板。
+// 常驻板分两块(作者 11-13): 上面那块永远在聊天面板顶上, 不搬; 侧板(包写 display:'side')左右排时进右栏, 上下排时排在上面那块下面。
 // 窗口窄到 1100px 以下时按上下排, 「收藏夹」和布局键都不显示; 拉宽自动回左右 —— 用户选的布局不改(作者 11-12 定)。
 // 左右时两栏靠对话那条边各有一根拖动条: 拖它调栏宽, 拖到边上收成 14px 细边(点一下或往外拖再展开)。
 //   栏宽和收起全局一份记在 localStorage(作者 11-13 定); 收起只是看不见, 节点不搬, 收藏照样挂进去, 右栏细边出新增角标。
 //
-// 搬的是现成的节点(reminderBar / taskpanel / chipbar / 各标签的常驻板), 原处留一个注释当锚,
+// 搬的是现成的节点(reminderBar / taskpanel / chipbar / 各标签的侧板), 原处留一个注释当锚,
 // 切回上下时原样插回去, 各模块自己的逻辑一行不用改。
 // 🔴 常驻板里有沙箱 iframe, iframe 一挪位置就会重载 —— 所以只在「布局真的变了」时整体搬一次,
-//    切标签不搬(左右时所有标签的板都放在右栏, 只显示当前那块)。
+//    切标签时只搬当前那块侧板, 而且只在它不在该在的地方时才搬(右栏里可以同时躺着几块, 只显示当前那块)。
 (() => {
   'use strict';
   const $ = (id) => document.getElementById(id);
@@ -46,16 +47,15 @@
     if (mode !== applied) {
       applied = mode;
       for (const n of movers()) { stash(n); if (lr) railL.appendChild(n); else goHome(n); }
-      for (const tab of tabs.values()) {
-        if (!tab.boardEl) continue;
-        if (lr) { if (tab.boardEl.parentNode !== railBoard) railBoard.appendChild(tab.boardEl); }
-        else if (tab.boardEl.parentNode !== tab.panel) tab.panel.insertBefore(tab.boardEl, tab.panel.firstChild);
-      }
-    } else if (lr) {
-      // 布局没变但可能新开了标签: 它的板还在面板里, 补搬过来
-      for (const tab of tabs.values()) if (tab.boardEl && tab.boardEl.parentNode !== railBoard) railBoard.appendChild(tab.boardEl);
     }
-    for (const tab of tabs.values()) if (tab.boardEl) tab.boardEl.classList.toggle('cur', tab.sid === sid);
+    // 侧板只搬当前人格那块。别的人格的侧板留在原处: 不显示的地方本来就看不见, 而一搬 iframe 就重载 ——
+    //   两个人格布局不同时, 切过去会把对方板上正在放的音乐整个重置(11-13 实测)。轮到它当前时再按它的布局搬。
+    const cur = tabs.get(sid);
+    if (cur && cur.sideEl) {
+      if (lr) { if (cur.sideEl.parentNode !== railBoard) railBoard.appendChild(cur.sideEl); }
+      else if (cur.sideEl.parentNode !== cur.panel) cur.panel.insertBefore(cur.sideEl, cur.boardEl.nextSibling);
+    }
+    for (const tab of tabs.values()) if (tab.sideEl) tab.sideEl.classList.toggle('cur', tab.sid === sid);
     if (lr) { noteFold(sid); paintRail('L'); paintRail('R'); }
     paintBtn();
   }

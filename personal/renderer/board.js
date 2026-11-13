@@ -37,11 +37,14 @@
   // 槽位 id 是 AI 写的, 塞进 querySelector 之前先杀掉引号/反斜杠, 不素直地信它。
   function CSS_escape(s) { return String(s).replace(/["\\]/g, '\\$&'); }
 
-  // deps = { document, strings(), host(), locale(), uiPackage(id), mountUi(node, pkg), persistRemoved([slot]) }
+  // deps = { document, strings(), host(where), locale(), uiPackage(id), mountUi(node, pkg), persistRemoved([slot]) }
+  //   where = 'top'(聊天面板上面) / 'side'(右侧栏)。挂哪由包自己的 display 定(作者 11-13): 宽的挂上面, 窄条小工具挂侧面。
+  //   只给一块板的宿主(测试)host 不认参数, 两处落到同一块, 照样能用。
   function create(deps) {
     const doc = () => deps.document || document;
     const S = () => deps.strings() || {};
-    const host = () => deps.host();
+    const host = (where = 'top') => deps.host(where);
+    const hosts = () => Array.from(new Set([host('top'), host('side')].filter(Boolean)));
 
     // 用户主动撤下的槽位。钉上({{pin:槽名|ui/title}})会从这里拿掉, 撤下(✕ / {{pin:槽名}})会加进来。
     // 🔴 必须持久化: 历史里的 {{pin:...}} 印不会消失, 下次开窗 loadHistory 重放时 harvest 会照着它
@@ -65,11 +68,13 @@
       persistRemoved();
     }
 
-    const cardOf = (slot) => host().querySelector(`.${CARD}[data-slot="${CSS_escape(slot)}"]`);
+    const cardOf = (slot) => {
+      for (const h of hosts()) { const c = h.querySelector(`.${CARD}[data-slot="${CSS_escape(slot)}"]`); if (c) return c; }
+      return null;
+    };
 
     function syncEmpty() {
-      const h = host();
-      if (h) h.classList.toggle('on', h.querySelectorAll(`.${CARD}`).length > 0);
+      for (const h of hosts()) h.classList.toggle('on', h.querySelectorAll(`.${CARD}`).length > 0);
     }
 
     function remove(slot) {
@@ -79,14 +84,14 @@
       markRemoved(slot);
     }
 
-    function shell(slot, title) {
+    function shell(slot, title, where) {
       let card = cardOf(slot);
       if (!card) {
         card = doc().createElement('section');
         card.className = CARD;
         card.dataset.slot = slot;
-        host().appendChild(card);
       }
+      if (card.parentNode !== host(where)) host(where).appendChild(card);   // 同一槽换了摆法 = 搬过去
       card.innerHTML = '';   // 同一个槽位再贴一次 = 整体替换, 不往下叠
       const head = doc().createElement('div');
       head.className = 'board-head';
@@ -130,7 +135,7 @@
       const loc = typeof deps.locale === 'function' ? deps.locale() : '';
       const own = pickLang(pkg && pkg.title, loc);
       const label = title || own || slot;
-      const { bodyEl } = shell(slot, label);
+      const { bodyEl } = shell(slot, label, pkg && pkg.display === 'side' ? 'side' : 'top');
       if (!pkg) {
         note(bodyEl, `${S().ui_unknown || 'unknown interface package'}: ${pkgId}`, true);
         return;
