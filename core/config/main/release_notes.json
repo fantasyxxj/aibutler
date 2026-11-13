@@ -1256,5 +1256,53 @@
         "en": "Click ◫ in the top bar to switch between stacked and side-panel layouts. With side panels, reminders, to-dos and quick buttons sit on the left, and the right holds Highlights: outputs the persona considers important stay there, and you can jump back to the original message after the chat scrolls away. Narrow windows fall back to stacked automatically."
       }
     }
+  ],
+  "1.1.7": [
+    {
+      "title": {
+        "zh-CN": "「划重点」改名「收藏夹」，你说收藏才收",
+        "zh-TW": "「劃重點」改名「收藏夾」，你說收藏才收",
+        "ja": "「要チェック」は「お気に入り」に。頼んだときだけ保存",
+        "en": "Highlights is now Bookmarks, saved when you ask"
+      },
+      "detail": {
+        "zh-CN": "右栏的「划重点」改名叫「收藏夹」。想留一份回头看的内容，跟人格说「把这个放收藏夹」或「收藏一下」，那条回复就会存进去；人格不会再自己往里挂。每条右边的 ✕ 可以删掉。",
+        "zh-TW": "右欄的「劃重點」改名叫「收藏夾」。想留一份回頭看的內容，跟人格說「把這個放收藏夾」或「收藏一下」，那則回覆就會存進去；人格不會再自己往裡掛。每則右邊的 ✕ 可以刪掉。",
+        "ja": "右側の「要チェック」は「お気に入り」になりました。後で見返したい内容は、ペルソナに「これをお気に入りに入れて」と言えば、その返信が保存されます。ペルソナが勝手に追加することはありません。各項目の ✕ で削除できます。",
+        "en": "The right-hand Highlights panel is now called Bookmarks. To keep something for later, tell the persona \"bookmark this\" and that reply is saved there; the persona no longer adds things on its own. Each entry can be deleted with its ✕."
+      }
+    }
+  ],
+  "1.1.8": [
+    {
+      "title": {
+        "zh-CN": "语音输入认得更准了，按界面语言识别",
+        "zh-TW": "語音輸入認得更準了，按介面語言辨識",
+        "ja": "音声入力の認識精度が上がり、画面の言語で認識します",
+        "en": "More accurate voice input, recognized in your interface language"
+      },
+      "detail": {
+        "zh-CN": "语音识别换了新的识别模型，中文同音错字少了很多，英文、日文也更准。识别按界面语言来：界面是中文就按中文认（夹几句英文也行），日文、英文同理。第一次用语音时会下载约 230MB 的新模型，下好后旧模型自动删除。",
+        "zh-TW": "語音辨識換了新的辨識模型，中文同音錯字少了很多，英文、日文也更準。辨識按介面語言來：介面是中文就按中文認（夾幾句英文也行），日文、英文同理。第一次使用語音時會下載約 230MB 的新模型，下載完成後舊模型自動刪除。",
+        "ja": "音声認識を新しいモデルに切り替え、日本語・英語・中国語の誤認識が大きく減りました。認識は画面の言語に合わせます(日本語画面なら日本語、英語まじりも可)。初めて音声を使うときに約 230MB の新しいモデルをダウンロードし、終わると古いモデルは自動で削除されます。",
+        "en": "Voice input now uses a new recognition model, with far fewer mistakes in English, Chinese and Japanese. It recognizes speech in your interface language (an English interface expects English). The first time you use voice, a new model of about 230 MB is downloaded, and the old one is removed afterwards."
+      }
+    }
+  ],
+  "1.1.9": [
+    {
+      "title": {
+        "zh-CN": "左右两栏可以拖宽，也能收起来",
+        "zh-TW": "左右兩欄可以拖寬，也能收起來",
+        "ja": "左右のサイドは幅をドラッグで変えられ、端に寄せて隠せます",
+        "en": "Side panels can be resized and folded away"
+      },
+      "detail": {
+        "zh-CN": "左右布局时，按住栏和聊天之间的那条边左右拖就能调宽窄；拖到最边上，栏收成一条细边。收着时收藏照样往里存，右边细边上会显示新添了几条，点一下或往外拖就展开。宽窄和收起会记住。",
+        "zh-TW": "左右版面時，按住欄和聊天之間的那條邊左右拖曳就能調寬窄；拖到最邊上，欄收成一條細邊。收著時收藏照樣往裡存，右邊細邊上會顯示新添了幾則，點一下或往外拖就展開。寬窄和收起會記住。",
+        "ja": "左右レイアウトでは、サイドとチャットの境目をドラッグして幅を変えられます。端まで寄せると細い帯に畳まれます。畳んでいる間もお気に入りは追加され、右の帯に新着件数が出ます。クリックするか外へドラッグすると開きます。幅と畳み状態は記憶されます。",
+        "en": "In the side-panel layout, drag the edge between a panel and the chat to resize it; drag it to the window edge and it folds into a thin strip. Bookmarks still land while it is folded, and the right strip shows how many are new. Click the strip or drag it out to reopen. Width and folding are remembered."
+      }
+    }
   ]
 }

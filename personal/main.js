@@ -24,7 +24,7 @@ const voiceSay = require('../core/voice-say');   // 情感语音播报 · macOS 
 const voiceStt = require('../core/voice-stt');   // 本地 STT · whisper.cpp adapter, 两版共用
 // Mac 包里带 universal whisper-cli(arm64+x86_64, 不靠 brew); 模型仍首用时下到可写根。
 // 未打包时 resourcesPath 下没有 whisper/, findCli 自然落到下载位与 brew。
-voiceStt.setVendorRoots({ bundled: process.resourcesPath, writable: paths.dataDir() });
+voiceStt.setVendorRoots({ bundled: process.resourcesPath, writable: paths.dataDir(), engine: 'sensevoice' });
 const cfg = require('./config-loader');   // 提示语外置 · config/ · 热读
 const birth = require('./birth');         // 出生教育 v2: 灌知识 + 体验校验(不依赖会话的那半边)
 const settings = require('./settings'); require('./debug-port');   // 用户设置(接入方式/代理/界面语言…) · 数据目录 app/settings.json; 后者=远程调试口开关(默认关, appendSwitch 必须在 ready 前所以挂这儿)
@@ -2597,7 +2597,7 @@ ipcMain.handle('voice-setup', async () => {
 
 ipcMain.handle('transcribe-audio', async (_e, { wavBytes, lang } = {}) => {
   if (!wavBytes) return { ok: false, error: 'no_audio' };
-  return voiceStt.transcribe(wavBytes, lang || 'auto');
+  return voiceStt.transcribe(wavBytes, (lang && lang !== 'auto') ? lang : (String(currentLocale() || '').slice(0, 2) || 'auto'));   // 按界面语言认: 自动判语种时日语常被认成韩语
 });
 
 ipcMain.handle('save-audio', async (_e, { sid, wavBytes } = {}) => {

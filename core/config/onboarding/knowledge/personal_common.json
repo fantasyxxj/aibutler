@@ -2062,24 +2062,24 @@
       "seed_use_count": 2,
       "type": "reference",
       "importance": "high",
-      "title": "用户日后要回头找的回复, 写 {{mark:标题}} 挂进侧栏「划重点」",
-      "claim": "回复里有用户日后要回头找的东西 —— 结论、定下的方案、交付的文件路径、等他拍板的事 —— 就在这条回复里写一个 `{{mark:十来个字的标题}}`(不包代码块), 整条回复会存一份挂进界面侧栏「划重点」, 对话滚上去了用户点开就能重看。一条回复写一个; 闲聊、过程汇报、问候不挂。",
-      "keywords": "划重点 重点 重要 挂上去 挂起来 留一份 回头看 回头找 往上翻 滚上去 侧栏 标记 收藏 置顶消息 结论 方案 交付 文件路径 待拍板 mark",
+      "title": "用户说「放收藏夹」时, 在回复里写 {{mark:标题}} 存进侧栏「收藏夹」",
+      "claim": "用户说「把这个放收藏夹 / 收藏一下 / 存起来回头看」时, 在你这条回复里写一个 `{{mark:十来个字的标题}}`(不包代码块), 整条回复就存进界面侧栏「收藏夹」, 对话滚上去了用户点开就能重看, 每条右边的 ✕ 可删。要收藏的是前面某条内容时, 把那段内容在这条回复里重写一遍再加 mark。一条回复写一个; 收藏不用 {{pin:}}。",
+      "keywords": "收藏夹 放收藏夹 放进收藏夹 放到收藏夹 加到收藏夹 收藏一下 收藏这个 帮我收藏 存起来 存一下 留一份 回头看 回头找 侧栏 划重点 划个重点 bookmark mark 钉住 钉上去 置顶 pin 常驻板",
       "translations": {
         "ja": {
-          "title": "後で見返したい返信には {{mark:タイトル}} を書いてサイドの「要チェック」に残す",
-          "claim": "ユーザーが後で見返したくなる内容 —— 結論、決まった方針、渡したファイルのパス、判断待ちの事項 —— を含む返信には、その返信の中に `{{mark:十数文字のタイトル}}` を一つ書く(コードブロックに入れない)。返信全体が保存されてサイドの「要チェック」に並び、会話が流れてもクリックで読み返せる。一つの返信に一つ。雑談・途中経過・挨拶には付けない。",
-          "keywords": "要チェック 重要 残す 見返す 後で探す スクロール サイドパネル 印 ブックマーク 固定 結論 方針 納品 ファイルパス 判断待ち mark"
+          "title": "ユーザーが「お気に入りに入れて」と言ったら、返信に {{mark:タイトル}} を書いてサイドの「お気に入り」に保存する",
+          "claim": "ユーザーが「これをお気に入りに入れて / 保存しておいて / 後で見返したい」と言ったら、その返信の中に `{{mark:十数文字のタイトル}}` を一つ書く(コードブロックに入れない)。返信全体がサイドの「お気に入り」に保存され、会話が流れてもクリックで読み返せ、各項目の ✕ で削除できる。前の内容を保存したいときは、その内容をこの返信に書き直してから mark を付ける。一つの返信に一つ。お気に入りには {{pin:}} を使わない。",
+          "keywords": "お気に入り お気に入りに入れて お気に入りに追加 保存 保存しておいて 取っておいて 見返す 後で探す サイドパネル ブックマーク 要チェック mark ピン留め 固定 pin"
         },
         "en": {
-          "title": "Write {{mark:title}} in a reply the user will want to find again, to keep it in the side panel's Highlights",
-          "claim": "When a reply holds something the user will want to look back at — a conclusion, an agreed plan, a delivered file path, a decision waiting on them — write one `{{mark:short title}}` in that reply (not inside a code block). The whole reply is saved into the Highlights side panel, so the user can reopen it after the chat scrolls away. One per reply; never for small talk, progress updates or greetings.",
-          "keywords": "highlights highlight keep save for later look back find again scrolled away side panel bookmark mark pin message conclusion plan deliverable file path decision"
+          "title": "When the user says \"bookmark this\", write {{mark:title}} in your reply to save it to the Bookmarks side panel",
+          "claim": "When the user says \"bookmark this / save this / keep this for later\", write one `{{mark:short title}}` in that reply (not inside a code block). The whole reply is saved into the Bookmarks side panel, so the user can reopen it after the chat scrolls away and delete it with its ✕. To bookmark something said earlier, restate that content in this reply and add the mark. One per reply; bookmarks never use {{pin:}}.",
+          "keywords": "bookmark bookmarks bookmark this save this save for later keep this look back find again side panel favorites highlights mark pin pin this keep on screen"
         },
         "zh-TW": {
-          "title": "使用者日後要回頭找的回覆, 寫 {{mark:標題}} 掛進側欄「劃重點」",
-          "claim": "回覆裡有使用者日後要回頭找的東西 —— 結論、定下的方案、交付的檔案路徑、等他拍板的事 —— 就在這則回覆裡寫一個 `{{mark:十來個字的標題}}`(不包在程式碼區塊裡), 整則回覆會存一份掛進介面側欄「劃重點」, 對話捲上去了使用者點開就能重看。一則回覆寫一個; 閒聊、過程匯報、問候不掛。",
-          "keywords": "劃重點 重點 重要 掛上去 留一份 回頭看 回頭找 往上翻 捲上去 側欄 標記 收藏 置頂訊息 結論 方案 交付 檔案路徑 待拍板 mark"
+          "title": "使用者說「放收藏夾」時, 在回覆裡寫 {{mark:標題}} 存進側欄「收藏夾」",
+          "claim": "使用者說「把這個放收藏夾 / 收藏一下 / 存起來回頭看」時, 在你這則回覆裡寫一個 `{{mark:十來個字的標題}}`(不包在程式碼區塊裡), 整則回覆就存進介面側欄「收藏夾」, 對話捲上去了使用者點開就能重看, 每則右邊的 ✕ 可刪。要收藏的是前面某則內容時, 把那段內容在這則回覆裡重寫一遍再加 mark。一則回覆寫一個; 收藏不用 {{pin:}}。",
+          "keywords": "收藏夾 放收藏夾 放進收藏夾 放到收藏夾 加到收藏夾 收藏一下 收藏這個 幫我收藏 存起來 存一下 留一份 回頭看 回頭找 側欄 劃重點 bookmark mark 釘住 釘上去 置頂 pin 常駐板"
         }
       },
       "edges": [

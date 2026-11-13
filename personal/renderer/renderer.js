@@ -457,7 +457,7 @@ function renderMd(body) {
     // {{pin:...}} 的印在 widgets.paint 之后还留在原地(它不认识 pin), 这里把它搬到本标签的常驻板。
     const _tab = tabOf(body);
     if (_tab && _tab.board) _tab.board.harvest(body);
-    // {{mark:标题}} → 这条挂进「划重点」(marks.js)。回放 / 往上翻补页时只认领不新增
+    // {{mark:标题}} → 这条挂进「收藏夹」(marks.js)。回放 / 往上翻补页时只认领不新增
     if (_tab && window.Marks) window.Marks.harvest(_tab.sid, body, src, replayDepth > 0 || !!_tab._insertBefore);
     // md 图片点击走 lightbox (和附件图片一套)
     body.querySelectorAll('img.md-img').forEach(img => { img.onclick = (e) => { e.stopPropagation(); openLightbox(img.src); }; });

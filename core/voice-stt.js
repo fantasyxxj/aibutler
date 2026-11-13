@@ -1,4 +1,4 @@
-// voice-stt.js — whisper.cpp 本地 STT adapter
+// voice-stt.js — 本地 STT adapter: SenseVoice 优先(voice-sensevoice.js), 运行库加载不了才走 whisper.cpp
 // 暴露: detect() 探测 / setup(onProgress) 自动装引擎+模型 / transcribe(wavBytes, lang) 一段音频→文字 / saveAudio(homeDir, wavBytes) 写永久文件
 // whisper.cpp 只吃 wav/mp3/ogg/flac; renderer 端 recorder.js 已封 16kHz mono 16-bit WAV, 落盘直用.
 //
@@ -11,6 +11,7 @@ const path = require('path');
 const os = require('os');
 const { spawn, spawnSync } = require('child_process');
 const { nowLocalISO } = require('./memory');   // 时间一律本地时区(带偏移), 禁 UTC
+const sv = require('./voice-sensevoice');
 
 const ENGINE_TAG = 'v1.9.2';
 // 下载源 = 基址列表 + 尾巴, downloadFrom() 逐个试到成功为止。官方在前, 镜像兜底。
@@ -41,10 +42,13 @@ const CLI_BIN_NAMES = process.platform === 'win32'
 //              也不赌店里的网能不能连上 GitHub / HuggingFace。装机必须是"下一步下一步"。
 //   writable = 数据目录(可写) —— 出厂没带(某平台缺预编译)或将来要换模型时的兜底下载位置
 // 宿主启动时用 setVendorRoots 注入; 没注入退回家目录, 保证门禁/CLI 环境也能跑。
-let _roots = { bundled: null, writable: null };
-function setVendorRoots({ bundled, writable } = {}) {
-  _roots = { bundled: bundled || null, writable: writable || null };
+// engine: 宿主选引擎。'sensevoice' = 运行库能加载就走 SenseVoice(个人版); 不传 = whisper(行业版随包带的就是它,
+// 而 core 在仓里能顺着根 node_modules 摸到 sherpa, 不靠宿主显式选的话行业版 dev 会悄悄换引擎、去下新模型)。
+let _roots = { bundled: null, writable: null, engine: null };
+function setVendorRoots({ bundled, writable, engine } = {}) {
+  _roots = { bundled: bundled || null, writable: writable || null, engine: engine || null };
 }
+const useSv = () => _roots.engine === 'sensevoice' && sv.available();
 const writableDir = () => path.join(_roots.writable || path.join(os.homedir(), '.butler'), 'whisper');
 const vendorBinDir = () => path.join(writableDir(), 'bin');
 const vendorModel = () => path.join(writableDir(), 'models', 'ggml-base.bin');
@@ -149,6 +153,11 @@ function noCliHint() {
 }
 
 function detect() {
+  if (useSv()) {
+    const model = sv.findModel(_roots);
+    if (!model) return { ok: false, engine: 'sensevoice', error: 'no_model', hintCode: 'stt_can_download_model', canAutoInstall: true };
+    return { ok: true, engine: 'sensevoice', model };
+  }
   const cli = findCli();
   if (!cli) return { ok: false, error: 'no_cli', hintCode: noCliHint(), arch: process.arch, canAutoInstall: engineAutoInstallable() };
   if (!isWhisperCpp(cli)) {
@@ -290,6 +299,14 @@ async function installModel(onProgress) {
 // 一键补齐: 缺引擎装引擎, 缺模型下模型, 装完重新探测
 async function setup(onProgress = () => {}) {
   try {
+    if (useSv()) {
+      if (!sv.findModel(_roots)) await sv.installModel(_roots, downloadFrom, HF_BASES, onProgress);
+      const d = detect();
+      // 换到 SenseVoice 之后, 以前我们替用户下的 whisper 模型(148MB)再也用不上, 新模型就位就删。
+      // 只删 writable 下我们自己下的那份; 出厂自带的和用户手工放在家目录的不碰。
+      if (d.ok) { try { fs.unlinkSync(vendorModel()); console.log('[stt] 已删旧 whisper 模型', vendorModel()); } catch (_) {} }
+      return d.ok ? { ok: true, engine: d.engine, model: d.model } : { ok: false, error: d.error };
+    }
     const cli = findCli();
     if (!cli || !isWhisperCpp(cli)) await installEngine(onProgress);
     if (!findModel()) await installModel(onProgress);
@@ -305,6 +322,14 @@ async function setup(onProgress = () => {}) {
 async function transcribe(wavBytes, lang = 'auto') {
   const d = detect();
   if (!d.ok) return { ok: false, error: d.error, hintCode: d.hintCode, canAutoInstall: d.canAutoInstall };
+  // 排查用: 设了 BUTLER_STT_DUMP 就把每段录音连同语种存一份, 拿真人原声对比各引擎。平时不设, 什么都不落盘。
+  if (process.env.BUTLER_STT_DUMP) {
+    try { fs.mkdirSync(process.env.BUTLER_STT_DUMP, { recursive: true }); fs.writeFileSync(path.join(process.env.BUTLER_STT_DUMP, `${Date.now()}-${lang || 'auto'}.wav`), Buffer.from(wavBytes)); } catch (_) {}
+  }
+  if (d.engine === 'sensevoice') {
+    try { return { ok: true, text: sv.transcribe(wavBytes, lang, d.model) }; }
+    catch (e) { return { ok: false, error: String(e && e.message || e) }; }
+  }
   // 临时 wav 用完即删(见 finally) —— 店里的对话音频不留在盘上, 这是客人的声音。
   const tmp = path.join(os.tmpdir(), `ib-stt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.wav`);
   try {

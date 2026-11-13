@@ -38,7 +38,7 @@
       <div class="ctxbar"><div id="ctxfill"></div></div>
       <div id="ctxlabel">— %</div>
     </div>
-    <!-- 布局: 上下 / 左右。左右时侧栏放提醒·任务·chip 和「划重点」(layout.js); 角标=上下布局下新挂了几条 -->
+    <!-- 布局: 上下 / 左右。左右时侧栏放提醒·任务·chip 和「收藏夹」(layout.js); 角标=上下布局下新挂了几条 -->
     <button id="layoutBtn" data-i18n-title="layout_hint" title="切换布局"><span class="lb-ico">◫</span><span id="layoutBadge" class="hidden"></span></button>
     <button id="compactBtn" data-i18n="compact" data-i18n-title="compact_hint" title="清空: 沉淀关键线程到图记忆 → 清空 AI 上下文 → 重启唤醒 (UI 历史保留展示)">清空</button>
     <button id="closeCurrentBtn" data-i18n-title="close_persona" title="关闭当前人格(会话记忆已落盘, 可重开续上)">×</button>
@@ -48,6 +48,7 @@
   <div id="shell">
   <aside id="railL" class="rail">
     <div class="rail-body" id="railLBody"></div>
+    <div class="rail-grip" id="gripL"><span class="rg-ico">›</span></div>
   </aside>
   <div id="center">
   <!-- 舞台: 每个标签一个面板, 仅活动标签可见 -->
@@ -85,7 +86,7 @@
 
   <footer id="inputbar">
     <button id="attachBtn" data-i18n-title="attach" title="加附件·任意文件(也可粘贴截图/拖拽文件)">📎</button>
-    <button id="micBtn" data-i18n-title="mic" title="语音输入(点开始 · 再点结束 · 需先 brew install whisper-cpp)">🎤</button>
+    <button id="micBtn" data-i18n-title="mic" title="语音输入(点开始 · 再点结束)">🎤</button>
     <textarea id="input" rows="1" data-i18n-ph="input_ph" placeholder="跟管家说点什么…  (Enter 发送 / Shift+Enter 换行 / 可粘贴截图、拖拽文件)"></textarea>
     <!-- 文字是「⏹ + 字典值」拼的, 所以由 applyStrings 单独刷, 不走 data-i18n。data-i18n-js 只是给门禁看的标记。 -->
     <button id="cancelBtn" data-i18n-js="cancel" data-i18n-title="cancel_turn" title="打断当前一轮 · 消息文本回填到输入框" style="display:none">⏹ 取消</button>
@@ -95,6 +96,7 @@
   </div>
   <aside id="railR" class="rail">
     <div class="rail-body"><div id="marksBox"></div><div id="railBoard"></div></div>
+    <div class="rail-grip" id="gripR"><span class="rg-ico">‹</span><span class="rg-badge hidden" id="gripBadge"></span></div>
   </aside>
   </div>
 

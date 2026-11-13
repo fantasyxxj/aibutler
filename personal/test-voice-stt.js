@@ -141,6 +141,21 @@ console.log('\n[4] 下载断点续传(百兆级文件断一次不能从头来)')
 
   srv.close();
   fs.rmSync(dir, { recursive: true, force: true });
+
+  // 引擎由宿主选: 个人版传 engine:'sensevoice', 行业版不传 = 维持 whisper。
+  // 仓里 core 顺着根 node_modules 摸得到 sherpa, 不靠显式选的话行业版 dev 会悄悄换引擎去下新模型。
+  console.log('\n[5] 引擎由宿主显式选');
+  const sv = require('../core/voice-sensevoice.js');
+  const empty = fs.mkdtempSync(path.join(os.tmpdir(), 'butler-sv-'));
+  stt.setVendorRoots({ writable: empty });
+  ok(stt.detect().engine !== 'sensevoice', '不传 engine 时不走 SenseVoice(行业版维持 whisper)');
+  if (sv.available()) {
+    stt.setVendorRoots({ writable: empty, engine: 'sensevoice' });
+    const d = stt.detect();
+    ok(d.engine === 'sensevoice' && d.error === 'no_model' && d.canAutoInstall === true, '传 engine:sensevoice 且缺模型时报 no_model、可自动装');
+  } else { console.log('  ⊘ 本机加载不了 sherpa-onnx-node'); skip++; }
+  stt.setVendorRoots({});
+  fs.rmSync(empty, { recursive: true, force: true });
 })().then(() => {
   console.log(`\n${fail === 0 ? '✅' : '❌'} test-voice-stt: ${pass} pass / ${fail} fail${skip ? ` / ${skip} skip` : ''}`);
   process.exit(fail === 0 ? 0 : 1);

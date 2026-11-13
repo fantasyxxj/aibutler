@@ -24,8 +24,31 @@ function ccSdkManifest() {
   return m;
 }
 
-function buildConfig(base, { locked = false, intel = false } = {}) {
+// 语音识别运行库 sherpa-onnx 按平台分包(darwin-arm64 / darwin-x64 / win-x64 …), npm 只装本机那一份。
+// 每个包只带目标平台那份(33MB 一份, 全带会白涨上百 MB), 并解到 asar 外: .node 和 dylib 不能从 asar 里加载。
+const SHERPA_PLATS = ['darwin-arm64', 'darwin-x64', 'win-x64', 'win-ia32', 'win-arm64', 'linux-x64', 'linux-arm64'];
+const sherpaTarget = ({ win = false, intel = false } = {}) => (win ? 'win-x64' : intel ? 'darwin-x64' : `darwin-${process.arch}`);
+
+// 目标平台那份不在 node_modules 里(比如在 Apple 芯片上打 Intel / Windows 包)就从 npm 取同版本的 tarball 解进去。
+function ensureSherpa(target) {
+  const fs = require('fs');
+  const dir = path.join(ROOT, 'node_modules', `sherpa-onnx-${target}`);
+  if (fs.existsSync(path.join(dir, 'sherpa-onnx.node'))) return;
+  const ver = require(path.join(ROOT, 'node_modules', 'sherpa-onnx-node', 'package.json')).version;
+  const tmp = fs.mkdtempSync(path.join(require('os').tmpdir(), 'sherpa-'));
+  const tgz = execFileSync('npm', ['pack', `sherpa-onnx-${target}@${ver}`, '--silent'], { cwd: tmp }).toString().trim().split('\n').pop();
+  fs.mkdirSync(dir, { recursive: true });
+  execFileSync('tar', ['-xzf', path.join(tmp, tgz), '-C', dir, '--strip-components', '1']);
+  fs.rmSync(tmp, { recursive: true, force: true });
+  if (!fs.existsSync(path.join(dir, 'sherpa-onnx.node'))) throw new Error(`sherpa-onnx-${target}@${ver} 里没有 sherpa-onnx.node`);
+  console.log(`[dist] 补装语音运行库 sherpa-onnx-${target}@${ver}`);
+}
+
+function buildConfig(base, { locked = false, intel = false, win = false } = {}) {
   const cfg = JSON.parse(JSON.stringify(base));
+  const target = sherpaTarget({ win, intel });
+  cfg.files = [...cfg.files, ...SHERPA_PLATS.filter((p) => p !== target).map((p) => `!node_modules/sherpa-onnx-${p}/**`)];
+  cfg.asarUnpack = [...(cfg.asarUnpack || []), `node_modules/sherpa-onnx-${target}/**`];
   cfg.extraMetadata = { ...(cfg.extraMetadata || {}), butlerCcSdk: ccSdkManifest(), ...(locked ? { butlerFlavor: 'locked' } : {}) };
   if (locked) {
     cfg.mac = { ...cfg.mac, artifactName: '${productName}-${version}-${arch}-locked.${ext}' };
@@ -46,7 +69,9 @@ if (require.main === module) (async () => {
   const os = require('os');
   const fs = require('fs');
   const cfgFile = path.join(os.tmpdir(), `butler-build-${process.pid}.json`);
-  fs.writeFileSync(cfgFile, JSON.stringify(buildConfig(pkg.build, { locked: want.includes('--locked'), intel: want.includes('--x64') }), null, 2));
+  const plat = { locked: want.includes('--locked'), intel: want.includes('--x64'), win: want.includes('--win') };
+  ensureSherpa(sherpaTarget(plat));
+  fs.writeFileSync(cfgFile, JSON.stringify(buildConfig(pkg.build, plat), null, 2));
   const builder = require('electron-builder');
   const dir = want.includes('--dir') ? 'dir' : undefined;
   if (!want.includes('--win') && !dir) {

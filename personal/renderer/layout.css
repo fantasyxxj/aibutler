@@ -1,13 +1,34 @@
-/* layout.css — 上下 / 左右布局与「划重点」(layout.js / marks.js)。style.css 已过 500 行, 侧栏的样式全放这里。 */
+/* layout.css — 上下 / 左右布局与「收藏夹」(layout.js / marks.js)。style.css 已过 500 行, 侧栏的样式全放这里。 */
 
 /* 外壳: 左栏 | 中间 | 右栏。上下布局时两栏不显示, 中间就是原来那一竖列 */
 #shell { flex: 1; min-height: 0; display: flex; }
 #center { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .rail { display: none; }
-body.lr .rail { display: flex; flex-direction: column; flex: none; min-height: 0; position: relative; background: var(--panel); }
+body.lr .rail { display: flex; flex-direction: column; flex: none; min-height: 0; position: relative; overflow: hidden; background: var(--panel); }
 #railL { width: 260px; border-right: 1px solid var(--line); }
 #railR { width: 360px; border-left: 1px solid var(--line); }
 .rail-body { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; }
+#railR .rail-body { align-self: flex-end; }   /* 右栏收窄时从左边裁, 内容贴着右缘 */
+
+/* 栏宽拖动条(layout.js 管宽度): 贴在栏靠对话的那条边上; 收起后整条栏只剩它, 点一下或往外拖就展开 */
+.rail-grip { position: absolute; top: 0; bottom: 0; width: 6px; z-index: 3; cursor: col-resize; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+#gripL { right: 0; }
+#gripR { left: 0; }
+.rail-grip:hover, body.rail-drag .rail-grip.cur { background: var(--brand-hi); opacity: .55; }
+.rg-ico { display: none; color: var(--muted); font-size: 14px; line-height: 1; }
+.rg-badge {
+  min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--accent);
+  color: #1e1e28; font-size: 10.5px; font-weight: 700; line-height: 16px; text-align: center;
+}
+.rg-badge.hidden { display: none; }
+/* 收起: 栏只留 14px 细边, 正文保持原宽只是看不见(节点不搬、不 display:none, 常驻板里的插件不重载) */
+.rail.folded .rail-body { visibility: hidden; }
+.rail.folded .rail-grip { width: 100%; cursor: pointer; }
+.rail.folded .rail-grip:hover { background: var(--panel-2); opacity: 1; }
+.rail.folded .rg-ico { display: block; }
+.rail.folded .rail-grip:hover .rg-ico { color: var(--text); }
+body.rail-drag { cursor: col-resize; user-select: none; }
+body.rail-drag iframe { pointer-events: none; }
 
 /* 顶栏的布局键 + 角标(上下布局下新挂了几条) */
 #layoutBtn {
@@ -33,7 +54,7 @@ body.lr #railL #taskpanel { border-top: 0; border-bottom: 1px solid var(--line);
 body.lr #railL #chipbar { flex-direction: column; flex-wrap: nowrap; align-items: stretch; padding: 10px 12px; background: transparent; }
 body.lr #railL .chip { text-align: left; }
 
-/* 右栏: 「划重点」在上, 常驻板在下(板空着就整块让给「划重点」) */
+/* 右栏: 「收藏夹」在上, 常驻板在下(板空着就整块让给「收藏夹」) */
 #marksBox { flex: 1 1 0; min-height: 160px; overflow-y: auto; }
 #railBoard { flex: 0 1 auto; max-height: 55%; overflow-y: auto; }
 #railBoard .board { display: none; padding: 10px 12px; max-height: none; border-top: 1px solid var(--line); }
