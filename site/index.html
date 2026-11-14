@@ -21,20 +21,14 @@ img{max-width:100%;display:block}
 .grad{background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent}
 .gradb{background:linear-gradient(90deg,var(--r),var(--m));-webkit-background-clip:text;background-clip:text;color:transparent}
 
-/* nav */
-nav{position:sticky;top:0;z-index:10;background:rgba(11,16,34,.78);backdrop-filter:blur(14px);border-bottom:1px solid rgba(38,48,90,.6)}
-nav .wrap{display:flex;align-items:center;height:64px;gap:32px}
+/* 顶栏菜单在 ../assets/nav.js; 这里的 .logo 给页脚用 */
 .logo{font-weight:800;font-size:20px;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
 .logo img{width:28px;height:28px;border-radius:7px;display:block;box-shadow:0 0 16px rgba(240,190,120,.35)}
-nav ul{display:flex;gap:26px;list-style:none;font-size:14.5px;color:var(--ink2);flex:1}
-nav ul a:hover{color:var(--ink)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;font-weight:600;font-size:15px;transition:.2s}
 .btn.pri{background:linear-gradient(90deg,var(--r),var(--m));color:#0b1022}
 .btn.pri:hover{filter:brightness(1.1);transform:translateY(-1px)}
 .btn.ghost{border:1px solid var(--line);color:var(--ink)}
 .btn.ghost:hover{border-color:var(--r)}
-nav .btn{padding:8px 16px;font-size:14px}
-.lang{font-size:14px;font-weight:600;color:var(--ink2)}.lang:hover{color:var(--ink)}
 
 /* hero */
 .hero{position:relative;overflow:hidden;padding:110px 0 70px;text-align:center}
@@ -152,7 +146,6 @@ footer li{list-style:none;margin:4px 0}
 @media (max-width:1100px){.car .arr{display:none}}
 @media (max-width:960px){
   .hero{padding:72px 0 50px}.hero .shot{margin-top:44px;border-radius:14px}
-  nav ul{display:none}.lang{margin-left:auto}
   .g3,.g4{grid-template-columns:repeat(2,1fr)}
   .split,.split.rev{grid-template-columns:1fr;gap:36px}.split.rev .txt{order:0}
   .flow{grid-template-columns:1fr;gap:24px}.arrow{display:none}.core{max-width:280px;margin:0 auto}
@@ -164,20 +157,7 @@ footer li{list-style:none;margin:4px 0}
 </head>
 <body>
 
-<nav><div class="wrap">
-  <a class="logo" href="#"><img src="../assets/logo.png" alt="">aibutler</a>
-  <ul>
-    <li><a href="#ask">说一句就行</a></li>
-    <li><a href="#scenes">用在哪</a></li>
-    <li><a href="#memory">它记得你</a></li>
-    <li><a href="#features">功能</a></li>
-    <li><a href="#tech">技术</a></li>
-    <li><a href="../docs/">使用文档</a></li>
-    <li><a href="../monologue/">AI自话</a></li>
-  </ul>
-  <a class="lang" href="en.html">EN</a>
-  <a class="btn ghost" href="https://github.com/fantasyxxj/aibutler">GitHub</a>
-</div></nav>
+<nav></nav><script src="../assets/nav.js"></script>
 
 <!-- HERO -->
 <header class="hero"><div class="wrap">
