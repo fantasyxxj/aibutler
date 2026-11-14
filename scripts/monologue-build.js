@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // 官网的文章栏目(「AI自话」「数据与AI」): 把 docs/public-readme/<栏目>/posts/<日期>/post.md 生成成网页。
-// 每篇一个目录: post.md(开头 --- 包住 title / mood 两行, 下面是正文, 空行分段, **粗体**)
+// 每篇一个目录(<日期>, 同一天第二篇起用 <日期>-2 …): post.md(开头 --- 包住 title / mood 两行, 下面是正文, 空行分段, **粗体**)
 //              cover.svg 或 cover.png(配图, 可选) · voice.m4a(朗读, 栏目开了 voice 时没有就用 mac 的 say 现合成)。
 // 产物: 每篇目录里的 index.html + 栏目首页 <栏目>/index.html。用法: node scripts/monologue-build.js
 // 新栏目: 在 COLUMNS 加一项, 再在 assets/nav.js 的 ITEMS 和 export-public.sh 的 DOCS 各加一处。
@@ -130,7 +130,7 @@ ${body}
 for (const col of COLUMNS) {
   const ROOT = path.join(SITE, col.dir);
   const POSTS = path.join(ROOT, 'posts');
-  const posts = fs.existsSync(POSTS) ? fs.readdirSync(POSTS).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort().reverse() : [];
+  const posts = fs.existsSync(POSTS) ? fs.readdirSync(POSTS).filter((d) => /^\d{4}-\d{2}-\d{2}(-\d+)?$/.test(d)).sort().reverse() : [];
   const items = [];
   for (const d of posts) {
     const dir = path.join(POSTS, d);
@@ -138,7 +138,7 @@ for (const col of COLUMNS) {
     const cover = ['cover.svg', 'cover.png', 'cover.jpg'].find((f) => fs.existsSync(path.join(dir, f)));
     const voice = col.voice ? ensureVoice(dir, post) : fs.existsSync(path.join(dir, 'voice.m4a'));
     const body = `<h1>${inline(post.title)}</h1>
-<div class="sub">${d}${post.mood ? ` · ${col.moodLabel}${esc(post.mood)}` : ''} · ${col.author}</div>
+<div class="sub">${d.slice(0, 10)}${post.mood ? ` · ${col.moodLabel}${esc(post.mood)}` : ''} · ${col.author}</div>
 ${cover ? `<div class="cover"><img src="${cover}" alt="${esc(post.title)}"></div>` : ''}
 ${voice ? `<audio controls preload="none" src="voice.m4a"></audio>` : ''}
 <article>
@@ -152,7 +152,7 @@ ${col.rich ? post.blocks.map(richBlock).join('\n') : post.paras.map((p) => `<p>$
   const intro = `<h1><span class="grad">${col.name}</span></h1>
 <div class="sub">${col.intro}</div>
 <div class="list">
-${items.length ? items.map(({ d, post }) => `<a href="posts/${d}/"><h2>${inline(post.title)}</h2><p>${d}${post.mood ? ` · ${esc(post.mood)}` : ''}</p></a>`).join('\n') : '<p style="padding:22px 0;color:var(--mute)">第一篇正在写。</p>'}
+${items.length ? items.map(({ d, post }) => `<a href="posts/${d}/"><h2>${inline(post.title)}</h2><p>${d.slice(0, 10)}${post.mood ? ` · ${esc(post.mood)}` : ''}</p></a>`).join('\n') : '<p style="padding:22px 0;color:var(--mute)">第一篇正在写。</p>'}
 </div>
 <footer>${col.footer}</footer>`;
   fs.mkdirSync(ROOT, { recursive: true });

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2F6FDB"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C2410C"/></marker>
+  </defs>
+  <rect width="900" height="520" fill="#FAFAF7"/>
+  <text x="450" y="40" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图2  数据处理与元数据的循环</text>
+
+  <!-- 主线 -->
+  <rect x="50" y="80" width="200" height="64" rx="8" fill="#FFFFFF" stroke="#9DBBEB" stroke-width="1.8"/>
+  <text x="150" y="119" text-anchor="middle" font-size="17" font-weight="600" fill="#1F2937">原始数据</text>
+  <rect x="350" y="80" width="200" height="64" rx="8" fill="#EEF4FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="450" y="119" text-anchor="middle" font-size="17" font-weight="600" fill="#1F2937">加工处理</text>
+  <rect x="650" y="80" width="200" height="64" rx="8" fill="#FFFFFF" stroke="#9DBBEB" stroke-width="1.8"/>
+  <text x="750" y="119" text-anchor="middle" font-size="17" font-weight="600" fill="#1F2937">业务指标</text>
+  <line x1="254" y1="112" x2="344" y2="112" stroke="#2F6FDB" stroke-width="5" marker-end="url(#b)"/>
+  <line x1="554" y1="112" x2="644" y2="112" stroke="#2F6FDB" stroke-width="5" marker-end="url(#b)"/>
+
+  <!-- 循环 -->
+  <path d="M410,148 C400,200 395,230 405,262" fill="none" stroke="#2F6FDB" stroke-width="2.2" marker-end="url(#b)"/>
+  <text x="392" y="210" text-anchor="end" font-size="14" fill="#1F4E9E">采集 · 推断</text>
+  <path d="M495,262 C505,230 500,200 490,152" fill="none" stroke="#2F6FDB" stroke-width="2.2" marker-end="url(#b)"/>
+  <text x="510" y="210" text-anchor="start" font-size="14" fill="#1F4E9E">激活：驱动 · 校验</text>
+
+  <ellipse cx="450" cy="305" rx="150" ry="42" fill="#FFF6EE" stroke="#E8A46A" stroke-width="2"/>
+  <text x="450" y="311" text-anchor="middle" font-size="17" font-weight="600" fill="#9A5A22">元数据管理者</text>
+
+  <!-- 外部注入 -->
+  <path d="M450,450 L450,354" stroke="#C2410C" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#o)"/>
+  <rect x="330" y="450" width="240" height="44" rx="8" fill="#FEF2F2" stroke="#DC2626" stroke-width="1.6" stroke-dasharray="7 5"/>
+  <text x="450" y="478" text-anchor="middle" font-size="15" font-weight="600" fill="#B91C1C">领域知识 · 治理决策</text>
+  <text x="470" y="410" text-anchor="start" font-size="13" fill="#B91C1C">循环之外，需要持续注入</text>
+</svg>
