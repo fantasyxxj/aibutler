@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8A94A6"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#D9822B"/></marker>
+  </defs>
+  <rect width="800" height="560" fill="#FAFAF7"/>
+  <text x="400" y="34" text-anchor="middle" font-size="19" font-weight="600" fill="#1F2937">图2  工具承载定义，定义决定对错</text>
+
+  <!-- consumers -->
+  <rect x="40" y="56" width="590" height="46" rx="8" fill="#EEF0F3"/>
+  <text x="335" y="85" text-anchor="middle" font-size="14" fill="#374151">用数的人 · 报表 / 接口 · AI</text>
+
+  <!-- semantic band -->
+  <rect x="40" y="118" width="590" height="262" rx="10" fill="#FFF8F1" stroke="#EBC49E"/>
+  <text x="56" y="142" font-size="13" fill="#9A5A22" font-weight="600">定义（换工具时必须原样保留）</text>
+
+  <rect x="70" y="156" width="250" height="88" rx="8" fill="#FFFFFF" stroke="#D9822B" stroke-width="1.4"/>
+  <text x="195" y="184" text-anchor="middle" font-size="16" font-weight="600" fill="#1F2937">指标 · 口径契约</text>
+  <text x="195" y="208" text-anchor="middle" font-size="12" fill="#4B5563">这个数在业务上指什么</text>
+  <text x="195" y="227" text-anchor="middle" font-size="12" fill="#4B5563">标量 / 向量 · 去重对象 · 算法</text>
+
+  <rect x="350" y="156" width="250" height="88" rx="8" fill="#FFFFFF" stroke="#D9822B" stroke-width="1.4"/>
+  <text x="475" y="184" text-anchor="middle" font-size="16" font-weight="600" fill="#1F2937">模型 · 组织结构</text>
+  <text x="475" y="208" text-anchor="middle" font-size="12" fill="#4B5563">一行代表什么（粒度）</text>
+  <text x="475" y="227" text-anchor="middle" font-size="12" fill="#4B5563">主键 / 分区 / 维度 / 事实</text>
+
+  <line x1="322" y1="200" x2="348" y2="200" stroke="#D9822B" stroke-width="1.5" marker-end="url(#o)"/>
+  <text x="335" y="262" text-anchor="middle" font-size="11" fill="#9A5A22">指标建在声明了粒度的模型上</text>
+
+  <rect x="70" y="276" width="530" height="88" rx="8" fill="#FFFFFF" stroke="#D9822B" stroke-width="1.4"/>
+  <text x="335" y="304" text-anchor="middle" font-size="16" font-weight="600" fill="#1F2937">元数据 · 底座（说明书与规则）</text>
+  <text x="335" y="328" text-anchor="middle" font-size="12" fill="#4B5563">字段含义 · 合法值 · 清洗规则 · 血缘 —— 模型和指标的定义本身也记在这里</text>
+  <text x="335" y="347" text-anchor="middle" font-size="12" fill="#4B5563">要求：语义有唯一权威出处，能被机器读取执行</text>
+
+  <!-- verification loop -->
+  <rect x="650" y="118" width="112" height="262" rx="10" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="1.4"/>
+  <text x="706" y="150" text-anchor="middle" font-size="16" font-weight="600" fill="#2F6FDB">验证</text>
+  <g font-size="12" fill="#374151" text-anchor="middle">
+    <text x="706" y="182">质量校验</text><text x="706" y="204">对账核数</text>
+    <text x="706" y="226">影子并行</text><text x="706" y="248">差异逐项归因</text>
+  </g>
+  <text x="706" y="290" text-anchor="middle" font-size="11" fill="#6B7280">写下的定义</text>
+  <text x="706" y="306" text-anchor="middle" font-size="11" fill="#6B7280">≠</text>
+  <text x="706" y="322" text-anchor="middle" font-size="11" fill="#6B7280">被执行的定义</text>
+  <path d="M706,380 L706,452 L636,452" fill="none" stroke="#2F6FDB" stroke-width="1.3" stroke-dasharray="5 3"/>
+  <path d="M706,118 L706,79 L640,79" fill="none" stroke="#2F6FDB" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#a)"/>
+  <text x="712" y="98" font-size="11" fill="#2F6FDB">通过才交付</text>
+  <text x="712" y="430" font-size="11" fill="#2F6FDB">检查执行结果</text>
+
+  <!-- tools -->
+  <rect x="40" y="410" width="590" height="84" rx="10" fill="#F1F4F9" stroke="#D8DEE8"/>
+  <text x="56" y="432" font-size="13" fill="#6B7280" font-weight="600">工具（承载与执行，可替换）</text>
+  <g font-size="12" fill="#374151" text-anchor="middle">
+    <rect x="56" y="444" width="76" height="34" rx="6" fill="#FFFFFF" stroke="#C9D2E0"/><text x="94" y="466">消息队列</text>
+    <rect x="140" y="444" width="76" height="34" rx="6" fill="#FFFFFF" stroke="#C9D2E0"/><text x="178" y="466">流计算</text>
+    <rect x="224" y="444" width="76" height="34" rx="6" fill="#FFFFFF" stroke="#C9D2E0"/><text x="262" y="466">湖表</text>
+    <rect x="308" y="444" width="76" height="34" rx="6" fill="#FFFFFF" stroke="#C9D2E0"/><text x="346" y="466">批计算</text>
+    <rect x="392" y="444" width="76" height="34" rx="6" fill="#FFFFFF" stroke="#C9D2E0"/><text x="430" y="466">OLAP</text>
+    <rect x="476" y="444" width="76" height="34" rx="6" fill="#FFFFFF" stroke="#C9D2E0"/><text x="514" y="466">调度器</text>
+    <text x="586" y="466" fill="#9CA3AF">……</text>
+  </g>
+  <line x1="335" y1="408" x2="335" y2="383" stroke="#8A94A6" stroke-width="1.5" marker-end="url(#a)"/>
+  <text x="345" y="400" font-size="11" fill="#6B7280">读取定义并执行</text>
+
+  <text x="400" y="530" text-anchor="middle" font-size="14" fill="#4B5563">元数据是底座，模型和指标是底座上最要紧的两类定义，验证让定义作数。</text>
+</svg>

@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="720" viewBox="0 0 1000 720" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8A94A6"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E07B2E"/></marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2F6FDB"/></marker>
+  </defs>
+  <rect width="1000" height="720" fill="#FAFAF7"/>
+  <text x="500" y="38" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图1  典型大数据平台架构：两条加工线，一套服务，一圈治理</text>
+
+  <!-- 行标签 -->
+  <g font-size="13" font-weight="600" fill="#4B5563" text-anchor="middle">
+    <rect x="30" y="62"  width="60" height="50"  rx="6" fill="#EEF0F3"/><text x="60" y="92">数据源</text>
+    <rect x="30" y="132" width="60" height="50"  rx="6" fill="#EEF0F3"/><text x="60" y="162">采集接入</text>
+    <rect x="30" y="202" width="60" height="40"  rx="6" fill="#EEF0F3"/><text x="60" y="227">传输</text>
+    <rect x="30" y="262" width="60" height="110" rx="6" fill="#EEF0F3"/><text x="60" y="322">计算</text>
+    <rect x="30" y="402" width="60" height="60"  rx="6" fill="#EEF0F3"/><text x="60" y="437">存储</text>
+    <rect x="30" y="482" width="60" height="40"  rx="6" fill="#EEF0F3"/><text x="60" y="507">数据服务</text>
+    <rect x="30" y="542" width="60" height="50"  rx="6" fill="#EEF0F3"/><text x="60" y="572">数据应用</text>
+  </g>
+
+  <g font-size="13" text-anchor="middle" fill="#1F2937">
+    <!-- 数据源 -->
+    <rect x="100" y="62" width="132" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="166" y="83" font-weight="600">业务数据库</text><text x="166" y="101" font-size="11" fill="#6B7280">OLTP 关系库</text>
+    <rect x="242" y="62" width="132" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="308" y="83" font-weight="600">应用日志</text><text x="308" y="101" font-size="11" fill="#6B7280">App / Web / 服务端</text>
+    <rect x="384" y="62" width="132" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="450" y="83" font-weight="600">互联网外部渠道</text><text x="450" y="101" font-size="11" fill="#6B7280">网页 · 开放平台</text>
+    <rect x="526" y="62" width="132" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="592" y="83" font-weight="600">第三方数据</text><text x="592" y="101" font-size="11" fill="#6B7280">合作方接口 · 文件</text>
+    <rect x="668" y="62" width="132" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="734" y="83" font-weight="600">设备 / IoT</text><text x="734" y="101" font-size="11" fill="#6B7280">传感器 · 终端上报</text>
+
+    <!-- 采集接入 -->
+    <rect x="100" y="132" width="167" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="183" y="153" font-weight="600">数据库同步 CDC</text><text x="183" y="171" font-size="11" fill="#6B7280">Canal / Flink CDC</text>
+    <rect x="277" y="132" width="167" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="360" y="153" font-weight="600">日志采集</text><text x="360" y="171" font-size="11" fill="#6B7280">Filebeat / Flume / Logstash</text>
+    <rect x="454" y="132" width="167" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="537" y="153" font-weight="600">爬虫 / API 拉取</text><text x="537" y="171" font-size="11" fill="#6B7280">外部渠道数据抓取</text>
+    <rect x="631" y="132" width="169" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="715" y="153" font-weight="600">批量导入</text><text x="715" y="171" font-size="11" fill="#6B7280">DataX / SeaTunnel</text>
+
+    <!-- 传输 -->
+    <rect x="100" y="202" width="700" height="40" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="450" y="227" font-weight="600">消息队列　<tspan font-weight="400" font-size="12" fill="#6B7280">Kafka / Pulsar —— 实时与离线共用的数据入口</tspan></text>
+  </g>
+
+  <!-- 计算: 实时线 / 离线线 -->
+  <rect x="100" y="262" width="340" height="110" rx="9" fill="#FFF6EE" stroke="#E8A46A"/>
+  <text x="270" y="281" text-anchor="middle" font-size="12.5" font-weight="600" fill="#9A5A22">实时线（流计算，如 Flink）</text>
+  <rect x="460" y="262" width="340" height="110" rx="9" fill="#EEF4FD" stroke="#9DBBEB"/>
+  <text x="630" y="281" text-anchor="middle" font-size="12.5" font-weight="600" fill="#1F4E9E">离线线（批计算，如 Spark / Hive）</text>
+  <g font-size="13" text-anchor="middle" fill="#1F2937">
+    <rect x="110" y="292" width="150" height="70" rx="7" fill="#FFFFFF" stroke="#E8A46A"/><text x="185" y="318" font-weight="600">实时指标计算</text><text x="185" y="337" font-size="11" fill="#6B7280">窗口聚合 · 秒/分钟级</text><text x="185" y="353" font-size="11" fill="#6B7280">在线 · 大屏 · 告警</text>
+    <rect x="280" y="292" width="150" height="70" rx="7" fill="#FFFFFF" stroke="#E8A46A"/><text x="355" y="318" font-weight="600">实时清洗入湖</text><text x="355" y="337" font-size="11" fill="#6B7280">解析 · 去重 · 校验</text><text x="355" y="353" font-size="11" fill="#6B7280">明细准实时落湖</text>
+    <rect x="470" y="292" width="320" height="70" rx="7" fill="#FFFFFF" stroke="#9DBBEB"/><text x="630" y="318" font-weight="600">分层加工</text><text x="630" y="337" font-size="11" fill="#6B7280">ODS → DWD → DWM / DWS → ADS</text><text x="630" y="353" font-size="11" fill="#6B7280">由调度器按依赖驱动，小时 / 天级</text>
+
+    <!-- 存储 -->
+    <rect x="100" y="402" width="100" height="60" rx="7" fill="#FFFFFF" stroke="#E8A46A"/><text x="150" y="426" font-weight="600">Redis</text><text x="150" y="445" font-size="11" fill="#6B7280">热数据发布</text>
+    <rect x="210" y="402" width="100" height="60" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="260" y="426" font-weight="600">Elasticsearch</text><text x="260" y="445" font-size="11" fill="#6B7280">全文检索</text>
+    <rect x="320" y="402" width="200" height="60" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="420" y="424" font-weight="600">数据湖 / 湖仓</text><text x="420" y="442" font-size="11" fill="#6B7280">Paimon / Iceberg / Hudi</text><text x="420" y="456" font-size="11" fill="#6B7280">HDFS / 对象存储</text>
+    <rect x="530" y="402" width="150" height="60" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="605" y="426" font-weight="600">OLAP 引擎</text><text x="605" y="445" font-size="11" fill="#6B7280">StarRocks / Doris / CK</text>
+    <rect x="690" y="402" width="110" height="60" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="745" y="426" font-weight="600">KV 存储</text><text x="745" y="445" font-size="11" fill="#6B7280">HBase · 点查</text>
+
+    <!-- 数据服务 -->
+    <rect x="100" y="482" width="700" height="40" rx="7" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="1.3"/><text x="450" y="507" font-weight="600">数据服务 / 发布平台　<tspan font-weight="400" font-size="12" fill="#6B7280">统一 API · 指标服务 · 鉴权 · 限流 · 对外数据开放</tspan></text>
+
+    <!-- 数据应用 -->
+    <rect x="100" y="542" width="132" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="166" y="563" font-weight="600">实时大屏 / 告警</text><text x="166" y="581" font-size="11" fill="#6B7280">秒级刷新</text>
+    <rect x="242" y="542" width="132" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="308" y="563" font-weight="600">BI 报表</text><text x="308" y="581" font-size="11" fill="#6B7280">自助分析</text>
+    <rect x="384" y="542" width="132" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="450" y="563" font-weight="600">搜索</text><text x="450" y="581" font-size="11" fill="#6B7280">内容 / 商品检索</text>
+    <rect x="526" y="542" width="132" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="592" y="563" font-weight="600">推荐 / 风控</text><text x="592" y="581" font-size="11" fill="#6B7280">用户画像 · 标签</text>
+    <rect x="668" y="542" width="132" height="50" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="734" y="563" font-weight="600">对外数据开放</text><text x="734" y="581" font-size="11" fill="#6B7280">合作方 · 开放接口</text>
+  </g>
+
+  <!-- 主干箭头(只走行间通道) -->
+  <g stroke="#8A94A6" stroke-width="1.6" fill="none" marker-end="url(#g)">
+    <line x1="450" y1="112" x2="450" y2="130"/>
+    <line x1="450" y1="182" x2="450" y2="200"/>
+    <line x1="270" y1="242" x2="270" y2="260"/>
+    <line x1="630" y1="242" x2="630" y2="260"/>
+    <line x1="450" y1="462" x2="450" y2="480"/>
+    <line x1="450" y1="522" x2="450" y2="540"/>
+  </g>
+  <g stroke="#E07B2E" stroke-width="1.8" fill="none" marker-end="url(#o)">
+    <line x1="150" y1="362" x2="150" y2="400"/>
+    <line x1="355" y1="362" x2="355" y2="400" stroke-dasharray="5 3"/>
+  </g>
+  <text x="158" y="386" font-size="11" fill="#9A5A22">实时指标发布</text>
+  <text x="363" y="386" font-size="11" fill="#9A5A22">入湖</text>
+  <g stroke="#2F6FDB" stroke-width="1.6" fill="none" marker-end="url(#b)">
+    <line x1="490" y1="402" x2="490" y2="364"/>
+    <line x1="605" y1="362" x2="605" y2="400"/>
+  </g>
+  <text x="498" y="386" font-size="11" fill="#1F4E9E">读</text>
+  <text x="613" y="386" font-size="11" fill="#1F4E9E">写结果</text>
+
+  <!-- 右侧: 治理与运维 -->
+  <rect x="815" y="62" width="155" height="530" rx="10" fill="#F1F4F9" stroke="#D8DEE8" stroke-dasharray="5 4"/>
+  <text x="892" y="84" text-anchor="middle" font-size="13" font-weight="600" fill="#4B5563">治理与运维<tspan font-size="10.5" font-weight="400" fill="#9CA3AF">（贯穿各层）</tspan></text>
+  <g font-size="13" text-anchor="middle" fill="#1F2937">
+    <rect x="827" y="96"  width="131" height="58" rx="7" fill="#FFF6EE" stroke="#E8A46A"/><text x="892" y="117" font-weight="600">元数据中心</text><text x="892" y="139" font-size="10.5" fill="#9A5A22">OpenMetadata</text><text x="892" y="151" font-size="10.5" fill="#9A5A22">DataHub</text>
+    <rect x="827" y="164" width="131" height="58" rx="7" fill="#FFF6EE" stroke="#E8A46A"/><text x="892" y="188" font-weight="600">指标与口径管理</text><text x="892" y="207" font-size="10.5" fill="#9A5A22">定义 · 粒度 · 可加性</text>
+    <rect x="827" y="232" width="131" height="58" rx="7" fill="#FFF6EE" stroke="#E8A46A"/><text x="892" y="256" font-weight="600">数据质量</text><text x="892" y="275" font-size="10.5" fill="#9A5A22">规则 · 对账 · 稽核</text>
+    <rect x="827" y="300" width="131" height="58" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="892" y="324" font-weight="600">数据血缘</text><text x="892" y="343" font-size="10.5" fill="#6B7280">表级 / 字段级</text>
+    <rect x="827" y="368" width="131" height="58" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="892" y="389" font-weight="600">调度编排</text><text x="892" y="408" font-size="10.5" fill="#6B7280">DolphinScheduler</text><text x="892" y="420" font-size="10.5" fill="#6B7280">Airflow</text>
+    <rect x="827" y="436" width="131" height="58" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="892" y="460" font-weight="600">监控告警</text><text x="892" y="479" font-size="10.5" fill="#6B7280">延迟 · 失败 · 量级</text>
+    <rect x="827" y="504" width="131" height="58" rx="7" fill="#FFFFFF" stroke="#C9D2E0"/><text x="892" y="528" font-weight="600">安全与权限</text><text x="892" y="547" font-size="10.5" fill="#6B7280">脱敏 · 授权 · 审计</text>
+  </g>
+  <text x="892" y="582" text-anchor="middle" font-size="10.5" fill="#9CA3AF">橙色三项决定「对不对」</text>
+
+  <!-- 开发治理 -->
+  <rect x="30" y="612" width="940" height="46" rx="10" fill="#FFFFFF" stroke="#2F6FDB" stroke-width="1.4" stroke-dasharray="7 4"/>
+  <text x="500" y="632" text-anchor="middle" font-size="14" font-weight="600" fill="#2F6FDB">开发治理 / 研发流程管理：需求 → 设计 → 开发 → 测试 → 发布</text>
+  <text x="500" y="650" text-anchor="middle" font-size="11" fill="#2F6FDB">典型架构图里常常缺这一层（本系列另行讨论）</text>
+
+  <rect x="30" y="668" width="940" height="38" rx="8" fill="#EEF0F3"/>
+  <text x="500" y="692" text-anchor="middle" font-size="14" fill="#4B5563">十几个组件解决的是「能不能跑」；元数据、模型、指标决定「对不对」。</text>
+</svg>

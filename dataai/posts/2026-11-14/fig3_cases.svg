@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="560" viewBox="0 0 800 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B0B8C6"/></marker>
+  </defs>
+  <rect width="800" height="560" fill="#FAFAF7"/>
+  <text x="400" y="34" text-anchor="middle" font-size="19" font-weight="600" fill="#1F2937">图3  三个常见反模式：工具都在正常跑，错在定义</text>
+
+  <g font-size="13" fill="#6B7280" text-anchor="middle" font-weight="600">
+    <text x="52" y="164">现象</text><text x="52" y="304">原理</text><text x="52" y="450">方法</text>
+  </g>
+
+  <g font-size="15" font-weight="600" text-anchor="middle">
+    <rect x="96" y="56" width="220" height="38" rx="8" fill="#D9822B"/><text x="206" y="81" fill="#FFFFFF">指标：对明细行求平均</text>
+    <rect x="330" y="56" width="220" height="38" rx="8" fill="#D9822B"/><text x="440" y="81" fill="#FFFFFF">模型：一个事件数两次</text>
+    <rect x="564" y="56" width="220" height="38" rx="8" fill="#D9822B"/><text x="674" y="81" fill="#FFFFFF">元数据：规则没生效</text>
+  </g>
+
+  <g font-size="12.5" fill="#1F2937">
+    <rect x="96" y="104" width="220" height="116" rx="8" fill="#FFFFFF" stroke="#C9D2E0"/>
+    <text x="110" y="130">「平均日活」对「应用×渠道</text>
+    <text x="110" y="152">×天」的行直接 avg</text>
+    <text x="110" y="174">比真实值小几个数量级</text>
+    <text x="110" y="196" fill="#6B7280">语法对、调度绿、监控绿</text>
+
+    <rect x="330" y="104" width="220" height="116" rx="8" fill="#FFFFFF" stroke="#C9D2E0"/>
+    <text x="344" y="130">小数据量事件表按小时分区</text>
+    <text x="344" y="152">重发跨过整点</text>
+    <text x="344" y="174">两个分区各留一行</text>
+    <text x="344" y="196">按天汇总明显虚高</text>
+
+    <rect x="564" y="104" width="220" height="116" rx="8" fill="#FFFFFF" stroke="#C9D2E0"/>
+    <text x="578" y="130">截断规则被当成校验</text>
+    <text x="578" y="152">该保留的值被判不合规</text>
+    <text x="578" y="174">「失败只置空字段」</text>
+    <text x="578" y="196">实际把原值写了回去</text>
+  </g>
+
+  <g stroke="#B0B8C6" stroke-width="1.5" marker-end="url(#a)">
+    <line x1="206" y1="222" x2="206" y2="242"/><line x1="440" y1="222" x2="440" y2="242"/><line x1="674" y1="222" x2="674" y2="242"/>
+    <line x1="206" y1="372" x2="206" y2="392"/><line x1="440" y1="372" x2="440" y2="392"/><line x1="674" y1="372" x2="674" y2="392"/>
+  </g>
+
+  <g font-size="12.5" fill="#1F2937">
+    <rect x="96" y="246" width="220" height="124" rx="8" fill="#FFF8F1" stroke="#EBC49E"/>
+    <text x="110" y="272">人数是去重量</text>
+    <text x="110" y="294">不能跨维度直接相加或平均</text>
+    <text x="110" y="316">行的粒度 ≠ 指标的粒度</text>
+    <text x="110" y="348" fill="#9A5A22" font-weight="600">指标没定义粒度和算法</text>
+
+    <rect x="330" y="246" width="220" height="124" rx="8" fill="#FFF8F1" stroke="#EBC49E"/>
+    <text x="344" y="272">分区主键表的主键含分区列</text>
+    <text x="344" y="294">去重只在分区内生效</text>
+    <text x="344" y="316">分区和判重混在一起</text>
+    <text x="344" y="348" fill="#9A5A22" font-weight="600">模型的粒度声明错了</text>
+
+    <rect x="564" y="246" width="220" height="124" rx="8" fill="#FFF8F1" stroke="#EBC49E"/>
+    <text x="578" y="272">截断＝保留并截短</text>
+    <text x="578" y="294">超长判失败＝不合规处置</text>
+    <text x="578" y="316">名字像，语义相反</text>
+    <text x="578" y="348" fill="#9A5A22" font-weight="600">定义不准，执行没验证</text>
+  </g>
+
+  <g font-size="12.5" fill="#1F2937">
+    <rect x="96" y="398" width="220" height="104" rx="8" fill="#FFFFFF" stroke="#2F6FDB"/>
+    <text x="110" y="424">指标库登记必填属性：</text>
+    <text x="110" y="446">标量 / 向量、去重对象</text>
+    <text x="110" y="468">设计阶段就能识别</text>
+    <text x="110" y="490">「对明细行求平均」</text>
+
+    <rect x="330" y="398" width="220" height="104" rx="8" fill="#FFFFFF" stroke="#2F6FDB"/>
+    <text x="344" y="424">分区按数据量定</text>
+    <text x="344" y="446">不为拿小时增量而分区</text>
+    <text x="344" y="468">天统计按事件 ID 去重</text>
+    <text x="344" y="490">全局唯一用不分区主键表</text>
+
+    <rect x="564" y="398" width="220" height="104" rx="8" fill="#FFFFFF" stroke="#2F6FDB"/>
+    <text x="578" y="424">语义只认元数据中心定义</text>
+    <text x="578" y="446">阈值必须有元数据出处</text>
+    <text x="578" y="468">构造样例数据逐条回归</text>
+    <text x="578" y="490">核对执行结果符合定义</text>
+  </g>
+
+  <text x="400" y="536" text-anchor="middle" font-size="14" fill="#4B5563">没有一个工具报错，问题都出在「数据是什么、怎么算」没有被写清楚并验证。</text>
+</svg>

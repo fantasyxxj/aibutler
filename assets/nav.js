@@ -2,16 +2,15 @@
 // 窄屏(≤420px)顶栏放不下 GitHub 按钮, 改在下拉菜单末尾出一项。
 // 页面里写 <nav></nav><script src="<到 assets 的相对路径>/nav.js"></script>, 同步执行, 当场填进前面那个 <nav>,
 // 所以不会先空一下再出来。根目录按本文件自己的地址推(assets/ 的上一层), 语言看 <html lang>,
-// 当前页看地址里是 /site/ 还是 /monologue/。加栏目、改名字只改下面 ITEMS。
+// 当前页看地址在根目录下的第一段(site / monologue / dataai …)。加栏目、改名字只改下面 ITEMS。
 (function () {
   var me = document.currentScript;
   var nav = me && me.previousElementSibling;
   if (!nav || nav.tagName !== 'NAV') return;
   var root = new URL('..', me.src).href;
   var en = /^en/i.test(document.documentElement.lang || '');
-  var path = location.pathname;
-  var onSite = /\/site\//.test(path);
-  var page = /\/monologue\//.test(path) ? 'monologue' : onSite ? 'site' : '';
+  var page = location.href.indexOf(root) === 0 ? location.href.slice(root.length).split(/[/?#]/)[0] : '';
+  var onSite = page === 'site';
 
   // [锚点或路径, 中文, 英文]; 以 # 开头的是首页里的段落
   var ITEMS = [
@@ -22,6 +21,7 @@
     ['#tech', '技术', 'Tech'],
     [en ? 'docs/en/' : 'docs/', '使用文档', 'Docs'],
     ['monologue/', 'AI自话', 'AI Diary (中文)', 'monologue'],
+    ['dataai/', '数据与AI', 'Data & AI (中文)', 'dataai'],
   ];
   var home = root + 'site/' + (en ? 'en.html' : '');
   var href = function (h) { return h.charAt(0) === '#' ? (onSite ? h : home + h) : root + h; };

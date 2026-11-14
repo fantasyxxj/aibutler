@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="540" viewBox="0 0 800 540" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8A94A6"/></marker>
+  </defs>
+  <rect width="800" height="540" fill="#FAFAF7"/>
+  <text x="400" y="34" text-anchor="middle" font-size="19" font-weight="600" fill="#1F2937">图4  同一个问题，AI 拿到的上下文不同，答案不同</text>
+  <text x="400" y="62" text-anchor="middle" font-size="13" fill="#6B7280">问题：「某应用上周平均日活是多少？」（思想实验示意，非实测）</text>
+
+  <!-- left: without -->
+  <rect x="30" y="80" width="355" height="250" rx="10" fill="#FFFFFF" stroke="#D8DEE8"/>
+  <text x="207" y="108" text-anchor="middle" font-size="15" font-weight="600" fill="#6B7280">只给表结构和列名</text>
+  <g font-size="12.5" fill="#374151">
+    <rect x="50" y="122" width="315" height="58" rx="6" fill="#F3F4F6"/>
+    <text x="64" y="146">渠道日活表：应用、渠道、日期、活跃人数</text>
+    <text x="64" y="168">目标列名：「上周平均日活」</text>
+  </g>
+  <line x1="207" y1="182" x2="207" y2="206" stroke="#8A94A6" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="157" y="208" width="100" height="32" rx="16" fill="#E5E7EB"/><text x="207" y="229" text-anchor="middle" font-size="13" fill="#374151">AI 写 SQL</text>
+  <line x1="207" y1="242" x2="207" y2="264" stroke="#8A94A6" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="50" y="266" width="315" height="48" rx="6" fill="#FDECEC" stroke="#E8A2A2"/>
+  <text x="207" y="288" text-anchor="middle" font-size="13" fill="#9B2C2C">对渠道行直接 avg → 每渠道日均人数</text>
+  <text x="207" y="306" text-anchor="middle" font-size="11" fill="#9B2C2C">比真实日活小几个数量级，写得更快，错得一样</text>
+
+  <!-- right: with -->
+  <rect x="415" y="80" width="355" height="250" rx="10" fill="#FFFFFF" stroke="#D9822B" stroke-width="1.4"/>
+  <text x="592" y="108" text-anchor="middle" font-size="15" font-weight="600" fill="#9A5A22">再给元数据、模型、指标定义</text>
+  <g font-size="12" fill="#374151">
+    <rect x="435" y="122" width="315" height="58" rx="6" fill="#FFF8F1"/>
+    <text x="449" y="142">模型：一行＝应用×渠道×天</text>
+    <text x="449" y="158">指标：日活是向量（按人去重），不可跨渠道相加</text>
+    <text x="449" y="174">口径：先按人合并，再对天数平均</text>
+  </g>
+  <line x1="592" y1="182" x2="592" y2="206" stroke="#8A94A6" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="542" y="208" width="100" height="32" rx="16" fill="#E5E7EB"/><text x="592" y="229" text-anchor="middle" font-size="13" fill="#374151">AI 写 SQL</text>
+  <line x1="592" y1="242" x2="592" y2="264" stroke="#8A94A6" stroke-width="1.5" marker-end="url(#a)"/>
+  <rect x="435" y="266" width="315" height="48" rx="6" fill="#EAF2FD" stroke="#9DBDF0"/>
+  <text x="592" y="288" text-anchor="middle" font-size="13" fill="#1E4FA8">按人合并成应用日活，再对 7 天平均</text>
+  <text x="592" y="306" text-anchor="middle" font-size="11" fill="#1E4FA8">口径由定义决定，不由模型猜</text>
+
+  <!-- evidence -->
+  <text x="400" y="358" text-anchor="middle" font-size="12" fill="#6B7280">参照：Sequeda 等 2023 年的企业问答基准中，GPT-4 直接对 SQL 库零样本回答约 16%，基于带业务语义的知识图谱约 54%</text>
+
+  <!-- guardrails -->
+  <rect x="30" y="378" width="740" height="120" rx="10" fill="#F1F4F9" stroke="#D8DEE8"/>
+  <text x="46" y="402" font-size="13" font-weight="600" fill="#374151">操作上的护栏（关于「怎么操作数据」的元数据）</text>
+  <g font-size="12.5" text-anchor="middle">
+    <rect x="46" y="414" width="230" height="68" rx="8" fill="#FFFFFF" stroke="#2F6FDB"/>
+    <text x="161" y="440" font-weight="600" fill="#1E4FA8">命令手册</text><text x="161" y="464" fill="#374151">只收验证过的命令</text>
+    <rect x="285" y="414" width="230" height="68" rx="8" fill="#FFFFFF" stroke="#2F6FDB"/>
+    <text x="400" y="440" font-weight="600" fill="#1E4FA8">动手前钩子</text><text x="400" y="464" fill="#374151">命中高危动作先召回规范</text>
+    <rect x="524" y="414" width="230" height="68" rx="8" fill="#FFFFFF" stroke="#2F6FDB"/>
+    <text x="639" y="440" font-weight="600" fill="#1E4FA8">知识库</text><text x="639" y="464" fill="#374151">规则与教训，遇事先检索</text>
+  </g>
+  <text x="400" y="524" text-anchor="middle" font-size="14" fill="#4B5563">AI 放大的是团队已有的东西：有定义就放大效率，没定义就放大混乱。</text>
+</svg>
