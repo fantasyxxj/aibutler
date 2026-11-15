@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2F6FDB"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C2410C"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="40" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图2  观测式元数据的闭环</text>
+
+  <!-- 四步 -->
+  <rect x="80" y="90" width="220" height="80" rx="10" fill="#EEF4FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="190" y="122" text-anchor="middle" font-size="17" font-weight="600" fill="#1F2937">① 观测</text>
+  <text x="190" y="148" text-anchor="middle" font-size="12" fill="#4B5563">结构 · 数据量 · 新鲜度 · 分布 · 血缘</text>
+
+  <rect x="600" y="90" width="220" height="80" rx="10" fill="#EEF4FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="710" y="122" text-anchor="middle" font-size="17" font-weight="600" fill="#1F2937">② 比对</text>
+  <text x="710" y="148" text-anchor="middle" font-size="12" fill="#4B5563">观测结果 vs 已确认基线 → 偏差</text>
+
+  <rect x="600" y="330" width="220" height="80" rx="10" fill="#FDECDD" stroke="#C2410C" stroke-width="2"/>
+  <text x="710" y="362" text-anchor="middle" font-size="17" font-weight="600" fill="#7C2D12">③ 裁决</text>
+  <text x="710" y="388" text-anchor="middle" font-size="12" fill="#7C2D12">接受 · 拒绝 · 重新解释</text>
+
+  <rect x="80" y="330" width="220" height="80" rx="10" fill="#EEF4FD" stroke="#2F6FDB" stroke-width="1.8"/>
+  <text x="190" y="362" text-anchor="middle" font-size="17" font-weight="600" fill="#1F2937">④ 固化</text>
+  <text x="190" y="388" text-anchor="middle" font-size="12" fill="#4B5563">裁决写回为变更事件 → 新基线</text>
+
+  <line x1="304" y1="130" x2="594" y2="130" stroke="#2F6FDB" stroke-width="3" marker-end="url(#b)"/>
+  <line x1="710" y1="174" x2="710" y2="324" stroke="#2F6FDB" stroke-width="3" marker-end="url(#b)"/>
+  <line x1="596" y1="370" x2="306" y2="370" stroke="#2F6FDB" stroke-width="3" marker-end="url(#b)"/>
+  <line x1="190" y1="326" x2="190" y2="176" stroke="#2F6FDB" stroke-width="3" marker-end="url(#b)"/>
+
+  <!-- 中心 -->
+  <ellipse cx="450" cy="250" rx="140" ry="46" fill="#FFFFFF" stroke="#9DBBEB" stroke-width="1.8"/>
+  <text x="450" y="245" text-anchor="middle" font-size="16" font-weight="600" fill="#1F2937">元数据变更日志</text>
+  <text x="450" y="268" text-anchor="middle" font-size="12" fill="#4B5563">基线与历史都从这里读</text>
+
+  <path d="M300,330 L360,286" stroke="#9DBBEB" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#b)"/>
+  <text x="300" y="300" text-anchor="end" font-size="12" fill="#4B5563">写入</text>
+  <path d="M540,214 L600,170" stroke="#9DBBEB" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#b)"/>
+  <text x="580" y="210" text-anchor="start" font-size="12" fill="#4B5563">读基线</text>
+  <!-- AI 辅助 -->
+  <rect x="726" y="200" width="160" height="62" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text x="806" y="224" text-anchor="middle" font-size="13" font-weight="600" fill="#5B21B6">AI 辅助</text>
+  <text x="806" y="246" text-anchor="middle" font-size="12" fill="#5B21B6">解释 · 归并 · 起草处理</text>
+
+  <!-- 外部注入 -->
+  <path d="M710,505 L710,416" stroke="#C2410C" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#o)"/>
+  <rect x="560" y="470" width="300" height="56" rx="8" fill="#FEF2F2" stroke="#DC2626" stroke-width="1.6" stroke-dasharray="7 5"/>
+  <text x="710" y="494" text-anchor="middle" font-size="14" font-weight="600" fill="#991B1B">外部输入：业务知识 · 治理决策</text>
+  <text x="710" y="514" text-anchor="middle" font-size="12" fill="#991B1B">注入点在「裁决偏差」，不在「事先定义」</text>
+
+  <text x="60" y="470" font-size="13" fill="#6B7280">声明式：人在数据到达前写下全部定义</text>
+  <text x="60" y="494" font-size="13" fill="#6B7280">观测式：人只对系统发现的、带证据的偏差作判断</text>
+</svg>

@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2F6FDB"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C2410C"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="40" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图1  事件驱动下元数据的两层</text>
+
+  <!-- 第一层 -->
+  <rect x="30" y="66" width="840" height="200" rx="10" fill="#F3F7FE" stroke="#9DBBEB" stroke-width="1.5"/>
+  <text x="50" y="94" font-size="16" font-weight="600" fill="#1F4E9E">第一层  描述事件流的元数据：结构随数据演进</text>
+
+  <rect x="50" y="120" width="150" height="56" rx="8" fill="#FFFFFF" stroke="#9DBBEB" stroke-width="1.6"/>
+  <text x="125" y="145" text-anchor="middle" font-size="15" font-weight="600" fill="#1F2937">异构数据源</text>
+  <text x="125" y="166" text-anchor="middle" font-size="12" fill="#4B5563">埋点 · 日志 · 回传 · CDC</text>
+
+  <line x1="204" y1="148" x2="694" y2="148" stroke="#2F6FDB" stroke-width="5" marker-end="url(#b)"/>
+  <text x="449" y="137" text-anchor="middle" font-size="13" fill="#1F4E9E">事件流（数据先于定义到达）</text>
+
+  <rect x="700" y="120" width="150" height="56" rx="8" fill="#FFFFFF" stroke="#9DBBEB" stroke-width="1.6"/>
+  <text x="775" y="145" text-anchor="middle" font-size="15" font-weight="600" fill="#1F2937">湖仓表</text>
+  <text x="775" y="166" text-anchor="middle" font-size="12" fill="#4B5563">原始层 → 明细层</text>
+
+  <rect x="230" y="190" width="200" height="58" rx="8" fill="#EEF4FD" stroke="#2F6FDB" stroke-width="1.6"/>
+  <text x="330" y="214" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2937">模式版本 + 兼容规则</text>
+  <text x="330" y="235" text-anchor="middle" font-size="12" fill="#4B5563">如 Schema Registry</text>
+  <rect x="470" y="190" width="200" height="58" rx="8" fill="#EEF4FD" stroke="#2F6FDB" stroke-width="1.6"/>
+  <text x="570" y="214" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2937">按列编号的模式演进</text>
+  <text x="570" y="235" text-anchor="middle" font-size="12" fill="#4B5563">如 Iceberg（只改元数据）</text>
+  <line x1="330" y1="186" x2="330" y2="156" stroke="#2F6FDB" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <line x1="570" y1="186" x2="570" y2="156" stroke="#2F6FDB" stroke-width="1.6" stroke-dasharray="4 3"/>
+
+  <!-- 第二层 -->
+  <rect x="30" y="290" width="840" height="230" rx="10" fill="#FFF8F1" stroke="#E8A46A" stroke-width="1.5"/>
+  <text x="50" y="318" font-size="16" font-weight="600" fill="#9A5A22">第二层  元数据本身作为事件：可发布、可订阅、可回放</text>
+
+  <rect x="50" y="344" width="170" height="64" rx="8" fill="#FFFFFF" stroke="#E8A46A" stroke-width="1.6"/>
+  <text x="135" y="370" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2937">作业运行事件</text>
+  <text x="135" y="392" text-anchor="middle" font-size="12" fill="#4B5563">模式 · 血缘 · 质量切面</text>
+  <rect x="50" y="430" width="170" height="64" rx="8" fill="#FFFFFF" stroke="#E8A46A" stroke-width="1.6"/>
+  <text x="135" y="456" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2937">定义变更提议</text>
+  <text x="135" y="478" text-anchor="middle" font-size="12" fill="#4B5563">口径 · 契约 · 裁决结果</text>
+
+  <path d="M224,376 C270,376 280,420 316,420" fill="none" stroke="#C2410C" stroke-width="2.2" marker-end="url(#o)"/>
+  <path d="M224,462 C270,462 280,428 316,428" fill="none" stroke="#C2410C" stroke-width="2.2" marker-end="url(#o)"/>
+
+  <rect x="320" y="396" width="260" height="56" rx="8" fill="#FDECDD" stroke="#C2410C" stroke-width="1.8"/>
+  <text x="450" y="420" text-anchor="middle" font-size="15" font-weight="600" fill="#7C2D12">元数据变更日志</text>
+  <text x="450" y="440" text-anchor="middle" font-size="12" fill="#7C2D12">追加写入，按时间有序</text>
+
+  <line x1="584" y1="424" x2="644" y2="380" stroke="#C2410C" stroke-width="2" marker-end="url(#o)"/>
+  <line x1="584" y1="424" x2="644" y2="424" stroke="#C2410C" stroke-width="2" marker-end="url(#o)"/>
+  <line x1="584" y1="424" x2="644" y2="468" stroke="#C2410C" stroke-width="2" marker-end="url(#o)"/>
+  <rect x="650" y="358" width="200" height="40" rx="7" fill="#FFFFFF" stroke="#E8A46A" stroke-width="1.4"/>
+  <text x="750" y="383" text-anchor="middle" font-size="13" fill="#1F2937">当前视图：检索 · 血缘图</text>
+  <rect x="650" y="404" width="200" height="40" rx="7" fill="#FFFFFF" stroke="#E8A46A" stroke-width="1.4"/>
+  <text x="750" y="429" text-anchor="middle" font-size="13" fill="#1F2937">历史视图：某时刻的定义</text>
+  <rect x="650" y="450" width="200" height="40" rx="7" fill="#FFFFFF" stroke="#E8A46A" stroke-width="1.4"/>
+  <text x="750" y="475" text-anchor="middle" font-size="13" fill="#1F2937">订阅方：告警 · 下游校验</text>
+
+  <text x="450" y="545" text-anchor="middle" font-size="13" fill="#6B7280">当前元数据 = 全部变更事件按时间折叠的结果</text>
+</svg>
