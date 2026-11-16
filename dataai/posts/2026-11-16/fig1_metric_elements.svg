@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="644" viewBox="0 0 900 644" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+  </defs>
+  <rect width="900" height="644" fill="#FAFAF7"/>
+  <text x="450" y="40" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图1  一个指标名背后的定义要素</text>
+
+  <!-- 指标名 -->
+  <rect x="340" y="62" width="220" height="50" rx="10" fill="#FFFFFF" stroke="#374151" stroke-width="1.8"/>
+  <text x="450" y="93" text-anchor="middle" font-size="17" font-weight="600" fill="#1F2937">「付费用户数」</text>
+  <line x1="400" y1="114" x2="250" y2="146" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <line x1="500" y1="114" x2="680" y2="146" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+
+  <!-- 语义层 -->
+  <rect x="30" y="150" width="490" height="384" rx="10" fill="#F3F7FE" stroke="#9DBBEB" stroke-width="1.5"/>
+  <text x="50" y="178" font-size="16" font-weight="600" fill="#1F4E9E">语义要素：换了它，口径就变</text>
+  <text x="50" y="198" font-size="12" fill="#4B5563">进入指标定义，参与「是不是同一个指标」的判断</text>
+
+  <g font-size="14">
+    <rect x="50" y="212" width="450" height="38" rx="6" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="64" y="236" font-weight="600" fill="#1F2937">度量与聚合</text><text x="196" y="236" fill="#4B5563">对什么做什么运算：计数 / 求和 / 比率</text>
+    <rect x="50" y="256" width="450" height="38" rx="6" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="64" y="280" font-weight="600" fill="#1F2937">计数实体</text><text x="196" y="280" fill="#4B5563">数哪类实体：账号、设备，还是订单</text>
+    <rect x="50" y="300" width="450" height="38" rx="6" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="64" y="324" font-weight="600" fill="#1F2937">状态限定</text><text x="196" y="324" fill="#4B5563">行为发生时的状态：新用户 / 此前未付费</text>
+    <rect x="50" y="344" width="450" height="38" rx="6" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="64" y="368" font-weight="600" fill="#1F2937">统计窗口</text><text x="196" y="368" fill="#4B5563">当天 / 近 7 天 / 自然月内任一天</text>
+    <rect x="50" y="388" width="450" height="38" rx="6" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="64" y="412" font-weight="600" fill="#1F2937">时间基准</text><text x="196" y="412" fill="#4B5563">下单时间还是到账时间；按哪个时区切日</text>
+    <rect x="50" y="432" width="450" height="38" rx="6" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="64" y="456" font-weight="600" fill="#1F2937">过滤范围</text><text x="196" y="456" fill="#4B5563">是否剔除退款、测试账号、内部渠道</text>
+    <rect x="50" y="476" width="450" height="38" rx="6" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="64" y="500" font-weight="600" fill="#1F2937">作用域</text><text x="196" y="500" fill="#4B5563">哪个产品、哪个端、哪个地区</text>
+  </g>
+
+  <!-- 实现层 -->
+  <rect x="550" y="150" width="320" height="384" rx="10" fill="#F4F4F2" stroke="#BDBDB5" stroke-width="1.5"/>
+  <text x="570" y="178" font-size="16" font-weight="600" fill="#374151">实现要素：换了它，口径不变</text>
+  <text x="570" y="198" font-size="12" fill="#4B5563">同一指标可以有多个实现，结果须一致</text>
+
+  <g font-size="14">
+    <rect x="570" y="212" width="280" height="60" rx="6" fill="#FFFFFF" stroke="#BDBDB5"/>
+    <text x="584" y="237" font-weight="600" fill="#1F2937">汇总粒度</text>
+    <text x="584" y="259" font-size="12" fill="#4B5563">存在小时表还是天表</text>
+    <rect x="570" y="282" width="280" height="60" rx="6" fill="#FFFFFF" stroke="#BDBDB5"/>
+    <text x="584" y="307" font-weight="600" fill="#1F2937">中间态形式</text>
+    <text x="584" y="329" font-size="12" fill="#4B5563">存分子分母、位图，而非结果值</text>
+    <rect x="570" y="352" width="280" height="60" rx="6" fill="#FFFFFF" stroke="#BDBDB5"/>
+    <text x="584" y="377" font-weight="600" fill="#1F2937">实现位置</text>
+    <text x="584" y="399" font-size="12" fill="#4B5563">哪张表、哪段加工逻辑</text>
+    <rect x="570" y="422" width="280" height="92" rx="6" fill="#FFFFFF" stroke="#BDBDB5" stroke-dasharray="4 3"/>
+    <text x="710" y="473" text-anchor="middle" font-size="12" fill="#4B5563">判据：只换汇总档位的，属实现</text>
+  </g>
+
+  <!-- 版本 -->
+  <rect x="30" y="554" width="840" height="64" rx="10" fill="#FFF8F1" stroke="#E8A46A" stroke-width="1.5"/>
+  <text x="50" y="582" font-size="16" font-weight="600" fill="#9A5A22">版本与生效时间：贯穿两侧</text>
+  <text x="50" y="604" font-size="13" fill="#7C2D12">任一语义要素改变 = 新版本，标生效时间，旧版本关窗保留；实现要素改变不产生新版本，但要校验结果一致</text>
+</svg>

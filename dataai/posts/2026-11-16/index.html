@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大数据智能化开发和管理（四）：一个数字为什么有三个答案——指标语义 · 数据与AI</title>
+<link rel="icon" type="image/png" href="../../../assets/logo.png">
+<style>:root{color-scheme:dark;--bg:#0b1022;--card:#161f3d;--line:#26305a;--ink:#e6ebff;--ink2:#c3cbef;--mute:#8c97c2;--r:#7c8cff;--m:#38d3e8;--c:#f5b84b;--p:#f472b6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.85 -apple-system,"PingFang SC","Segoe UI","Microsoft YaHei",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px}
+h1{font-size:30px;line-height:1.35;margin:56px 0 10px}
+.sub{color:var(--mute);font-size:14px;margin-bottom:34px}
+.grad{background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent}
+article p{margin:0 0 1.1em;color:var(--ink2)}
+article b{color:var(--ink)}
+article h2{font-size:22px;line-height:1.4;margin:2em 0 .7em}
+article h3{font-size:18px;line-height:1.4;margin:1.6em 0 .6em}
+article h4{font-size:16px;margin:1.4em 0 .5em}
+article ul,article ol{margin:0 0 1.1em 1.4em;color:var(--ink2)}
+article li{margin:.3em 0}
+article blockquote{margin:0 0 1.2em;padding:10px 16px;border-left:3px solid var(--r);background:var(--card);border-radius:0 8px 8px 0;color:var(--ink2)}
+article hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+article figure{margin:1.4em 0}
+article figure img{border-radius:12px;border:1px solid var(--line);background:#fff}
+article figcaption{color:var(--mute);font-size:13.5px;text-align:center;margin-top:8px}
+article .tbl{overflow-x:auto;margin:0 0 1.2em}
+article table{border-collapse:collapse;font-size:14.5px;min-width:100%}
+article th,article td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;color:var(--ink2)}
+article th{background:var(--card);color:var(--ink);white-space:nowrap}
+article td:first-child{white-space:nowrap}
+code{font:14px ui-monospace,Menlo,monospace;background:var(--card);padding:1px 6px;border-radius:5px}
+.cover{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin:0 0 28px}
+audio{width:100%;margin:0 0 30px}
+.list a{display:block;padding:22px 0;border-bottom:1px solid var(--line)}
+.list+footer{border-top:0}
+.list a:hover h2{color:var(--m)}
+.list h2{font-size:20px;margin-bottom:4px}
+.list p{color:var(--mute);font-size:14.5px}
+.back{display:inline-block;margin:40px 0 70px;color:var(--m)}
+footer{color:var(--mute);font-size:13px;padding:30px 0 60px;border-top:1px solid var(--line);margin-top:40px}</style>
+</head>
+<body>
+<nav></nav><script src="../../../assets/nav.js"></script>
+<main class="wrap">
+<h1>大数据智能化开发和管理（四）：一个数字为什么有三个答案——指标语义</h1>
+<div class="sub">2026-11-16 · 指标的名字不是定义；把口径拆成可登记、可校验、可召回的要素，AI 才能算对 · 狂人</div>
+
+
+<article>
+<blockquote>第二篇把指标语义列为广义元数据的第三个方向，只说到「定义一次、处处使用」；第三篇说指标层要强约束。这一篇往下拆一层：一个指标的定义到底由哪些要素组成，哪些属于语义、哪些只是实现；业界的集中定义解决了什么、解决不了什么；大模型取数为什么离不开它；口径冲突怎样裁决、沉淀，并在下一次动手时被召回。</blockquote>
+<h2>一、现象：同一个名字，三个数</h2>
+<p>设想一个常见场景（数字为示意）。周一早会上，「昨日付费用户数」出现了三个数：运营看板 12,480，财务报表 11,930，实验平台 13,050。三方各自复核了一遍，都说自己没算错。</p>
+<p>追下去，差异来自三处：</p>
+<ul><li><b>计数实体不同</b>。运营按账号去重；实验平台的分流单位是设备，于是按设备去重，一个账号在两台设备上付费算两个；</li><li><b>时间基准不同</b>。运营按下单时间，财务按到账时间，跨零点的订单落在不同的日子；如果两边切日用的时区不一样，差异还会更大；</li><li><b>过滤范围不同</b>。财务剔除了当日退款和内部测试账号，另外两方没有剔除。</li></ul>
+<p>三个数在各自的口径内都是对的。问题不在计算，而在于<b>名字相同，定义不同，而定义只存在于各自的 SQL 里</b>。看数的人只看得到名字，看不到 SQL。</p>
+<p>这不是小公司才有的问题。Airbnb 在介绍其指标平台 Minerva 时回忆，CEO 问「上周哪个城市预订最多」这样简单的问题，数据科学和财务有时会给出不同的答案，原因是用了略有差异的表、指标定义和业务逻辑[1]。Uber 记录过一个更具体的例子：同一城市、同一时段的同一个指标，两个内部工具一个显示 653 万，一个显示 620 万，根因是其中一个工具的静态查询里过滤条件过期了，没有覆盖最新的状态列表[2]。</p>
+<h2>二、指标定义由什么组成</h2>
+<p>要让「是不是同一个指标」可以判断，先得把定义拆开。一个指标名背后至少有下面这些要素：</p>
+<figure><img src="./fig1_metric_elements.svg" alt="图1 一个指标名背后的定义要素" loading="lazy"><figcaption>图1 一个指标名背后的定义要素</figcaption></figure>
+<div class="tbl"><table><thead><tr><th>要素</th><th>回答的问题</th><th>以「付费用户数」为例</th><th>属于</th></tr></thead><tbody><tr><td>度量与聚合</td><td>对什么做什么运算</td><td>对付费行为计数</td><td>语义</td></tr><tr><td>计数实体</td><td>数的是哪类实体</td><td>账号、设备，还是订单</td><td>语义</td></tr><tr><td>状态限定</td><td>实体在行为发生时须处于什么状态</td><td>不限；或只算新用户、此前从未付费的用户</td><td>语义</td></tr><tr><td>统计窗口</td><td>在多长的时间范围内去重或累计</td><td>当天、近 7 天、自然月</td><td>语义</td></tr><tr><td>时间基准</td><td>用哪个时间字段归属日期，按哪个时区切日</td><td>下单时间还是到账时间</td><td>语义</td></tr><tr><td>过滤范围</td><td>哪些记录不算</td><td>退款、测试账号、内部渠道</td><td>语义</td></tr><tr><td>作用域</td><td>在哪个范围内成立</td><td>哪个产品、哪个端、哪个地区</td><td>语义</td></tr><tr><td>汇总粒度</td><td>预先汇总到哪一档</td><td>小时表还是天表</td><td>实现</td></tr><tr><td>中间态形式</td><td>存什么才能继续汇总</td><td>存分子分母、位图，而不是结果值</td><td>实现</td></tr><tr><td>实现位置</td><td>由哪张表、哪段逻辑算出</td><td>某张汇总表的某个字段</td><td>实现</td></tr></tbody></table></div>
+<p>此外还有一个贯穿两侧的属性：<b>版本与生效时间</b>。任何一个语义要素改变，就是一个新版本，要标注生效时间，旧版本关闭有效期但保留；实现要素改变不产生新版本，但新旧实现的结果必须一致。</p>
+<p>区分语义和实现的判据只有一条：<b>换了它，口径会不会变</b>。换了计数实体，数就变了，这是语义；把同一个指标从小时表挪到天表，数不应该变，这是实现。</p>
+<p>计数实体还有一层更细的区分：同一类实体在一次行为里可能以不同身份出现。邀请注册里，邀请人和被邀请人都是用户；同一件商品，可以作为自用售出，也可以作为礼品售出。这时还要标明<b>角色</b>，即实体在这次行为中的身份。数邀请人和数被邀请人，是两个指标。</p>
+<p>下面四个小节分别展开这张表里最容易出错的地方。</p>
+<h3>2.1 聚合函数决定了数能不能往上汇总</h3>
+<p>Kimball 把事实分为三类[3]：可加事实能沿所有维度相加；半可加事实只能沿部分维度相加，典型是余额，沿时间以外的维度可以相加，沿时间不行；不可加事实的典型是比率。</p>
+<p>Gray 等人在 1997 年提出 Data Cube 算子时，从计算角度把聚合函数也分成三类[4]：</p>
+<ul><li><b>分布式</b>（distributive）：子集的结果可以直接合成整体的结果，如 SUM、COUNT、MIN、MAX；</li><li><b>代数式</b>（algebraic）：子集的结果可以用一个定长元组概括，如平均值，只要记住和与个数；</li><li><b>整体式</b>（holistic）：描述子集结果所需的存储没有常数上界，如中位数、众数。</li></ul>
+<p>两套分类说的是同一件事：<b>哪些数可以先算小块再拼起来，哪些不行</b>。落到指标设计上有两条直接的结论。</p>
+<p><b>比率要存分子和分母，不能存比值。</b> 付费率是代数式的：把各渠道的付费率求平均，得不到总付费率，必须把付费人数和活跃人数分别相加再相除。Kimball 给出的处理就是存可加的分量，汇总后再算比值[3]。不这样做的后果可能比误差更严重：辛普森悖论说明，一个关联在整体上和在子群上可以方向相反[5]。1973 年伯克利研究生录取数据在汇总层面看似对女性不利，按院系拆开后却是轻微有利，原因是女性更多申请了录取率低的院系[6]。</p>
+<p><b>去重计数要存可合并的中间态。</b> Gray 等人的原文没有点名去重计数；但按其定义，要合并两个子集的去重人数，必须知道两边各有哪些人，描述子集结果的存储随人数增长、没有常数上界，因此可以归入整体式，这是本文的推论。工程上的出路是改存可以合并的中间态：精确去重存位图，按并集合并；允许误差时存 HyperLogLog 这类基数估计草图，用固定大小的存储换取可控的相对误差[7]。小时表存的是每小时的「人数」，天表就没法从它算出来；存的是每小时的「人的集合」，天表就是 24 个集合的并。</p>
+<h3>2.2 统计窗口属于语义，汇总粒度属于实现</h3>
+<p>「月付费用户数」和「日付费用户数」是两个指标，因为窗口变了，去重范围就变了：一个人这个月付费了十天，在日指标里出现十次，在月指标里只算一次。月指标不等于日指标之和。</p>
+<p>「当日付费用户数」存在小时表里还是天表里，是同一个指标的两个汇总档位。天表的数必须等于把 24 个小时的中间态合并后的结果，否则就是实现有错，而不是口径不同。</p>
+<p>这两件事常被压成一个字段，比如在指标名里写「日」「周」「月」。这样会同时制造两种错误。对去重类指标，窗口是真正的语义差异，应当写清楚是「当天去重」还是「自然月内去重」，光写一个「月」字不够。对可加指标，例如付费金额，「日付费金额」「周付费金额」「月付费金额」其实是同一个指标在三个汇总档位上的结果，把它们登记成三个指标，就人为制造了三个名字。判据仍是那一条：<b>换了它口径会变的是语义；只换汇总档位、结果可以从下一档合成的，是实现</b>。</p>
+<h3>2.3 名字和定义：两种病</h3>
+<p>名字和定义之间的错位有两种：</p>
+<ul><li><b>同名不同义</b>：同一个名字，在不同报表里是不同的定义。第一节的三个数就是这种；</li><li><b>同义不同名</b>：同一个定义，被起了好几个名字。上一小节按粒度拆出来的三个名字就是这种。</li></ul>
+<p>Kimball 对一致性事实的要求恰好是这两种病的规范：同一个度量出现在不同事实表里，如果要放在一起比较或计算，技术定义必须完全相同；定义相同就用同一个名字，定义不同就<b>必须</b>用不同的名字，提醒使用者两者不能混算[8]。</p>
+<p>作用域是定义的一部分，这一点最容易漏。两个「日活」分属不同的端，各自正确，问题只在于名字没带上作用域。补上作用域，它们就从冲突变成并存。</p>
+<h3>2.4 状态限定：以「首次充值人数」为例</h3>
+<p>「首次充值人数」看起来只是在付费用户数前面加了两个字。这两个字落在状态限定上：只数此前从未付费的实体。拆开看，它牵出三个分叉，每一个都会让数变：</p>
+<ol><li><b>「首次」在什么范围内判断</b>。一个用户在 A 产品第一次充值，此前在 B 产品充过，算不算首充？按产品判断和按全平台判断是两个指标；按产品判断的首充人数逐产品相加，会大于全平台的首充人数。作用域在这里进入了状态的判断。</li><li><b>哪些充值算数</b>。会员订阅、虚拟币购买、积分兑换是否都计入？只看会员订阅的「首次订阅人数」是另一个指标。这是过滤范围。</li><li><b>往前看到哪一天</b>。系统上线以前的充值没有记录，老用户上线后的第一笔充值会被误判为首充。需要约定一个历史起点，并把起点以前的付费状态补齐；起点本身是定义的一部分，要随版本记录。</li></ol>
+<p>它还要和「新用户首充人数」分开。后者要求注册与首充发生在同一天，状态限定是「新用户」；前者的状态限定是「此前从未付费」。名字相近，状态不同，就是两个指标。</p>
+<p>状态限定还带来一个可加性上的差别。首次充值对每个实体只发生一次，在作用域相同的前提下，逐日的首充人数直接相加就是当月的首充人数，不需要合并去重集合；普通的付费用户数没有这个性质（见 2.2）。</p>
+<p>从建模的角度看，计数类指标都可以读成一句话：<b>某类实体，以某种角色、处在某种状态时，发生了某个行为，对这个行为做度量</b>。实体和角色回答「数谁」，状态回答「数什么时候的谁」，行为和度量回答「数什么」。状态通常由历史事件推出：新用户由注册事件推出，「此前从未付费」由支付事件推出。它因此适合单独命名、登记一次、被多个指标引用，而不是在每个指标的 SQL 里各写一遍；否则十个指标里的「新用户」，可能有人写成注册当天，有人写成注册七天内，又回到了同名不同义。</p>
+<h2>三、集中定义：业界做法与它解决不了的</h2>
+<h3>3.1 从一致性维度到语义层</h3>
+<p>最早的答案来自维度建模。Kimball 的一致性维度要求不同事实表中的同名属性列名和取值域一致，只定义一次，到处复用，使得不同主题的结果可以对齐到同一行上比较[9]。总线矩阵就是围绕这些一致性维度组织整个数仓。</p>
+<p>指标层面的集中定义，是大公司在吃过「多个答案」的亏之后做起来的：</p>
+<ul><li><b>Airbnb Minerva</b> 把指标定义集中放在代码仓库里，做版本控制和自动回填；发文时已有超过 12,000 个指标、4,000 个维度，200 多个数据生产者[1]；</li><li><b>Uber uMetric</b> 管理指标从定义、发现、计划、计算、质量到消费的全生命周期。早期标准化工作覆盖 30 多个团队、1 万多个指标；像「完成行程」这样的热门指标，按不同维度和过滤条件会衍生出十倍甚至百倍的实例[2]；</li><li><b>LinkedIn UMP</b> 在其工程团队页面的描述是：此前报表大多零散、各自为政，不同的人用不同的方法计算同一个指标，得到略有差异的结果；UMP 提供集中的指标计算流水线和模板[10]。</li></ul>
+<p>2021 年，Benn Stancil 把这件事概括为现代数据栈「缺失的一块」：指标公式散落在各个工具里，被反复重写，好的情况是随时间慢慢漂移，坏的情况是一开始就对不上；他主张建一个集中的指标层，像数据库代理一样把指标请求翻译成 SQL[11]。</p>
+<p>此后这一层逐渐产品化。dbt 的 MetricFlow 把指标分为五种类型：简单、累积、派生、比率和转化[12]；比率指标的分子分母分别聚合再相除，而不是对行级比值求平均[13]，正是 2.1 那条原则的工程化；定义集中在建模层，改一处，处处刷新[14]。Looker 的 LookML 把查询结构和查询内容分开，SQL 表达式写一次、到处复用[15]。Cube 直接把自己定位为同时服务 AI 代理、BI 看板和嵌入式分析的语义层[16]。2025 年起，Snowflake 牵头、多家厂商参与制定开放语义交换规范 OSI，进入 Apache 孵化器后更名 Ossie。它的规范仓库开宗明义，要解决的正是「同一个 KPI 在不同工具里定义不同，团队花大量精力人工对齐定义，AI 代理基于不一致的业务逻辑给出不可靠的结果」[17]。</p>
+<h3>3.2 集中定义解决了什么，没解决什么</h3>
+<p>集中定义解决了四件事：定义只在一处，复用时保持一致；可加性在定义层就被约束，比率不会被误加；查询由定义自动生成，减少手写 SQL；定义变更有版本记录。</p>
+<p>它解决不了的，至少有四件：</p>
+<ol><li><b>存量迁不进来</b>。语义层只管它之后新登记的指标。在它之前，口径已经散落在几千段报表 SQL、加工脚本和临时查询里，每一段都可能藏着一个过滤条件。没有人能一段一段读完，迁移就一直停在「核心指标」；</li><li><b>谁的口径算数</b>。三个「付费用户数」都对，选哪个做标准，是组织问题，不是技术问题。语义层只能登记结果，不能替人作出选择；</li><li><b>定义在变</b>。业务调整、规则修订都会改口径。只保留当前定义的系统回答不了「上季度那份报告用的是哪个口径」；</li><li><b>绕过它的取数不受约束</b>。临时 SQL、导出后的表格加工，以及越来越多的 AI 取数，并不经过语义层。定义得再好，没被调用就等于没有。</li></ol>
+<p>第四点在大模型普及之后变得尖锐。</p>
+<h2>四、AI 与指标语义</h2>
+<h3>4.1 大模型取数为什么必须依赖口径</h3>
+<p>大模型能写出语法正确的 SQL，但它不知道「付费用户」在这家公司指什么。这一点在几个基准测试上都有体现。</p>
+<p>BIRD 基准包含 95 个真实数据库、一万多个问题，专门为每个问题提供「外部知识证据」，其中一类就是领域知识，例如金融指标的计算方法。在测试集上，GPT-4 不给证据时执行准确率为 34.88%，给了证据后升到 54.89%；人类在给证据的条件下是 92.96%[18]。Spider 2.0 用 632 个真实企业级任务测试，SQL 常超过一百行，基于 o1-preview 的代理框架只解决了 21.3%，而同一框架在 Spider 1.0 上是 91.2%[19]。</p>
+<p>Sequeda 等人在一个 199 张表的保险业数据模型上做了对照：GPT-4 直接在 SQL 库上零样本回答，准确率 16.7%；在由本体和映射构成的知识图谱上回答，准确率 54.2%。在模式复杂、问题涉及指标的象限里，直接查 SQL 库的准确率是 0[20]。</p>
+<p>三组结果指向同一个结论：<b>取数错，主要错在不知道业务语义，而不是不会写 SQL</b>。语义要素必须作为上下文递给模型。</p>
+<p>但语义层不可能事先写全。有研究指出，要求事先在语义层里写好所有对应关系的做法，在专业领域往往不完整，因为领域惯例本来就没有被充分记录；他们的做法是让多个假设并存，用执行结果择一，再沉淀为可复用的记忆[21]。这和上一篇的结论一致：知识零散到达、持续变化，只能边用边补。</p>
+<h3>4.2 AI 从存量 SQL 反推口径</h3>
+<p>3.2 的第一个难题是存量迁不进来。这恰好是 AI 最能发挥作用的地方：读几千段 SQL 并从中抽取结构化要素，对人是苦役，对模型是它擅长的事。</p>
+<p>已有研究和产品验证了这条路。AT&amp;T 的研究者把查询日志分析作为自动抽取元数据的手段之一，从 BIRD 开发集的查询里挖出的有用等值约束比文档记录的多 25%，还挖出了字段级的计算公式，例如带条件的去重计数；他们指出，这类公式在基准里靠人工提示提供，实践中没有人提供，但可以从查询日志中抽取[22]。Snowflake 的语义视图自动生成功能会从历史查询中识别最常见的查询类型，作为语义视图的候选，并从查询中抽取表之间的关系[23]。</p>
+<p>落到指标上，做法分三步：</p>
+<ol><li><b>按要素抽取</b>。对每一段产出某个指标的 SQL，抽出度量与聚合、计数实体与去重键、状态限定、窗口、时间字段、过滤条件、作用域，形成一份要素草稿；</li><li><b>按要素比对</b>。同名的指标逐要素对比，找出同名不同义；要素完全相同而名字不同的，找出同义不同名。比对的对象是要素，不是 SQL 文本，所以写法不同但口径相同的 SQL 不会被误报；</li><li><b>标为待确认</b>。AI 产出的都是草稿，进入裁决队列，不直接成为定义。</li></ol>
+<p>为什么必须按要素而不是按文本？因为同一个口径可以有很多种写法，不同的口径也可能只差一个 WHERE 条件。要素表把「是不是同一个指标」变成了逐项可比的问题，这也是第二节那张表的用处。</p>
+<h3>4.3 口径冲突的裁决与沉淀</h3>
+<p>比对出的冲突，大致分三类，处理方式不同：</p>
+<div class="tbl"><table><thead><tr><th>冲突类型</th><th>判断依据</th><th>处理</th></tr></thead><tbody><tr><td>作用域不同</td><td>分属不同产品、端或地区，各自正确</td><td>补上作用域，两个定义并存</td></tr><tr><td>时间演进</td><td>同一指标在不同时期按不同规则计算</td><td>版本化，标注各自生效时间</td></tr><tr><td>真冲突</td><td>同一作用域、同一时期，定义不同</td><td>指标负责人裁决，选定标准定义，其余改名或下线</td></tr></tbody></table></div>
+<p>AI 能把冲突归类、列出证据，前两类往往可以直接给出处理建议；第三类必须由人决定，因为它本质上是 3.2 所说的组织问题。</p>
+<p>裁决的结果按上一篇的方式沉淀：<b>当场写成一条可证伪的命题，挂到指标、表和字段上</b>，例如「付费用户数自某日起剔除内部测试账号」「付费率不得对渠道明细的比率求平均」。命题记录裁决人、时间、证据和生效时间；被取代的旧口径标为失效而不删除，这样才能回答「当时按什么口径算」。</p>
+<h3>4.4 动手时召回，生成后反校验</h3>
+<figure><img src="./fig2_ai_metric_loop.svg" alt="图2 口径的沉淀与召回：AI 起草，人裁决" loading="lazy"><figcaption>图2 口径的沉淀与召回：AI 起草，人裁决</figcaption></figure>
+<p>沉淀下来的命题，要在有人取数或改 SQL 的那一刻回到面前。流程是：</p>
+<ol><li><b>确定种子</b>。从问题或改动中识别涉及的指标和表；</li><li><b>召回定义与命题</b>。从这些节点出发，沿指标的推导关系和表的血缘扩散，带出标准定义、当前版本、作用域，以及「禁忌」类命题；</li><li><b>生成 SQL</b>。优先经语义层生成；语义层覆盖不到的，以召回的要素为约束手写；</li><li><b>按要素反向校验</b>。从生成的 SQL 中再抽一次要素，与定义逐项比对：计数实体、状态限定、窗口、时间基准、过滤条件是否一致。不一致就退回重写；</li><li><b>注明出处</b>。返回结果时注明引用的定义及其版本；没有命中任何定义的，明说这是非标准口径。</li></ol>
+<p>第 4 步是 4.2 的方法反过来用：同一套要素抽取，既能从存量 SQL 里反推口径，也能检查新生成的 SQL 是否守住了口径。这让 AI 取数从「看起来对」变成「逐项核过」。</p>
+<p>召回之所以要从指标和表出发，而不是从一句问话出发，有认知上的理由。编码特异性原则指出，提取线索与编码时的情境越吻合，回忆越容易[24]；口径命题是在某个指标、某张表上裁决出来的，取数时以同一批实体作线索，召回才准。扩散激活理论把语义记忆刻画为节点网络，激活沿关联向邻居扩散并逐跳衰减[25]；指标的推导链和表的血缘就是现成的关联。工程上，HippoRAG 在知识图上用个性化 PageRank 做扩散，在多跳问答上优于纯向量检索[26]；按命题而不是按段落建索引，检索效果也更好[27]。</p>
+<h2>五、边界：哪些强约束，哪些只提示</h2>
+<p>不是所有取数都要走同样严格的流程。</p>
+<div class="tbl"><table><thead><tr><th>场景</th><th>约束强度</th><th>做法</th></tr></thead><tbody><tr><td>对外报表、财务、实验核心指标</td><td>强约束</td><td>只能经语义层或标准定义；与定义冲突即拦截</td></tr><tr><td>日常经营分析</td><td>默认约束</td><td>默认用标准定义；改要素须声明，结果标「调整口径」</td></tr><tr><td>探索性分析</td><td>提示</td><td>允许自定义，结果标「非标准口径」，不进对外材料</td></tr><tr><td>AI 生成的取数</td><td>必须可追溯</td><td>注明引用的定义版本；未命中定义的显式说明</td></tr></tbody></table></div>
+<p>越接近对外承诺和决策，越需要强约束；越接近探索，越需要灵活。但无论哪一档，<b>结果都要能说清自己是按什么口径算的</b>。</p>
+<h2>六、方法：六条原则</h2>
+<ol><li><b>名字不是定义</b>：指标按七项语义要素登记，缺一项不得发布；</li><li><b>窗口属语义，粒度属实现</b>：换了它口径会变的进定义，只换汇总档位的不产生新指标，但各档结果必须一致；</li><li><b>存可合并的中间态</b>：比率存分子分母，去重计数存位图或草图，不存不能再汇总的结果值；</li><li><b>口径有版本</b>：语义要素一变就是新版本，标注生效时间，被取代的关闭有效期而不删除；</li><li><b>动手时召回，生成后反校验</b>：取数和改 SQL 前从涉及的指标和表召回口径，生成后按要素逐项核对；</li><li><b>AI 起草，人裁决</b>：AI 负责抽取要素、比对冲突、起草处理，标准口径由指标负责人确定。</li></ol>
+<h2>七、结语</h2>
+<p>一个数字有三个答案，通常不是因为有人算错，而是因为同一个名字背后有三套定义，而定义只存在于 SQL 里。</p>
+<p>把名字和定义分开，是第一步：一个指标由度量与聚合、计数实体、状态限定、统计窗口、时间基准、过滤范围、作用域这些语义要素决定，汇总粒度、中间态和实现位置只是实现。有了要素，「是不是同一个指标」就从争论变成逐项比对。</p>
+<p>集中定义的语义层，让新登记的指标保持一致，但管不到存量口径、组织选择、口径演进和绕过它的取数。大模型让最后一点变得尖锐，同时也提供了解法：AI 能从存量 SQL 中按要素反推口径、找出冲突，由人裁决后沉淀为挂在指标上的命题；下一次取数时，从涉及的指标和表出发召回这些命题，生成之后再按要素反校验。</p>
+<p>指标语义因此不是一次性的定义工作，而是持续的沉淀、召回和判断。定义写在一处只是开始，能在每一次取数时被想起、被核对，才算真正生效。</p>
+<p>回头看前四篇，背后是同一组主张，也是我们搭建数据开发与管理平台时遵循的理念：</p>
+<ul><li><b>定义与实现分开，并且互相找得到</b>。表、字段、指标先有定义再有实现；每个定义能指向它的实现，每段实现能回指它的定义，只有一边的就是缺陷；</li><li><b>规则沉淀为命题，在动手时召回</b>。口径、约束和禁忌一经裁决，就写成可证伪的命题，挂到相关的实体上；写 SQL、改加工、取数之前，它们主动回到面前，完成之后再逐项核对；</li><li><b>AI 起草，人裁决</b>。抽取、比对、归类和起草交给 AI，标准由对结果负责的人确定；在被裁决之前，AI 的产出只是草稿。</li></ul>
+<p>这个系列会持续更新。</p>
+<h2>参考资料</h2>
+<ol><li>A. Pahwa et al. <a href="https://medium.com/airbnb-engineering/how-airbnb-achieved-metric-consistency-at-scale-f23cc53dea70" target="_blank" rel="noopener" style="color:var(--m)">How Airbnb Achieved Metric Consistency at Scale</a>. The Airbnb Tech Blog, 2021.</li><li>X. Wang, W. Meng, W. Yu, Y. Wu. <a href="https://www.uber.com/us/en/blog/umetric/" target="_blank" rel="noopener" style="color:var(--m)">The Journey Towards Metric Standardization</a>. Uber Engineering Blog, 2021.</li><li>Kimball Group. <a href="https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/additive-semi-additive-non-additive-fact/" target="_blank" rel="noopener" style="color:var(--m)">Additive, Semi-Additive, and Non-Additive Facts</a>. Dimensional Modeling Techniques.</li><li>J. Gray, S. Chaudhuri, A. Bosworth, A. Layman, D. Reichart, M. Venkatrao, F. Pellow, H. Pirahesh. <a href="https://arxiv.org/abs/cs/0701155" target="_blank" rel="noopener" style="color:var(--m)">Data Cube: A Relational Aggregation Operator Generalizing Group-By, Cross-Tab, and Sub-Totals</a>. Data Mining and Knowledge Discovery, 1(1): 29–53, 1997.</li><li>J. Sprenger, N. Weinberger. <a href="https://plato.stanford.edu/entries/paradox-simpson/" target="_blank" rel="noopener" style="color:var(--m)">Simpson's Paradox</a>. Stanford Encyclopedia of Philosophy, 2021（2026 修订）.</li><li>P. J. Bickel, E. A. Hammel, J. W. O'Connell. <a href="https://www.science.org/doi/10.1126/science.187.4175.398" target="_blank" rel="noopener" style="color:var(--m)">Sex Bias in Graduate Admissions: Data from Berkeley</a>. Science, 187(4175): 398–404, 1975.（出版方页面，需订阅）</li><li>P. Flajolet, É. Fusy, O. Gandouet, F. Meunier. <a href="https://dmtcs.episciences.org/3545" target="_blank" rel="noopener" style="color:var(--m)">HyperLogLog: the analysis of a near-optimal cardinality estimation algorithm</a>. AofA 2007, DMTCS Proceedings.</li><li>Kimball Group. <a href="https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/conformed-fact/" target="_blank" rel="noopener" style="color:var(--m)">Conformed Facts</a>. Dimensional Modeling Techniques.</li><li>Kimball Group. <a href="https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/conformed-dimension/" target="_blank" rel="noopener" style="color:var(--m)">Conformed Dimensions</a>. Dimensional Modeling Techniques.</li><li>LinkedIn Engineering. <a href="https://engineering.linkedin.com/teams/data/analytics-platform-apps/analytics-platforms/ump" target="_blank" rel="noopener" style="color:var(--m)">Unified Metrics Platform (UMP)</a>.</li><li>B. Stancil. <a href="https://benn.substack.com/p/metrics-layer" target="_blank" rel="noopener" style="color:var(--m)">The missing piece of the modern data stack</a>. 2021.</li><li>dbt Labs. <a href="https://docs.getdbt.com/docs/build/metrics-overview" target="_blank" rel="noopener" style="color:var(--m)">Metrics overview</a>.</li><li>dbt Labs. <a href="https://docs.getdbt.com/docs/build/ratio" target="_blank" rel="noopener" style="color:var(--m)">Ratio metrics</a>.</li><li>dbt Labs. <a href="https://docs.getdbt.com/docs/use-dbt-semantic-layer/dbt-sl" target="_blank" rel="noopener" style="color:var(--m)">dbt Semantic Layer</a>.</li><li>Google Cloud. <a href="https://docs.cloud.google.com/looker/docs/what-is-lookml" target="_blank" rel="noopener" style="color:var(--m)">What is LookML?</a></li><li>Cube. <a href="https://docs.cube.dev/docs/data-modeling/overview" target="_blank" rel="noopener" style="color:var(--m)">Data modeling overview</a>.</li><li>Apache Ossie (incubating, formerly Open Semantic Interchange). <a href="https://github.com/apache/ossie" target="_blank" rel="noopener" style="color:var(--m)">Specification repository</a>；Omni. <a href="https://omni.co/blog/announcing-the-open-semantic-interchange" target="_blank" rel="noopener" style="color:var(--m)">Announcing the Open Semantic Interchange</a>, 2025.</li><li>J. Li et al. <a href="https://arxiv.org/abs/2305.03111" target="_blank" rel="noopener" style="color:var(--m)">Can LLM Already Serve as A Database Interface? A BIg Bench for Large-Scale Database Grounded Text-to-SQLs</a>. NeurIPS 2023.</li><li>F. Lei et al. <a href="https://arxiv.org/abs/2411.07763" target="_blank" rel="noopener" style="color:var(--m)">Spider 2.0: Evaluating Language Models on Real-World Enterprise Text-to-SQL Workflows</a>. ICLR 2025.</li><li>J. Sequeda, D. Allemang, B. Jacob. <a href="https://arxiv.org/abs/2311.07509" target="_blank" rel="noopener" style="color:var(--m)">A Benchmark to Understand the Role of Knowledge Graphs on Large Language Model's Accuracy for Question Answering on Enterprise SQL Databases</a>. arXiv:2311.07509, 2023.</li><li>Lee, Kim, Hwang. <a href="https://arxiv.org/abs/2606.05634" target="_blank" rel="noopener" style="color:var(--m)">Bootstrapping Semantic Layer from Execution for Text-to-SQL</a>. arXiv:2606.05634, 2026.</li><li>V. Shkapenyuk, D. Srivastava, T. Johnson, P. Ghane. <a href="https://arxiv.org/abs/2505.19988" target="_blank" rel="noopener" style="color:var(--m)">Automatic Metadata Extraction for Text-to-SQL</a>. arXiv:2505.19988, 2025.</li><li>Snowflake. <a href="https://docs.snowflake.com/en/user-guide/views-semantic/autopilot" target="_blank" rel="noopener" style="color:var(--m)">Semantic View Autopilot</a>.</li><li>E. Tulving, D. M. Thomson. <a href="https://doi.org/10.1037/h0020071" target="_blank" rel="noopener" style="color:var(--m)">Encoding Specificity and Retrieval Processes in Episodic Memory</a>. Psychological Review, 80(5): 352–373, 1973.（出版方页面，需订阅）</li><li>A. M. Collins, E. F. Loftus. <a href="https://eric.ed.gov/?id=EJ135579" target="_blank" rel="noopener" style="color:var(--m)">A Spreading-Activation Theory of Semantic Processing</a>. Psychological Review, 82(6): 407–428, 1975.（ERIC 题录与摘要）</li><li>B. Jiménez Gutiérrez, Y. Shu, Y. Gu, M. Yasunaga, Y. Su. <a href="https://arxiv.org/abs/2405.14831" target="_blank" rel="noopener" style="color:var(--m)">HippoRAG: Neurobiologically Inspired Long-Term Memory for Large Language Models</a>. NeurIPS 2024.</li><li>T. Chen et al. <a href="https://arxiv.org/abs/2312.06648" target="_blank" rel="noopener" style="color:var(--m)">Dense X Retrieval: What Retrieval Granularity Should We Use?</a> arXiv:2312.06648, 2024.</li></ol>
+</article>
+<a class="back" href="../../">← 所有文章</a>
+</main>
+</body>
+</html>
