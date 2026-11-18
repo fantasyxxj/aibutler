@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+  </defs>
+  <rect width="900" height="470" fill="#FAFAF7"/>
+  <text x="450" y="40" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图2  血缘是动手时召回规则的路径</text>
+  <text x="450" y="64" text-anchor="middle" font-size="12" fill="#4B5563">以要改的实体为种子沿血缘扩散、逐跳衰减；规则挂在实体上，名字不相干也能被找回</text>
+
+  <!-- 链 -->
+  <g font-size="14">
+    <rect x="40" y="170" width="130" height="50" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/>
+    <text x="105" y="200" text-anchor="middle" fill="#1F2937">源头明细</text>
+    <rect x="215" y="170" width="130" height="50" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/>
+    <text x="280" y="200" text-anchor="middle" fill="#1F2937">清洗明细</text>
+    <rect x="390" y="162" width="130" height="66" rx="8" fill="#FDECEC" stroke="#B42318" stroke-width="2"/>
+    <text x="455" y="191" text-anchor="middle" font-weight="600" fill="#B42318">要改的中间表</text>
+    <text x="455" y="212" text-anchor="middle" font-size="12" fill="#B42318">种子</text>
+    <rect x="565" y="170" width="130" height="50" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/>
+    <text x="630" y="200" text-anchor="middle" fill="#1F2937">汇总表</text>
+    <rect x="740" y="170" width="130" height="50" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/>
+    <text x="805" y="200" text-anchor="middle" fill="#1F2937">对外指标</text>
+  </g>
+  <line x1="170" y1="195" x2="213" y2="195" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <line x1="345" y1="195" x2="388" y2="195" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <line x1="520" y1="195" x2="563" y2="195" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <line x1="695" y1="195" x2="738" y2="195" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+
+  <!-- 扩散强度 -->
+  <rect x="215" y="240" width="130" height="8" rx="4" fill="#5B8BD6" fill-opacity="0.55"/>
+  <rect x="40" y="240" width="130" height="8" rx="4" fill="#5B8BD6" fill-opacity="0.3"/>
+  <rect x="390" y="240" width="130" height="8" rx="4" fill="#B42318" fill-opacity="0.8"/>
+  <rect x="565" y="240" width="130" height="8" rx="4" fill="#D08A2E" fill-opacity="0.6"/>
+  <rect x="740" y="240" width="130" height="8" rx="4" fill="#D08A2E" fill-opacity="0.35"/>
+  <text x="192" y="268" text-anchor="middle" font-size="12" fill="#1F4E9E">← 查数据问题：主要向上</text>
+  <text x="718" y="268" text-anchor="middle" font-size="12" fill="#9A5B13">改加工逻辑：主要向下 →</text>
+
+  <!-- 挂在实体上的规则 -->
+  <rect x="40" y="88" width="305" height="54" rx="8" fill="#F3F7FE" stroke="#9DBBEB"/>
+  <text x="192" y="110" text-anchor="middle" font-size="13" font-weight="600" fill="#1F4E9E">约束命题</text>
+  <text x="192" y="129" text-anchor="middle" font-size="12" fill="#374151">零点前后会重发，须按业务键去重</text>
+  <line x1="105" y1="142" x2="105" y2="168" stroke="#9DBBEB" stroke-dasharray="3 3"/>
+
+  <rect x="565" y="88" width="305" height="54" rx="8" fill="#FEF6EC" stroke="#E8B97A"/>
+  <text x="718" y="110" text-anchor="middle" font-size="13" font-weight="600" fill="#9A5B13">口径命题</text>
+  <text x="718" y="129" text-anchor="middle" font-size="12" fill="#374151">只认已到账订单</text>
+  <line x1="805" y1="142" x2="805" y2="168" stroke="#E8B97A" stroke-dasharray="3 3"/>
+
+  <!-- 对比 -->
+  <rect x="40" y="300" width="400" height="140" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <text x="240" y="328" text-anchor="middle" font-size="15" font-weight="600" fill="#6B7280">按名字或文本相似度检索</text>
+  <text x="240" y="356" text-anchor="middle" font-size="13" fill="#374151">找到名字相近的表和文档</text>
+  <text x="240" y="380" text-anchor="middle" font-size="13" fill="#374151">与「中间表」名字不相干的两条规则</text>
+  <text x="240" y="404" text-anchor="middle" font-size="13" fill="#B42318">找不回来</text>
+
+  <rect x="460" y="300" width="400" height="140" rx="10" fill="#FFFFFF" stroke="#374151" stroke-width="1.4"/>
+  <text x="660" y="328" text-anchor="middle" font-size="15" font-weight="600" fill="#1F2937">沿血缘扩散</text>
+  <text x="660" y="356" text-anchor="middle" font-size="13" fill="#374151">从种子出发，向上两跳、向下两跳</text>
+  <text x="660" y="380" text-anchor="middle" font-size="13" fill="#374151">枢纽节点降权，按动作类型定方向</text>
+  <text x="660" y="404" text-anchor="middle" font-size="13" fill="#1F7A3D">两条规则在动手前递到面前</text>
+</svg>
