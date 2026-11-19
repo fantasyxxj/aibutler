@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420" width="800" height="420">
+  <rect width="800" height="420" fill="#1d2330"/>
+  <rect x="60" y="70" width="400" height="280" rx="14" fill="#11151d" stroke="#3a4558" stroke-width="2"/>
+  <circle cx="90" cy="96" r="6" fill="#e06c5f"/><circle cx="112" cy="96" r="6" fill="#e5c06b"/><circle cx="134" cy="96" r="6" fill="#7cc48a"/>
+  <text x="90" y="160" font-family="Menlo,monospace" font-size="20" fill="#8fa3bf">$ perl -e 'alarm 30;</text>
+  <text x="110" y="192" font-family="Menlo,monospace" font-size="20" fill="#8fa3bf">exec @ARGV' ...</text>
+  <text x="90" y="250" font-family="Menlo,monospace" font-size="20" fill="#8fa3bf">$ echo $?</text>
+  <text x="90" y="300" font-family="Menlo,monospace" font-size="40" font-weight="bold" fill="#f2b84b">142</text>
+  <g transform="translate(600 210)">
+    <circle r="110" fill="#f2b84b"/>
+    <circle r="92" fill="#fff6e3"/>
+    <line x1="0" y1="0" x2="0" y2="-62" stroke="#1d2330" stroke-width="7" stroke-linecap="round"/>
+    <line x1="0" y1="0" x2="44" y2="20" stroke="#1d2330" stroke-width="5" stroke-linecap="round"/>
+    <circle r="7" fill="#1d2330"/>
+    <circle cx="-78" cy="-96" r="26" fill="#f2b84b"/>
+    <circle cx="78" cy="-96" r="26" fill="#f2b84b"/>
+    <text x="0" y="66" text-anchor="middle" font-family="Menlo,monospace" font-size="22" fill="#c0392b">128+14</text>
+  </g>
+</svg>
