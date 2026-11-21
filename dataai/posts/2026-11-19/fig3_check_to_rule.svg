@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="620" viewBox="0 0 900 620" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#1F4E9E"/></marker>
+  </defs>
+  <rect width="900" height="620" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图3  源头核查：从异常到规则的闭环</text>
+
+  <!-- 输入 -->
+  <rect x="30" y="80" width="170" height="96" rx="10" fill="#FFFFFF" stroke="#9CA3AF"/>
+  <text x="115" y="108" text-anchor="middle" font-size="15" font-weight="600" fill="#1F2937">观测到偏差</text>
+  <text x="115" y="130" text-anchor="middle" font-size="12" fill="#4B5563">上报校验</text>
+  <text x="115" y="148" text-anchor="middle" font-size="12" fill="#4B5563">值层基线</text>
+  <text x="115" y="166" text-anchor="middle" font-size="12" fill="#4B5563">下游核对</text>
+  <line x1="200" y1="128" x2="233" y2="128" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+
+  <!-- 排查四步 -->
+  <g>
+    <rect x="235" y="70" width="400" height="300" rx="14" fill="#F3F7FE" stroke="#9DBBEB" stroke-width="1.5"/>
+    <text x="435" y="96" text-anchor="middle" font-size="14" font-weight="600" fill="#1F4E9E">AI 排查（每次异常一个闭环）</text>
+
+    <rect x="255" y="110" width="170" height="70" rx="8" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="340" y="138" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2937">提出几种成因</text>
+    <text x="340" y="160" text-anchor="middle" font-size="12" fill="#4B5563">不只确认一种猜测</text>
+
+    <rect x="445" y="110" width="170" height="70" rx="8" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="530" y="138" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2937">设计判别量</text>
+    <text x="530" y="160" text-anchor="middle" font-size="12" fill="#4B5563">能把成因彼此区分开</text>
+
+    <rect x="445" y="210" width="170" height="80" rx="8" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="530" y="238" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2937">取证</text>
+    <text x="530" y="260" text-anchor="middle" font-size="12" fill="#4B5563">跨行·跨字段·跨表</text>
+    <text x="530" y="278" text-anchor="middle" font-size="12" fill="#4B5563">跨时间·跨版本</text>
+
+    <rect x="255" y="210" width="170" height="80" rx="8" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="340" y="238" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2937">下结论</text>
+    <text x="340" y="260" text-anchor="middle" font-size="12" fill="#4B5563">成立的、被排除的</text>
+    <text x="340" y="278" text-anchor="middle" font-size="12" fill="#4B5563">各凭什么证据</text>
+
+    <g stroke="#1F4E9E" stroke-width="1.5" fill="none">
+      <line x1="425" y1="145" x2="443" y2="145" marker-end="url(#b)"/>
+      <line x1="530" y1="180" x2="530" y2="208" marker-end="url(#b)"/>
+      <line x1="445" y1="250" x2="427" y2="250" marker-end="url(#b)"/>
+    </g>
+
+    <text x="460" y="318" text-anchor="middle" font-size="12" fill="#4B5563">同时读：规范版本记录 · 客户端发版记录 · 埋点代码</text>
+    <text x="460" y="340" text-anchor="middle" font-size="12" fill="#4B5563">判据不是阈值，而是能区分成因的统计量</text>
+  </g>
+
+  <!-- 沉淀四路 -->
+  <line x1="270" y1="290" x2="270" y2="398" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <text x="282" y="386" font-size="12" fill="#4B5563">按性质分流</text>
+  <g font-size="13" text-anchor="middle">
+    <rect x="40" y="400" width="190" height="96" rx="8" fill="#ECF7EF" stroke="#7CC08F"/>
+    <text x="135" y="426" font-weight="600" fill="#1F7A3D">合法性规则 → 清洗</text>
+    <text x="135" y="448" font-size="12" fill="#4B5563">长度、非空、时间、不可能组合</text>
+    <text x="135" y="466" font-size="12" fill="#4B5563">阈值取自元数据</text>
+    <text x="135" y="484" font-size="12" fill="#4B5563">报告去掉的行数</text>
+
+    <rect x="250" y="400" width="190" height="96" rx="8" fill="#FFF7ED" stroke="#F0B37E"/>
+    <text x="345" y="426" font-weight="600" fill="#9A4D0F">业务口径 → 指标层</text>
+    <text x="345" y="448" font-size="12" fill="#4B5563">「算不算数」不进清洗</text>
+    <text x="345" y="466" font-size="12" fill="#4B5563">拿不准时按口径处理</text>
+
+    <rect x="460" y="400" width="190" height="96" rx="8" fill="#F3F7FE" stroke="#9DBBEB"/>
+    <text x="555" y="426" font-weight="600" fill="#1F4E9E">监控与基线 → 运行时</text>
+    <text x="555" y="448" font-size="12" fill="#4B5563">值层基线、探针</text>
+    <text x="555" y="466" font-size="12" fill="#4B5563">回到上报即校验</text>
+
+    <rect x="670" y="400" width="190" height="96" rx="8" fill="#F5F3FF" stroke="#B9A7EE"/>
+    <text x="765" y="426" font-weight="600" fill="#5B3FB0">结论 → 命题</text>
+    <text x="765" y="448" font-size="12" fill="#4B5563">挂在事件与属性上</text>
+    <text x="765" y="466" font-size="12" fill="#4B5563">含判别方法与证据</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" fill="none">
+    <path d="M270,392 L135,392 L135,398"/>
+    <path d="M270,392 L555,392 L555,398"/>
+    <path d="M555,392 L765,392 L765,398"/>
+  </g>
+
+  <!-- 守恒与裁决 -->
+  <rect x="40" y="522" width="400" height="60" rx="8" fill="#FFFFFF" stroke="#9CA3AF" stroke-dasharray="5,4"/>
+  <text x="240" y="546" text-anchor="middle" font-size="13" font-weight="600" fill="#1F2937">行数守恒</text>
+  <text x="240" y="566" text-anchor="middle" font-size="12" fill="#4B5563">原始 → 逐条规则 → 去重 → 明细，每一步的差都要有解释</text>
+
+  <rect x="460" y="522" width="400" height="60" rx="8" fill="#FFFFFF" stroke="#9CA3AF" stroke-dasharray="5,4"/>
+  <text x="660" y="546" text-anchor="middle" font-size="13" font-weight="600" fill="#1F2937">经负责人确认才生效</text>
+  <text x="660" y="566" text-anchor="middle" font-size="12" fill="#4B5563">规则与结论都是待确认的，语义判断不由 AI 代裁</text>
+
+  <!-- 召回回路 -->
+  <path d="M860,448 L880,448 L880,60 L700,60 L700,88 L645,88" stroke="#5B3FB0" stroke-width="1.5" fill="none" stroke-dasharray="6,4" marker-end="url(#g)"/>
+  <text x="772" y="52" text-anchor="middle" font-size="12" fill="#5B3FB0">下一次同类异常：先召回</text>
+</svg>

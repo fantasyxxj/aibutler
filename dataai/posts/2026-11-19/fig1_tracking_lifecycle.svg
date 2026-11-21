@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B42318"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="40" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图1  埋点的生命周期与关口</text>
+
+  <!-- 规范带 -->
+  <rect x="30" y="62" width="840" height="46" rx="10" fill="#F3F7FE" stroke="#9DBBEB" stroke-width="1.5"/>
+  <text x="450" y="82" text-anchor="middle" font-size="15" font-weight="600" fill="#1F4E9E">埋点规范 = 可执行的模式（带版本、负责人、消费方）</text>
+  <text x="450" y="100" text-anchor="middle" font-size="12" fill="#4B5563">同一份定义贯穿评审、开发校验与运行时校验；含义变即换名或升主版本</text>
+
+  <!-- 阶段 -->
+  <g font-size="15" font-weight="600" fill="#1F2937" text-anchor="middle">
+    <rect x="30" y="140" width="108" height="48" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="84" y="170">设计</text>
+    <rect x="151" y="140" width="108" height="48" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="205" y="170">评审</text>
+    <rect x="272" y="140" width="108" height="48" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="326" y="170">开发</text>
+    <rect x="393" y="140" width="108" height="48" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="447" y="170">校验</text>
+    <rect x="514" y="140" width="108" height="48" rx="8" fill="#FEF6EC" stroke="#E8B97A" stroke-width="1.5"/><text x="568" y="170" fill="#9A5B13">上线·灰度</text>
+    <rect x="635" y="140" width="108" height="48" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="689" y="170">变更</text>
+    <rect x="756" y="140" width="108" height="48" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="810" y="170">下线</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.5">
+    <line x1="138" y1="164" x2="149" y2="164" marker-end="url(#g)"/>
+    <line x1="259" y1="164" x2="270" y2="164" marker-end="url(#g)"/>
+    <line x1="380" y1="164" x2="391" y2="164" marker-end="url(#g)"/>
+    <line x1="501" y1="164" x2="512" y2="164" marker-end="url(#g)"/>
+    <line x1="622" y1="164" x2="633" y2="164" marker-end="url(#g)"/>
+    <line x1="743" y1="164" x2="754" y2="164" marker-end="url(#g)"/>
+  </g>
+
+  <!-- 关口 -->
+  <g font-size="12" fill="#374151" text-anchor="middle">
+    <text x="84" y="214" font-weight="600" fill="#1F2937">关口</text>
+    <text x="84" y="234">从指标倒推</text>
+    <text x="84" y="252">要素都有落点</text>
+    <text x="84" y="270">每事件有消费方</text>
+
+    <text x="205" y="214" font-weight="600" fill="#1F2937">关口</text>
+    <text x="205" y="234">命名 · 重复近义</text>
+    <text x="205" y="252">触发时机可复现</text>
+    <text x="205" y="270">类型 · 必填 · 取值域</text>
+
+    <text x="326" y="214" font-weight="600" fill="#1F2937">关口</text>
+    <text x="326" y="234">代码对规范</text>
+    <text x="326" y="252">事件名 · 属性</text>
+    <text x="326" y="270">触发位置</text>
+
+    <text x="447" y="214" font-weight="600" fill="#1F2937">关口</text>
+    <text x="447" y="234">测试上报对模式</text>
+    <text x="447" y="252">类型 · 取值</text>
+    <text x="447" y="270">触发次数</text>
+
+    <text x="568" y="214" font-weight="600" fill="#9A5B13">关口</text>
+    <text x="568" y="234">版本随事件上报</text>
+    <text x="568" y="252">灰度期指标</text>
+    <text x="568" y="270">按版本拆开看</text>
+
+    <text x="689" y="214" font-weight="600" fill="#1F2937">关口</text>
+    <text x="689" y="234">兼容 / 不兼容分级</text>
+    <text x="689" y="252">扩展→迁移→收缩</text>
+    <text x="689" y="270">沿血缘看下游</text>
+
+    <text x="810" y="214" font-weight="600" fill="#1F2937">关口</text>
+    <text x="810" y="234">先弃用、告知</text>
+    <text x="810" y="252">血缘确认无读取</text>
+    <text x="810" y="270">旧上报标已下线</text>
+  </g>
+
+  <!-- 运行时回路 -->
+  <rect x="300" y="318" width="420" height="62" rx="10" fill="#FDECEC" stroke="#B42318" stroke-width="1.6"/>
+  <text x="510" y="342" text-anchor="middle" font-size="15" font-weight="600" fill="#B42318">运行时：上报即校验</text>
+  <text x="510" y="364" text-anchor="middle" font-size="12" fill="#374151">偏差按 端 × 客户端版本 × 事件 归并 → 送裁决 → 写回规范与命题</text>
+  <path d="M568,280 L568,316" stroke="#B42318" stroke-width="1.6" fill="none" marker-end="url(#r)"/>
+  <path d="M689,316 L689,282" stroke="#B42318" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#r)"/>
+  <path d="M300,349 L84,349 L84,282" stroke="#B42318" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#r)"/>
+  <text x="192" y="340" text-anchor="middle" font-size="12" fill="#B42318">接受：补登记、回到设计</text>
+  <text x="698" y="304" text-anchor="start" font-size="12" fill="#B42318">拒绝 / 重新解释：进入变更</text>
+
+  <!-- 人与机器分工 -->
+  <text x="450" y="418" text-anchor="middle" font-size="12" fill="#6B7280">机器先查：命名、类型、必填、取值域、代码与上报一致性　|　人判断：触发时机、含义是否变、能否下线</text>
+
+  <!-- AI 层 -->
+  <rect x="60" y="436" width="780" height="96" rx="10" fill="#FFFFFF" stroke="#374151" stroke-width="1.4"/>
+  <text x="450" y="462" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2937">AI：起草与比对（产出均为待确认，人裁决）</text>
+  <text x="450" y="486" text-anchor="middle" font-size="12" fill="#4B5563">从需求与指标定义起草方案、标出要素缺口　·　按硬标准审方案、比对代码与规范</text>
+  <text x="450" y="506" text-anchor="middle" font-size="12" fill="#4B5563">从上报反推实际结构并按版本解释差异　·　起草值层校验规则　·　改动前沿血缘召回下游口径</text>
+  <text x="450" y="524" text-anchor="middle" font-size="12" fill="#B42318">不做：替人裁定语义、在下游悄悄修数、凭推断下线</text>
+</svg>

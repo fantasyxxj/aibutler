@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="610" viewBox="0 0 900 610" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#B42318"/></marker>
+  </defs>
+  <rect width="900" height="610" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图2  上报即校验：分流、裁决与下游连接</text>
+
+  <!-- 入口 -->
+  <rect x="30" y="170" width="150" height="76" rx="10" fill="#FFFFFF" stroke="#9CA3AF"/>
+  <text x="105" y="198" text-anchor="middle" font-size="15" font-weight="600" fill="#1F2937">上报</text>
+  <text x="105" y="218" text-anchor="middle" font-size="12" fill="#4B5563">带规范版本</text>
+  <text x="105" y="235" text-anchor="middle" font-size="12" fill="#4B5563">带客户端版本</text>
+  <line x1="180" y1="208" x2="213" y2="208" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <rect x="215" y="170" width="150" height="76" rx="10" fill="#F3F7FE" stroke="#9DBBEB" stroke-width="1.5"/>
+  <text x="290" y="198" text-anchor="middle" font-size="15" font-weight="600" fill="#1F4E9E">对照规范校验</text>
+  <text x="290" y="218" text-anchor="middle" font-size="12" fill="#4B5563">结构：按模式逐条</text>
+  <text x="290" y="235" text-anchor="middle" font-size="12" fill="#4B5563">取值：对基线比较</text>
+
+  <!-- 四类 -->
+  <g font-size="14" font-weight="600" text-anchor="middle">
+    <rect x="410" y="70" width="170" height="54" rx="8" fill="#ECF7EF" stroke="#7CC08F"/><text x="495" y="102" fill="#1F7A3D">合规</text>
+    <rect x="410" y="148" width="170" height="54" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="495" y="180" fill="#1F2937">未登记</text>
+    <rect x="410" y="226" width="170" height="54" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="495" y="258" fill="#1F2937">结构违例</text>
+    <rect x="410" y="304" width="170" height="54" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="495" y="336" fill="#1F2937">取值异常</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.5" fill="none">
+    <path d="M365,208 L388,208 L388,97 L408,97" marker-end="url(#g)"/>
+    <path d="M388,175 L408,175" marker-end="url(#g)"/>
+    <path d="M388,208 L388,253 L408,253" marker-end="url(#g)"/>
+    <path d="M388,253 L388,331 L408,331" marker-end="url(#g)"/>
+  </g>
+
+  <!-- 处理 -->
+  <g font-size="12" fill="#374151" text-anchor="middle">
+    <rect x="620" y="70" width="250" height="54" rx="8" fill="#ECF7EF" stroke="#7CC08F"/>
+    <text x="745" y="93" font-weight="600" fill="#1F7A3D">进入明细层</text>
+    <text x="745" y="112">结构与取值都符合对应版本</text>
+    <rect x="620" y="148" width="250" height="54" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/>
+    <text x="745" y="171" font-weight="600" fill="#1F2937">原始层原样保留</text>
+    <text x="745" y="190">数据先于定义到达：补登记还是拒绝</text>
+    <rect x="620" y="226" width="250" height="54" rx="8" fill="#FEF6EC" stroke="#E8B97A"/>
+    <text x="745" y="249" font-weight="600" fill="#9A5B13">隔离，不进明细层</text>
+    <text x="745" y="268">按 端 × 版本 × 事件 归并，回生产方</text>
+    <rect x="620" y="304" width="250" height="54" rx="8" fill="#FEF6EC" stroke="#E8B97A"/>
+    <text x="745" y="327" font-weight="600" fill="#9A5B13">进明细层并告警</text>
+    <text x="745" y="346">结构一致、分布变：疑似语义漂移</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.5">
+    <line x1="580" y1="97" x2="618" y2="97" marker-end="url(#g)"/>
+    <line x1="580" y1="175" x2="618" y2="175" marker-end="url(#g)"/>
+    <line x1="580" y1="253" x2="618" y2="253" marker-end="url(#g)"/>
+    <line x1="580" y1="331" x2="618" y2="331" marker-end="url(#g)"/>
+  </g>
+  <text x="640" y="62" text-anchor="middle" font-size="12" fill="#6B7280">接收宽容：不丢弃　|　反馈不宽容：每类违例有负责人</text>
+
+  <!-- 裁决 -->
+  <path d="M888,175 L888,422 L873,422" stroke="#B42318" stroke-width="1.6" fill="none" marker-end="url(#r)"/>
+  <line x1="870" y1="253" x2="888" y2="253" stroke="#B42318" stroke-width="1.6"/>
+  <line x1="870" y1="331" x2="888" y2="331" stroke="#B42318" stroke-width="1.6"/>
+  <line x1="870" y1="175" x2="888" y2="175" stroke="#B42318" stroke-width="1.6"/>
+  <rect x="215" y="386" width="655" height="72" rx="10" fill="#FDECEC" stroke="#B42318" stroke-width="1.6"/>
+  <text x="542" y="410" text-anchor="middle" font-size="15" font-weight="600" fill="#B42318">裁决：接受 · 拒绝 · 重新解释</text>
+  <text x="542" y="430" text-anchor="middle" font-size="12" fill="#374151">接受＝补登记规范；拒绝＝客户端修复，标注受影响版本与时段；重新解释＝同名换义，按版本分别生效</text>
+  <text x="542" y="448" text-anchor="middle" font-size="12" fill="#374151">结论写成命题挂到事件与属性上，回写为新的规范版本与基线</text>
+  <path d="M290,384 L290,248" stroke="#B42318" stroke-width="1.6" stroke-dasharray="5 4" fill="none" marker-end="url(#r)"/>
+  <text x="250" y="320" text-anchor="middle" font-size="12" fill="#B42318">新基线</text>
+
+  <!-- 血缘起点 -->
+  <text x="450" y="492" text-anchor="middle" font-size="13" font-weight="600" fill="#1F2937">埋点是血缘的起点：属性是有稳定标识的实体，规则挂在上面、召回从它出发</text>
+  <g font-size="13" text-anchor="middle">
+    <rect x="40" y="508" width="140" height="44" rx="8" fill="#FDECEC" stroke="#B42318" stroke-width="1.6"/><text x="110" y="535" font-weight="600" fill="#B42318">事件 · 属性</text>
+    <rect x="215" y="508" width="140" height="44" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="285" y="535" fill="#1F2937">原始表字段</text>
+    <rect x="390" y="508" width="140" height="44" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="460" y="535" fill="#1F2937">明细</text>
+    <rect x="565" y="508" width="140" height="44" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="635" y="535" fill="#1F2937">汇总</text>
+    <rect x="740" y="508" width="130" height="44" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="805" y="535" fill="#1F2937">指标</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.6">
+    <line x1="180" y1="530" x2="213" y2="530" marker-end="url(#g)"/>
+    <line x1="355" y1="530" x2="388" y2="530" marker-end="url(#g)"/>
+    <line x1="530" y1="530" x2="563" y2="530" marker-end="url(#g)"/>
+    <line x1="705" y1="530" x2="738" y2="530" marker-end="url(#g)"/>
+  </g>
+  <text x="270" y="580" text-anchor="middle" font-size="12" fill="#9A5B13">向下：改埋点前列出受影响指标，召回下游口径 →</text>
+  <text x="660" y="580" text-anchor="middle" font-size="12" fill="#1F4E9E">← 向上：指标异常，先按客户端版本切片</text>
+  <text x="450" y="600" text-anchor="middle" font-size="11" fill="#6B7280">规范登记的消费方 ⇄ 血缘观测到的读取：互相校验</text>
+</svg>
