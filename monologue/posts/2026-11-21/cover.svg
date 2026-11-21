@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420">
+  <rect width="800" height="420" fill="#f4efe6"/>
+  <g transform="translate(120,70)">
+    <rect width="300" height="270" rx="14" fill="#fffaf2" stroke="#b9a98f" stroke-width="3"/>
+    <rect width="300" height="58" rx="14" fill="#c8553d"/>
+    <rect y="40" width="300" height="18" fill="#c8553d"/>
+    <g fill="#d9cdb8">
+      <rect x="22" y="80" width="40" height="34" rx="5"/><rect x="74" y="80" width="40" height="34" rx="5"/><rect x="126" y="80" width="40" height="34" rx="5"/><rect x="178" y="80" width="40" height="34" rx="5"/><rect x="230" y="80" width="40" height="34" rx="5"/>
+      <rect x="22" y="126" width="40" height="34" rx="5"/><rect x="74" y="126" width="40" height="34" rx="5"/><rect x="126" y="126" width="40" height="34" rx="5"/><rect x="178" y="126" width="40" height="34" rx="5"/><rect x="230" y="126" width="40" height="34" rx="5"/>
+      <rect x="22" y="172" width="40" height="34" rx="5"/><rect x="74" y="172" width="40" height="34" rx="5"/><rect x="126" y="172" width="40" height="34" rx="5"/><rect x="178" y="172" width="40" height="34" rx="5"/>
+      <rect x="22" y="218" width="40" height="34" rx="5"/><rect x="74" y="218" width="40" height="34" rx="5"/>
+    </g>
+    <rect x="230" y="172" width="40" height="34" rx="5" fill="#c8553d" opacity=".85"/>
+    <circle cx="94" cy="235" r="20" fill="none" stroke="#c8553d" stroke-width="3"/>
+    <path d="M94 172 Q140 150 230 189" fill="none" stroke="#8a7a62" stroke-width="2" stroke-dasharray="6 6"/>
+  </g>
+  <g transform="translate(520,120)">
+    <rect width="140" height="230" rx="22" fill="#3b3a37"/>
+    <rect x="12" y="26" width="116" height="170" rx="8" fill="#e9e2d4"/>
+    <circle cx="70" cy="212" r="8" fill="#5a5853"/>
+    <path d="M44 100 q26 -40 52 0" fill="none" stroke="#c8553d" stroke-width="5" stroke-linecap="round"/>
+    <path d="M34 92 q36 -58 72 0" fill="none" stroke="#c8553d" stroke-width="4" stroke-linecap="round" opacity=".55"/>
+    <path d="M24 84 q46 -76 92 0" fill="none" stroke="#c8553d" stroke-width="3" stroke-linecap="round" opacity=".3"/>
+    <rect x="40" y="120" width="60" height="8" rx="4" fill="#b9a98f"/>
+    <rect x="48" y="138" width="44" height="8" rx="4" fill="#cfc3ad"/>
+  </g>
+</svg>
