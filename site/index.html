@@ -326,7 +326,7 @@ footer li{list-style:none;margin:4px 0}
 </div></section>
 
 <footer><div class="wrap">
-  <div><div class="logo"><img src="../assets/logo.png" alt="">aibutler</div><p style="margin-top:12px">Apache License 2.0</p></div>
+  <div><div class="logo"><img src="../assets/logo.png" alt="">aibutler</div><p style="margin-top:12px">Apache License 2.0</p><p id="icp" style="margin-top:6px" hidden></p></div>
   <div><h4>链接</h4><ul>
     <li><a href="../docs/">使用文档</a> · <a href="../docs/guide/quickstart.html">快速开始</a> · <a href="../docs/guide/faq.html">常见问题</a></li>
     <li><a href="https://github.com/fantasyxxj/aibutler">GitHub 源码</a> · <a href="https://github.com/fantasyxxj/aibutler/releases">下载</a></li>
@@ -345,6 +345,10 @@ c.addEventListener('mouseenter',function(){if(t)clearInterval(t);});c.addEventLi
 var x0=null;c.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
 c.addEventListener('touchend',function(e){if(x0==null)return;var d=e.changedTouches[0].clientX-x0;if(Math.abs(d)>40)go(i+(d<0?1:-1));x0=null;});
 go(0);})();
+</script>
+<script>
+(function(){var m={'yokaya.cn':'京ICP备19000276号-1','creditup.cn':'京ICP备16069300号-1'},h=location.hostname.replace(/^www\./,''),n=m[h],e=document.getElementById('icp');
+if(!n||!e)return;var a=document.createElement('a');a.href='https://beian.miit.gov.cn/';a.target='_blank';a.rel='noopener';a.textContent=n;e.appendChild(a);e.hidden=false;})();
 </script>
 </body>
 </html>
