@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图2  两种重复：分区字段可变，与一对多关联扇出</text>
+
+  <!-- 左：分区 -->
+  <rect x="24" y="60" width="414" height="400" rx="14" fill="#F7F9FC" stroke="#9DBBEB" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text x="231" y="88" text-anchor="middle" font-size="15" font-weight="600" fill="#1F4E9E">① 分区字段对实体可变</text>
+  <text x="231" y="112" text-anchor="middle" font-size="12.5" fill="#4B5563">主键 =（事件标识，到达小时），按到达小时分区</text>
+
+  <g font-size="13" text-anchor="middle">
+    <rect x="60" y="134" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="135" y="159" fill="#1F2937">事件 e1 首次上报</text>
+    <rect x="254" y="134" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/><text x="329" y="159" fill="#1F2937">e1 跨整点重发</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"><line x1="135" y1="174" x2="135" y2="214"/><line x1="329" y1="174" x2="329" y2="214"/></g>
+  <g font-size="13" text-anchor="middle">
+    <rect x="50" y="218" width="170" height="70" rx="8" fill="#F3F7FE" stroke="#9DBBEB"/><text x="135" y="244" fill="#1F4E9E" font-weight="600">分区 09 时</text><text x="135" y="268" fill="#1F2937">e1 一行</text>
+    <rect x="244" y="218" width="170" height="70" rx="8" fill="#F3F7FE" stroke="#9DBBEB"/><text x="329" y="244" fill="#1F4E9E" font-weight="600">分区 10 时</text><text x="329" y="268" fill="#1F2937">e1 又一行</text>
+  </g>
+  <rect x="80" y="310" width="302" height="40" rx="8" fill="#FEF2F2" stroke="#E5A3A3"/>
+  <text x="231" y="335" text-anchor="middle" font-size="13" fill="#B42318">判重只在分区内生效 → 按天汇总记 2 次</text>
+  <text x="231" y="384" text-anchor="middle" font-size="13" font-weight="600" fill="#1E6B34">做法</text>
+  <text x="231" y="406" text-anchor="middle" font-size="12.5" fill="#1F2937">分区字段对实体终身不变（如创建时间）；</text>
+  <text x="231" y="428" text-anchor="middle" font-size="12.5" fill="#1F2937">做不到就不放进判重，按业务键去重</text>
+
+  <!-- 右：扇出 -->
+  <rect x="462" y="60" width="414" height="400" rx="14" fill="#FFFAF3" stroke="#E8B97A" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text x="669" y="88" text-anchor="middle" font-size="15" font-weight="600" fill="#92400E">② 一对多关联把粒度拉宽</text>
+  <text x="669" y="112" text-anchor="middle" font-size="12.5" fill="#4B5563">订单级运费 关联 订单商品行，再求和</text>
+
+  <g font-size="13" text-anchor="middle">
+    <rect x="492" y="134" width="130" height="58" rx="8" fill="#FFFFFF" stroke="#E8B97A"/><text x="557" y="158" fill="#92400E" font-weight="600">订单 o1</text><text x="557" y="180" fill="#1F2937">运费 10</text>
+    <rect x="712" y="126" width="140" height="30" rx="6" fill="#FFFFFF" stroke="#9CA3AF"/><text x="782" y="146" fill="#1F2937">商品行 1</text>
+    <rect x="712" y="164" width="140" height="30" rx="6" fill="#FFFFFF" stroke="#9CA3AF"/><text x="782" y="184" fill="#1F2937">商品行 2</text>
+    <rect x="712" y="202" width="140" height="30" rx="6" fill="#FFFFFF" stroke="#9CA3AF"/><text x="782" y="222" fill="#1F2937">商品行 3</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4"><line x1="622" y1="163" x2="712" y2="141"/><line x1="622" y1="163" x2="712" y2="179"/><line x1="622" y1="163" x2="712" y2="217"/></g>
+  <text x="667" y="250" text-anchor="middle" font-size="12.5" fill="#4B5563">1 : N</text>
+
+  <g font-size="13" text-anchor="middle">
+    <rect x="502" y="262" width="334" height="36" rx="8" fill="#FEF2F2" stroke="#E5A3A3"/><text x="669" y="285" fill="#B42318">每个商品行都带一份运费 → 汇总 = 30，应为 10</text>
+  </g>
+  <text x="669" y="330" text-anchor="middle" font-size="12.5" fill="#4B5563">两条 1 : N 分支经同一订单互相关联（深渊陷阱）则两侧相乘</text>
+  <text x="669" y="384" text-anchor="middle" font-size="13" font-weight="600" fill="#1E6B34">做法</text>
+  <text x="669" y="406" text-anchor="middle" font-size="12.5" fill="#1F2937">宽表只并入多对一的属性；一对多先聚合到本粒度再并入；</text>
+  <text x="669" y="428" text-anchor="middle" font-size="12.5" fill="#1F2937">并入后用唯一性测试守住判重键</text>
+
+  <text x="450" y="500" text-anchor="middle" font-size="13" fill="#4B5563">两种重复都能跑通、不报错，数字只是偏大。AI 评审时以表为种子召回粒度与判重键，生成后按粒度反校验。</text>
+</svg>

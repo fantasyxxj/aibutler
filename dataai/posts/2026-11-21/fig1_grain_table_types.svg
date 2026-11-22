@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图1  粒度声明决定一切：五种表的「一行」与判重键</text>
+
+  <!-- 粒度声明 -->
+  <rect x="250" y="58" width="400" height="74" rx="12" fill="#ECF7EF" stroke="#7CC08F" stroke-width="1.6"/>
+  <text x="450" y="84" text-anchor="middle" font-size="15" font-weight="600" fill="#1E6B34">粒度声明（先于任何列）</text>
+  <text x="450" y="110" text-anchor="middle" font-size="13" fill="#1F2937">每个〈实体〉× 每个〈时间单位〉×〈事件 / 状态〉一行</text>
+
+  <g stroke="#6B7280" stroke-width="1.4" fill="none" marker-end="url(#g)">
+    <line x1="450" y1="132" x2="96" y2="182"/>
+    <line x1="450" y1="132" x2="273" y2="182"/>
+    <line x1="450" y1="132" x2="450" y2="182"/>
+    <line x1="450" y1="132" x2="627" y2="182"/>
+    <line x1="450" y1="132" x2="804" y2="182"/>
+  </g>
+
+  <!-- 五列 -->
+  <g font-size="13" text-anchor="middle">
+    <!-- 事务 -->
+    <rect x="20" y="186" width="152" height="300" rx="10" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="96" y="210" font-size="15" font-weight="600" fill="#1F4E9E">事务事实</text>
+    <text x="96" y="240" fill="#4B5563">一行 =</text>
+    <text x="96" y="260" fill="#1F2937">一次事件</text>
+    <text x="96" y="296" fill="#4B5563">判重键</text>
+    <text x="96" y="316" fill="#1F2937">事件标识</text>
+    <text x="96" y="352" fill="#4B5563">写入后</text>
+    <text x="96" y="372" fill="#1F2937">基本不改</text>
+    <text x="96" y="408" fill="#4B5563">跨期加和</text>
+    <text x="96" y="428" fill="#1E6B34" font-weight="600">可以</text>
+
+    <!-- 周期快照 -->
+    <rect x="197" y="186" width="152" height="300" rx="10" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="273" y="210" font-size="15" font-weight="600" fill="#1F4E9E">周期快照</text>
+    <text x="273" y="240" fill="#4B5563">一行 =</text>
+    <text x="273" y="260" fill="#1F2937">实体 × 周期的状态</text>
+    <text x="273" y="296" fill="#4B5563">判重键</text>
+    <text x="273" y="316" fill="#1F2937">实体 + 周期</text>
+    <text x="273" y="352" fill="#4B5563">写入后</text>
+    <text x="273" y="372" fill="#1F2937">本周期内可重算</text>
+    <text x="273" y="408" fill="#4B5563">跨期加和</text>
+    <text x="273" y="428" fill="#B42318" font-weight="600">状态类不行</text>
+
+    <!-- 累积快照 -->
+    <rect x="374" y="186" width="152" height="300" rx="10" fill="#FFFFFF" stroke="#9DBBEB"/>
+    <text x="450" y="210" font-size="15" font-weight="600" fill="#1F4E9E">累积快照</text>
+    <text x="450" y="240" fill="#4B5563">一行 =</text>
+    <text x="450" y="260" fill="#1F2937">一个流程实例</text>
+    <text x="450" y="296" fill="#4B5563">判重键</text>
+    <text x="450" y="316" fill="#1F2937">流程实例标识</text>
+    <text x="450" y="352" fill="#4B5563">写入后</text>
+    <text x="450" y="372" fill="#1F2937">到里程碑就更新</text>
+    <text x="450" y="408" fill="#4B5563">跨期加和</text>
+    <text x="450" y="428" fill="#92400E" font-weight="600">按里程碑分别看</text>
+
+    <!-- 拉链 -->
+    <rect x="551" y="186" width="152" height="300" rx="10" fill="#FFFFFF" stroke="#E8B97A"/>
+    <text x="627" y="210" font-size="15" font-weight="600" fill="#92400E">拉链维度</text>
+    <text x="627" y="240" fill="#4B5563">一行 =</text>
+    <text x="627" y="260" fill="#1F2937">实体的一个版本</text>
+    <text x="627" y="296" fill="#4B5563">判重键</text>
+    <text x="627" y="316" fill="#1F2937">自然键 + 生效时间</text>
+    <text x="627" y="352" fill="#4B5563">写入后</text>
+    <text x="627" y="372" fill="#1F2937">关旧版本、加新版本</text>
+    <text x="627" y="408" fill="#4B5563">关联事实时</text>
+    <text x="627" y="428" fill="#92400E" font-weight="600">按发生时间取版本</text>
+
+    <!-- 累计表 -->
+    <rect x="728" y="186" width="152" height="300" rx="10" fill="#FFFFFF" stroke="#E8B97A"/>
+    <text x="804" y="210" font-size="15" font-weight="600" fill="#92400E">累计表（递推）</text>
+    <text x="804" y="240" fill="#4B5563">一行 =</text>
+    <text x="804" y="260" fill="#1F2937">实体截至某日的累计</text>
+    <text x="804" y="296" fill="#4B5563">判重键</text>
+    <text x="804" y="316" fill="#1F2937">实体 + 截止日</text>
+    <text x="804" y="352" fill="#4B5563">写入后</text>
+    <text x="804" y="372" fill="#1F2937">只能顺延重算</text>
+    <text x="804" y="408" fill="#4B5563">求和列重写</text>
+    <text x="804" y="428" fill="#B42318" font-weight="600">会翻倍</text>
+  </g>
+
+  <text x="450" y="520" text-anchor="middle" font-size="13" fill="#4B5563">蓝框：Kimball 三类事实表；橙框：维度历史与国内常用的递推累计表。粒度一句话写清，判重键就是它的列表达。</text>
+</svg>
