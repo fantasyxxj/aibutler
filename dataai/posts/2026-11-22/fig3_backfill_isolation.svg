@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图3  正常调度与补数的隔离：通道、标记、表级互斥</text>
+
+  <!-- 正常通道 -->
+  <rect x="24" y="64" width="852" height="120" rx="14" fill="#F7F9FC" stroke="#9DBBEB" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text x="44" y="90" font-size="15" font-weight="600" fill="#1F4E9E">正常调度通道（优先）</text>
+  <g font-size="13" text-anchor="middle">
+    <rect x="44" y="108" width="150" height="56" rx="8" fill="#FFFFFF" stroke="#9DBBEB"/><text x="119" y="132" fill="#1F2937">到点 + 就绪</text><text x="119" y="152" fill="#4B5563" font-size="11.5">当前槽位</text>
+    <rect x="234" y="108" width="170" height="56" rx="8" fill="#FFFFFF" stroke="#9DBBEB"/><text x="319" y="132" fill="#1F2937">常规资源池</text><text x="319" y="152" fill="#4B5563" font-size="11.5">保障次日报表</text>
+    <rect x="444" y="108" width="170" height="56" rx="8" fill="#FFFFFF" stroke="#9DBBEB"/><text x="529" y="132" fill="#1F2937">完成标记</text><text x="529" y="152" fill="#4B5563" font-size="11.5">来源 = 正常</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"><line x1="194" y1="136" x2="232" y2="136"/><line x1="404" y1="136" x2="442" y2="136"/></g>
+
+  <!-- 补数通道 -->
+  <rect x="24" y="356" width="852" height="120" rx="14" fill="#FFFAF3" stroke="#E8B97A" stroke-width="1.4" stroke-dasharray="6 4"/>
+  <text x="44" y="382" font-size="15" font-weight="600" fill="#92400E">补数通道（让路）</text>
+  <g font-size="13" text-anchor="middle">
+    <rect x="44" y="400" width="150" height="56" rx="8" fill="#FFFFFF" stroke="#E8B97A"/><text x="119" y="424" fill="#1F2937">手册内实测命令</text><text x="119" y="444" fill="#4B5563" font-size="11.5">显式数据时刻 + 槽位</text>
+    <rect x="234" y="400" width="170" height="56" rx="8" fill="#FFFFFF" stroke="#E8B97A"/><text x="319" y="424" fill="#1F2937">独立资源池</text><text x="319" y="444" fill="#4B5563" font-size="11.5">并发上限 · 排在空档</text>
+    <rect x="444" y="400" width="170" height="56" rx="8" fill="#FFFFFF" stroke="#E8B97A"/><text x="529" y="424" fill="#1F2937">完成标记</text><text x="529" y="444" fill="#4B5563" font-size="11.5">来源 = 补数 · 指定槽位</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"><line x1="194" y1="428" x2="232" y2="428"/><line x1="404" y1="428" x2="442" y2="428"/></g>
+
+  <!-- 表级互斥 -->
+  <rect x="650" y="206" width="210" height="128" rx="12" fill="#FFFFFF" stroke="#B42318" stroke-width="1.5"/>
+  <text x="755" y="232" text-anchor="middle" font-size="14" font-weight="600" fill="#B42318">表级互斥（同表同分区）</text>
+  <g font-size="12.5" fill="#1F2937">
+    <text x="666" y="258">① 写前申请租约</text>
+    <text x="666" y="280">② 持有期间心跳续约</text>
+    <text x="666" y="302">③ 过期且确认持有方已死</text>
+    <text x="684" y="322">才允许抢占</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" fill="none" marker-end="url(#g)">
+    <path d="M614,136 C660,136 700,160 730,204"/>
+    <path d="M614,428 C660,428 700,400 730,336"/>
+  </g>
+  <rect x="660" y="96" width="196" height="44" rx="8" fill="#F0FAF3" stroke="#86C59B"/>
+  <text x="758" y="116" text-anchor="middle" font-size="12" fill="#1E6B34">写入幂等：按分区整体覆盖</text>
+  <text x="758" y="133" text-anchor="middle" font-size="12" fill="#1E6B34">原子替换，重跑 = 跑一次</text>
+
+  <!-- 监控 -->
+  <rect x="44" y="218" width="570" height="104" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <text x="62" y="244" font-size="13" font-weight="600" fill="#1F2937">监控判据：区分「在途」与「缺失」</text>
+  <text x="62" y="268" font-size="12.5" fill="#1F2937">· 有挂账记录、续跑进程有进展 → 在途，不告警</text>
+  <text x="62" y="290" font-size="12.5" fill="#1F2937">· 无完成标记、也无挂账 → 缺失，告警</text>
+  <text x="62" y="312" font-size="12.5" fill="#1F2937">· 告警只报部分缺口时，处置前自己拉全时段比对</text>
+
+  <text x="450" y="516" text-anchor="middle" font-size="13" fill="#4B5563">资源分开、标记分开、写入互斥；补数步骤必须幂等，不幂等的单独设计顺延重算。</text>
+</svg>

@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图2  步骤状态机：跳过与待人工都要进清单，补出成功才销账</text>
+
+  <!-- 主路径 -->
+  <g font-size="14" text-anchor="middle">
+    <rect x="40" y="90" width="130" height="48" rx="10" fill="#FFFFFF" stroke="#9CA3AF"/><text x="105" y="119" fill="#1F2937">待跑</text>
+    <rect x="250" y="90" width="150" height="48" rx="10" fill="#F3F7FE" stroke="#9DBBEB"/><text x="325" y="112" fill="#1F4E9E" font-weight="600">运行</text><text x="325" y="130" fill="#4B5563" font-size="11.5">进度持续上报</text>
+    <rect x="490" y="90" width="150" height="48" rx="10" fill="#F0FAF3" stroke="#86C59B"/><text x="565" y="112" fill="#1E6B34" font-weight="600">成功</text><text x="565" y="130" fill="#4B5563" font-size="11.5">提交后写完成标记</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"><line x1="170" y1="114" x2="248" y2="114"/><line x1="400" y1="114" x2="488" y2="114"/></g>
+  <text x="209" y="106" text-anchor="middle" font-size="11.5" fill="#6B7280">就绪</text>
+
+  <!-- 失败 / 卡死 -->
+  <g font-size="14" text-anchor="middle">
+    <rect x="250" y="210" width="150" height="48" rx="10" fill="#FEF2F2" stroke="#E5A3A3"/><text x="325" y="232" fill="#B42318" font-weight="600">失败</text><text x="325" y="250" fill="#4B5563" font-size="11.5">返回码非零</text>
+    <rect x="40" y="210" width="150" height="48" rx="10" fill="#FEF2F2" stroke="#E5A3A3" stroke-dasharray="5 3"/><text x="115" y="232" fill="#B42318" font-weight="600">卡死</text><text x="115" y="250" fill="#4B5563" font-size="11.5">窗口内进度不涨</text>
+    <rect x="490" y="210" width="150" height="48" rx="10" fill="#FFFAF3" stroke="#E8B97A"/><text x="565" y="239" fill="#92400E" font-weight="600">重试</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" fill="none" marker-end="url(#g)">
+    <line x1="325" y1="138" x2="325" y2="208"/>
+    <path d="M285,138 L150,208"/>
+    <line x1="190" y1="234" x2="248" y2="234"/>
+    <line x1="400" y1="234" x2="488" y2="234"/>
+    <path d="M565,210 C565,170 450,170 400,130"/>
+  </g>
+  <text x="219" y="226" text-anchor="middle" font-size="11.5" fill="#6B7280">终止</text>
+  <text x="470" y="200" text-anchor="middle" font-size="11.5" fill="#6B7280">次数未用尽</text>
+
+  <!-- 重试耗尽 -->
+  <g font-size="14" text-anchor="middle">
+    <rect x="370" y="330" width="170" height="52" rx="10" fill="#FFFAF3" stroke="#E8B97A"/><text x="455" y="353" fill="#92400E" font-weight="600">跳过（挂账）</text><text x="455" y="372" fill="#4B5563" font-size="11.5">链路继续，这一格缺口</text>
+    <rect x="620" y="330" width="170" height="52" rx="10" fill="#FFF7ED" stroke="#C2410C" stroke-width="1.5"/><text x="705" y="353" fill="#C2410C" font-weight="600">待人工清单</text><text x="705" y="372" fill="#4B5563" font-size="11.5">数据时刻 · 槽位 · 原因</text>
+    <rect x="620" y="440" width="170" height="48" rx="10" fill="#F0FAF3" stroke="#86C59B"/><text x="705" y="469" fill="#1E6B34" font-weight="600">销账</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" fill="none" marker-end="url(#g)">
+    <path d="M590,258 L480,328"/>
+    <line x1="540" y1="356" x2="618" y2="356"/>
+    <line x1="705" y1="382" x2="705" y2="438"/>
+    <path d="M640,240 C760,240 760,300 735,328"/>
+  </g>
+  <text x="512" y="300" text-anchor="end" font-size="11.5" fill="#6B7280">耗尽 · 按策略跳过</text>
+  <text x="790" y="280" text-anchor="middle" font-size="11.5" fill="#6B7280">耗尽 · 停住</text>
+  <text x="790" y="410" font-size="11.5" fill="#1E6B34">这一格补出成功</text>
+
+  <!-- 销账规则 -->
+  <rect x="40" y="404" width="540" height="108" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <text x="58" y="430" font-size="13" font-weight="600" fill="#1F2937">销账规则按步骤类型区分</text>
+  <text x="58" y="454" font-size="12.5" fill="#1F2937">· 整天覆盖类：后一格成功即覆盖缺口，可自动销账；不要回补老格（会盖回更短窗口）</text>
+  <text x="58" y="476" font-size="12.5" fill="#1F2937">· 增量类：缺哪格补哪格，补数显式指定运行槽位</text>
+  <text x="58" y="498" font-size="12.5" fill="#1F2937">· 不幂等类（递推累计）：单独设计顺延重算，不进普通补数通道</text>
+
+  <text x="450" y="540" text-anchor="middle" font-size="13" fill="#4B5563">跳过是了结，不是完成：不挂账的跳过，就是要到对账时才被发现的静默缺口。</text>
+</svg>
