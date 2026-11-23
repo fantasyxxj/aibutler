@@ -23,8 +23,16 @@
     ['monologue/', 'AI自话', 'AI Diary (中文)', 'monologue'],
     ['dataai/', '数据与AI', 'Data & AI (中文)', 'dataai'],
   ];
+  // aicreditup.com 上的这份官网多两个后台入口; 别的域名不出
+  if (/(^|\.)aicreditup\.com$/.test(location.hostname)) {
+    ITEMS.push(['https://admin.aicreditup.com/', '管理入口', 'Admin']);
+    ITEMS.push(['https://www.aicreditup.com/admin/login', '店家后台', 'Store admin']);
+  }
   var home = root + 'site/' + (en ? 'en.html' : '');
-  var href = function (h) { return h.charAt(0) === '#' ? (onSite ? h : home + h) : root + h; };
+  var href = function (h) {
+    if (/^https?:/.test(h)) return h;
+    return h.charAt(0) === '#' ? (onSite ? h : home + h) : root + h;
+  };
 
   var css = '' +
     'nav.sn{position:sticky;top:0;z-index:10;background:rgba(11,16,34,.78);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid rgba(38,48,90,.6)}' +
