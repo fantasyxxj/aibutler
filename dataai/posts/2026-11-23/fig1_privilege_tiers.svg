@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <rect width="900" height="520" fill="#FAFAF7"/>
+  <text x="450" y="38" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图1  按能否回退分三级：默认收紧，越往下关口越多</text>
+  <g font-size="13" fill="#6B7280" text-anchor="middle">
+    <text x="150" y="80">级别</text><text x="400" y="80">典型动作</text><text x="700" y="80">进入执行前要过的关口</text>
+  </g>
+  <!-- 只读 -->
+  <rect x="40" y="96" width="220" height="110" rx="10" fill="#F0FAF3" stroke="#86C59B"/>
+  <text x="150" y="140" text-anchor="middle" font-size="18" font-weight="600" fill="#1E6B34">只读</text>
+  <text x="150" y="166" text-anchor="middle" font-size="12.5" fill="#4B5563">代理默认持有</text>
+  <rect x="280" y="96" width="240" height="110" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <g font-size="13" fill="#1F2937"><text x="296" y="128">· 带行数上限的查询</text><text x="296" y="152">· 看日志、查运行状态</text><text x="296" y="176">· 调只读接口</text></g>
+  <rect x="540" y="96" width="320" height="110" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <g font-size="13" fill="#1F2937"><text x="556" y="128">只读账号 + 语句白名单</text><text x="556" y="152">无上限查询自动补上限</text><text x="556" y="176" fill="#6B7280">（重查询也会压垮集群，读也要限）</text></g>
+  <!-- 可回退写 -->
+  <rect x="40" y="222" width="220" height="110" rx="10" fill="#FEF8EC" stroke="#E7BE6A"/>
+  <text x="150" y="266" text-anchor="middle" font-size="18" font-weight="600" fill="#8A5A00">可回退写</text>
+  <text x="150" y="292" text-anchor="middle" font-size="12.5" fill="#4B5563">按规范自行执行，事后可查</text>
+  <rect x="280" y="222" width="240" height="110" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <g font-size="13" fill="#1F2937"><text x="296" y="254">· 写测试 / 沙箱环境</text><text x="296" y="278">· 按分区幂等覆盖</text><text x="296" y="302">· 带版本的配置、先备份再改</text></g>
+  <rect x="540" y="222" width="320" height="110" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <g font-size="13" fill="#1F2937"><text x="556" y="254">硬拦截 + 动作前召回</text><text x="556" y="278">命令照抄实测手册</text><text x="556" y="302">执行方写审计，目标侧回读</text></g>
+  <!-- 高危写 -->
+  <rect x="40" y="348" width="220" height="130" rx="10" fill="#FDF0F0" stroke="#E39A9A"/>
+  <text x="150" y="398" text-anchor="middle" font-size="18" font-weight="600" fill="#9B1C1C">高危写</text>
+  <text x="150" y="424" text-anchor="middle" font-size="12.5" fill="#4B5563">平时先批后动</text>
+  <text x="150" y="444" text-anchor="middle" font-size="12.5" fill="#4B5563">事故中预先授权恢复</text>
+  <rect x="280" y="348" width="240" height="130" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <g font-size="13" fill="#1F2937"><text x="296" y="378">· 删除、截断、改表结构</text><text x="296" y="402">· 重跑累积表、大范围重算</text><text x="296" y="426">· 启停服务、改生产编排</text><text x="296" y="450">· 向外部发送数据</text></g>
+  <rect x="540" y="348" width="320" height="130" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <g font-size="13" fill="#1F2937"><text x="556" y="378">以上全部，再加：</text><text x="556" y="402">预演影响面（表、分区、行数、下游）</text><text x="556" y="426">回退方式事先验证</text><text x="556" y="450">人批准的是预演结果，不是命令文本</text></g>
+  <text x="450" y="504" text-anchor="middle" font-size="12.5" fill="#6B7280">分级由连接、接口与发布流程强制执行；工具自称「只读」不算数</text>
+</svg>

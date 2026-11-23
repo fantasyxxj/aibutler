@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs><marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker></defs>
+  <rect width="900" height="500" fill="#FAFAF7"/>
+  <text x="450" y="38" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图3  平时与事故：授权方向相反，边界都事先写清</text>
+  <rect x="40" y="70" width="400" height="330" rx="12" fill="#F3F7FE" stroke="#9DBBEB"/>
+  <text x="240" y="104" text-anchor="middle" font-size="17" font-weight="600" fill="#1F4E9E">平时：代理主动发起的变更</text>
+  <g font-size="14" text-anchor="middle">
+    <rect x="90" y="128" width="300" height="44" rx="8" fill="#FFFFFF" stroke="#9DBBEB"/><text x="240" y="155" fill="#1F2937">说清：做什么、动哪里、影响什么</text>
+    <rect x="90" y="204" width="300" height="44" rx="8" fill="#FFFFFF" stroke="#9DBBEB"/><text x="240" y="231" fill="#1F2937">等人批准（批的是预演结果）</text>
+    <rect x="90" y="280" width="300" height="44" rx="8" fill="#FFFFFF" stroke="#9DBBEB"/><text x="240" y="307" fill="#1F2937">执行 → 回读 → 审计</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"><line x1="240" y1="172" x2="240" y2="202"/><line x1="240" y1="248" x2="240" y2="278"/></g>
+  <text x="240" y="362" text-anchor="middle" font-size="12.5" fill="#4B5563">「说了要停」≠「可以自己决定停什么、怎么停」</text>
+  <rect x="460" y="70" width="400" height="330" rx="12" fill="#FDF0F0" stroke="#E39A9A"/>
+  <text x="660" y="104" text-anchor="middle" font-size="17" font-weight="600" fill="#9B1C1C">事故：已定性的生产故障</text>
+  <g font-size="14" text-anchor="middle">
+    <rect x="510" y="128" width="300" height="44" rx="8" fill="#FFFFFF" stroke="#E39A9A"/><text x="660" y="155" fill="#1F2937">立即恢复：改配置、重启、修代码</text>
+    <rect x="510" y="204" width="300" height="44" rx="8" fill="#FFFFFF" stroke="#E39A9A"/><text x="660" y="231" fill="#1F2937">每一步留痕，可随时被叫停</text>
+    <rect x="510" y="280" width="300" height="44" rx="8" fill="#FFFFFF" stroke="#E39A9A"/><text x="660" y="307" fill="#1F2937">做完再报 → 不追责复盘 → 沉淀规则</text>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"><line x1="660" y1="172" x2="660" y2="202"/><line x1="660" y1="248" x2="660" y2="278"/></g>
+  <text x="660" y="362" text-anchor="middle" font-size="12.5" fill="#4B5563">此时挂起等批准 = 失职</text>
+  <rect x="40" y="420" width="820" height="56" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <text x="450" y="444" text-anchor="middle" font-size="13.5" fill="#1F2937" font-weight="600">事故授权的三条边界</text>
+  <text x="450" y="465" text-anchor="middle" font-size="12.5" fill="#4B5563">限于已定性且属自己职责的事故（不接管别人的手工操作）· 限于恢复所需 · 人可随时中断</text>
+</svg>

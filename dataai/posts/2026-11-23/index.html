@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大数据智能化开发和管理（十）：AI 操作生产环境——边界、护栏与审计 · 数据与AI</title>
+<link rel="icon" type="image/png" href="../../../assets/logo.png">
+<style>:root{color-scheme:dark;--bg:#0b1022;--card:#161f3d;--line:#26305a;--ink:#e6ebff;--ink2:#c3cbef;--mute:#8c97c2;--r:#7c8cff;--m:#38d3e8;--c:#f5b84b;--p:#f472b6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.85 -apple-system,"PingFang SC","Segoe UI","Microsoft YaHei",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px}
+h1{font-size:30px;line-height:1.35;margin:56px 0 10px}
+.sub{color:var(--mute);font-size:14px;margin-bottom:34px}
+.grad{background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent}
+article p{margin:0 0 1.1em;color:var(--ink2)}
+article b{color:var(--ink)}
+article h2{font-size:22px;line-height:1.4;margin:2em 0 .7em}
+article h3{font-size:18px;line-height:1.4;margin:1.6em 0 .6em}
+article h4{font-size:16px;margin:1.4em 0 .5em}
+article ul,article ol{margin:0 0 1.1em 1.4em;color:var(--ink2)}
+article li{margin:.3em 0}
+article blockquote{margin:0 0 1.2em;padding:10px 16px;border-left:3px solid var(--r);background:var(--card);border-radius:0 8px 8px 0;color:var(--ink2)}
+article hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+article figure{margin:1.4em 0}
+article figure img{border-radius:12px;border:1px solid var(--line);background:#fff}
+article figcaption{color:var(--mute);font-size:13.5px;text-align:center;margin-top:8px}
+article .tbl{overflow-x:auto;margin:0 0 1.2em}
+article table{border-collapse:collapse;font-size:14.5px;min-width:100%}
+article th,article td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;color:var(--ink2)}
+article th{background:var(--card);color:var(--ink);white-space:nowrap}
+article td:first-child{white-space:nowrap}
+code{font:14px ui-monospace,Menlo,monospace;background:var(--card);padding:1px 6px;border-radius:5px}
+.cover{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin:0 0 28px}
+audio{width:100%;margin:0 0 30px}
+.list a{display:block;padding:22px 0;border-bottom:1px solid var(--line)}
+.list+footer{border-top:0}
+.list a:hover h2{color:var(--m)}
+.list h2{font-size:20px;margin-bottom:4px}
+.list p{color:var(--mute);font-size:14.5px}
+.back{display:inline-block;margin:40px 0 70px;color:var(--m)}
+footer{color:var(--mute);font-size:13px;padding:30px 0 60px;border-top:1px solid var(--line);margin-top:40px}</style>
+</head>
+<body>
+<nav></nav><script src="../../../assets/nav.js"></script>
+<main class="wrap">
+<h1>大数据智能化开发和管理（十）：AI 操作生产环境——边界、护栏与审计</h1>
+<div class="sub">2026-11-23 · AI 动生产的风险在哪，权限怎样按能否回退分级，护栏怎样在动作那一刻拦，审计与回退怎样留下证据，事故时为什么先恢复后复盘，以及 AI 这一层怎样沉淀、召回、判断 · 狂人</div>
+
+
+<article>
+<blockquote>第一篇第五节提到，AI 进入生产操作后，兜底靠三样东西：只收验证过命令的手册、命中高危动作时强制召回规范的钩子、可检索的规则与教训。第九篇结尾说，AI 在生产环境里执行动作的权限与护栏要专门讨论。这是多数团队最关心、也最担心的问题：让 AI 动生产，风险到底在哪，怎么管。这一篇的主角是 AI 代理自己：它能做什么、不能做什么、在哪一刻被拦、事后怎样说清楚。</blockquote>
+<h2>一、风险在哪</h2>
+<h3>1.1 人也会犯错，问题在代价</h3>
+<p>生产事故并不是 AI 带来的新东西。2017 年 GitLab 的一次数据库事故里，工程师本想在备库上清空数据目录，命令却执行在了主库上，几秒钟内约 300 GB 数据被删除；随后发现几种备份手段都没能正常用于恢复[1]。复盘里最有价值的不是「谁敲错了命令」，而是：一个高危动作为什么没有任何一道关口；恢复手段为什么从来没被验证过。</p>
+<p>所以讨论 AI 操作生产，出发点不该是「AI 会不会犯错」——它一定会，人也一样——而是三个问题：<b>犯错时代价多大，能不能在动作发生前被拦住，发生后能不能回退。</b></p>
+<h3>1.2 AI 的特殊之处</h3>
+<p>AI 代理在三个方面放大了风险。</p>
+<p><b>一是速度与连续性。</b> 人敲一条危险命令前往往会犹豫，代理在一个回合里可以连续发出几十个动作，前一个的错误结果会被后一个当作前提。</p>
+<p><b>二是确信的语气。</b> 代理汇报时语言流畅、结构完整，缺口会被推断悄悄补齐，读的人很难分辨哪句是查到的、哪句是猜的。</p>
+<p><b>三是对约束的遗忘。</b> 规则写在文档里、甚至写在代理自己的记忆里，不等于动手那一刻它会去查。</p>
+<p>这不是假设。ToolEmu 用大模型模拟工具环境评测代理，在其评测器判定下，表现最安全的代理仍有 23.9% 的情形出现有风险的动作[2]。2025 年 7 月有公开报道：一个编程代理在用户明确要求冻结代码期间删除了生产数据库，事后还给出了与事实不符的说明[3]。</p>
+<p>OWASP 把这类风险归为「过度代理」（Excessive Agency），根因通常是三者之一或兼有：功能过多、权限过大、自主性过高[4]。这三个词正好对应本文的三节：权限分级管「权限」，护栏管「功能」和「自主」，审计与回退管「出事之后」。</p>
+<h3>1.3 结论：靠结构，不靠自觉</h3>
+<p>Reason 的瑞士奶酪模型说，事故发生是因为多层防护上的漏洞恰好对齐[5]。对 AI 代理同样成立：没有哪一层能做到万无一失，所以要多层，且每一层都不依赖代理「记得要小心」。</p>
+<h2>二、权限分级：按能否回退划线</h2>
+<h3>2.1 读写二分不够用</h3>
+<p>最常见的分法是只读与读写。它太粗：往测试库写一张临时表和截断一张生产事实表都叫「写」，往生产查询库跑一个全表扫描的大查询却叫「读」，后者照样能把集群压垮。</p>
+<p>更有用的划线依据是<b>动作能否回退、回退成本多大</b>。建议分三级：</p>
+<div class="tbl"><table><thead><tr><th>级别</th><th>典型动作</th><th>默认授权</th></tr></thead><tbody><tr><td>只读</td><td>带行数上限的查询、看日志、调只读接口、查运行状态</td><td>代理默认持有</td></tr><tr><td>可回退写</td><td>写测试或沙箱环境、按分区幂等覆盖、带版本的配置修改、先备份再改</td><td>按规范自行执行，事后可查</td></tr><tr><td>高危写</td><td>删除与截断、改生产表结构、重跑累积表、大范围重算、启停生产服务、改生产编排</td><td>先说明「做什么、动哪里、影响什么」，等人批准；事故处置另论（见第五节）</td></tr></tbody></table></div>
+<figure><img src="./fig1_privilege_tiers.svg" alt="图1 按能否回退分三级：权限默认收紧，越往下越要先召回、预演、批准" loading="lazy"><figcaption>图1 按能否回退分三级：权限默认收紧，越往下越要先召回、预演、批准</figcaption></figure>
+<p>这对应 Saltzer 与 Schroeder 1975 年提出的几条保护原则：最小权限（只给完成任务所需的权限）、失败安全的默认值（默认拒绝，按需放行）、完全仲裁（每次访问都检查）、权限分离（关键操作需要两把钥匙）[6]。NIST SP 800-53 的访问控制族把最小权限列为独立控制项[7]，云厂商的权限最佳实践也是同一思路[8]。</p>
+<h3>2.2 分级要由服务端执行</h3>
+<p>分级必须落在代理够不着的地方：</p>
+<ul><li><b>连接层</b>：代理拿到的生产连接是只读账号，语句白名单只放行查询类，无行数上限的查询自动补上限；</li><li><b>接口层</b>：生产写操作只开在发布流程里，代理在开发环境里点不出「写生产」的按钮；</li><li><b>环境切换</b>：试跑与正式跑靠请求里的一个环境参数整体切换执行包、配置与目标库，而不是让代理自己拼不同的目标地址。</li></ul>
+<p>模型上下文协议（MCP）给工具定义了只读、破坏性、幂等等标注，但规范同时写明：除非来自可信服务端，客户端必须把这些标注视为不可信[9]。<b>工具自称只读不算数，分级要由执行方强制。</b></p>
+<h2>三、护栏：在动作那一刻拦</h2>
+<h3>3.1 规范写了为什么没用</h3>
+<p>一个反复出现的现象：同一类错误，规范早就写下了，代理照旧再犯。原因不在规范本身，而在时机：规范在文档里，动作在别处，两者之间没有任何东西把它们连起来。代理凭印象拼了一条补数命令，命令返回成功，实例却落了一个空的调度时间，永久卡在运行态，挡住后续补数——而正确的命令一直躺在手册里。</p>
+<p>人也一样，所以手术室有核查表，航空有检查单。对代理而言，好消息是它的每一个动作都是一次结构化的工具调用：工具名、参数、目标都摆在那里。<b>这比人在终端里敲命令更容易在执行前统一审查。</b></p>
+<h3>3.2 三层：硬拦截、动作前召回、常驻约束</h3>
+<ul><li><b>硬拦截</b>：能写成模式匹配的规则，在工具调用执行之前判定，命中即拒绝并告知原因。例如：参数里出现对生产目录的删除；往共享临时目录落盘；还没读代码地图就在仓库里全局搜索。Claude Code 的钩子机制允许在工具调用前运行检查脚本并阻止该调用[10]，Kubernetes 的准入控制器在请求通过认证鉴权之后、写入之前拦截[11]，是同一个思想在不同系统里的实现。</li><li><b>动作前召回</b>：写不成模式、但能识别动作类型的，命中时把相关规范、手册条目和历史事故强制递到代理面前，不阻断，但让它「看过再动」。这就是第三篇「动手时召回」用在操作上：以动作涉及的工具、环境和表为种子，沿血缘与规则关系扩散。</li><li><b>常驻约束</b>：极少数最高优先级的规则（例如「生产只读」「判卡死先认时钟」）每次都放进上下文。数量必须严格设上限，常驻的越多，每一条的分量越轻。</li></ul>
+<p>三层的分工要清楚，<b>同一条规则不在三层里重复抄写</b>：能写成正则的就进硬拦截，靠动作类型能识别的进召回，剩下必须时刻在场的才常驻。重复抄写的后果是改一处漏两处，几周后三层互相矛盾。</p>
+<figure><img src="./fig2_action_path.svg" alt="图2 一次高危动作的完整路径：每一步都在代理之外留下证据" loading="lazy"><figcaption>图2 一次高危动作的完整路径：每一步都在代理之外留下证据</figcaption></figure>
+<h3>3.3 命令手册：只收实测通过的</h3>
+<p>补数、重跑、修复这类操作，最危险的不是「不会」，而是「凭印象会」。命令手册的规则很简单：</p>
+<ol><li>只收在测试环境实测跑通、并回读确认了结果的命令；</li><li>代理执行这类操作前，先打开手册照抄，再填参数；</li><li>手册外的命令先去测试环境验证，通过后入册，再上生产；</li><li>判成功只认目标侧回读（分区行数、调度时间是否落值、版本提交时间），不认接口返回码。</li></ol>
+<p>第 4 条是吃过亏的：接口返回成功、实例也建出来了，但关键字段为空，这一单其实没有发成功。</p>
+<h3>3.4 先预演，批准的是预演结果</h3>
+<p>Terraform 的做法值得借鉴：先 <code>plan</code> 列出将要发生的全部变更，人审过再 <code>apply</code>[12]。对数据操作而言，预演就是：列出要动的表、分区、行数估计、受影响的下游，以及回退方式。<b>审批人看的是预演结果，不是命令文本</b>——命令文本只有写的人看得懂，影响面清单人人看得懂。</p>
+<h2>四、审计与回退</h2>
+<h3>4.1 审计要回答四个问题</h3>
+<p>OpenAI 在关于智能体治理的论文里列了七项实践，其中包括限制动作空间并要求批准、让代理的活动可读、自动监控、可归因、可中断[13]。落到数据平台上，每一条生产动作的审计记录要回答：</p>
+<ul><li><b>谁</b>：哪个代理，代表哪个人；</li><li><b>依据什么</b>：哪一次授权、哪条手册条目、哪个事故编号；</li><li><b>做了什么</b>：实际发出的命令或请求，而不是代理对它的描述；</li><li><b>结果如何</b>：回读得到的证据。</li></ul>
+<p>记录要由执行方写，而不是由代理自述。代理的自述只能作为补充。</p>
+<h3>4.2 汇报中的每个事实要有来源</h3>
+<p>代理最隐蔽的风险不在动作，而在汇报。「这个任务是某人手工重跑的」「数据是凌晨三点到的」——这些句子读起来都像事实，有可能只是推断。规则应当是：<b>谁做的，先查审计日志；什么时间，照抄来源记录的时间并注明时区；为什么，拿到证据才说。没查到就写没查到。</b>汇报格式上把「查到的」和「推断的」分开写，读的人一眼就知道哪里还需要核实。</p>
+<h3>4.3 回退要事先验证</h3>
+<p>回退手段在用到之前都只是假设。GitLab 那次事故真正的教训是备份没被验证过[1]。动高危操作前做快照或备份，配置与编排有版本，回退步骤在测试环境演练过——这些要在授权之前就位，而不是出事后再找。</p>
+<h2>五、事故时：先恢复，后复盘</h2>
+<h3>5.1 两种模式，两种授权</h3>
+<p>平时与事故，授权规则应当相反：</p>
+<ul><li><b>平时由代理主动发起的生产变更</b>：先说清做什么、动哪里、影响什么，等人批准再动。「他说了要停」不等于「我可以自己决定停什么、怎么停」。</li><li><b>已定性的生产事故</b>：恢复数据所需的动作——改配置、重启进程、修代码——预先授权，立即执行，做完再报，处置是否合适事后复盘。此时挂起等批准，就是失职。</li></ul>
+<p>Google SRE 的事故管理强调明确的指挥与职责划分，先止损恢复[14]；复盘文化强调不追责、聚焦系统改进[15]。对代理来说，「先恢复」需要事前写清的授权，否则它在事故中只会犹豫，或在平时越权。</p>
+<figure><img src="./fig3_two_modes.svg" alt="图3 平时与事故两种模式：授权方向相反，边界都要事先写清" loading="lazy"><figcaption>图3 平时与事故两种模式：授权方向相反，边界都要事先写清</figcaption></figure>
+<h3>5.2 边界在哪</h3>
+<p>事故授权有三条边界：</p>
+<ol><li><b>限于已定性的事故</b>：先判断这是不是事故、是不是自己职责范围内的事故。别人正在手工处理的操作，即使看上去失败了，也不归代理接管；</li><li><b>限于恢复所需</b>：不借事故之机做与恢复无关的变更；</li><li><b>可中断</b>：人随时可以叫停，代理的每一步都留痕，叫停后能说清停在哪。</li></ol>
+<h2>六、AI 这一层：沉淀、召回、判断</h2>
+<p>前几篇里 AI 是「帮人做事的工具」；这一篇它是被管的对象，但同一套方法同样适用。</p>
+<p><b>沉淀：每一次纠正当场变成规则。</b> 代理被纠正、或者出了一次操作事故，结论当场写成一条可证伪的命题，挂到动作类型、环境和涉及的表上，而不是记一句「下次注意」。能写成模式的，升级为硬拦截；某类错误第二次出现时，第一件事是去查是不是有两条互相矛盾的规则，而不是再写一条新的。</p>
+<p><b>召回：以动作为种子。</b> 第三篇的召回以实体为种子，这里的种子是动作本身：工具名、目标环境、目标表、命令类型。补数动作召回命令手册与累积语义，改编排动作召回发布流程，删除动作直接进硬拦截。这正是为什么规则要存成带关系的命题，而不是一份长文档：动作发生的那一刻，只有沿关系扩散才能在几百条规则里找到相关的那三条。</p>
+<p><b>判断：分类先于动作。</b> 代理动手前要先回答几个问题：这是事故还是平时变更？这是谁的活——自己的职责、别人的生产操作、还是要转交的？这一步属于哪一级权限？判断错了，后面的护栏再多也是在错误的轨道上运行。分类规则同样是沉淀下来、动作前被召回的命题。</p>
+<p><b>为什么要、为什么能。</b> 要，是因为评测和事故都表明代理会出错[2][3]，而文档靠自觉查阅的方式已经被证明不可靠。能，是因为代理的动作天然是结构化调用，比人的终端操作更容易在执行前拦截、在执行后归因。Anthropic 在构建代理的建议里也强调，代理应在环境中获取真实反馈来判断进展，并在检查点或遇到阻碍时停下来等人[16]。把这一点工程化，就是本文的分级、护栏与审计。</p>
+<p>还有一个容易被忽视的风险组合：代理同时能读私有数据、能接触不可信内容、又能对外发送信息时，任何一份被污染的输入都可能变成数据外泄[17]。数据平台的代理三样往往都有，所以对外发送类动作（发消息、推送到外部服务）同样应当进高危写。</p>
+<h2>七、方法：七条原则</h2>
+<ol><li><b>按能否回退分级</b>：只读、可回退写、高危写；默认只给只读；</li><li><b>分级由执行方强制</b>：只读账号、语句白名单、生产写只在发布流程里开放；工具自称只读不算数；</li><li><b>在动作那一刻拦</b>：能写成模式的硬拦截，能识别类型的动作前召回，必须在场的少量常驻；同一条规则只放一层；</li><li><b>命令只用实测过的</b>：手册外的先在测试环境验证再入册；判成功只认目标侧回读；</li><li><b>批准预演结果，不批准命令文本</b>：影响面、行数估计、受影响下游与回退方式一并呈现；</li><li><b>审计由执行方写，汇报区分查到与推断</b>：谁、依据什么、做了什么、结果如何；回退手段事先演练；</li><li><b>平时先批后动，事故先恢复后复盘</b>：事故授权限于已定性、限于恢复所需、可随时中断；不接管别人的手工操作。</li></ol>
+<h2>八、结语</h2>
+<p>让 AI 操作生产，关键不在 AI 有多谨慎，而在它所处的系统：权限按能否回退划线，规则在动作那一刻生效，命令来自实测，事实有来源，回退事先验证，事故与平时各有清楚的授权。</p>
+<p>这些措施对人同样有效，只是代理让它们变得可以做到：代理的每个动作都是一次可以审查的调用，每次纠正都可以当场写成下一次会被召回的规则。护栏不是一次建成的，它和别的知识一样零碎地长出来——前提是每一次出错都被沉淀下来，并在下一次动手时被准确召回。</p>
+<p>这个系列会持续更新。</p>
+<h2>参考资料</h2>
+<ol><li>GitLab. <a href="https://about.gitlab.com/blog/2017/02/10/postmortem-of-database-outage-of-january-31/" target="_blank" rel="noopener" style="color:var(--m)">Postmortem of database outage of January 31</a>. 2017.</li><li>Y. Ruan, H. Dong, A. Wang et al. <a href="https://arxiv.org/abs/2309.15817" target="_blank" rel="noopener" style="color:var(--m)">Identifying the Risks of LM Agents with an LM-Emulated Sandbox</a>. ICLR 2024.</li><li>S. Sharwood. <a href="https://www.theregister.com/2025/07/21/replit_saastr_vibe_coding_incident/" target="_blank" rel="noopener" style="color:var(--m)">Vibe coding service Replit deleted user's production database, faked data, told fibs galore</a>. The Register, 2025-07-21；另见 <a href="https://fortune.com/2025/07/23/ai-coding-tool-replit-wiped-database-called-it-a-catastrophic-failure/" target="_blank" rel="noopener" style="color:var(--m)">Fortune 报道</a>, 2025-07-23.</li><li>OWASP Gen AI Security Project. <a href="https://genai.owasp.org/llmrisk/llm062025-excessive-agency/" target="_blank" rel="noopener" style="color:var(--m)">LLM06:2025 Excessive Agency</a>.</li><li>J. Reason. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC1117770/" target="_blank" rel="noopener" style="color:var(--m)">Human error: models and management</a>. BMJ, 2000, 320(7237): 768–770.</li><li>J. H. Saltzer, M. D. Schroeder. <a href="https://www.cs.virginia.edu/~evans/cs551/saltzer/" target="_blank" rel="noopener" style="color:var(--m)">The Protection of Information in Computer Systems</a>. Proceedings of the IEEE, 1975.</li><li>NIST. <a href="https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final" target="_blank" rel="noopener" style="color:var(--m)">SP 800-53 Rev. 5: Security and Privacy Controls for Information Systems and Organizations</a>（AC-6 Least Privilege）.</li><li>AWS. <a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html" target="_blank" rel="noopener" style="color:var(--m)">Security best practices in IAM</a>.</li><li>Model Context Protocol. <a href="https://modelcontextprotocol.io/specification/2025-06-18/server/tools" target="_blank" rel="noopener" style="color:var(--m)">Specification 2025-06-18: Tools</a>（Tool annotations）；另见 <a href="https://modelcontextprotocol.io/specification/2025-06-18/basic/security_best_practices" target="_blank" rel="noopener" style="color:var(--m)">Security Best Practices</a>.</li><li>Anthropic. <a href="https://code.claude.com/docs/en/hooks" target="_blank" rel="noopener" style="color:var(--m)">Claude Code: Hooks reference</a>（PreToolUse 一节）.</li><li>Kubernetes. <a href="https://kubernetes.io/docs/reference/access-authn-authz/admission-controllers/" target="_blank" rel="noopener" style="color:var(--m)">Admission Control in Kubernetes</a>.</li><li>HashiCorp. <a href="https://developer.hashicorp.com/terraform/cli/commands/plan" target="_blank" rel="noopener" style="color:var(--m)">terraform plan command</a>.</li><li>Y. Shavit, S. Agarwal, M. Brundage et al. <a href="https://openai.com/index/practices-for-governing-agentic-ai-systems/" target="_blank" rel="noopener" style="color:var(--m)">Practices for Governing Agentic AI Systems</a>. OpenAI, 2023（<a href="https://cdn.openai.com/papers/practices-for-governing-agentic-ai-systems.pdf" target="_blank" rel="noopener" style="color:var(--m)">PDF</a>，第 4 节）.</li><li>A. Stribblehill. <a href="https://sre.google/sre-book/managing-incidents/" target="_blank" rel="noopener" style="color:var(--m)">Managing Incidents</a>. In B. Beyer et al. (eds.), Site Reliability Engineering, O'Reilly, 2016, Chapter 14.</li><li>J. Lunney, S. Lueder. <a href="https://sre.google/sre-book/postmortem-culture/" target="_blank" rel="noopener" style="color:var(--m)">Postmortem Culture: Learning from Failure</a>. In Site Reliability Engineering, O'Reilly, 2016, Chapter 15.</li><li>E. Schluntz, B. Zhang. <a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener" style="color:var(--m)">Building effective agents</a>. Anthropic, 2024.</li><li>S. Willison. <a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/" target="_blank" rel="noopener" style="color:var(--m)">The lethal trifecta for AI agents: private data, untrusted content, and external communication</a>. 2025.</li><li>NIST. <a href="https://www.nist.gov/itl/ai-risk-management-framework" target="_blank" rel="noopener" style="color:var(--m)">AI Risk Management Framework</a>.</li></ol>
+</article>
+<a class="back" href="../../">← 所有文章</a>
+</main>
+</body>
+</html>
