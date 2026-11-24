@@ -54,9 +54,10 @@ echo "   ✓ ${CDP_PORT} / 8788 都空着"
 
 echo "⑤ 起新实例"
 cd "${REPO}" || exit 1
-# 开在系统主屏: 作者 11-14 起把工作用的 4K 屏设成副屏、在上面全屏跑 butler, 测试窗口都放主屏。
-# 要开到非主屏就 `BUTLER_DEV_SCREEN=builtin ./scripts/dev-restart.sh`(core/dev-window-place.js)。
-export BUTLER_DEV_SCREEN="${BUTLER_DEV_SCREEN-}"
+# 开在内置屏, 别糊在作者的工作屏上 —— 验一次界面就起一次 dev, 而默认的"主显示器"正是他干活那块。
+# 坐标在建窗口时就给出去(personal/dev-window-place.js), 所以连闪一下都没有; 事后拿 AppleScript
+# 挪治不了本, 挪只能发生在窗口已经存在之后。要默认位置就 `BUTLER_DEV_SCREEN= ./scripts/dev-restart.sh`。
+export BUTLER_DEV_SCREEN="${BUTLER_DEV_SCREEN-builtin}"
 nohup ./node_modules/.bin/electron . --remote-debugging-port=${CDP_PORT} > /tmp/butler-dev.log 2>&1 &
 echo "   pid=$! · 日志 /tmp/butler-dev.log · 屏幕=${BUTLER_DEV_SCREEN:-系统默认}"
 

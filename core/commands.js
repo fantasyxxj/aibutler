@@ -39,7 +39,7 @@ const PKG_NAME = /^[a-z0-9][a-z0-9_-]{0,31}$/;
 // `op` は mail 原語専用 —— http と同じ扱い(出口そのものではなく、その原語の中でどれをするか)。
 // 白名単に足し忘れると、宣言に書いても静かに落ちて `bad_decl` になる(2026-09-02 に踏んだ)。
 // 🔴 **白名单**。ここに無い欄は登記の時に落ちる —— 宣言に書いたのに効かない、という形で。
-//    `idempotency` / `termbase_fill` は宿主が読む欄なので、増やす時はこの表も一緒に。
+//    `idempotency` と `termbase_fill` は宿主が読む欄なので、増やす時はこの表も一緒に。
 const PKG_DECL_FIELDS = ['summary', 'params', 'label_default', 'notify_ai', 'primitive', 'http', 'op',
                         'idempotency', 'termbase_fill', 'ai', 'sql', 'max_sec', 'kinds'];
 

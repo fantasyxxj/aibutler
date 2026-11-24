@@ -11,7 +11,6 @@
 //   单个「水」字太容易是别的意思。(作者 11-08 批补横杠与括号外两种; 仍是兜底, 写法不在名单上照样漏)
 //   英文: `Friday, October 25th` `Fri 25 Oct` `October 25 (Fri)` —— 10-21 dev 实测助手给客人写了
 //   「Friday, October 25th」(25 日是周日), 只认中日写法时这道闸看不见它。
-//   只写日不写月、星期在前: `28号（周五）` `28日(金)` `周五（28号）` `金曜（11月28日）`(11-23 补)。
 // 没写年份时取离今天最近的那一年(跨年的「1月5日」在 12 月说就是明年)。
 'use strict';
 
@@ -28,11 +27,6 @@ const RE = new RegExp(
 const WD = new RegExp('^\\s*(?:'
   + '[（(]\\s*(?:([日月火水木金土])(?:曜日?)?|(?:周|週|星期)([一二三四五六日天]))\\s*[）)]'
   + '|(?:は|、|，|,|是|为|為)?\\s*(?:([日月火水木金土])曜日?|(?:星期|周|週|礼拜|禮拜)([一二三四五六日天])))');
-
-// 只写日: `28号（周五）`。前面不能是数字、月、/、- —— 那是上面 RE 的整串日期。
-const RE_DAY = /(?<![\d月\/\-年]\s*)(\d{1,2})\s*[号號日](?!\d)/g;
-// 星期在前、日期在括号里: `周五（28号）` `金曜（11月28日）`。
-const RE_WD_FIRST = /(?:(?:周|週|星期|礼拜|禮拜)([一二三四五六日天])|([日月火水木金土])曜日?)\s*[（(]\s*(?:(\d{1,2})\s*月\s*)?(\d{1,2})\s*[号號日]\s*[）)]/g;
 
 const MON = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 const WDN = '(sun|mon|tue|wed|thu|fri|sat)[a-z]*\\.?';
@@ -59,16 +53,6 @@ function checkEn(text, today, out) {
   }
 }
 
-// 只给了日: 取今天起最先到的那一天(本月, 已过就下月) —— 「28号」在对话里说的是接下来那个 28 号。
-function pickMonthYear(day, now) {
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  for (let k = 0; k <= 2; k++) {
-    const d = new Date(now.getFullYear(), now.getMonth() + k, day);
-    if (d.getDate() === day && d >= today) return d;
-  }
-  return null;
-}
-
 function pickYear(month, day, now) {
   const y = now.getFullYear();
   let best = y, bestGap = Infinity;
@@ -84,19 +68,6 @@ function check(text, now) {
   if (typeof text !== 'string' || !text) return [];
   const today = now instanceof Date ? now : new Date();
   const out = [];
-  const p2 = (n) => String(n).padStart(2, '0');
-  const report = (written, d, said) => {
-    if (said === d.getDay()) return;
-    out.push({ written, date: `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`, actual: WEEK_EN[d.getDay()] });
-  };
-  const saidOf = (ja, zh) => (ja ? JA.indexOf(ja) : (zh === '天' ? 0 : ZH.indexOf(zh)));
-  const dateOf = (month, day) => {
-    if (day < 1 || day > 31) return null;
-    if (!month) return pickMonthYear(day, today);
-    if (month < 1 || month > 12) return null;
-    const d = new Date(pickYear(month, day, today), month - 1, day);
-    return d.getMonth() === month - 1 ? d : null;
-  };
   let m;
   RE.lastIndex = 0;
   while ((m = RE.exec(text))) {
@@ -107,18 +78,11 @@ function check(text, now) {
     const y = year ? Number(year) : pickYear(month, day, today);
     const d = new Date(y, month - 1, day);
     if (d.getMonth() !== month - 1) continue;   // 2月30日 这类不存在的日期不碰
-    report(m[0] + w[0], d, saidOf(w[1] || w[3], w[2] || w[4]));
-  }
-  RE_DAY.lastIndex = 0;
-  while ((m = RE_DAY.exec(text))) {
-    const w = WD.exec(text.slice(m.index + m[0].length));
-    const d = w && dateOf(0, Number(m[1]));
-    if (d) report(m[0] + w[0], d, saidOf(w[1] || w[3], w[2] || w[4]));
-  }
-  RE_WD_FIRST.lastIndex = 0;
-  while ((m = RE_WD_FIRST.exec(text))) {
-    const d = dateOf(Number(m[3] || 0), Number(m[4]));
-    if (d) report(m[0], d, saidOf(m[2], m[1]));
+    const ja = w[1] || w[3], zh = w[2] || w[4];
+    const said = ja ? JA.indexOf(ja) : (zh === '天' ? 0 : ZH.indexOf(zh));
+    if (said === d.getDay()) continue;
+    const p2 = (n) => String(n).padStart(2, '0');
+    out.push({ written: m[0] + w[0], date: `${y}-${p2(month)}-${p2(day)}`, actual: WEEK_EN[d.getDay()] });
   }
   checkEn(text, today, out);
   return out;

@@ -197,9 +197,7 @@ class McpToolsMixin {
       D.run_script,
       looseShape(z, { name: z.string().optional().describe('脚本名; 不填就列出这台机器上有哪些能跑。脚本的参数直接写在后面, 如 run_script(name=…, x=…)'), params: paramsField(z) }),
       async (input) => ({ content: [{ type: 'text', text:
-        await require('./scripts.js').runScript(input.name, gather(input, ['name']),
-          { homeDir: this.homeDir, personaOps: this.personaOps, dirs: typeof this._scriptDirs === 'function' ? this._scriptDirs() : [],
-            ownDir: typeof this._ownScriptDir === 'function' ? this._ownScriptDir() : null }) }] })
+        await require('./scripts.js').runScript(input.name, gather(input, ['name']), { homeDir: this.homeDir }) }] })
     );
     tools.push(runScript);
     // —— persona_tune (v6 keepalive · 2026-07-22): 让人格调 keepalive/compact 参数. 任何人格都可调自己或他人.

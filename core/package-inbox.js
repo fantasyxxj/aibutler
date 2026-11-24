@@ -75,7 +75,6 @@ function takeFromMessages(msgs, { install } = {}) {
     if (!isPackageMsg(m)) { rest.push(m); continue; }
 
     const r = installOne(m.payload.package, { install });
-    if (r && r.ok && r.unchanged) continue;   // 手元に同じ版以上がある: 収めた事にも失敗にもしない
     if (r && r.ok) installed.push({ id: m.id, type: r.type, pkgId: r.id, version: r.version });
     else failed.push({ id: m.id, code: (r && r.code) || 'unknown', message: (r && r.message) || '装不上' });
   }
