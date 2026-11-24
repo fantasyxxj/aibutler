@@ -18,6 +18,7 @@
   // type=file は入れない: 端末のファイルを掴む入口になる。写真は「貼る→cmd で送る」道が既にあり、
   // そちらは AI がバイト列に触れない。ここに file を足すとその設計を裏口から壊す。
   const IN_TYPES = new Set(['text', 'number', 'tel', 'date', 'time', 'email', 'password', 'range', 'area']);   // area = 多行文本框
+  const IN_WIDTH = { email: 30, password: 18, tel: 16, date: 13, number: 10, time: 9 };   // 単位 ch · 無い種類は 14
 
   // 選択肢のカンマ区切り。括弧の中のカンマは区切りにしない —— 座標「A (3,2)」や範囲「(1,5]」を
   // そのまま書けるようにするため。エスケープ方式にしなかったのは、書く側が毎回この落とし穴を
@@ -213,7 +214,14 @@
       el.dataset.key = head;
       if (args.placeholder) el.placeholder = args.placeholder;
       if (args.value) el.value = args.value;
+      // 幅は種類で決める(助手に「何文字分」を当てさせない): 邮箱は広く、時刻・数字は狭く。
+      // size を書いた時だけそれに従う。書かなければ中身が長くなった分だけ 40ch まで伸びる。
       if (args.size) el.style.width = `${Math.min(40, Math.max(3, Number(args.size) || 0))}ch`;
+      else {
+        const base = IN_WIDTH[el.type] || 14;
+        const fit = () => { el.style.width = `${Math.min(40, Math.max(base, el.value.length + 2))}ch`; };
+        fit(); el.addEventListener('input', fit);
+      }
       n.replaceWith(el);
     }
 

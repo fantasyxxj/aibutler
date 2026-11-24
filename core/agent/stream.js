@@ -295,7 +295,7 @@ class StreamMixin {
     // 于是每条 Local API 消息都在误触发记忆提醒 —— 跟消息内容毫无关系, 纯粹是子串撞上了。
     const _userText = opts.rawText !== undefined ? opts.rawText : text;
     this._turnUserText = (HAS_EXTERNAL_TEXT(_srcKind) && !isHeartbeatPing && typeof _userText === 'string') ? _userText : null;
-    const _nudge = this._takeMemoryNudge(_srcKind) + this._takeTaskSweepNote();   // 后者: 挂起超一天挪进待办簿的告知(tasks.js)
+    const _nudge = this._takeMemoryNudge(_srcKind) + this._takeTaskSweepNote() + this._takeWidgetLesson(_srcKind);   // 挂起挪进待办簿的告知(tasks.js) · 控件错题提醒(widget-lesson.js)
     // 每轮查一次: 够得上高档的把【主键 + 命题行】拼进来, 够不上的只留流水不注入。详见 _auditRecall。
     //
     // 🔴 查的是 `opts.rawText`(没套信封的原文), 不是即将提交的 text。bus/TG/LINE/Local API

@@ -443,6 +443,7 @@ mixin(Butler,
   require('./agent/tasks'),
   require('./agent/wake'),
   require('./agent/compact'),
+  require('./agent/widget-lesson'),
 );
 
 // 判 <memoryDir>/ctx_last.json 是否可注入 · v0.0.23 唐伯虎 2 审后抽 (main.js 冷启动 hook 就近调用, 单元测试友好, 未来其他地方也可复用)。

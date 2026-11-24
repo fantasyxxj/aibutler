@@ -67,10 +67,18 @@ function registerPluginTools(agent, { tool, z, D }) {
       // 渲染这一步不经过模型的嘴: 复读一行机器生成的标记要花一轮 token, 而且拦不住它顺手"优化"措辞 ——
       // 标记被改一个字, 按钮就烂成一段死文字。没接 UI 的人格(TG / 本机 API 投递)回落原路。
       if (agent.personaOps && agent.personaOps.renderPlugin && agent.personaOps.renderPlugin(entry)) {
+        // 手顺包画出来的是入口按钮(按了才展开第一屏), 说成"界面已打开"人格就会叫用户去填一个还不存在的画面。
+        const shown = entry.startsWith('{{cmd:')
+          ? `A "${p.title}" button has been placed in the conversation, just above your reply — the steps open when the user presses it.\n`
+          : `The UI for "${p.title}" has been ${entry.startsWith('{{pin:') ? 'pinned to the always-on board' : 'rendered into the conversation'} — the user can see it right now.\n`;
+        // 面板就是这一轮的回复(作者 11-20): 旁边再问「填好了吗」配按钮, 跟面板自己的保存抢着让人点
+        const say = entry.startsWith('{{cmd:')
+          ? 'That button is your reply: at most one sentence asking the user to press it — no other buttons, no question.'
+          : 'The panel is your reply: they work in it and press its own Save, which tells you. End the turn now — nothing more, or one short sentence at most; no buttons, no question.';
         return { content: [{ type: 'text', text:
-          `✅ The UI for "${p.title}" has been ${entry.startsWith('{{pin:') ? 'pinned to the always-on board' : 'rendered into the conversation'} — the user can see it right now.\n`
+          `✅ ${shown}`
           + `🔴 Do NOT copy \`${entry}\` into your reply — every copy creates one more identical UI panel.\n`
-          + `Just tell the user it is ready in one sentence, or say nothing at all.\n\n${tail}` }] };
+          + `${say}\n\n${tail}` }] };
       }
       return { content: [{ type: 'text', text:
         `Copy the following line **exactly** into your reply — the user clicks it to enter. Do not rewrite or manually assemble the syntax:\n\n${entry}\n\n${tail}` }] };

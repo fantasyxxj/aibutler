@@ -233,17 +233,21 @@ async function popRetr(s, num) {
 }
 
 /* 最近の n 通。**本文は返さない**(抜粋だけ) —— 二十通の店で毎回全文を引くと、
-   一覧を開くたびにそれだけ待たされる。 */
-async function list(conf, { limit = 10 } = {}) {
+   一覧を開くたびにそれだけ待たされる。offset 通ぶん新しい側を飛ばして取る(次のページ)。
+   POP の番号は届いた順でしかなく日付順ではない(時差のある差出人で前後する)ので、
+   取った分は日付で新しい順に並べ直して返す。 */
+async function list(conf, { limit = 10, offset = 0 } = {}) {
   const s = await popOpen(conf);
   try {
     s.send('STAT');
     const stat = await s.line();
     const count = Number((stat.split(/\s+/)[1] || 0));
-    if (!count) return { emails: [], count: 0 };
+    const skip = Math.max(0, Number(offset) || 0);
+    if (!count || skip >= count) return { emails: [], count: 0, total: count, offset: skip, more: false };
     const uids = await popUidls(s);
     const out = [];
-    for (let i = count; i > Math.max(count - limit, 0); i -= 1) {
+    const top = count - skip, bottom = Math.max(top - limit, 0);
+    for (let i = top; i > bottom; i -= 1) {
       try {
         const msg = parseMessage(await popRetr(s, i));
         out.push({ id: i, uid: uids.get(i) || null, subject: msg.subject, from: msg.from,
@@ -251,7 +255,9 @@ async function list(conf, { limit = 10 } = {}) {
       } catch (_) { /* 一通壊れていても残りは見せる */ }
     }
     s.send('QUIT');
-    return { emails: out, count: out.length };
+    const t = (m) => { const v = Date.parse(m.date || ''); return Number.isNaN(v) ? 0 : v; };
+    out.sort((x, y) => t(y) - t(x) || y.id - x.id);
+    return { emails: out, count: out.length, total: count, offset: skip, more: bottom > 0 };
   } finally { s.end(); }
 }
 

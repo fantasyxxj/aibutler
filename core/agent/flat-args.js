@@ -39,7 +39,8 @@ function parseParams(s) {
     try { const o = JSON.parse(t); if (o && typeof o === 'object' && !Array.isArray(o)) return o; } catch (_) { /* 按行解析 */ }
   }
   const out = {};
-  for (const line of t.split(/\r?\n/)) {
+  // 説明の例を写して、改行の代わりに字面の「\n」二文字で区切って来る(11-16 dev: 菜名欄に「枝豆\nprice=400」)。それも行の区切り。
+  for (const line of t.split(/\r?\n|\\n/)) {
     const i = line.indexOf('=');
     if (i <= 0) continue;
     const k = line.slice(0, i).trim();

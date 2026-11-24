@@ -183,6 +183,23 @@ console.log('\n[10] 宿主接线: 卸包必须排在 busy 判断之前(排到后
   ok(/plugin_open/.test(notice), '通知改为指向 plugin_open(界面由系统画, 不用 AI 拼)');
 }
 
+/* ─────────── [9] 手元に同じ版以上があれば積まない ─────────── */
+console.log('\n[9] bus が古い配布を流し直しても、入っている新しい版を上書きしない');
+{
+  const signing = require('../core/signing');
+  const ver = (dir, id) => { const r = signing.openPackage(fs.readFileSync(path.join(dir, 'packages', id), 'utf8')); return r.payload.version; };
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'pkg-ver-'));
+  const first = packages.install(SIGNED_PKG, { dataDir: dir });
+  ok(first.ok && !first.unchanged, '初回は積む');
+  const again = packages.install(SIGNED_PKG, { dataDir: dir });
+  ok(again.ok && again.unchanged, '同じ版がもう一度来たら unchanged(書かない)');
+  const file = fs.readdirSync(path.join(dir, 'packages'))[0];
+  const r = packageInbox.takeFromMessages([pkgMsg('v1', SIGNED_PKG)], { install: installTo(dir) });
+  ok(r.installed.length === 0 && r.failed.length === 0, 'unchanged は installed にも failed にも入らない(熱生効をやり直さない)');
+  ok(ver(dir, file) === first.version, '手元の版はそのまま');
+  try { fs.rmSync(dir, { recursive: true, force: true }); } catch (_) {}
+}
+
 try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (_) {}
 console.log(`\n${fail ? '❌' : '✅'} package-inbox: ${pass} 过 / ${fail} 败`);
 process.exit(fail ? 1 : 0);

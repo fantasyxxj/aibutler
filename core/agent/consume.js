@@ -145,13 +145,17 @@ class ConsumeMixin {
           }
           let outChars = 0, argChars = 0;   // 成本采样: 本条消息我方产出的量(下一轮起按缓存价重复付)
           const f = this._lastApiFault;
-          const cutOut = !!msg.error && f && f.seq === this._turnSeq && f.status == null && f.attempt >= f.max;
+          // An access fault (no key, login expired, quota) also arrives as status-less retries used up — it is not a cut stream:
+          // say nothing here, the result step names it and onAuthExpired tells them where to fix it (industry #41: 'the network dropped').
+          const accessOut = !!msg.error && f && f.seq === this._turnSeq && f.attempt >= f.max && !!classifySdkError(f.sdkErr, this.accessMode, f.status);
+          const cutOut = !!msg.error && f && f.seq === this._turnSeq && f.status == null && f.attempt >= f.max && !accessOut;
           // 内容被拒、引擎自己改了几次还是不行: 不贴原始报错。超长还能压缩上下文再发一次(见 result 那段), 先说一声
           const rejOut = !!msg.error && f && f.seq === this._turnSeq && f.rejected && f.final;
           const rejText = rejOut ? cfg.renderL(f.rejected === 'prompt' && !this._rejectRetried ? 'main/content_rejected_retry' : `main/content_rejected_${f.rejected}`).trim() : '';
           if (rejOut) console.error(`[api] ${this.name} 内容被拒(${f.rejected}) 引擎改过仍不行 · 原文=${JSON.stringify(String((msg.message?.content || [])[0]?.text || '').slice(0, 300))}`);
           if (cutOut) console.error(`[api] ${this.name} 断流重试 ${f.attempt} 次用尽 · 原文=${JSON.stringify(String((msg.message?.content || [])[0]?.text || '').slice(0, 300))}`);
           for (const b0 of (msg.message?.content || [])) {
+            if (accessOut && b0.type === 'text') continue;
             const b = cutOut && b0.type === 'text' ? { ...b0, text: cfg.renderL('main/stream_cut_failed', { n: f.attempt }).trim() }
               : rejOut && b0.type === 'text' ? { ...b0, text: rejText } : b0;
             // 报错消息(msg.error)不管这一步流出过多少半截字都要显示出来, 不然最后只剩半句话

@@ -68,6 +68,17 @@ const tick = () => new Promise((r) => setTimeout(r, 20));
     ok(/API Error: 400/.test(seen.text), '不是重试用尽(第 1 次就判不可重试)的报错照原样显示');
   }
 
+  console.log('\n=== ②b 缺 key / 登录失效: 不是断流 ===');
+  {
+    // 自建引擎缺 key: api_retry 1/1, 状态码空, error=authentication_failed (agent-sdk/src/loop.ts:40) —— 行业版 #41 曾显示「网络断了」
+    const { b, seen } = mkAgent();
+    const r1 = { type: 'system', subtype: 'api_retry', attempt: 1, max_retries: 1, retry_delay_ms: 0, error_status: null, error: 'authentication_failed' };
+    await b._consume(stream(r1, asst('anthropic: missing ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN', 'authentication_failed'), result({ is_error: true })));
+    await tick();
+    ok(!/网络断了|missing ANTHROPIC/.test(seen.text), `不说网络断了, 也不露英文原文(实际: ${JSON.stringify(seen.text)})`);
+    ok(seen.auth.length === 1 && seen.auth[0].kind, `交给 onAuthExpired(实际: ${JSON.stringify(seen.auth)})`);
+  }
+
   console.log('\n=== ③ 人格谈到这句报错不算出错 ===');
   {
     const { b, seen } = mkAgent();

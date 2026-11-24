@@ -68,6 +68,14 @@ function checkPayload(p) {
   return null;
 }
 
+/* 既に積んである版。読めない・検証に落ちる物は「無い」扱い(上書きして直す)。 */
+function installedVersion(dataDir, type, id) {
+  let text;
+  try { text = fs.readFileSync(fileOf(dataDir, type, id), 'utf8'); } catch (_) { return null; }
+  const r = signing.openPackage(text);
+  return r.ok && r.payload ? String(r.payload.version || '') || null : null;
+}
+
 /* 受け入れる。text は包み(封筒 JSON)そのもの。 */
 function install(text, { dataDir, hostVersion } = {}) {
   const r = signing.openPackage(text);
@@ -80,6 +88,13 @@ function install(text, { dataDir, hostVersion } = {}) {
   if (tooOld) return { ok: false, code: 'host_too_old', message: tooOld, min_host: r.payload.min_host };
 
   const { type, id, version } = r.payload;
+  // 手元に同じ版か新しい版が既にあれば積まない。bus は機械が水位 0 から読み始めると
+  // 過去の配布を古い順に全部流し直す —— 版を見ずに書けば、起動時に取った最新版が
+  // 古い版で一つずつ上書きされ、その度に画面と流が建て直される(11-21 重新激活で実測)。
+  const have = installedVersion(dataDir, type, id);
+  if (have && VERSION_RE.test(String(version)) && VERSION_RE.test(have) && cmpVersion(have, version) >= 0) {
+    return { ok: true, unchanged: true, type, id, version, installed: have, payload: r.payload };
+  }
   fs.mkdirSync(dirOf(dataDir), { recursive: true });
   fs.writeFileSync(fileOf(dataDir, type, id), text);
   return { ok: true, type, id, version, payload: r.payload };

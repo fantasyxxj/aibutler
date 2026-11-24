@@ -202,7 +202,7 @@ const ACCESS_ERR_KINDS = [
   // 组织/权限: 凭证完全正常, 是这个账号没资格。2026-08-26 bug① 就是它被吞进了 oauth_expired。
   ['org_forbidden', /\b403\b|organization membership|unable to verify organization|not authorized|permission denied/i],
   // key 本身不对: 只可能出现在 API 态。订阅态出现即是别处泄漏了 key 进来。
-  ['key_bad', /invalid[_\s-]?(?:api[_\s-]?)?key|missing api key|x-api-key|authentication[_\s-]?error/i],
+  ['key_bad', /invalid[_\s-]?(?:api[_\s-]?)?key|missing [\w-]*api[_\s-]?key|x-api-key|authentication[_\s-]?error/i],
   // 凭证过期/没登录: 唯一一类"重登真能修"的。Claude Code 上游缺陷 —— 存了 refreshToken 却不
   // 可靠地续期(anthropics/claude-code #31095/#12447/#42904), 每隔几天突然全局 401 且**不自愈**
   // (实测连挂 1.5 小时直到人工重登; 重启 app 也修不好, 因为 `claude auth status` 只看凭证在不在)。

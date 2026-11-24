@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420">
+  <rect width="800" height="420" fill="#eef0f4"/>
+  <line x1="90" y1="210" x2="710" y2="210" stroke="#b9bfcc" stroke-width="3"/>
+  <g font-family="Georgia, 'Times New Roman', serif" text-anchor="middle">
+    <circle cx="200" cy="210" r="46" fill="#ffffff" stroke="#8a93a6" stroke-width="3"/>
+    <text x="200" y="222" font-size="34" fill="#4a5266">4.0</text>
+    <circle cx="400" cy="210" r="46" fill="#eef0f4" stroke="#8a93a6" stroke-width="3" stroke-dasharray="8 8"/>
+    <text x="400" y="222" font-size="34" fill="#c3c8d3">5.0</text>
+    <circle cx="600" cy="210" r="46" fill="#ffffff" stroke="#4f46e5" stroke-width="3"/>
+    <text x="600" y="222" font-size="34" fill="#4f46e5">6.0</text>
+    <text x="400" y="330" font-size="30" font-style="italic" fill="#3a4152">When we were new</text>
+    <text x="400" y="110" font-size="18" fill="#8a93a6">从来就没有 5.0</text>
+  </g>
+</svg>

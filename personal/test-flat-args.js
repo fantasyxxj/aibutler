@@ -22,6 +22,7 @@ const t = (name, ok, extra = '') => { if (ok) { pass++; console.log(`  ✅ ${nam
   t('旧 args 照收', JSON.stringify(gather({ op: 'x', args: { id: 3 } }, ['op'])) === '{"id":3}');
   t('顶层同名压过 args', gather({ op: 'x', args: { id: 3 }, id: 4 }, ['op']).id === 4);
   t('params 文本按行拆成键值, 只在第一个 = 处切', JSON.stringify(parseParams('name=鶏の唐揚げ\nprice=680\nq=a=b')) === '{"name":"鶏の唐揚げ","price":"680","q":"a=b"}');
+  t('字面の \\n 二文字も行の区切り(説明の例を写した時)', JSON.stringify(parseParams('name=枝豆\\nprice=400')) === '{"name":"枝豆","price":"400"}');
   t('params 整段 JSON 也收', parseParams('{"price":680}').price === 680);
   t('params 并进参数, 顶层同名压过它', JSON.stringify(gather({ id: 'm', params: 'name=x\nprice=1', price: 2 }, ['id'])) === '{"name":"x","price":2}');
 

@@ -13,7 +13,7 @@ const { Butler, hasUnconsumedCtxLast, accessConfig } = require('../core/agent');
 const store = require('../core/chat-store');
 const registry = require('../core/registry');
 const persona = require('../core/persona');
-const personaTransfer = require('./persona-transfer'); const firstPersona = require('./first-persona');   // 人格搬家(换机器) · 第一个人格的诞生(没接 AI 就不建, 见 first-persona.js)
+const personaTransfer = require('./persona-transfer'); const firstPersona = require('./first-persona'); const widgetGateHost = require('./widget-gate-host');   // 人格搬家(换机器) · 第一个人格的诞生(没接 AI 就不建, 见 first-persona.js)
 const paths = require('./paths'); require('./single-instance').claim(() => { if (mainWin && !mainWin.isDestroyed()) { if (mainWin.isMinimized()) mainWin.restore(); mainWin.show(); mainWin.focus(); } }); const modelOptions = require('../core/model-options');   // 后者=模型下拉清单现拉(订阅/网关两条路) + 登录态凭证读取
 const { TgPlugin } = require('./plugins/tg');
 const { BothubPlugin } = require('./plugins/bothub');
@@ -299,7 +299,7 @@ function openPersona(homeDir, { newborn = false } = {}) {
   // v0.0.25 (2026-07-21 · A7 骨架): registry 每人格配置全提取, 下游用 s.xxx || CONST fallback. 0=用默认.
   // 缺失/坏格式: Number(undefined) = NaN → 三元返 0, 走 CONST 兜底.
   const _num = (v) => Number(v) > 0 ? Number(v) : 0;
-  const s = { sid, butler, convo, persist, historyDir, last_activity_ts: Date.now(), heartbeat_pending: false, last_heartbeat_ts: 0, lastCompactTs: 0, hiddenFilter: makeHiddenStreamFilter(),
+  const s = { sid, butler, convo, persist, historyDir, last_activity_ts: Date.now(), heartbeat_pending: false, last_heartbeat_ts: 0, lastCompactTs: 0, hiddenFilter: makeHiddenStreamFilter(), widgetGate: widgetGateHost.attach(butler, (k, v) => cfg.render(k, v)),
     compactSoftTok: _num(entry.compactSoftTok),
     compactSoftIdleMin: _num(entry.compactSoftIdleMin),
     compactMinIntervalMs: _num(entry.compactMinIntervalMs),
@@ -334,13 +334,13 @@ function openPersona(homeDir, { newborn = false } = {}) {
     // 心跳轮的正文由 core 静音掐掉(agent/turn-mute.js), 这里不再另设一道 heartbeat_pending 短路:
     // 那道短路认的是"心跳发过了还没收尾", 心跳和真人那句被合成一轮时会把回真人的话一起吞掉。
     onText: (t) => {
-      const visible = stripSsmlTags(s.hiddenFilter(t));
+      const visible = s.widgetGate.text(stripSsmlTags(s.hiddenFilter(t)));   // 控件写错的部分先压住(widget-gate-host.js)
       if (visible) sendUI('assistant-chunk', { sid, text: visible });
     },
     // 文本块收尾 → 让渲染层立刻定稿(md 渲染 + 控件生效), 不必等整轮 result
-    onTextDone: () => { sendUI('assistant-text-done', { sid }); }, onStepStart: () => sendUI('assistant-step', { sid, phase: 'start' }), onTextDiscard: () => sendUI('assistant-step', { sid, phase: 'discard' }),   // 后两个: 断流重试前撤掉这一步流出的半截字
+    onTextDone: () => { const h = s.widgetGate.blockDone(); if (h) sendUI('assistant-chunk', { sid, text: h }); sendUI('assistant-text-done', { sid }); }, onStepStart: () => sendUI('assistant-step', { sid, phase: 'start' }), onTextDiscard: () => { s.widgetGate.discardBlock(); sendUI('assistant-step', { sid, phase: 'discard' }); },   // 后两个: 断流重试前撤掉这一步流出的半截字
     onActivity: (text) => { sendUI('activity', { sid, text }); },
-    onTool: (tool) => { sendUI('tool-call', { sid, tool }); },   // 每个工具调用→持久条目
+    onTool: (tool) => { if (/plugin_open$/.test((tool && tool.name) || '')) s.widgetGate.panelOpened(); sendUI('tool-call', { sid, tool }); },   // 每个工具调用→持久条目; 开了面板这一轮不放按钮
     onTasks: (tasks) => sendUI('tasks', { sid, tasks }),   // 任务清单变了→UI 重画那块面板
     onToolDone: (info) => { sendUI('tool-done', { sid, ...info }); },   // 工具完成→UI 变 checkmark (治"跟死了一样"假死感)
     onCompact: (info) => sendUI('compacting', { sid, ...info }),   // 压缩开始/结束→UI 动态指示
@@ -381,7 +381,7 @@ function openPersona(homeDir, { newborn = false } = {}) {
       if (butler._turnSourceKind !== 'auto') s.last_activity_ts = Date.now();
       s.lastTurnWasQuestion = detectAssistantQuestion(stripSsmlTags(finalText || ''));   // AI 抛问句 → hard_cap_softened 不硬顶 (等回复中)
       // convo/persist/UI 存**剥标签后**的干净版本, speak 用原始 finalText (含 SSML). UI 层无 <speak> 标签暴露.
-      const cleanText = stripSsmlTags(finalText || '');
+      const cleanText = s.widgetGate.settle(stripSsmlTags(finalText || ''), { interrupted, screen: butler._turnSourceKind === 'user' });   // 写错的控件不进历史, 打回重写一次
       if (finalText) convo.push({ role: 'assistant', text: cleanText, ts: Date.now() });
       persist();
       // 情感语音播报: 物理门 = voice.enabled 判定 (systemPrompt 已指挥模型别打, 此为双保险: 关时即使模型手滑输出 <speak> 也不播).
