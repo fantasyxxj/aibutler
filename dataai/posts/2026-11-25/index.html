@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大数据智能化开发和管理（十二）：数据核查——对账的层次 · 数据与AI</title>
+<link rel="icon" type="image/png" href="../../../assets/logo.png">
+<style>:root{color-scheme:dark;--bg:#0b1022;--card:#161f3d;--line:#26305a;--ink:#e6ebff;--ink2:#c3cbef;--mute:#8c97c2;--r:#7c8cff;--m:#38d3e8;--c:#f5b84b;--p:#f472b6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.85 -apple-system,"PingFang SC","Segoe UI","Microsoft YaHei",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px}
+h1{font-size:30px;line-height:1.35;margin:56px 0 10px}
+.sub{color:var(--mute);font-size:14px;margin-bottom:34px}
+.grad{background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent}
+article p{margin:0 0 1.1em;color:var(--ink2)}
+article b{color:var(--ink)}
+article h2{font-size:22px;line-height:1.4;margin:2em 0 .7em}
+article h3{font-size:18px;line-height:1.4;margin:1.6em 0 .6em}
+article h4{font-size:16px;margin:1.4em 0 .5em}
+article ul,article ol{margin:0 0 1.1em 1.4em;color:var(--ink2)}
+article li{margin:.3em 0}
+article blockquote{margin:0 0 1.2em;padding:10px 16px;border-left:3px solid var(--r);background:var(--card);border-radius:0 8px 8px 0;color:var(--ink2)}
+article hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+article figure{margin:1.4em 0}
+article figure img{border-radius:12px;border:1px solid var(--line);background:#fff}
+article figcaption{color:var(--mute);font-size:13.5px;text-align:center;margin-top:8px}
+article .tbl{overflow-x:auto;margin:0 0 1.2em}
+article table{border-collapse:collapse;font-size:14.5px;min-width:100%}
+article th,article td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;color:var(--ink2)}
+article th{background:var(--card);color:var(--ink);white-space:nowrap}
+article td:first-child{white-space:nowrap}
+code{font:14px ui-monospace,Menlo,monospace;background:var(--card);padding:1px 6px;border-radius:5px}
+.cover{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin:0 0 28px}
+audio{width:100%;margin:0 0 30px}
+.list a{display:block;padding:22px 0;border-bottom:1px solid var(--line)}
+.list+footer{border-top:0}
+.list a:hover h2{color:var(--m)}
+.list h2{font-size:20px;margin-bottom:4px}
+.list p{color:var(--mute);font-size:14.5px}
+.back{display:inline-block;margin:40px 0 70px;color:var(--m)}
+footer{color:var(--mute);font-size:13px;padding:30px 0 60px;border-top:1px solid var(--line);margin-top:40px}</style>
+</head>
+<body>
+<nav></nav><script src="../../../assets/nav.js"></script>
+<main class="wrap">
+<h1>大数据智能化开发和管理（十二）：数据核查——对账的层次</h1>
+<div class="sub">2026-11-25 · 核查分哪几层，每层能发现什么、发现不了什么，对不平的差异怎样逐类解释，核查怎样证明自己真的执行了，结果怎样形成证据链，以及 AI 怎样推导规则、构造反例、按血缘归因，人确认 · 狂人</div>
+
+
+<article>
+<blockquote>第一篇 4.3 说，规则配了不等于执行了：只配不验，比没有规则更糟，所有人都以为有。第四篇讲一个数字为什么有三个答案，第五篇讲出了偏差怎样沿运行逐跳核数，第十一篇留下一个永远对不平、也永远查不出错的差额。这一篇回到「怎么证明数是对的」：核查分哪几层，每层能发现什么、发现不了什么；对不平的差异怎样逐类解释；核查自己怎样证明自己真的执行了；核查结果怎样形成一条站得住的证据链；以及 AI 在其中推导规则、构造反例、按血缘归因、起草结论，人确认。</blockquote>
+<h2>一、核查能证明什么</h2>
+<h3>1.1 只能证明有错</h3>
+<p>Dijkstra 在 1972 年的图灵奖演讲里说：程序测试可以非常有效地显示错误的存在，却完全不足以显示错误的不存在[1]。数据核查同样如此。一张报告上所有检查都通过，只说明「这些检查没有发现问题」，至于没有检查的地方、检查本身失效的地方，它什么也没说。</p>
+<p>由此推出两个问题，本文的大部分篇幅都在回答它们：<b>核查能发现哪些类型的错</b>，这由检查的层次决定；<b>核查实际上查了什么</b>，这由执行证据决定。前者是设计问题，后者是运行问题，很多团队只做了前者。</p>
+<h3>1.2 质量的维度与核查的对象</h3>
+<p>ISO/IEC 25012 给出的数据质量模型有 15 个特性，包括准确性、完整性、一致性、可信性、时效性等，并分为数据固有的与依赖系统的两类[2]。数据可观测性的说法则把关注点归纳为新鲜度、质量、数据量、结构、血缘五根支柱[3]。</p>
+<p>这些框架回答的是「数据应当好在哪些方面」。落到日常核查，可以把手段分成两类：一类是<b>看数据自己</b>，把今天的数与它的历史、与它的定义比，回答「看起来是否正常」；另一类是<b>对账</b>，把它与另一份独立产生的数比，回答「与别处是否一致」。前者便宜、覆盖面广，但同错的两份数看起来都正常；后者贵，但能抓住前者看不见的系统性偏差。</p>
+<h3>1.3 两条前提</h3>
+<p>开始比之前，先回答两件事。</p>
+<p>第一，<b>它该产出的时刻过了没有</b>。第九篇讲过，日分区在产出时刻之前本来就不完整；第十一篇讲过，某日的数据实际等于「截止时刻前到达」的那部分。未到产出时刻去核，得到的「缺数」是假的。</p>
+<p>第二，<b>和什么比</b>。比行数，要比同星期几，而不是比昨天：周末与工作日量级不同，周一比周日少两成可能完全正常。比金额，要先确认两边口径要素一致：第四篇列过的聚合函数、统计窗口、时间基准、去重对象、状态限定，再加上第十一篇的截止时刻，任何一项不同，差额都会存在且永远存在。</p>
+<h2>二、四个层次</h2>
+<p>按「比什么」由粗到细，核查可以分四层：总数、逐字段、勾稽、溯源。</p>
+<figure><img src="./fig1_four_layers.svg" alt="图1 四层核查：越往下越精细、越贵，每层发现的问题不同，上层平了不等于下层平" loading="lazy"><figcaption>图1 四层核查：越往下越精细、越贵，每层发现的问题不同，上层平了不等于下层平</figcaption></figure>
+<h3>2.1 总数层</h3>
+<p>比整张表或整个分区的行数、金额总和、去重键数，对象是源端、上一周期、同星期几的历史。迁移校验工具通常从这一层起步：谷歌开源的数据校验工具把「列校验」定义为 count、sum、avg、min、max、stddev 以及按维度分组后的这些聚合，另有逐行校验与结构校验[4]。</p>
+<p>总数层能发现整批缺失、重复写入、分区错位、数据量突变。它发现不了<b>互相抵消的错</b>：一个渠道多记了一笔、另一个渠道少记了一笔，总数照样平。</p>
+<h3>2.2 逐字段层</h3>
+<p>逐字段层有两种做法。</p>
+<p><b>一是画像</b>：对每一列统计空值数、负数个数、垃圾值个数（如一个横杠「-」、乱码的渠道码、超出取值域的枚举），与已知基线比。Deequ 把这种做法称为数据的「单元测试」：用声明式接口写约束，翻译成聚合查询批量执行，支持随数据增长增量校验，并在历史质量指标的时间序列上做异常检测[5]。谷歌在机器学习流水线中的数据校验系统给出过一条很实用的经验：值班人员会忽略那些泛滥或不可操作的告警，重要错误因此被漏掉，所以告警必须高精度并带足够上下文[6]。落到画像上就是一条规矩：<b>已知的问题单列为「已知」类，带上它的常态量级，不每天重复告警</b>；只有新出现的问题或已知问题的量级跳变才报。</p>
+<p><b>二是两份产出逐字段比对</b>，典型场景是迁移：旧引擎写影子表，新引擎写正式表，两边同键逐字段比，数百个比对项，每个不一致项逐条解释。上述校验工具的逐行校验按主键关联两侧的行，再用哈希或逐字段比较[4]。</p>
+<p>开源工具对这一层的表达形式很一致：dbt 的数据测试是一条选出「失败记录」的查询，返回零行即通过[7]；Great Expectations 把期望定义为「关于数据的可验证断言」，用来把隐含假设显式化[8]。</p>
+<h3>2.3 勾稽层</h3>
+<p>勾稽是同一事实在不同表、不同粒度上的数必须相互印证：小时表加总等于天表，天表等于订单源，明细加总等于汇总。它对应会计里账与账之间的核对。</p>
+<p>勾稽有三条要点。</p>
+<p><b>按键比，不按总数比。</b> 按应用、按渠道逐键比，除事先标注的项外每个键的差都应为零。按总数比会退回到总数层，抵消的错又藏起来了。</p>
+<p><b>只对可加的量做加总勾稽。</b> 第一篇说过对明细行求平均是误用，同理，小时去重人数加总不等于天去重人数。哪些指标能从下往上加，由第四篇的聚合函数要素和第八篇的粒度声明决定；不可加的量只能在同一粒度上与另一份来源比对。</p>
+<p><b>两边口径必须先对齐。</b> 勾稽失败首先要排除的是口径差，而不是数据错。这一点到第三节展开。</p>
+<p>以一套每日结算核查为例，勾稽有三组：小时表加总对天表，天表对订单源，明细对汇总，都按应用逐键比。每组事先登记「标注项」，即已知会有差、且知道为什么有差的键，例如天表在次日凌晨整天覆盖时吸收了小时表已经封格之后才到达的订单，两者在这部分订单上必然不同。标注项之外，每个键的差都应为零；标注项本身也有常态量级，超出就不再算「已知」。</p>
+<h3>2.4 溯源层</h3>
+<p>前三层回答「哪里不一致」，溯源回答「是哪一步引入的」。第五篇 4.2 讲过向上沿当天分区的运行记录逐跳核：每一跳的代码版本、输入是否完整、输入与输出是否勾稽，直到找到第一个输入对、输出错的环节，再落到具体的源记录。</p>
+<p>溯源最贵，不能每天对所有数做；它由前三层的差异触发，并以差异样例行作为起点。</p>
+<h3>2.5 四层的关系</h3>
+<p>越往下越精细、越贵，能发现的问题也越隐蔽。但它们不是递进关系，而是互补关系：总数平了不代表逐字段平，逐字段平了不代表勾稽平（两边可能同错，比如两份产出共用了同一个错的上游），勾稽平了也不代表源头对（源端自身漏记，下游全部一致）。所以核查设计要写明<b>每一层各覆盖哪些表与键</b>，而不是笼统地说「有核查」。</p>
+<h2>三、差异逐类解释</h2>
+<h3>3.1 「对不平」不是结论</h3>
+<p>勾稽和比对的结果，常被汇报为一个差额：「新旧结果差 0.3%」。这个数既不能说明对，也不能说明错。可用的做法是<b>把每一行差异归入一个有名字的类别</b>。以新旧两套系统的结算结果比对为例，类别可能是：</p>
+<ul><li>旧系统仍记自然量（新口径已改为不记）；</li><li>晚到：旧系统记在前一天；</li><li>同键金额不同；</li><li>渠道归属不同；</li><li>零金额行；</li><li>新系统误记自然量（违反归因规则）；</li><li>超过一天晚到、旧系统永久漏记；</li><li>一致。</li></ul>
+<p>每一类给出<b>行数与金额净差</b>，规则只有一条：<b>未解释类必须为零</b>。</p>
+<figure><img src="./fig2_diff_classification.svg" alt="图2 差异逐类解释：每行差异归入有名字的类别，未解释必须为零，按类别量级基线判读" loading="lazy"><figcaption>图2 差异逐类解释：每行差异归入有名字的类别，未解释必须为零，按类别量级基线判读</figcaption></figure>
+<h3>3.2 已解释不等于可接受</h3>
+<p>类别分两种性质。一种是<b>口径差</b>：旧系统仍记自然量、晚到记在前一天，是两边约定不同造成的，可以长期存在，第十一篇说的截止时刻差额就属于此类。另一种是<b>缺陷</b>：「新系统误记自然量」违反了归因规则，「超过一天晚到、旧系统永久漏记」说明旧系统有真实的漏数。缺陷类的名字本身就是一个结论，它要进修复流程，而不是进基线。</p>
+<p>所以每个类别除了名字，还要登记三项：判定条件、性质（口径差还是缺陷）、常态量级。</p>
+<h3>3.3 判读看变化</h3>
+<p>每类每天都有差异，逐一报出来就是噪声。判读的规则是：<b>出现新的异常类，或已知类的量级跳变，才报；历史常态量级不报。</b> 这与 2.2 的画像规矩是同一个道理。量级基线按同星期几取，避免把周末的正常回落当成异常。</p>
+<h3>3.4 类别要可执行</h3>
+<p>类别不能靠人每天读样例行来判。每个类别写成一个判定谓词，按固定顺序互斥归类，先命中的先归，剩下的全部落入「未解释」。顺序本身有语义：「零金额行」若排在「同键金额不同」之后，一行零金额差异就会被算成金额不同。归类逻辑也要回归：拿一批已经人工判定过类别的样例行，定期回放，检查归类结果不变。</p>
+<h2>四、规则配了不等于执行了</h2>
+<h3>4.1 一份全绿的报告</h3>
+<p>一套每日核查，经由一个受限的只读查询接口执行。接口有语句白名单，拒掉了一批含特定函数的语句。于是报告里每天有几十条显示「检查语句报错」，时间一长被当作常态。更隐蔽的是其中一整节「按应用聚合比对」：它每天显示「比较 0 项，不一致 0 项」，看上去全绿，实际上一项都没有比。</p>
+<p>这里没有任何一步「出错」：接口按设计拒绝，核查按设计统计不一致项，不一致项确实为零。问题在于报告把「没有比」与「比了没差」呈现成了同一个样子。dbt 把「零行失败记录」定义为通过[7]，这在语义上没错；但一条没有执行的检查，返回的也是零行。</p>
+<h3>4.2 应比多少，实比多少</h3>
+<p>由此得出三条规矩：</p>
+<ul><li><b>每一节报告「应比多少、实比多少」</b>，应比数来自规则定义（这一节覆盖哪些应用、哪些键），实比数来自执行结果；两者不等就判红。</li><li><b>比较 0 项判红，不判绿。</b> 空结果先当「没跑成」，再去证明它是「没有数据」。</li><li><b>报错不允许常态化。</b> 检查语句报错是一个类别，和差异类一样有「未解释必须为零」的约束；接口不支持的写法要改写或换通道，而不是每天带着报错过日子。</li></ul>
+<p>实比与应比之比就是核查的覆盖率。它应当和差异一样每天出数、有基线：某一节的覆盖率从百分之百掉到零，比任何一个差异类的跳变都更值得先看，因为它意味着这一节此后的「全绿」都不可信。</p>
+<h3>4.3 核查的核查</h3>
+<p>要知道一条检查是否有效，办法是故意给它一个错，看它能不能抓住。软件测试里这叫变异测试：自动向代码植入错误，再跑测试，测试失败说明变异被「杀死」，测试仍通过说明测试有缺口；行覆盖率只能说明代码被执行过，不能说明测试能发现其中的错[9]。谷歌的实践报告说，变异测试被普遍认为是发现错误能力最强的测试准则，但传统做法计算代价过高，他们改为只对代码变更做概率抽样的变异，并把结果放进代码评审[10]。</p>
+<p>搬到数据核查上，就是给每条规则配反例：一份<b>应当被它报出来</b>的数据，一份<b>不应被误报</b>的数据。规则上线、核查执行通道变更（例如换了查询接口）、口径调整时回放一遍，反例没被报出来，这条规则就视同未配置。这正是第一篇 4.3「构造超长、非法、缺失的样例逐条核对」的推广。</p>
+<h3>4.4 判成功只认目标侧证据</h3>
+<p>同一个教训的另一种形态：一次改动只在计算引擎一侧做了语法检查，就认定「与目标表结构一致」，没有在写入端核对列数，结果每小时的写回连续失败了好几天。判一个步骤成功，同样不能看日志里打了「OK」，日志可能在中途断掉，而后续语句照常执行。</p>
+<p>两件事是一回事：<b>证据要取在数据落地的地方。</b> 判写入成功，看目标分区的行数及与同星期几的环比、表格式快照的提交时刻是否落在本次运行窗口内；判结构一致，在写入端按目标表的列数与类型核。计算侧的检查只是必要条件。</p>
+<h2>五、核查结果怎样形成证据链</h2>
+<h3>5.1 审计证据的两个属性</h3>
+<p>财务审计对「证据」的要求可以直接借来。国际审计准则 ISA 500 把审计证据的要求概括为充分性与适当性：充分性是证据的数量，所需数量取决于错报风险的评估；适当性是证据的质量，即相关性与可靠性。关于可靠性，准则给出几条一般规律：来自被审计单位之外独立来源的证据更可靠；审计人员直接取得的证据比间接取得或推断得出的更可靠；书面形式的证据比口头陈述更可靠[11]。</p>
+<p>对照到数据核查：</p>
+<ul><li><b>独立来源</b>：与订单源、外部账单对账，比本系统两张表互相对账更有说服力；后者可能共享同一个错的上游。</li><li><b>直接取得</b>：在目标表上直接查出的行数，比「任务日志显示成功」可靠，后者是推断。</li><li><b>书面形式</b>：核查结果写进表里留存，比「当时看过没问题」可靠。</li></ul>
+<h3>5.2 一条核查结论要附什么</h3>
+<p>一份可复核的结论，至少带上：</p>
+<ul><li><b>作用域</b>：哪张表、哪个分区、哪些键，对照的是哪一份来源；</li><li><b>数据版本</b>：两侧读取时的快照号或提交时刻，事后能按同一版本重查；</li><li><b>执行证据</b>：执行了哪些语句，应比多少、实比多少、报错多少；</li><li><b>差异分布</b>：每个类别的行数与金额净差，未解释类为零，附每类若干样例行；</li><li><b>判读</b>：与类别基线相比有无新类、有无量级跳变。</li></ul>
+<p>Kimball 的两种设计可以作为存放这些证据的结构参照：错误事件模式把每一次质量筛查发现的错误记成一行，粒度是单个错误事件[12]；审计维度把加载时已知的处理元数据挂到事实行上，包括质量指标、生成该行的代码版本与执行时间，以便合规与审计时回答「这行数是怎么来的」[13]。</p>
+<h3>5.3 结论写成可证伪的命题</h3>
+<p>最后一步是把核查结论写成命题，例如：「结算天表与订单源按应用逐键比对，除『晚到记前一天』与『零金额行』两类外差异为零；『晚到』类在工作日通常不超过数十行」。这句话有作用域、有比较对象、有可被下一次核查推翻的判据。它不是一份「核查已通过」的记录，而是一条下次能被召回、能被证伪的知识。</p>
+<h2>六、AI 这一层：推导、反例、归因，人确认</h2>
+<figure><img src="./fig3_evidence_loop.svg" alt="图3 核查的证据链闭环：AI 推导规则与反例，执行留覆盖率证据，差异按血缘归因并起草结论，人确认后写回命题" loading="lazy"><figcaption>图3 核查的证据链闭环：AI 推导规则与反例，执行留覆盖率证据，差异按血缘归因并起草结论，人确认后写回命题</figcaption></figure>
+<h3>6.1 从口径与模型推导核查规则</h3>
+<p>写核查规则最费时的地方，不是写 SQL，而是想清楚「这张表应当满足什么」。这件事 AI 能做，因为答案多半已经在前几篇沉淀的元数据里：</p>
+<ul><li>第八篇的<b>粒度与判重键</b>推出唯一性与非空检查；</li><li>第四篇的<b>聚合函数要素</b>决定哪些指标能做小时加总到天的勾稽，哪些只能同粒度比对；</li><li>第四篇的<b>状态限定与去重对象</b>推出画像中的取值域与基数检查；</li><li>第九篇的<b>完成标记与产出时刻</b>推出新鲜度检查与「何时开始核」；</li><li>第十一篇的<b>截止时刻</b>推出勾稽中预期存在的「晚到」类别。</li></ul>
+<p>Deequ 已经用机器学习辅助生成约束建议[5]，谷歌的数据校验系统从数据推断结构、让结构与数据共同演进[6]。大模型的不同在于它能读口径文字与 SQL，把「规则为什么存在」一并写出来。推导出的规则进入待确认状态，人确认作用域与阈值后才进入每日执行。</p>
+<h3>6.2 构造反例，回归核查本身</h3>
+<p>每条规则同时要有反例，这一步 AI 做起来成本很低：按规则的语义构造应被报出的数据，同时把被测 SQL 改一处（去掉去重、换一个时间基准、丢掉状态限定），看核查能否抓住这个「变异」。</p>
+<p>这有成熟的先例。基于性质的测试由 QuickCheck 推广：把程序应满足的性质写成断言，在随机生成的输入上自动检验[14]；「小时加总等于天表」「判重键唯一」本身就是性质。一项研究用大模型从接口文档合成性质测试，并用「性质变异」衡量这些测试检出违反的能力；最好的模型平均 2.4 次采样能得到一个有效且可靠的测试，但只为约 21% 可从文档提取的性质合成出正确的测试[15]。Meta 的 ACH 系统先针对关心的问题生成当前测试抓不住的变异，再生成能杀死它们的测试，同时用大模型判断等价变异，精确率 0.79、召回率 0.47[16]。</p>
+<p>两组数字说明同一件事：AI 生成的规则与反例<b>要过机器可判定的过滤器</b>，不能靠它自己的确信。Meta 的另一项工作把这一点做成了流程：生成的测试必须依次通过可构建、稳定通过、提升覆盖率三道过滤，结果 75% 构建成功、57% 稳定通过、25% 提升了覆盖率[17]。落到数据核查上，过滤器就是：规则能在执行通道上实际运行，在正例上不报、在反例上报，覆盖了此前未覆盖的键或字段。</p>
+<h3>6.3 差异按血缘归因，起草结论</h3>
+<p>出现差异后，AI 做三件事：</p>
+<ul><li><b>归类</b>：先套已有的类别谓词；剩下的未解释行，读样例、比字段，提出候选新类别，并给出判定条件草稿；</li><li><b>归因</b>：沿第五篇的血缘上溯，对照每一跳的运行记录、代码版本与该表上挂的命题（归因规则、截止时刻、已知类别），指出差异最可能从哪一跳引入，附证据；</li><li><b>起草结论</b>：按 5.2 的格式写出作用域、版本、执行证据、类别分布与判读。</li></ul>
+<p>举一个归因的形态：比对中出现一批「新系统误记自然量」的行，AI 沿血缘上溯，发现这批行在归因明细层已经带上了投放渠道，而在原始事件层没有任何投放标识，于是把引入点定在归因这一跳；再召回挂在归因规则上的命题，指出它违反了「无投放标识的安装记为自然量」这一条，附上样例行与当天该跳的代码版本。结论的措辞是「最可能」，证据摆在旁边，由人判定。</p>
+<p>人确认的是三件事：新类别的名字与判定条件对不对，它是口径差还是缺陷，基线量级怎么定。这三件事决定差异最终是被接受还是被修复，AI 起草，但不能自己定。</p>
+<h3>6.4 沉淀、召回、判断</h3>
+<p>确认之后，结论写成 5.3 那样的命题，挂到表、指标与对应的比对关系上。</p>
+<p>它在三类动手时刻被召回：<b>上线</b>新口径或新 SQL 时，召回这张表的核查规则与已知类别，先在测试环境跑一遍；<b>回补</b>时，召回勾稽关系，补完按勾稽核平再推进下游，这与第十一篇的目标侧核验是同一件事；<b>迁移</b>时，召回逐字段比对的类别与基线，新旧并行期间每天出类别分布。</p>
+<p>判断时，AI 拿当次的类别分布与命题里的基线比：新类出现、量级跳变、实比少于应比，三者任一成立就送人裁决；都不成立，结论照格式留档，不打扰人。</p>
+<h2>七、方法：八条原则</h2>
+<ol><li><b>核查只能证明有错</b>：报告要写明查了什么，不写「数据正确」；</li><li><b>先问该产出了没有，再问和什么比</b>：未到产出时刻不核，数量比同星期几，比较前口径要素与截止时刻先对齐；</li><li><b>四层各司其职</b>：总数、逐字段、勾稽、溯源互补而非递进，写明每层覆盖的表与键；</li><li><b>勾稽按键比，只对可加的量做加总</b>；</li><li><b>差异逐类解释，未解释必须为零</b>：每类登记判定条件、性质、常态量级，判读只看新类与量级跳变；</li><li><b>报应比与实比</b>：比较 0 项判红，报错不常态化，每条规则配反例回放；</li><li><b>证据取在数据落地处</b>：写入端核结构，目标侧核行数与提交时刻，结论附版本、执行证据与类别分布；</li><li><b>AI 推导规则、构造反例、归因起草，人确认类别性质与基线</b>：AI 产出过机器可判定的过滤器，结论写成可证伪命题，上线、回补、迁移时召回。</li></ol>
+<h2>八、结语</h2>
+<p>「数对不对」从来不是一次核查能回答的问题，能回答的只是「按这些规则、在这份数据上、实际比了这些项，差异都有了解释」。这句话的每个部分都需要证据：规则从口径与模型推出，执行留下应比与实比，差异归入有名字的类别，结论附上版本与样例。</p>
+<p>AI 让写规则、造反例、读差异的成本大幅下降，但它同样会生成一条从未真正执行的检查，同样会把未解释的差异说得头头是道。所以核查的可信度，最终落在两处：机器可判定的执行证据，和人对差异性质的确认。确认过的结论沉淀成命题，下一次动手时被召回，判断才有依据。</p>
+<p>这个系列会持续更新。</p>
+<h2>参考资料</h2>
+<ol><li>E. W. Dijkstra. <a href="https://www.cs.utexas.edu/~EWD/transcriptions/EWD03xx/EWD340.html" target="_blank" rel="noopener" style="color:var(--m)">The Humble Programmer</a>（EWD340）. ACM Turing Lecture, 1972.</li><li>ISO 25000 Portal. <a href="https://iso25000.com/index.php/en/iso-25000-standards/iso-25012" target="_blank" rel="noopener" style="color:var(--m)">ISO/IEC 25012: Data Quality Model</a>.</li><li>B. Moses. <a href="https://www.montecarlodata.com/blog-what-is-data-observability/" target="_blank" rel="noopener" style="color:var(--m)">What Is Data Observability? 5 Key Pillars To Know</a>. Monte Carlo.</li><li>Google Cloud Platform. <a href="https://github.com/GoogleCloudPlatform/professional-services-data-validator" target="_blank" rel="noopener" style="color:var(--m)">Data Validation Tool (professional-services-data-validator)</a>.</li><li>S. Schelter, D. Lange, P. Schmidt, M. Celikel, F. Biessmann, A. Grafberger. <a href="https://www.amazon.science/publications/automating-large-scale-data-quality-verification" target="_blank" rel="noopener" style="color:var(--m)">Automating Large-Scale Data Quality Verification</a>. PVLDB 11(12), VLDB 2018；实现见 <a href="https://github.com/awslabs/deequ" target="_blank" rel="noopener" style="color:var(--m)">awslabs/deequ</a>.</li><li>E. Breck, N. Polyzotis, S. Roy, S. E. Whang, M. Zinkevich. <a href="https://mlsys.org/Conferences/2019/doc/2019/167.pdf" target="_blank" rel="noopener" style="color:var(--m)">Data Validation for Machine Learning</a>. MLSys 2019；工具文档见 <a href="https://www.tensorflow.org/tfx/guide/tfdv" target="_blank" rel="noopener" style="color:var(--m)">TensorFlow Data Validation</a>.</li><li>dbt Labs. <a href="https://docs.getdbt.com/docs/build/data-tests" target="_blank" rel="noopener" style="color:var(--m)">Add data tests to your DAG</a>.</li><li>Great Expectations. <a href="https://docs.greatexpectations.io/docs/reference/learn/terms/expectation/" target="_blank" rel="noopener" style="color:var(--m)">Expectation</a>（术语表）.</li><li>PIT. <a href="https://pitest.org/" target="_blank" rel="noopener" style="color:var(--m)">PIT Mutation Testing</a>（首页「What is mutation testing?」与「What's wrong with line coverage?」两段）.</li><li>G. Petrović, M. Ivanković. <a href="https://research.google/pubs/state-of-mutation-testing-at-google/" target="_blank" rel="noopener" style="color:var(--m)">State of Mutation Testing at Google</a>. ICSE-SEIP 2018.</li><li>IAASB. <a href="https://www.ifac.org/_flysystem/azure-private/publications/files/A022%202013%20IAASB%20Handbook%20ISA%20500.pdf" target="_blank" rel="noopener" style="color:var(--m)">International Standard on Auditing 500: Audit Evidence</a>（2013 Handbook，A4、A31 段）.</li><li>Kimball Group. <a href="https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/error-event-schema/" target="_blank" rel="noopener" style="color:var(--m)">Error Event Schemas</a>.</li><li>Kimball Group. <a href="https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/audit-dimension/" target="_blank" rel="noopener" style="color:var(--m)">Audit Dimensions</a>.</li><li>K. Claessen, J. Hughes. <a href="https://www.cs.tufts.edu/~nr/cs257/archive/john-hughes/quick.pdf" target="_blank" rel="noopener" style="color:var(--m)">QuickCheck: A Lightweight Tool for Random Testing of Haskell Programs</a>. ICFP 2000.</li><li>V. Vikram, C. Lemieux, J. Sunshine, R. Padhye. <a href="https://arxiv.org/abs/2307.04346" target="_blank" rel="noopener" style="color:var(--m)">Can Large Language Models Write Good Property-Based Tests?</a>. arXiv:2307.04346.</li><li>C. Foster, A. Gulati, M. Harman, I. Harper, K. Mao, J. Ritchey, H. Robert, S. Sengupta. <a href="https://arxiv.org/abs/2501.12862" target="_blank" rel="noopener" style="color:var(--m)">Mutation-Guided LLM-based Test Generation at Meta</a>. arXiv:2501.12862, 2025.</li><li>N. Alshahwan, J. Chheda, A. Finegenova et al. <a href="https://arxiv.org/abs/2402.09171" target="_blank" rel="noopener" style="color:var(--m)">Automated Unit Test Improvement using Large Language Models at Meta</a>. FSE 2024.</li></ol>
+</article>
+<a class="back" href="../../">← 所有文章</a>
+</main>
+</body>
+</html>

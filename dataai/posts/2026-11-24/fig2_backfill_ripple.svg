@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C0392B"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图2  回补累计表的某一天：影响沿时间与血缘两个方向扩散</text>
+
+  <!-- 列头：日期 -->
+  <g font-size="13" fill="#4B5563" text-anchor="middle">
+    <text x="252" y="80">第 4 天</text><text x="352" y="80">第 5 天</text><text x="452" y="80">第 6 天</text><text x="552" y="80">第 7 天</text><text x="652" y="80">…</text><text x="752" y="80">最新一天</text>
+  </g>
+  <line x1="210" y1="92" x2="806" y2="92" stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"/>
+  <text x="812" y="96" font-size="12" fill="#4B5563">时间</text>
+
+  <!-- 行头 -->
+  <g font-size="13" fill="#1F2937" text-anchor="end">
+    <text x="192" y="132">明细事实表</text>
+    <text x="192" y="202">累计表（递推）</text>
+    <text x="192" y="272">七日滑动指标</text>
+    <text x="192" y="342">下游汇总与报表</text>
+    <text x="192" y="412">回写目标</text>
+  </g>
+  <line x1="76" y1="108" x2="76" y2="438" stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"/>
+  <text x="64" y="460" font-size="12" fill="#4B5563">血缘</text>
+
+  <!-- 明细 -->
+  <g>
+    <rect x="212" y="110" width="80" height="34" rx="6" fill="#FFFFFF" stroke="#D1D5DB"/>
+    <rect x="312" y="110" width="80" height="34" rx="6" fill="#FEF3E2" stroke="#E08A1E" stroke-width="1.6"/>
+    <rect x="412" y="110" width="80" height="34" rx="6" fill="#FFFFFF" stroke="#D1D5DB"/>
+    <rect x="512" y="110" width="80" height="34" rx="6" fill="#FFFFFF" stroke="#D1D5DB"/>
+    <rect x="712" y="110" width="80" height="34" rx="6" fill="#FFFFFF" stroke="#D1D5DB"/>
+    <text x="352" y="132" text-anchor="middle" font-size="12" fill="#92400E">补漏 1,200 行</text>
+  </g>
+  <!-- 累计 -->
+  <g>
+    <rect x="212" y="180" width="80" height="34" rx="6" fill="#FFFFFF" stroke="#D1D5DB"/>
+    <rect x="312" y="180" width="80" height="34" rx="6" fill="#FDECEC" stroke="#C0392B" stroke-width="1.6"/>
+    <rect x="412" y="180" width="80" height="34" rx="6" fill="#FDECEC" stroke="#C0392B" stroke-width="1.6"/>
+    <rect x="512" y="180" width="80" height="34" rx="6" fill="#FDECEC" stroke="#C0392B" stroke-width="1.6"/>
+    <rect x="712" y="180" width="80" height="34" rx="6" fill="#FDECEC" stroke="#C0392B" stroke-width="1.6"/>
+    <g font-size="12" fill="#9B1C1C" text-anchor="middle"><text x="352" y="202">重算</text><text x="452" y="202">重算</text><text x="552" y="202">重算</text><text x="752" y="202">重算</text></g>
+  </g>
+  <g stroke="#C0392B" stroke-width="1.4" marker-end="url(#r)"><line x1="392" y1="197" x2="410" y2="197"/><line x1="492" y1="197" x2="510" y2="197"/><line x1="592" y1="197" x2="634" y2="197"/><line x1="668" y1="197" x2="710" y2="197"/></g>
+  <!-- 七日 -->
+  <g>
+    <rect x="212" y="250" width="80" height="34" rx="6" fill="#FFFFFF" stroke="#D1D5DB"/>
+    <rect x="312" y="250" width="380" height="34" rx="6" fill="#FDECEC" stroke="#C0392B" stroke-width="1.6"/>
+    <rect x="712" y="250" width="80" height="34" rx="6" fill="#FFFFFF" stroke="#D1D5DB"/>
+    <text x="502" y="272" text-anchor="middle" font-size="12" fill="#9B1C1C">含第 5 天的七个窗口都要重算（第 5 ~ 11 天）</text>
+  </g>
+  <!-- 汇总 -->
+  <g>
+    <rect x="212" y="320" width="80" height="34" rx="6" fill="#FFFFFF" stroke="#D1D5DB"/>
+    <rect x="312" y="320" width="80" height="34" rx="6" fill="#FDECEC" stroke="#C0392B" stroke-width="1.6"/>
+    <rect x="412" y="320" width="80" height="34" rx="6" fill="#FDECEC" stroke="#C0392B" stroke-width="1.6"/>
+    <rect x="512" y="320" width="80" height="34" rx="6" fill="#FDECEC" stroke="#C0392B" stroke-width="1.6"/>
+    <rect x="712" y="320" width="80" height="34" rx="6" fill="#FDECEC" stroke="#C0392B" stroke-width="1.6"/>
+  </g>
+  <!-- 回写 -->
+  <g>
+    <rect x="312" y="390" width="480" height="40" rx="8" fill="#F3F4F6" stroke="#6B7280" stroke-dasharray="5 3"/>
+    <text x="552" y="415" text-anchor="middle" font-size="12.5" fill="#1F2937">已推送的外部系统、业务库、已发报表：不能靠重算覆盖，要另行更正或通知</text>
+  </g>
+  <!-- 纵向血缘箭头 -->
+  <g stroke="#6B7280" stroke-width="1.2" marker-end="url(#g)">
+    <line x1="352" y1="144" x2="352" y2="178"/><line x1="352" y1="214" x2="352" y2="248"/><line x1="352" y1="284" x2="352" y2="318"/><line x1="352" y1="354" x2="352" y2="388"/>
+  </g>
+
+  <!-- 注 -->
+  <rect x="212" y="458" width="580" height="54" rx="10" fill="#FFFFFF" stroke="#E39A9A"/>
+  <text x="228" y="481" font-size="12.5" fill="#9B1C1C">常见错误：只补第 5 天、不顺推，第 6 天往后每天仍少 1,200，从最新分区往回对账才发现</text>
+  <text x="228" y="502" font-size="12.5" fill="#1F2937">下游若已把旧值加进别处，要先撤回旧值再写新值，只重写本表不够</text>
+
+  <text x="450" y="540" text-anchor="middle" font-size="13" fill="#4B5563">横向是时间（累计顺延、窗口扩展），纵向是血缘（下游表与回写目标）；数字为示意。</text>
+</svg>

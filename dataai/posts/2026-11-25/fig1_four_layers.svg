@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图1  四层核查：每层比什么、能发现什么、发现不了什么</text>
+
+  <!-- 列头 -->
+  <g font-size="13" fill="#4B5563" font-weight="600">
+    <text x="190" y="74" text-anchor="middle">层次</text>
+    <text x="470" y="74">能发现</text>
+    <text x="680" y="74">发现不了（交给下一层）</text>
+  </g>
+
+  <!-- 层 1 总数 -->
+  <polygon points="130,86 250,86 270,166 110,166" fill="#E8F1FB" stroke="#4A7FC1" stroke-width="1.6"/>
+  <text x="190" y="118" text-anchor="middle" font-size="15" font-weight="600" fill="#1E3A5F">总数</text>
+  <text x="190" y="140" text-anchor="middle" font-size="11.5" fill="#1E3A5F">行数·金额和·去重键数</text>
+  <text x="190" y="157" text-anchor="middle" font-size="11.5" fill="#1E3A5F">比源端 / 同星期几</text>
+  <g font-size="12.5" fill="#1F2937">
+    <text x="470" y="116">整批缺失、重复写入</text>
+    <text x="470" y="138">分区错位、数据量突变</text>
+  </g>
+  <g font-size="12.5" fill="#9B1C1C">
+    <text x="680" y="116">互相抵消的错</text>
+    <text x="680" y="138">（甲多一笔、乙少一笔）</text>
+  </g>
+
+  <!-- 层 2 逐字段 -->
+  <polygon points="110,176 270,176 290,256 90,256" fill="#E6F4EA" stroke="#3C8D5A" stroke-width="1.6"/>
+  <text x="190" y="208" text-anchor="middle" font-size="15" font-weight="600" fill="#1B4D2E">逐字段</text>
+  <text x="190" y="230" text-anchor="middle" font-size="11.5" fill="#1B4D2E">画像：空值·负数·垃圾值</text>
+  <text x="190" y="247" text-anchor="middle" font-size="11.5" fill="#1B4D2E">两份产出同键逐字段比</text>
+  <g font-size="12.5" fill="#1F2937">
+    <text x="470" y="206">取值域越界、乱码、空值突增</text>
+    <text x="470" y="228">迁移新旧产出的字段级不一致</text>
+  </g>
+  <g font-size="12.5" fill="#9B1C1C">
+    <text x="680" y="206">两份数同错</text>
+    <text x="680" y="228">（共用同一个错的上游）</text>
+  </g>
+
+  <!-- 层 3 勾稽 -->
+  <polygon points="90,266 290,266 310,346 70,346" fill="#FEF3E2" stroke="#E08A1E" stroke-width="1.6"/>
+  <text x="190" y="298" text-anchor="middle" font-size="15" font-weight="600" fill="#7C4A03">勾稽</text>
+  <text x="190" y="320" text-anchor="middle" font-size="11.5" fill="#7C4A03">小时加总↔天↔订单源</text>
+  <text x="190" y="337" text-anchor="middle" font-size="11.5" fill="#7C4A03">按键比，只对可加的量</text>
+  <g font-size="12.5" fill="#1F2937">
+    <text x="470" y="296">某个键、某一环节的漏记与多记</text>
+    <text x="470" y="318">口径要素、截止时刻不一致</text>
+  </g>
+  <g font-size="12.5" fill="#9B1C1C">
+    <text x="680" y="296">源端自身漏记</text>
+    <text x="680" y="318">（下游全部一致）</text>
+  </g>
+
+  <!-- 层 4 溯源 -->
+  <polygon points="70,356 310,356 330,436 50,436" fill="#FDECEC" stroke="#C0392B" stroke-width="1.6"/>
+  <text x="190" y="388" text-anchor="middle" font-size="15" font-weight="600" fill="#7F1D1D">溯源</text>
+  <text x="190" y="410" text-anchor="middle" font-size="11.5" fill="#7F1D1D">沿血缘逐跳核版本与输入输出</text>
+  <text x="190" y="427" text-anchor="middle" font-size="11.5" fill="#7F1D1D">由上三层的差异样例触发</text>
+  <g font-size="12.5" fill="#1F2937">
+    <text x="470" y="386">差异是哪一跳引入的</text>
+    <text x="470" y="408">落到具体的源记录</text>
+  </g>
+  <g font-size="12.5" fill="#4B5563">
+    <text x="680" y="386">太贵，不能每天全量做</text>
+  </g>
+
+  <!-- 分隔线 -->
+  <g stroke="#E5E7EB" stroke-width="1"><line x1="350" y1="171" x2="860" y2="171"/><line x1="350" y1="261" x2="860" y2="261"/><line x1="350" y1="351" x2="860" y2="351"/></g>
+
+  <!-- 侧边箭头 -->
+  <line x1="372" y1="92" x2="372" y2="430" stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"/>
+  <text x="392" y="250" font-size="12" fill="#4B5563" transform="rotate(90 392 250)" text-anchor="middle">越往下越精细、越贵</text>
+
+  <!-- 注 -->
+  <rect x="60" y="458" width="780" height="56" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <text x="76" y="481" font-size="12.5" fill="#9B1C1C">四层互补而非递进：总数平 ≠ 逐字段平，逐字段平 ≠ 勾稽平，勾稽平 ≠ 源头对</text>
+  <text x="76" y="502" font-size="12.5" fill="#1F2937">核查设计要写明每层各覆盖哪些表与键，而不是笼统地说「有核查」</text>
+
+  <text x="450" y="540" text-anchor="middle" font-size="13" fill="#4B5563">开始比之前先问两件事：该产出的时刻过了没有；和什么比、口径要素与截止时刻是否对齐。</text>
+</svg>

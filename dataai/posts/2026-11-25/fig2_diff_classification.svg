@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图2  差异逐类解释：每行差异归入有名字的类别，未解释必须为零</text>
+
+  <!-- 左：两份结果 -->
+  <rect x="30" y="80" width="130" height="56" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/>
+  <text x="95" y="104" text-anchor="middle" font-size="13" fill="#1F2937">旧系统结果</text>
+  <text x="95" y="124" text-anchor="middle" font-size="11.5" fill="#4B5563">按键全量</text>
+  <rect x="30" y="150" width="130" height="56" rx="8" fill="#FFFFFF" stroke="#9CA3AF"/>
+  <text x="95" y="174" text-anchor="middle" font-size="13" fill="#1F2937">新系统结果</text>
+  <text x="95" y="194" text-anchor="middle" font-size="11.5" fill="#4B5563">按键全量</text>
+  <line x1="160" y1="143" x2="196" y2="143" stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"/>
+
+  <!-- 中：按序判定谓词 -->
+  <rect x="198" y="80" width="150" height="320" rx="10" fill="#F3F4F6" stroke="#6B7280"/>
+  <text x="273" y="104" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1F2937">按固定顺序</text>
+  <text x="273" y="122" text-anchor="middle" font-size="13.5" font-weight="600" fill="#1F2937">逐条套判定条件</text>
+  <g font-size="12" fill="#374151">
+    <text x="214" y="152">① 一致？</text>
+    <text x="214" y="178">② 零金额？</text>
+    <text x="214" y="204">③ 旧系统记自然量？</text>
+    <text x="214" y="230">④ 晚到记前一天？</text>
+    <text x="214" y="256">⑤ 渠道归属不同？</text>
+    <text x="214" y="282">⑥ 同键金额不同？</text>
+    <text x="214" y="308">⑦ 新系统误记自然量？</text>
+    <text x="214" y="334">⑧ 超一天晚到漏记？</text>
+  </g>
+  <text x="273" y="366" text-anchor="middle" font-size="11.5" fill="#4B5563">先命中先归，互斥</text>
+  <text x="273" y="384" text-anchor="middle" font-size="11.5" fill="#9B1C1C">都不中 → 未解释</text>
+  <line x1="348" y1="240" x2="376" y2="240" stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"/>
+
+  <!-- 右：类别表 -->
+  <g font-size="12" fill="#4B5563" font-weight="600">
+    <text x="390" y="96">类别</text><text x="580" y="96">性质</text><text x="660" y="96" text-anchor="end">行数</text><text x="750" y="96" text-anchor="end">金额净差</text><text x="860" y="96" text-anchor="end">常态量级</text>
+  </g>
+  <line x1="380" y1="104" x2="870" y2="104" stroke="#9CA3AF"/>
+
+  <g font-size="12.5">
+    <rect x="380" y="110" width="490" height="26" fill="#FFFFFF"/>
+    <text x="390" y="128" fill="#1F2937">一致</text><text x="580" y="128" fill="#4B5563">—</text><text x="660" y="128" text-anchor="end" fill="#1F2937">98,240</text><text x="750" y="128" text-anchor="end" fill="#1F2937">0</text><text x="860" y="128" text-anchor="end" fill="#4B5563">—</text>
+
+    <rect x="380" y="138" width="490" height="26" fill="#F9FAFB"/>
+    <text x="390" y="156" fill="#1F2937">零金额行</text><text x="580" y="156" fill="#1E3A5F">口径差</text><text x="660" y="156" text-anchor="end" fill="#1F2937">410</text><text x="750" y="156" text-anchor="end" fill="#1F2937">0</text><text x="860" y="156" text-anchor="end" fill="#4B5563">数百行</text>
+
+    <rect x="380" y="166" width="490" height="26" fill="#FFFFFF"/>
+    <text x="390" y="184" fill="#1F2937">旧系统仍记自然量</text><text x="580" y="184" fill="#1E3A5F">口径差</text><text x="660" y="184" text-anchor="end" fill="#1F2937">1,320</text><text x="750" y="184" text-anchor="end" fill="#1F2937">−2,150</text><text x="860" y="184" text-anchor="end" fill="#4B5563">千余行</text>
+
+    <rect x="380" y="194" width="490" height="26" fill="#F9FAFB"/>
+    <text x="390" y="212" fill="#1F2937">晚到：旧系统记在前一天</text><text x="580" y="212" fill="#1E3A5F">口径差</text><text x="660" y="212" text-anchor="end" fill="#1F2937">36</text><text x="750" y="212" text-anchor="end" fill="#1F2937">+88</text><text x="860" y="212" text-anchor="end" fill="#4B5563">数十行</text>
+
+    <rect x="380" y="222" width="490" height="26" fill="#FFFFFF"/>
+    <text x="390" y="240" fill="#1F2937">渠道归属不同</text><text x="580" y="240" fill="#1E3A5F">口径差</text><text x="660" y="240" text-anchor="end" fill="#1F2937">57</text><text x="750" y="240" text-anchor="end" fill="#1F2937">0</text><text x="860" y="240" text-anchor="end" fill="#4B5563">数十行</text>
+
+    <rect x="380" y="250" width="490" height="26" fill="#FEF3E2"/>
+    <text x="390" y="268" fill="#1F2937">同键金额不同</text><text x="580" y="268" fill="#92400E">待判</text><text x="660" y="268" text-anchor="end" fill="#92400E">212</text><text x="750" y="268" text-anchor="end" fill="#92400E">+1,940</text><text x="860" y="268" text-anchor="end" fill="#92400E">常态约 20 ↑</text>
+
+    <rect x="380" y="278" width="490" height="26" fill="#FDECEC"/>
+    <text x="390" y="296" fill="#1F2937">新系统误记自然量</text><text x="580" y="296" fill="#9B1C1C">缺陷</text><text x="660" y="296" text-anchor="end" fill="#9B1C1C">14</text><text x="750" y="296" text-anchor="end" fill="#9B1C1C">+65</text><text x="860" y="296" text-anchor="end" fill="#9B1C1C">进修复</text>
+
+    <rect x="380" y="306" width="490" height="26" fill="#FDECEC"/>
+    <text x="390" y="324" fill="#1F2937">超一天晚到、旧系统永久漏记</text><text x="580" y="324" fill="#9B1C1C">缺陷</text><text x="660" y="324" text-anchor="end" fill="#9B1C1C">9</text><text x="750" y="324" text-anchor="end" fill="#9B1C1C">+41</text><text x="860" y="324" text-anchor="end" fill="#9B1C1C">进修复</text>
+
+    <rect x="380" y="338" width="490" height="30" rx="4" fill="#FFFFFF" stroke="#C0392B" stroke-width="2"/>
+    <text x="390" y="358" fill="#9B1C1C" font-weight="600">未解释</text><text x="580" y="358" fill="#9B1C1C">—</text><text x="660" y="358" text-anchor="end" fill="#9B1C1C" font-weight="600">必须 = 0</text><text x="750" y="358" text-anchor="end" fill="#9B1C1C" font-weight="600">0</text><text x="860" y="358" text-anchor="end" fill="#9B1C1C">≠0 即红</text>
+  </g>
+  <line x1="380" y1="376" x2="870" y2="376" stroke="#9CA3AF"/>
+
+  <!-- 判读 -->
+  <rect x="30" y="420" width="400" height="82" rx="10" fill="#FFFFFF" stroke="#E39A9A"/>
+  <text x="46" y="444" font-size="13" font-weight="600" fill="#9B1C1C">报</text>
+  <text x="46" y="466" font-size="12.5" fill="#1F2937">出现新的类别；已知类量级跳变（如上表「同键金额不同」）；</text>
+  <text x="46" y="488" font-size="12.5" fill="#1F2937">未解释 ≠ 0；缺陷类出现即进修复流程</text>
+  <rect x="470" y="420" width="400" height="82" rx="10" fill="#FFFFFF" stroke="#9CA3AF"/>
+  <text x="486" y="444" font-size="13" font-weight="600" fill="#374151">不报</text>
+  <text x="486" y="466" font-size="12.5" fill="#1F2937">口径差类在常态量级内（基线按同星期几取）；</text>
+  <text x="486" y="488" font-size="12.5" fill="#1F2937">照格式留档，不打扰人</text>
+
+  <text x="450" y="536" text-anchor="middle" font-size="13" fill="#4B5563">每类登记三项：判定条件、性质（口径差 / 缺陷）、常态量级；已解释不等于可接受。数字为示意。</text>
+</svg>

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker>
+    <marker id="r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#C0392B"/></marker>
+  </defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图3  AI 参与回补：先召回，再起草，人确认影响面</text>
+
+  <!-- 上排 -->
+  <g font-size="14" text-anchor="middle">
+    <rect x="30" y="72" width="190" height="128" rx="10" fill="#FEF8EC" stroke="#E7BE6A"/>
+    <text x="125" y="98" fill="#8A5A00" font-weight="600">① 以表为种子召回</text>
+    <g font-size="12" fill="#1F2937" text-anchor="start"><text x="46" y="124">· 累计语义、是否幂等</text><text x="46" y="146">· 分区时间、截止与宽限</text><text x="46" y="168">· 全部写入方与产出时刻</text><text x="46" y="190">· 历史事故</text></g>
+
+    <rect x="248" y="72" width="190" height="128" rx="10" fill="#F3F7FE" stroke="#9DBBEB"/>
+    <text x="343" y="98" fill="#1F4E9E" font-weight="600">② AI 起草回补计划</text>
+    <g font-size="12" fill="#1F2937" text-anchor="start"><text x="264" y="124">· 范围：先拉全时段比对</text><text x="264" y="146">· 顺序：上游先、累计串行</text><text x="264" y="168">· 命令：手册条目 + 参数</text><text x="264" y="190">· 每步的核验判据</text></g>
+
+    <rect x="466" y="72" width="190" height="128" rx="10" fill="#F3F7FE" stroke="#9DBBEB"/>
+    <text x="561" y="98" fill="#1F4E9E" font-weight="600">③ 沿血缘与时间估算</text>
+    <g font-size="12" fill="#1F2937" text-anchor="start"><text x="482" y="124">· 下游表 × 日期</text><text x="482" y="146">· 滑动窗口指标</text><text x="482" y="168">· 回写目标（单列）</text><text x="482" y="190">· 扫描量、耗时、冲突时段</text></g>
+
+    <rect x="684" y="72" width="186" height="128" rx="10" fill="#FFFFFF" stroke="#4B5563" stroke-width="1.6"/>
+    <text x="777" y="98" fill="#1F2937" font-weight="600">④ 人确认</text>
+    <g font-size="12" fill="#1F2937" text-anchor="start"><text x="700" y="124">· 看影响面清单</text><text x="714" y="146">不看命令文本</text><text x="700" y="168">· 范围对不对</text><text x="700" y="190">· 回写目标怎样更正</text></g>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"><line x1="220" y1="136" x2="246" y2="136"/><line x1="438" y1="136" x2="464" y2="136"/><line x1="656" y1="136" x2="682" y2="136"/></g>
+  <path d="M777,200 L777,262" stroke="#6B7280" stroke-width="1.4" fill="none" marker-end="url(#g)"/>
+
+  <!-- 下排 -->
+  <g font-size="14" text-anchor="middle">
+    <rect x="590" y="264" width="280" height="140" rx="10" fill="#FDF0F0" stroke="#E39A9A"/>
+    <text x="730" y="290" fill="#9B1C1C" font-weight="600">⑤ 钩子拦截下执行</text>
+    <g font-size="12" fill="#1F2937" text-anchor="start"><text x="606" y="316">拦：不带分区子句的覆盖写</text><text x="606" y="338">拦：累计表单日重跑</text><text x="606" y="360">拦：早于产出时刻的分区、手册外命令</text><text x="606" y="388" fill="#4B5563">每步新会话执行，写前记下快照号</text></g>
+
+    <rect x="310" y="264" width="240" height="140" rx="10" fill="#F0FAF3" stroke="#86C59B"/>
+    <text x="430" y="290" fill="#1E6B34" font-weight="600">⑥ 目标侧逐项核验</text>
+    <g font-size="12" fill="#1F2937" text-anchor="start"><text x="326" y="316">· 分区数（写前写后对比）</text><text x="326" y="338">· 各分区行数、与前后日环比</text><text x="326" y="360">· 快照提交时间在本次窗口内</text><text x="326" y="388" fill="#4B5563">不看任务状态</text></g>
+
+    <rect x="30" y="264" width="240" height="140" rx="10" fill="#FEF8EC" stroke="#E7BE6A"/>
+    <text x="150" y="290" fill="#8A5A00" font-weight="600">⑦ 沉淀</text>
+    <g font-size="12" fill="#1F2937" text-anchor="start"><text x="46" y="316">· 新发现的约定写成命题</text><text x="60" y="338">挂在表与动作上</text><text x="46" y="360">· 事故挂到对应动作类型</text><text x="46" y="388" fill="#4B5563">下次回补时被召回</text></g>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.4" marker-end="url(#g)"><line x1="590" y1="334" x2="552" y2="334"/><line x1="310" y1="334" x2="272" y2="334"/></g>
+
+  <!-- 失败分支 -->
+  <path d="M430,404 L430,452" stroke="#C0392B" stroke-width="1.4" fill="none" marker-end="url(#r)"/>
+  <rect x="310" y="454" width="240" height="40" rx="8" fill="#FFFFFF" stroke="#E39A9A"/>
+  <text x="430" y="479" text-anchor="middle" font-size="12.5" fill="#9B1C1C">不符即停：不推进下游，按快照回退</text>
+
+  <!-- 回环 -->
+  <path d="M30,334 L14,334 L14,136 L28,136" stroke="#9CA3AF" stroke-width="1.2" stroke-dasharray="5,4" fill="none" marker-end="url(#g)"/>
+
+  <text x="450" y="532" text-anchor="middle" font-size="13" fill="#4B5563">AI 负责召回与起草得全，人负责确认范围；成功由目标侧数据证明，不由返回码证明。</text>
+</svg>

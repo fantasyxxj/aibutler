@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大数据智能化开发和管理（十一）：时间维度——迟到、回补与重算 · 数据与AI</title>
+<link rel="icon" type="image/png" href="../../../assets/logo.png">
+<style>:root{color-scheme:dark;--bg:#0b1022;--card:#161f3d;--line:#26305a;--ink:#e6ebff;--ink2:#c3cbef;--mute:#8c97c2;--r:#7c8cff;--m:#38d3e8;--c:#f5b84b;--p:#f472b6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:17px/1.85 -apple-system,"PingFang SC","Segoe UI","Microsoft YaHei",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+.wrap{max-width:760px;margin:0 auto;padding:0 24px}
+h1{font-size:30px;line-height:1.35;margin:56px 0 10px}
+.sub{color:var(--mute);font-size:14px;margin-bottom:34px}
+.grad{background:linear-gradient(90deg,var(--c),var(--p));-webkit-background-clip:text;background-clip:text;color:transparent}
+article p{margin:0 0 1.1em;color:var(--ink2)}
+article b{color:var(--ink)}
+article h2{font-size:22px;line-height:1.4;margin:2em 0 .7em}
+article h3{font-size:18px;line-height:1.4;margin:1.6em 0 .6em}
+article h4{font-size:16px;margin:1.4em 0 .5em}
+article ul,article ol{margin:0 0 1.1em 1.4em;color:var(--ink2)}
+article li{margin:.3em 0}
+article blockquote{margin:0 0 1.2em;padding:10px 16px;border-left:3px solid var(--r);background:var(--card);border-radius:0 8px 8px 0;color:var(--ink2)}
+article hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+article figure{margin:1.4em 0}
+article figure img{border-radius:12px;border:1px solid var(--line);background:#fff}
+article figcaption{color:var(--mute);font-size:13.5px;text-align:center;margin-top:8px}
+article .tbl{overflow-x:auto;margin:0 0 1.2em}
+article table{border-collapse:collapse;font-size:14.5px;min-width:100%}
+article th,article td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top;color:var(--ink2)}
+article th{background:var(--card);color:var(--ink);white-space:nowrap}
+article td:first-child{white-space:nowrap}
+code{font:14px ui-monospace,Menlo,monospace;background:var(--card);padding:1px 6px;border-radius:5px}
+.cover{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin:0 0 28px}
+audio{width:100%;margin:0 0 30px}
+.list a{display:block;padding:22px 0;border-bottom:1px solid var(--line)}
+.list+footer{border-top:0}
+.list a:hover h2{color:var(--m)}
+.list h2{font-size:20px;margin-bottom:4px}
+.list p{color:var(--mute);font-size:14.5px}
+.back{display:inline-block;margin:40px 0 70px;color:var(--m)}
+footer{color:var(--mute);font-size:13px;padding:30px 0 60px;border-top:1px solid var(--line);margin-top:40px}</style>
+</head>
+<body>
+<nav></nav><script src="../../../assets/nav.js"></script>
+<main class="wrap">
+<h1>大数据智能化开发和管理（十一）：时间维度——迟到、回补与重算</h1>
+<div class="sub">2026-11-24 · 什么时候算到齐，晚到的数据怎样处理，补一天会牵动哪些表与日期，同一条覆盖写为什么有时幂等、有时清空整表，以及 AI 怎样起草回补计划、估算影响面，交人确认 · 狂人</div>
+
+
+<article>
+<blockquote>第三篇说，数据先于定义到达之后，「晚到数据怎样回补」往往是回补出错之后才定下的规矩。第八篇讲过按天递推的累计表只能顺延重算，第九篇把幂等列为补数的前提，第十篇讲了 AI 动生产时的护栏。这一篇把这些线索收到时间这条轴上：什么时候算「到齐」，晚到的怎样处理，补一天会牵动哪些表与日期，同一条覆盖写为什么有时幂等、有时清空整表，以及 AI 怎样起草回补计划、估算影响面，交人确认。</blockquote>
+<h2>一、两种时间与一个不可知</h2>
+<h3>1.1 事件时间与处理时间</h3>
+<p>Akidau 把流处理里的时间分成两种：事件时间是事件实际发生的时刻，处理时间是系统观测到它的时刻[1]。两者之差随网络、客户端离线、上游积压而变化。</p>
+<p>批处理同样逃不开这个区分。一张按日分区的表，按事件时间分区，晚到的行要落回过去的分区，过去的分区因此会变；按到达时间分区，分区一旦写完就不再变，但某一天的分区里会混入前几天发生的事件。两种选择只是代价不同，但<b>必须在口径里写明分区按哪个时间切</b>。</p>
+<p>Fowler 讨论双时态历史时用了另一组词：实际时间记录世界上发生了什么，记录时间记录我们何时知道它；追溯性的修改不只是改一条历史记录，还会牵连已经基于旧认识算出的结果[2]。回补的全部麻烦，都来自这句话的后半段。</p>
+<h3>1.2 完整性是不可知的</h3>
+<p>Dataflow 模型论文开篇就提出：我们不应再试图把无界数据整理成「终将完整」的有限集合，而要承认永远无法知道是否已看到全部数据，新数据会到，旧数据会被撤回[3]。水位线（watermark）是对完整性的估计：它声明此后不会再有时间戳早于它的事件[4]。但论文同时指出水位线有两种缺陷：太快，会有数据落在水位线之后；太慢，一条慢数据就能拖住整条流水线[3]。</p>
+<p>所以「某天的数据到齐了」从来不是一个可以观测到的事实，而是一个<b>约定</b>：约定等到什么时刻，此后到的怎么处理。</p>
+<figure><img src="./fig1_event_vs_processing_time.svg" alt="图1 事件时间与处理时间：水位线估计完整性，宽限与截止时刻把「到齐」变成约定" loading="lazy"><figcaption>图1 事件时间与处理时间：水位线估计完整性，宽限与截止时刻把「到齐」变成约定</figcaption></figure>
+<h2>二、迟到数据的可见性与宽限</h2>
+<h3>2.1 流里的宽限</h3>
+<p>流引擎把这个约定做成了参数。Flink 的窗口有「允许迟到」（allowed lateness），默认为零，即落在水位线之后的元素直接丢弃；设了宽限，宽限内到达的元素会让窗口再次触发计算，宽限期满后窗口状态被清除，更晚的元素可以通过旁路输出单独收集[5]。Flink 的时间概念文档也承认，即使迟到有界，把水位线推迟太多也往往不可取[6]。Spark 结构化流的水位线同样由「事件时间列 + 迟到阈值」定义，阈值内的迟到数据参与聚合，超出阈值的开始被丢弃[7]。</p>
+<h3>2.2 批里的封口</h3>
+<p>批处理通常没有这样的参数，约定散落在调度时刻里。常见的组合是：日分区在次日某个固定时刻（比如凌晨三点）整分区重算覆盖一次，此后这一天就<b>封口</b>；之后的小时增量只抓上一个整点，不再回头往前一天补晚到的行。</p>
+<p>这意味着：某日的数据实际等于「事件时间属于该日、且在次日三点前到达」的那部分。若口径里只写「某日」，不写截止时刻，下游拿它与另一个截止时刻不同的系统对账，就会出现一个永远对不平、也永远查不出错的差额。<b>截止时刻是口径的一部分</b>，要与粒度声明写在一起；封口之后到达的数据，丢弃、计入到达日、还是进入单独的迟到区，要明确选一种，并把每天迟到的比例作为过程元数据记下来，比例突变就是上游出问题的信号。</p>
+<h3>2.3 迟到的事实与迟到的维度</h3>
+<p>迟到不只发生在事实上。Kimball 定义迟到事实为：新事实行所对应的当前维度上下文与它不匹配，此时要回到事件发生时有效的维度版本去取键[8]。反过来，迟到维度是事实先于维度上下文到达，做法是先挂占位的维度行，维度到达后再覆盖更新，若涉及拉链维度的追溯变更，还要重述相关事实[9]。两种情况都说明：<b>回补不只是补行，还要按事件时间重新对齐维度。</b></p>
+<h3>2.4 判定「缺数」之前的两件事</h3>
+<p>晚到与缺失在监控上长得一样：分区里行数偏少。区分它们要先做两件事。</p>
+<p>第一，<b>列全一张表的所有写入方</b>。同一张表常由小时任务逐时追加、天任务次日凌晨整天覆盖；只看小时任务，会把「天任务还没到点」误判为缺数。</p>
+<p>第二，<b>查清产出方的触发时刻</b>。当天分区在产出时刻之前本来就不完整，此时去「补」，等于用半截数据覆盖一个尚未成形的分区，自己制造脏数据。</p>
+<h2>三、回补的连锁影响</h2>
+<h3>3.1 三类表，三种补法</h3>
+<p>补一个分区，代价取决于表怎样依赖时间：</p>
+<ul><li><b>覆盖类</b>：每个分区只由同一天的源数据算出，可单独重算、整体覆盖，补哪天动哪天。</li><li><b>日内表</b>：随一天推进逐格写入，整天覆盖的补最新一格，增量的逐格补，第九篇已经讲过。</li><li><b>累计表</b>：第 T 天 = 第 T−1 天的结果 + 第 T 天的增量。补第 T 天，T 之后每一天都要按日期顺序依次重算。</li></ul>
+<p>最常见的错误是只补中间一天。设某累计表第 5 天漏了 1,200 个新增实体，补完第 5 天后，第 6 天往后的分区仍是基于旧的第 5 天算出的，每一天都少 1,200，直到有人从最新分区往回对账才发现。</p>
+<h3>3.2 影响面沿两个方向传播</h3>
+<p>回补的影响沿<b>血缘</b>与<b>时间</b>两个方向展开：沿血缘，到下游的表、指标与报表；沿时间，到累计表的所有后续日期，以及用滑动窗口计算的指标（补了第 5 天，含第 5 天的七日指标要重算七天）。还有第三类常被漏掉的终点：<b>回写目标</b>，即已经推送到外部系统、业务库或发出去的报表。前两类可以重算覆盖，第三类往往要另行更正或通知。</p>
+<p>Dataflow 模型讨论同一窗口多次触发时，区分了三种修正方式：丢弃、累积、累积并撤回，并指出下游若会再次聚合，就需要先撤回旧值再写新值[3]。批处理的回补本质上是一次迟来的触发：下游如果把旧结果加进了别处，只重写本表是不够的，旧值必须在每一个用过它的地方被撤回。</p>
+<figure><img src="./fig2_backfill_ripple.svg" alt="图2 回补累计表某一天：影响沿时间与血缘两个方向扩散，回写目标需另行更正" loading="lazy"><figcaption>图2 回补累计表某一天：影响沿时间与血缘两个方向扩散，回写目标需另行更正</figcaption></figure>
+<h3>3.3 回补之前留好退路</h3>
+<p>表格式提供了退路。Iceberg 支持回滚到指定快照或时间点，但过期快照的清理会删除旧快照及其文件[10]；Paimon 同样支持回滚到快照，并提示快照保留太短会让依赖旧快照的读取失败[11]。所以大范围回补前要做两件事：记下每张目标表当前的快照号，确认快照保留期覆盖回补与核验所需的全部时间。</p>
+<h2>四、幂等：不只是 SQL 的写法</h2>
+<h3>4.1 分区覆盖的两种模式</h3>
+<p>批处理的幂等通常靠按分区覆盖写入[12]。但「覆盖哪些分区」并不完全由 SQL 决定。Spark 对数据源表的分区覆盖有静态与动态两种模式：静态模式下，写入前删除所有与分区子句匹配的分区；动态模式下，只覆盖运行时实际写入了数据的分区；默认是静态[13]。</p>
+<p>这就带来一个推论：<b>一条不带分区子句的覆盖写，在静态模式下匹配的是全部分区。</b>同一条语句，在动态模式下只替换当天，在静态模式下清空整张表的历史。</p>
+<h3>4.2 会话级配置泄漏</h3>
+<p>这个推论在实践中会以一种难以察觉的方式出现。Spark 的 <code>SET</code> 设置的是当前会话的属性[14]。一个多步作业在同一会话中依次执行：前一步为了写一个特定分区把覆盖模式设成静态，没有复位；后一步是一条依赖动态模式、不带分区子句的覆盖写，于是整表被覆盖成只剩当天，全部历史被清空。两步各自的代码都没有问题，完成标记照样写了成功。</p>
+<p>结论有三层：幂等不仅取决于 SQL 的写法，还取决于<b>执行环境的状态隔离</b>；回补与重跑要在干净的会话中执行，每步显式声明它依赖的配置；判断成功不看任务状态，看<b>目标侧判据</b>：分区数、各分区行数、快照提交时间是否落在本次运行窗口内。写前写后各取一次，分区数少了就立即停下。</p>
+<h3>4.3 命令来自手册</h3>
+<p>回补命令的隐含约束很多：参数默认落在哪一天，返回成功是否真的生效。只用命令手册里实测过的命令，手册外的先在测试环境验证再入册，第九、十篇讲过，回补是它最常用到的场合。</p>
+<h2>五、AI 这一层：先召回，再起草，人确认</h2>
+<h3>5.1 回补前召回</h3>
+<p>回补出错的原因，很少是不会写 SQL，多半是不知道这张表的时间语义。前几篇的命题图在这里以要补的表为种子召回：</p>
+<ul><li><b>累计语义</b>：是否递推，求和列是否不幂等，重算是否必须顺延；</li><li><b>时间约定</b>：分区按哪个时间切，截止时刻、宽限与封口之后的去向；</li><li><b>写入方与触发时刻</b>：哪些任务写这张表，各自几点产出；</li><li><b>历史事故</b>：例如上文的会话配置泄漏，挂在「覆盖写」这一动作上，凡是生成覆盖写都会被召回。</li></ul>
+<p>这些知识大多不在表结构和代码里，是第三篇所说「出错之后才定下的规矩」，沉淀过才召回得到。</p>
+<h3>5.2 起草回补计划</h3>
+<p>AI 据此起草计划，每一项都要可核对：</p>
+<ul><li><b>范围</b>：先拉全时段比对确认缺口的真实范围，再定要补的分区；</li><li><b>顺序</b>：上游先于下游，累计表按日期升序串行，任何分区都不早于其产出时刻；</li><li><b>命令</b>：从手册中逐条取用并填参数，标出每条的出处。大模型凭印象生成的名字可能根本不存在：对 16 个代码模型的研究发现，生成代码中虚构软件包的平均比例商用模型至少 5.2%，开源模型 21.7%[15]，命令参数同理；</li><li><b>核验判据</b>：每一步写明执行后查什么、期望值是多少。</li></ul>
+<h3>5.3 估算影响面，人确认</h3>
+<p>计划之外，AI 沿血缘和时间展开影响面：哪些下游表、哪些日期、哪些滑动窗口指标、哪些回写目标，预计扫描量与耗时，与正常调度冲突的时段。呈现给人的是这份清单，而不是命令文本，这与第十篇「批准预演结果」是同一原则。人确认的是两件事：范围对不对，回写目标要不要另行更正。</p>
+<h3>5.4 动手那一刻拦，执行后逐项核验</h3>
+<p>执行时，第十篇的钩子在动作发生前拦截几类模式：不带分区子句的覆盖写，累计表的单日重跑，早于产出时刻的分区，手册外的命令。每一步在新会话中执行，执行后按计划里的判据回读目标侧；不符即停，不往下游推进。</p>
+<p>最后一步是沉淀：这次回补新发现的约定（例如某张表实际还有第三个写入方），当场写成挂在表上的命题，下次回补时被召回。</p>
+<figure><img src="./fig3_ai_backfill_flow.svg" alt="图3 AI 参与回补：召回 → 起草计划 → 估算影响面 → 人确认 → 拦截下执行 → 目标侧核验 → 沉淀" loading="lazy"><figcaption>图3 AI 参与回补：召回 → 起草计划 → 估算影响面 → 人确认 → 拦截下执行 → 目标侧核验 → 沉淀</figcaption></figure>
+<h2>六、方法：七条原则</h2>
+<ol><li><b>分区按哪个时间切，写进口径</b>；事件时间与到达时间不混用；</li><li><b>到齐是约定，不是事实</b>：截止时刻、宽限、封口后去向三者写明，迟到比例记为过程元数据；</li><li><b>判缺数前先列全写入方、查清产出时刻</b>；未到产出时刻不补；</li><li><b>按表的时间依赖决定补法</b>：覆盖类单独补，累计表顺延串行重算，滑动窗口按窗口长度扩展；</li><li><b>影响面沿血缘与时间双向展开</b>，回写目标单列，已被引用的旧值要撤回；</li><li><b>幂等取决于写法与环境</b>：显式分区子句，干净会话，写前记快照，写后按目标侧判据核验，不看任务状态；</li><li><b>AI 先召回再起草，人确认影响面</b>：命令出自手册，钩子在动作那一刻拦，新约定当场沉淀。</li></ol>
+<h2>七、结语</h2>
+<p>同一份数据，在不同时刻被知道，结果就不同。流引擎把等多久、晚到怎么办做成了参数，批处理则常把这些约定藏在调度时刻和会话配置里，直到某次回补把它们翻出来。</p>
+<p>回补本身并不难，难的是知道补一处会动到哪里。这类知识零碎、多半不成文，正适合沉淀成命题，在动手前被召回；AI 能把计划和影响面起草得更全，但范围由人确认，成功由目标侧的数据证明。</p>
+<p>这个系列会持续更新。</p>
+<h2>参考资料</h2>
+<ol><li>T. Akidau. <a href="https://www.oreilly.com/radar/the-world-beyond-batch-streaming-101/" target="_blank" rel="noopener" style="color:var(--m)">The world beyond batch: Streaming 101</a>. O'Reilly Radar, 2015.</li><li>M. Fowler. <a href="https://martinfowler.com/articles/bitemporal-history.html" target="_blank" rel="noopener" style="color:var(--m)">Bitemporal History</a>. 2021.</li><li>T. Akidau, R. Bradshaw, C. Chambers et al. <a href="https://www.vldb.org/pvldb/vol8/p1792-Akidau.pdf" target="_blank" rel="noopener" style="color:var(--m)">The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing</a>. PVLDB 8(12), VLDB 2015.</li><li>T. Akidau, E. Begoli, S. Chernyak et al. <a href="https://www.vldb.org/pvldb/vol14/p3135-begoli.pdf" target="_blank" rel="noopener" style="color:var(--m)">Watermarks in Stream Processing Systems: Semantics and Comparative Analysis of Apache Flink and Google Cloud Dataflow</a>. PVLDB 14(12), 2021.</li><li>Apache Flink. <a href="https://nightlies.apache.org/flink/flink-docs-stable/docs/dev/datastream/operators/windows/" target="_blank" rel="noopener" style="color:var(--m)">Windows</a>（Allowed Lateness、Getting late data as a side output 两节）.</li><li>Apache Flink. <a href="https://nightlies.apache.org/flink/flink-docs-stable/docs/concepts/time/" target="_blank" rel="noopener" style="color:var(--m)">Timely Stream Processing</a>（Event Time and Watermarks、Lateness 两节）.</li><li>Apache Spark. <a href="https://spark.apache.org/docs/latest/streaming/apis-on-dataframes-and-datasets.html" target="_blank" rel="noopener" style="color:var(--m)">Structured Streaming Programming Guide: APIs on DataFrames and Datasets</a>（Handling Late Data and Watermarking 一节）.</li><li>Kimball Group. <a href="https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/late-arriving-fact/" target="_blank" rel="noopener" style="color:var(--m)">Late Arriving Fact</a>.</li><li>Kimball Group. <a href="https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/kimball-techniques/dimensional-modeling-techniques/late-arriving-dimension/" target="_blank" rel="noopener" style="color:var(--m)">Late Arriving Dimension</a>.</li><li>Apache Iceberg. <a href="https://iceberg.apache.org/docs/latest/spark-procedures/" target="_blank" rel="noopener" style="color:var(--m)">Spark Procedures</a>（rollback_to_snapshot、rollback_to_timestamp、expire_snapshots）.</li><li>Apache Paimon. <a href="https://paimon.apache.org/docs/master/maintenance/manage-snapshots/" target="_blank" rel="noopener" style="color:var(--m)">Manage Snapshots</a>.</li><li>Apache Spark. <a href="https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-table.html" target="_blank" rel="noopener" style="color:var(--m)">INSERT TABLE</a>（Insert Overwrite 一节）.</li><li>Apache Spark. <a href="https://spark.apache.org/docs/latest/configuration.html" target="_blank" rel="noopener" style="color:var(--m)">Configuration</a>（<code>spark.sql.sources.partitionOverwriteMode</code>）.</li><li>Apache Spark. <a href="https://spark.apache.org/docs/latest/sql-ref-syntax-aux-conf-mgmt-set.html" target="_blank" rel="noopener" style="color:var(--m)">SET</a>；另见 <a href="https://spark.apache.org/docs/latest/sql-ref-syntax-aux-conf-mgmt-reset.html" target="_blank" rel="noopener" style="color:var(--m)">RESET</a>.</li><li>J. Spracklen, R. Wijewickrama, A. H. M. N. Sakib, A. Maiti, B. Viswanath, M. Jadliwala. <a href="https://arxiv.org/abs/2406.10279" target="_blank" rel="noopener" style="color:var(--m)">We Have a Package for You! A Comprehensive Analysis of Package Hallucinations by Code Generating LLMs</a>. USENIX Security 2025.</li></ol>
+</article>
+<a class="back" href="../../">← 所有文章</a>
+</main>
+</body>
+</html>
