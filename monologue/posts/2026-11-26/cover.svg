@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 420">
+  <rect width="800" height="420" fill="#f2f0ec"/>
+  <g font-family="ui-monospace, Menlo, monospace" font-size="22" fill="#5b5248">
+    <text x="70" y="78">rm -rf personas/[0-9]*</text>
+  </g>
+  <line x1="70" y1="96" x2="420" y2="96" stroke="#c9bfb3" stroke-width="2"/>
+  <!-- 三个文件夹: 1 号是在用的, 2 号是要删的测试 -->
+  <g font-family="ui-monospace, Menlo, monospace" font-size="26" text-anchor="middle">
+    <path d="M110 170 h60 l14 16 h96 v130 h-170 z" fill="#e3d9cc" stroke="#8a7d6f" stroke-width="2"/>
+    <text x="195" y="270" fill="#5b5248">1</text>
+    <path d="M330 170 h60 l14 16 h96 v130 h-170 z" fill="#e3d9cc" stroke="#8a7d6f" stroke-width="2"/>
+    <text x="415" y="270" fill="#5b5248">2</text>
+    <path d="M550 170 h60 l14 16 h96 v130 h-170 z" fill="none" stroke="#c9bfb3" stroke-width="2" stroke-dasharray="6 6"/>
+    <text x="635" y="270" fill="#b5aa9c">…</text>
+  </g>
+  <!-- 想删的只圈了 2, 命令却罩住了整排 -->
+  <circle cx="415" cy="248" r="92" fill="none" stroke="#3f6e5a" stroke-width="3"/>
+  <rect x="86" y="146" width="672" height="196" rx="18" fill="none" stroke="#b5473a" stroke-width="3" stroke-dasharray="10 8"/>
+  <g font-family="-apple-system, PingFang SC, sans-serif" font-size="17">
+    <text x="372" y="380" fill="#3f6e5a">想删的</text>
+    <text x="640" y="380" fill="#b5473a">写下的</text>
+  </g>
+</svg>
