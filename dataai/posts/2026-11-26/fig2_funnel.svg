@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect width="900" height="600" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图2  从候选到命题：每一关都在淘汰巧合</text>
+  <g font-size="13" fill="#4B5563" font-weight="600"><text x="250" y="70" text-anchor="middle">关卡</text><text x="560" y="70">淘汰什么</text></g>
+  <polygon points="60,82 440,82 425,142 75,142" fill="#E8F1FB" stroke="#4A7FC1" stroke-width="1.5"/>
+  <text x="250" y="108" text-anchor="middle" font-size="15" font-weight="600" fill="#1E3A5F">① 探查产出候选</text><text x="250" y="128" text-anchor="middle" font-size="12" fill="#1E3A5F">切分、画图、分解（探索期数据）</text>
+  <polygon points="77,150 423,150 408,210 92,210" fill="#E3EEF9" stroke="#4A7FC1" stroke-width="1.5"/>
+  <text x="250" y="176" text-anchor="middle" font-size="15" font-weight="600" fill="#1E3A5F">② 排除数据缺陷</text><text x="250" y="196" text-anchor="middle" font-size="12" fill="#1E3A5F">先过核查类别（Twyman 定律）</text>
+  <polygon points="94,218 406,218 391,278 109,278" fill="#DDE9F7" stroke="#4A7FC1" stroke-width="1.5"/>
+  <text x="250" y="244" text-anchor="middle" font-size="15" font-weight="600" fill="#1E3A5F">③ 按检验次数校正</text><text x="250" y="264" text-anchor="middle" font-size="12" fill="#1E3A5F">报告分母；Bonferroni / FDR</text>
+  <polygon points="111,286 389,286 374,346 126,346" fill="#D6E4F4" stroke="#4A7FC1" stroke-width="1.5"/>
+  <text x="250" y="312" text-anchor="middle" font-size="15" font-weight="600" fill="#1E3A5F">④ 留出期复验</text><text x="250" y="332" text-anchor="middle" font-size="12" fill="#1E3A5F">验证期数据提假设前不许看</text>
+  <polygon points="128,354 372,354 357,414 143,414" fill="#CFDFF2" stroke="#4A7FC1" stroke-width="1.5"/>
+  <text x="250" y="380" text-anchor="middle" font-size="15" font-weight="600" fill="#1E3A5F">⑤ 分层与稳定性</text><text x="250" y="400" text-anchor="middle" font-size="12" fill="#1E3A5F">分组方向、多窗口、效应量</text>
+  <polygon points="145,422 355,422 340,482 160,482" fill="#C7D9EF" stroke="#4A7FC1" stroke-width="1.5"/>
+  <text x="250" y="448" text-anchor="middle" font-size="15" font-weight="600" fill="#1E3A5F">⑥ 人确认性质</text><text x="250" y="468" text-anchor="middle" font-size="12" fill="#1E3A5F">业务变了，还是数据坏了</text>
+  <rect x="150" y="498" width="200" height="66" rx="8" fill="#EAF6EE" stroke="#3E9B5F" stroke-width="1.8"/>
+  <text x="250" y="524" text-anchor="middle" font-size="15" font-weight="600" fill="#1F5133">命题</text><text x="250" y="546" text-anchor="middle" font-size="12" fill="#1F5133">作用域·规律·容差·推翻条件</text>
+  <g font-size="13" fill="#1F2937">
+    <text x="470" y="118" fill="#6B7280">尚未淘汰：此时一切看到的都只是候选</text>
+    <text x="470" y="186">迟到未齐、重复写入、口径改动、埋点漂移、注入脏数据</text>
+    <text x="470" y="254">切了很多刀才碰到的「显著」</text>
+    <text x="470" y="322">分岔小径：依赖本份数据的分组、剔除、时间窗选择</text>
+    <text x="470" y="390">辛普森悖论（结构变化）、只在一个窗口成立的规律</text>
+    <text x="470" y="458">AI 看不到的上下文：活动、发版、合作方变动</text>
+    <text x="470" y="536" fill="#1F5133" font-weight="600">挂到表、指标、维度上，等待召回</text>
+  </g>
+</svg>

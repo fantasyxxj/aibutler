@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="580" viewBox="0 0 900 580" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <defs><marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker></defs>
+  <rect width="900" height="580" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图3  规律发现的闭环：AI 提出，人验证，命题被召回后再回到裁决</text>
+  <text x="70" y="72" font-size="13" font-weight="600" fill="#4A7FC1">■ AI 做</text><text x="150" y="72" font-size="13" font-weight="600" fill="#C0503A">■ 人做</text><text x="230" y="72" font-size="13" font-weight="600" fill="#3E9B5F">■ 沉淀与召回</text>
+  <rect x="60" y="96" width="230" height="110" rx="10" fill="#E8F1FB" stroke="#4A7FC1" stroke-width="1.6"/>
+  <text x="175" y="124" text-anchor="middle" font-size="15" font-weight="600" fill="#1E3A5F">探查</text>
+  <g font-size="12" fill="#1F2937" text-anchor="middle"><text x="175" y="148">扫分布、周期、比例</text><text x="175" y="168">产出候选清单</text><text x="175" y="188">附检验次数（分母）</text></g>
+  <rect x="335" y="96" width="230" height="110" rx="10" fill="#E8F1FB" stroke="#4A7FC1" stroke-width="1.6"/>
+  <text x="450" y="124" text-anchor="middle" font-size="15" font-weight="600" fill="#1E3A5F">提出假设</text>
+  <g font-size="12" fill="#1F2937" text-anchor="middle"><text x="450" y="148">几条竞争解释</text><text x="450" y="168">每条配区分查询</text><text x="450" y="188">先说明为何不是数据缺陷</text></g>
+  <rect x="610" y="96" width="230" height="110" rx="10" fill="#FCEDEA" stroke="#C0503A" stroke-width="1.6"/>
+  <text x="725" y="124" text-anchor="middle" font-size="15" font-weight="600" fill="#7A2617">验证与确认</text>
+  <g font-size="12" fill="#1F2937" text-anchor="middle"><text x="725" y="148">留出期复验、校正、分层</text><text x="725" y="168">确认性质与作用域</text><text x="725" y="188">定观察 / 告警 / 约束</text></g>
+  <rect x="610" y="270" width="230" height="110" rx="10" fill="#EAF6EE" stroke="#3E9B5F" stroke-width="1.6"/>
+  <text x="725" y="298" text-anchor="middle" font-size="15" font-weight="600" fill="#1F5133">命题沉淀</text>
+  <g font-size="12" fill="#1F2937" text-anchor="middle"><text x="725" y="322">作用域·规律·容差</text><text x="725" y="342">证据·推翻条件·复验期</text><text x="725" y="362">挂到表、指标、维度</text></g>
+  <rect x="335" y="270" width="230" height="110" rx="10" fill="#EAF6EE" stroke="#3E9B5F" stroke-width="1.6"/>
+  <text x="450" y="298" text-anchor="middle" font-size="15" font-weight="600" fill="#1F5133">动手时召回</text>
+  <g font-size="12" fill="#1F2937" text-anchor="middle"><text x="450" y="322">核查判读 · 告警</text><text x="450" y="342">回补之后 · 上线新口径</text><text x="450" y="362">新数据与基线比</text></g>
+  <rect x="60" y="270" width="230" height="110" rx="10" fill="#FCEDEA" stroke="#C0503A" stroke-width="1.6"/>
+  <text x="175" y="298" text-anchor="middle" font-size="15" font-weight="600" fill="#7A2617">偏离裁决</text>
+  <g font-size="12" fill="#1F2937" text-anchor="middle"><text x="175" y="322">一次异常 → 处理数据</text><text x="175" y="342">规律失效 → 取代命题</text><text x="175" y="362">新现象 → 新一轮候选</text></g>
+  <line x1="290" y1="151" x2="331" y2="151" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <line x1="565" y1="151" x2="606" y2="151" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <line x1="725" y1="206" x2="725" y2="266" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <line x1="610" y1="325" x2="569" y2="325" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <line x1="335" y1="325" x2="294" y2="325" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <line x1="175" y1="270" x2="175" y2="210" stroke="#6B7280" stroke-width="1.6" marker-end="url(#g)"/>
+  <rect x="60" y="420" width="780" height="120" rx="10" fill="#FFFFFF" stroke="#D1D5DB"/>
+  <text x="450" y="448" text-anchor="middle" font-size="14" font-weight="600" fill="#1F2937">对 AI 的三条约束</text>
+  <g font-size="13" fill="#1F2937"><text x="90" y="476">1. 每次探查报告分母：切了多少个、用什么校正，只报显著的不算数</text><text x="90" y="500">2. 探索期与验证期分开：提出假设时看不到验证期数据</text><text x="90" y="524">3. 先过核查类别：每条候选先说明为什么不是迟到、重复、口径或埋点问题</text></g>
+</svg>
