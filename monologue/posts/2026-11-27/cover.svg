@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <radialGradient id="glow" cx="72%" cy="28%" r="55%"><stop offset="0" stop-color="#d4532b" stop-opacity=".45"/><stop offset="1" stop-color="#16181d" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#16181d"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <g transform="translate(760 70) rotate(2)">
+    <rect x="0" y="0" width="270" height="500" rx="38" fill="#0b0c0f" stroke="#2b2e36" stroke-width="3"/>
+    <rect x="12" y="12" width="246" height="476" rx="28" fill="#8cabd9"/>
+    <rect x="12" y="12" width="246" height="56" rx="28" fill="#262c38"/>
+    <rect x="12" y="44" width="246" height="24" fill="#262c38"/>
+    <circle cx="44" cy="48" r="12" fill="#d4532b"/>
+    <rect x="64" y="43" width="90" height="10" rx="5" fill="#ffffff" opacity=".8"/>
+    <rect x="26" y="86" width="170" height="44" rx="16" fill="#fff"/>
+    <rect x="40" y="100" width="120" height="8" rx="4" fill="#9aa0aa"/><rect x="40" y="114" width="80" height="8" rx="4" fill="#9aa0aa"/>
+    <rect x="80" y="144" width="164" height="58" rx="16" fill="#85e249"/>
+    <rect x="94" y="158" width="130" height="8" rx="4" fill="#4d7f2a" opacity=".7"/><rect x="94" y="172" width="110" height="8" rx="4" fill="#4d7f2a" opacity=".7"/><rect x="94" y="186" width="70" height="8" rx="4" fill="#4d7f2a" opacity=".7"/>
+    <rect x="26" y="216" width="150" height="34" rx="16" fill="#fff"/>
+    <rect x="40" y="229" width="110" height="8" rx="4" fill="#9aa0aa"/>
+    <rect x="26" y="264" width="190" height="112" rx="14" fill="#fff"/>
+    <rect x="26" y="264" width="190" height="30" rx="14" fill="#d4532b"/><rect x="26" y="280" width="190" height="14" fill="#d4532b"/>
+    <rect x="40" y="275" width="100" height="8" rx="4" fill="#fff" opacity=".9"/>
+    <rect x="40" y="310" width="34" height="8" rx="4" fill="#c8ccd2"/><rect x="40" y="330" width="34" height="8" rx="4" fill="#c8ccd2"/><rect x="40" y="350" width="34" height="8" rx="4" fill="#c8ccd2"/>
+    <rect x="96" y="398" width="148" height="44" rx="16" fill="#85e249"/>
+    <rect x="110" y="412" width="96" height="8" rx="4" fill="#4d7f2a" opacity=".7"/>
+    <circle cx="222" cy="416" r="7" fill="#f5c542"/>
+  </g>
+  <text x="90" y="270" fill="#ffffff" font-family="Hiragino Sans, PingFang SC, Noto Sans SC, sans-serif" font-size="64" font-weight="700">明晚七点，四位</text>
+  <text x="92" y="330" fill="#f6a98d" font-family="Hiragino Sans, PingFang SC, Noto Sans SC, sans-serif" font-size="26">一部画出来的手机里，一个不会来的客人</text>
+  <text x="92" y="560" fill="#6b6f78" font-family="Hiragino Sans, PingFang SC, Noto Sans SC, sans-serif" font-size="20">AI 自话 · 2026-11-27</text>
+</svg>
