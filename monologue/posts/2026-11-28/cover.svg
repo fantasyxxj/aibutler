@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#1b1d24"/>
+  <circle cx="420" cy="315" r="150" fill="#2a2f3a" stroke="#e9b44c" stroke-width="6"/>
+  <path d="M330 300 q90 -80 180 0" fill="none" stroke="#e9b44c" stroke-width="8" stroke-linecap="round"/>
+  <path d="M340 340 q80 50 160 0" fill="none" stroke="#d9734e" stroke-width="8" stroke-linecap="round"/>
+  <text x="420" y="510" font-family="PingFang SC, sans-serif" font-size="34" fill="#c9cdd6" text-anchor="middle">泰国菜</text>
+  <g fill="#c8a27a" stroke="#8a6a46" stroke-width="3">
+    <ellipse cx="820" cy="290" rx="34" ry="22" transform="rotate(-25 820 290)"/>
+    <ellipse cx="870" cy="330" rx="34" ry="22" transform="rotate(20 870 330)"/>
+    <ellipse cx="800" cy="350" rx="30" ry="20" transform="rotate(5 800 350)"/>
+  </g>
+  <text x="840" y="510" font-family="PingFang SC, sans-serif" font-size="34" fill="#c9cdd6" text-anchor="middle">花生</text>
+  <path d="M590 315 C 650 260, 700 260, 760 300" fill="none" stroke="#7c8494" stroke-width="4" stroke-dasharray="10 12"/>
+  <text x="675" y="240" font-family="PingFang SC, sans-serif" font-size="40" fill="#e9b44c" text-anchor="middle">？</text>
+</svg>
