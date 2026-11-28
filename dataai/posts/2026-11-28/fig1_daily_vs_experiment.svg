@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图1  同一个指标：日常口径与实验口径</text>
+  <rect x="40" y="60" width="150" height="44" rx="6" fill="#E5E7EB"/><text x="115" y="88" text-anchor="middle" font-size="15" font-weight="600" fill="#1F2937">要素</text>
+  <rect x="200" y="60" width="300" height="44" rx="6" fill="#E8F1FB" stroke="#4A7FC1"/><text x="350" y="88" text-anchor="middle" font-size="15" font-weight="600" fill="#1E3A5F">日常报表</text>
+  <rect x="510" y="60" width="350" height="44" rx="6" fill="#FCF3E3" stroke="#C98A1B"/><text x="685" y="88" text-anchor="middle" font-size="15" font-weight="600" fill="#6B4A0E">A/B 实验</text>
+  <g font-size="14" fill="#1F2937">
+    <g transform="translate(0,116)"><rect x="40" width="150" height="72" rx="6" fill="#F3F4F6"/><text x="115" y="42" text-anchor="middle" font-weight="600">分母</text><text x="215" y="32">当天全部活跃用户</text><text x="525" y="32">被触发的分流单位</text><text x="525" y="56" font-size="12.5" fill="#6B7280">对照组按「本会被触发」记录；可按触发比例回算全体</text></g>
+    <g transform="translate(0,196)"><rect x="40" width="150" height="72" rx="6" fill="#F3F4F6"/><text x="115" y="42" text-anchor="middle" font-weight="600">窗口</text><text x="215" y="32">自然日 / 自然周</text><text x="525" y="32">从单位进入实验起算</text><text x="525" y="56" font-size="12.5" fill="#6B7280">写明窗口长度、是否排除初期、数据截止时间</text></g>
+    <g transform="translate(0,276)"><rect x="40" width="150" height="72" rx="6" fill="#F3F4F6"/><text x="115" y="42" text-anchor="middle" font-weight="600">对象与去重</text><text x="215" y="32">按报表需要（账号 / 设备）</text><text x="525" y="32">与分流单位一致</text><text x="525" y="56" font-size="12.5" fill="#6B7280">按设备分流不报按账号去重的人数</text></g>
+    <g transform="translate(0,356)"><rect x="40" width="150" height="72" rx="6" fill="#F3F4F6"/><text x="115" y="42" text-anchor="middle" font-weight="600">结果形态</text><text x="215" y="32">一个数</text><text x="525" y="32">两组之差 + 置信区间</text><text x="525" y="56" font-size="12.5" fill="#6B7280">方差按分流单位算；比率指标用 delta 方法</text></g>
+    <g transform="translate(0,436)"><rect x="40" width="150" height="72" rx="6" fill="#F3F4F6"/><text x="115" y="42" text-anchor="middle" font-weight="600">可信前提</text><text x="215" y="32">数据完整、口径一致</text><text x="525" y="32">另加：样本比率无失衡</text><text x="525" y="56" font-size="12.5" fill="#6B7280">单位互不干扰；事先定好观察方式</text></g>
+  </g>
+  <line x1="200" y1="112" x2="860" y2="112" stroke="#D1D5DB"/>
+  <text x="450" y="540" text-anchor="middle" font-size="13" fill="#6B7280">日常口径直接搬进实验，五个要素里几乎每一个都要重新声明</text>
+</svg>

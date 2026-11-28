@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" font-family="'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif">
+  <defs><marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/></marker></defs>
+  <rect width="900" height="560" fill="#FAFAF7"/>
+  <text x="450" y="36" text-anchor="middle" font-size="20" font-weight="600" fill="#1F2937">图2  先验实验，再看结果：可信度检查的顺序</text>
+  <g font-size="14" fill="#1F2937">
+    <g transform="translate(60,66)"><rect width="560" height="62" rx="8" fill="#E8F1FB" stroke="#4A7FC1" stroke-width="1.5"/><text x="20" y="27" font-weight="600">① 分配与样本比率（SRM）</text><text x="20" y="49" font-size="12.5" fill="#374151">总体与分段卡方检验；例：50,600 对 49,400，χ²=14.4，p≈0.00015</text></g>
+    <g transform="translate(60,148)"><rect width="560" height="62" rx="8" fill="#E8F1FB" stroke="#4A7FC1" stroke-width="1.5"/><text x="20" y="27" font-weight="600">② 单位一致</text><text x="20" y="49" font-size="12.5" fill="#374151">分流单位 = 去重对象；跨端用户、实验期内归一规则变更</text></g>
+    <g transform="translate(60,230)"><rect width="560" height="62" rx="8" fill="#E8F1FB" stroke="#4A7FC1" stroke-width="1.5"/><text x="20" y="27" font-weight="600">③ 方差算法</text><text x="20" y="49" font-size="12.5" fill="#374151">按分流单位算；比率指标 delta 方法；单位间干扰时按群体</text></g>
+    <g transform="translate(60,312)"><rect width="560" height="62" rx="8" fill="#E8F1FB" stroke="#4A7FC1" stroke-width="1.5"/><text x="20" y="27" font-weight="600">④ 观察方式与多重比较</text><text x="20" y="49" font-size="12.5" fill="#374151">固定终点或序贯检验二选一；决策指标一到两个，其余校正</text></g>
+    <g transform="translate(60,412)"><rect width="560" height="70" rx="8" fill="#EAF6EE" stroke="#3E9B5F" stroke-width="1.8"/><text x="20" y="30" font-weight="600" fill="#1F5133">⑤ 效应解读 → 人裁决 → 写成命题</text><text x="20" y="54" font-size="12.5" fill="#374151">分子分母同看；新奇 / 首因效应；结果越好越先回查 ①</text></g>
+  </g>
+  <g stroke="#6B7280" stroke-width="1.5"><line x1="340" y1="128" x2="340" y2="146" marker-end="url(#g)"/><line x1="340" y1="210" x2="340" y2="228" marker-end="url(#g)"/><line x1="340" y1="292" x2="340" y2="310" marker-end="url(#g)"/><line x1="340" y1="374" x2="340" y2="410" marker-end="url(#g)"/></g>
+  <g font-size="13" fill="#7A2617">
+    <rect x="660" y="66" width="200" height="308" rx="10" fill="#FCEDEA" stroke="#C0503A" stroke-width="1.6"/>
+    <text x="760" y="96" text-anchor="middle" font-size="15" font-weight="600">任一步失败</text>
+    <text x="680" y="130">· 阻止结论生成</text>
+    <text x="680" y="158">· 按数据流归因：</text>
+    <text x="696" y="182" fill="#374151">分配 / 执行 / 日志</text>
+    <text x="696" y="204" fill="#374151">分析过滤 / 外部干扰</text>
+    <text x="680" y="234">· 修复后重跑或重开实验</text>
+    <text x="680" y="262">· 不把失败写成脚注</text>
+  </g>
+  <g stroke="#C0503A" stroke-width="1.2" stroke-dasharray="4,3"><line x1="620" y1="97" x2="658" y2="97"/><line x1="620" y1="179" x2="658" y2="179"/><line x1="620" y1="261" x2="658" y2="261"/><line x1="620" y1="343" x2="658" y2="343"/></g>
+  <text x="450" y="528" text-anchor="middle" font-size="13" fill="#6B7280">随机化只保证分配公平，①~④ 检查的是度量是否还配得上这份公平</text>
+</svg>
